@@ -35,7 +35,7 @@ class H47RealVisualControlledBridgeTests(unittest.TestCase):
             ChangeRequest("FURNITURE", ["F01"], "Move furniture"),
         )
         self.assertEqual(result["status"], "REJECT")
-        self.assertEqual(result["failure_codes"], ["EDIT_PERMISSION_REQUIRED"])
+        self.assertEqual(result["failure_codes"], ["LOCKED_ELEMENT_CONFLICT:F01"])
 
     def test_unresolved_elements_block_even_with_semantic_access(self):
         result = evaluate_real_visual_change(
