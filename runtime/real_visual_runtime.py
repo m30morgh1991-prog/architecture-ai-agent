@@ -220,7 +220,8 @@ class RealVisualRuntime:
                 "evidence_ids": list(constraint_map.evidence_ids) if constraint_map else [],
             },
             "evidence": {
-                "evidence_id": evidence.evidence_id,\n                "source_sha256": artifact.sha256,
+                "evidence_id": evidence.evidence_id,
+                "source_sha256": artifact.sha256,
                 "input_type": evidence.input_type,
                 "stages": evidence.stages,
                 "complete": evidence.complete,
