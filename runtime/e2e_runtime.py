@@ -36,6 +36,7 @@ class E2ERuntimeBoundary:
                 release=evaluate_release({
                     "contracts": True, "workflow": True,
                     "final_validation": False, "regression": True,
+                    "semantic_corroboration": False,
                 }),
             )
 
