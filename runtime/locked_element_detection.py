@@ -130,7 +130,7 @@ class ConservativeLockedElementDetector:
                 x0 = max(0.0, cx - 330.0)
                 x1 = min(float(page.rect.width), cx + 330.0)
                 y0 = 450.0
-            y1 = panel["bbox"][1] - 25.0
+                y1 = panel["bbox"][1] - 25.0
             evidence = [panel["evidence_id"], f"vector-frame-{panel['index']}"]
             panel_lines = sum(
                 1 for line in vertical_lines
