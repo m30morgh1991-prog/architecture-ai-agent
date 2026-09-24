@@ -125,6 +125,7 @@ class ConservativeLockedElementDetector:
                 x0 = left_line[0]
                 x1 = right_line[0]
                 y0 = min(left_line[1], right_line[1])
+                y1 = max(left_line[2], right_line[2])
             else:
                 x0 = max(0.0, cx - 330.0)
                 x1 = min(float(page.rect.width), cx + 330.0)
