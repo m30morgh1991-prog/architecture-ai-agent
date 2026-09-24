@@ -31,10 +31,12 @@ def evaluate_runtime_release(
     evidence = runtime_result.get("evidence") or {}
     constraint_map = runtime_result.get("constraint_map") or {}
     evidence_complete = evidence.get("complete") is True and bool(evidence.get("evidence_id"))
-    constraint_map_present = bool(constraint_map.get("map_id")) or bool(contracts.get("constraint_map_id"))
+    constraint_map_id = constraint_map.get("map_id")
+    contract_constraint_map_id = contracts.get("constraint_map_id")
+    constraint_map_bound = bool(constraint_map_id) and bool(contract_constraint_map_id) and constraint_map_id == contract_constraint_map_id
 
     return evaluate_release({
-        "contracts": runtime_ready and blockers_clear and contracts.get("status") == "VALID" and constraint_map_present,
+        "contracts": runtime_ready and blockers_clear and contracts.get("status") == "VALID" and constraint_map_bound,
         "workflow": workflow_ok,
         "final_validation": final_validation_ok,
         "regression": regression_ok,
