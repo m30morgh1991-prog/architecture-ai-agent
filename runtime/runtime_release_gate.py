@@ -25,13 +25,18 @@ def evaluate_runtime_release(
         })
 
     runtime_ready = runtime_result.get("status") == "READY_FOR_APPROVAL"
+    blockers_clear = not bool(runtime_result.get("blockers") or [])
     contracts = runtime_result.get("contracts") or {}
     semantics = runtime_result.get("semantic_corroboration") or {}
+    evidence = runtime_result.get("evidence") or {}
+    constraint_map = runtime_result.get("constraint_map") or {}
+    evidence_complete = evidence.get("complete") is True and bool(evidence.get("evidence_id"))
+    constraint_map_present = bool(constraint_map.get("map_id")) or bool(contracts.get("constraint_map_id"))
 
     return evaluate_release({
-        "contracts": runtime_ready and contracts.get("status") == "VALID",
+        "contracts": runtime_ready and blockers_clear and contracts.get("status") == "VALID" and constraint_map_present,
         "workflow": workflow_ok,
         "final_validation": final_validation_ok,
         "regression": regression_ok,
-        "semantic_corroboration": runtime_ready and semantics.get("status") == "ACCESSIBLE",
+        "semantic_corroboration": runtime_ready and blockers_clear and semantics.get("status") == "ACCESSIBLE" and evidence_complete,
     })
