@@ -41,6 +41,7 @@ def evaluate_runtime_release(
         evidence.get("complete") is True
         and bool(evidence.get("evidence_id"))
         and evidence_source_bound
+        and evidence.get("stages") == REQUIRED_STAGES
     )
     constraint_map_id = constraint_map.get("map_id")
     contract_constraint_map_id = contracts.get("constraint_map_id")
