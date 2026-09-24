@@ -71,13 +71,14 @@ class ConservativeLockedElementDetector:
         titles = []
         for block_index, block in enumerate(blocks):
             text = block[4].strip()
-            match = _PLAN_TITLE_RE.match(text)
-            if match:
+            matches = list(_PLAN_TITLE_RE.finditer(text))
+            for match_index, match in enumerate(matches):
+                title = f"PLANTA {match.group(1).strip()}"
                 titles.append({
                     "index": len(titles) + 1,
-                    "title": text,
+                    "title": title,
                     "bbox": [float(block[0]), float(block[1]), float(block[2]), float(block[3])],
-                    "evidence_id": f"pdf-text-block-{block_index}",
+                    "evidence_id": f"pdf-text-block-{block_index}-{match_index}",
                 })
 
         drawings = page.get_drawings()
