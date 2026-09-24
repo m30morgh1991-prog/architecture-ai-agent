@@ -14,6 +14,7 @@ import numpy as np
 from .visual_evidence import VisualEvidence
 from .locked_element_detection import ConservativeLockedElementDetector
 from .red_marker_detection import RedStructuralMarkerDetector
+from .visual_semantic_corroboration import VisualSemanticCorroborationGate
 
 _SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF"}
 _SPACE_TERMS = re.compile(
@@ -104,24 +105,33 @@ class RealVisualArtifactAdapter:
 
 class RealVisualRuntime:
     """Execute the real-artifact path and stop safely on critical uncertainty."""
-    def __init__(self, adapter: RealVisualArtifactAdapter | None = None, locked_detector=None, marker_detector=None):
+    def __init__(self, adapter: RealVisualArtifactAdapter | None = None, locked_detector=None, marker_detector=None, corroboration_gate=None):
         self.adapter = adapter or RealVisualArtifactAdapter()
         self.locked_detector = locked_detector or ConservativeLockedElementDetector()
         self.marker_detector = marker_detector or RedStructuralMarkerDetector()
+        self.corroboration_gate = corroboration_gate or VisualSemanticCorroborationGate()
 
     def run(self, execution_id: str, source_path: str, change_request: dict[str, Any]) -> dict[str, Any]:
         artifact = self.adapter.ingest(source_path)
         detection = self.adapter.detect(artifact)
         locked_elements = self.locked_detector.detect(artifact.source_path, artifact.sha256)
         marker_evidence = self.marker_detector.detect(artifact.source_path, artifact.sha256)
+        corroboration = self.corroboration_gate.evaluate(
+            marker_evidence=bool(marker_evidence.get("markers")),
+            wall_geometry_evidence=bool(detection.get("visual_line_count", 0) > 0),
+            vector_or_grid_evidence=bool(locked_elements.get("plan_panels")),
+            structural_geometry_evidence=bool(locked_elements.get("candidates")),
+            contradiction_evidence=False,
+        )
         stages = [
             "SOURCE","DETECTION","PLAN_MODEL","CONSTRAINT_MAP",
-            "LOCKED_IDENTIFICATION","CHANGE_REQUEST"
+            "LOCKED_IDENTIFICATION","SEMANTIC_CORROBORATION","CHANGE_REQUEST"
         ]
         blocker = None
         if (
             detection["fixed_element_identification"]["status"] != "ACCESSIBLE"
             or locked_elements["status"] != "ACCESSIBLE"
+            or corroboration.status != "ACCESSIBLE"
         ):
             blocker = "LOCKED_ELEMENT_UNCERTAIN"
         evidence = VisualEvidence(
@@ -150,6 +160,13 @@ class RealVisualRuntime:
             "detection": detection,
             "locked_element_detection": locked_elements,
             "red_marker_evidence": marker_evidence,
+            "semantic_corroboration": {
+                "status": corroboration.status,
+                "semantics": corroboration.semantics,
+                "supporting_evidence": list(corroboration.supporting_evidence),
+                "contradictions": list(corroboration.contradictions),
+                "reason": corroboration.reason,
+            },
             "change_request": change_request,
             "next_stage": None if blocker else "APPROVED_CHANGE_PLAN",
         }
