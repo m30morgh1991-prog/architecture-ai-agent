@@ -6,8 +6,11 @@ from runtime.runtime_release_gate import evaluate_runtime_release
 def ready_runtime_result():
     return {
         "status": "READY_FOR_APPROVAL",
-        "contracts": {"status": "VALID"},
+        "blockers": [],
+        "contracts": {"status": "VALID", "constraint_map_id": "cm-1"},
         "semantic_corroboration": {"status": "ACCESSIBLE"},
+        "constraint_map": {"map_id": "cm-1"},
+        "evidence": {"evidence_id": "ev-1", "complete": True},
     }
 
 
