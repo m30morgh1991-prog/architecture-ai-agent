@@ -13,6 +13,7 @@ import numpy as np
 
 from .visual_evidence import VisualEvidence
 from .locked_element_detection import ConservativeLockedElementDetector
+from .red_marker_detection import RedStructuralMarkerDetector
 
 _SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF"}
 _SPACE_TERMS = re.compile(
@@ -103,14 +104,16 @@ class RealVisualArtifactAdapter:
 
 class RealVisualRuntime:
     """Execute the real-artifact path and stop safely on critical uncertainty."""
-    def __init__(self, adapter: RealVisualArtifactAdapter | None = None, locked_detector=None):
+    def __init__(self, adapter: RealVisualArtifactAdapter | None = None, locked_detector=None, marker_detector=None):
         self.adapter = adapter or RealVisualArtifactAdapter()
         self.locked_detector = locked_detector or ConservativeLockedElementDetector()
+        self.marker_detector = marker_detector or RedStructuralMarkerDetector()
 
     def run(self, execution_id: str, source_path: str, change_request: dict[str, Any]) -> dict[str, Any]:
         artifact = self.adapter.ingest(source_path)
         detection = self.adapter.detect(artifact)
         locked_elements = self.locked_detector.detect(artifact.source_path, artifact.sha256)
+        marker_evidence = self.marker_detector.detect(artifact.source_path, artifact.sha256)
         stages = [
             "SOURCE","DETECTION","PLAN_MODEL","CONSTRAINT_MAP",
             "LOCKED_IDENTIFICATION","CHANGE_REQUEST"
@@ -146,6 +149,7 @@ class RealVisualRuntime:
             },
             "detection": detection,
             "locked_element_detection": locked_elements,
+            "red_marker_evidence": marker_evidence,
             "change_request": change_request,
             "next_stage": None if blocker else "APPROVED_CHANGE_PLAN",
         }
