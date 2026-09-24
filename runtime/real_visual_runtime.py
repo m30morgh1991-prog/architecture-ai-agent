@@ -211,6 +211,8 @@ class RealVisualRuntime:
                 "error": contract_error,
             },
             "constraint_map": {
+                "map_id": constraint_map.map_id if constraint_map else None,
+                "model_id": constraint_map.model_id if constraint_map else None,
                 "protected_element_ids": list(constraint_map.protected_element_ids) if constraint_map else [],
                 "editable_element_ids": list(constraint_map.editable_element_ids) if constraint_map else [],
                 "conditional_element_ids": list(constraint_map.conditional_element_ids) if constraint_map else [],
