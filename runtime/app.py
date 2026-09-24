@@ -3,6 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
 from .execution_record import ExecutionRecordStore
+from .final_validation import validate_post_edit
 
 
 execution_records = ExecutionRecordStore()
@@ -43,13 +44,9 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
     unauthorized = [i for i in changed if i not in approved.approved_target_ids]
     diff = PostEditDiff(changed, unauthorized, locked_delta)
 
-    final = "PASS" if not locked_delta and not unauthorized else "REJECT"
-    if locked_delta:
-        code = "POST_EDIT_REJECTED"
-    elif unauthorized:
-        code = "POST_EDIT_UNAUTHORIZED_DELTA"
-    else:
-        code = None
+    final_validation = validate_post_edit(diff.__dict__)
+    final = final_validation.status
+    code = final_validation.failure_codes[0] if final_validation.failure_codes else None
 
     return {
         "status": final,
