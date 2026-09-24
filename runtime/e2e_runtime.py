@@ -54,6 +54,7 @@ class E2ERuntimeBoundary:
             "workflow": execution.get("workflow_ok", True) if isinstance(execution, dict) else False,
             "final_validation": final_validation.status == "PASS",
             "regression": execution.get("regression_ok", True) if isinstance(execution, dict) else False,
+            "semantic_corroboration": execution.get("semantic_corroboration_ok", False) if isinstance(execution, dict) else False,
         })
         if final_validation.status != "PASS":
             execution = {**execution, "status": "REJECT", "failure_codes": final_validation.failure_codes}
