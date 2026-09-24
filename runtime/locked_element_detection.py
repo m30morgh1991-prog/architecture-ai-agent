@@ -101,6 +101,11 @@ class ConservativeLockedElementDetector:
                             (float((p1.x + p2.x) / 2), float(min(p1.y, p2.y)),
                              float(max(p1.y, p2.y)), length)
                         )
+                    if length >= 500 and abs(dy) < 2:
+                        horizontal_lines.append(
+                            (float(min(p1.x, p2.x)), float((p1.y + p2.y) / 2),
+                             float(max(p1.x, p2.x)), length)
+                        )
 
         panels = []
         candidates = []
@@ -137,6 +142,10 @@ class ConservativeLockedElementDetector:
                 "bbox": panel_bbox,
                 "evidence_ids": evidence,
                 "vertical_frame_evidence_count": panel_lines,
+                "horizontal_frame_evidence_count": sum(
+                    1 for line in horizontal_lines
+                    if x0 <= line[0] and line[2] <= x1 and y0 <= line[1] <= y1
+                ),
             })
 
             # Evidence-backed candidates stay UNKNOWN until approval-grade semantics are proven.
