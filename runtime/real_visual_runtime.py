@@ -210,6 +210,13 @@ class RealVisualRuntime:
                 "unresolved": list(plan_model.unresolved) if plan_model else [],
                 "error": contract_error,
             },
+            "constraint_map": {
+                "protected_element_ids": list(constraint_map.protected_element_ids) if constraint_map else [],
+                "editable_element_ids": list(constraint_map.editable_element_ids) if constraint_map else [],
+                "conditional_element_ids": list(constraint_map.conditional_element_ids) if constraint_map else [],
+                "unknown_element_ids": list(constraint_map.unknown_element_ids) if constraint_map else [],
+                "evidence_ids": list(constraint_map.evidence_ids) if constraint_map else [],
+            },
             "evidence": {
                 "evidence_id": evidence.evidence_id,
                 "input_type": evidence.input_type,
