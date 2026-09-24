@@ -2,7 +2,7 @@ import unittest
 from runtime.runtime_release_gate import evaluate_runtime_release
 
 def runtime(status="READY_FOR_APPROVAL", contracts="VALID", semantics="ACCESSIBLE"):
-    return {"status":status,"blockers":[],"contracts":{"status":contracts,"constraint_map_id":"cm-1"},"semantic_corroboration":{"status":semantics},"constraint_map":{"map_id":"cm-1","evidence_ids":["ev-1"]},"evidence":{"evidence_id":"ev-1","complete":True,"source_sha256":"src-1"},"source":{"sha256":"src-1"}}
+    return {"status":status,"blockers":[],"contracts":{"status":contracts,"constraint_map_id":"cm-1","plan_model_id":"model-1"},"semantic_corroboration":{"status":semantics},"constraint_map":{"map_id":"cm-1","model_id":"model-1","evidence_ids":["ev-1"]},"evidence":{"evidence_id":"ev-1","complete":True,"source_sha256":"src-1","stages":["SOURCE","DETECTION","PLAN_MODEL","CONSTRAINT_MAP","LOCKED_IDENTIFICATION","SEMANTIC_CORROBORATION","CHANGE_REQUEST","APPROVED_CHANGE_PLAN","CONTROLLED_EDIT","POST_EDIT_DETECTION","POST_EDIT_DIFF","FINAL_VALIDATION"]},"source":{"sha256":"src-1"}}
 
 class H52RuntimeTopLevelStateTests(unittest.TestCase):
     def green(self, result):
