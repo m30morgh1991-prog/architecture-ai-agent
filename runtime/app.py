@@ -21,17 +21,26 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
     validation = validate_request(plan, request)
     if validation.status != "PASS":
         return {"status": validation.status, "validation": validation.__dict__}
+
     approved = ApprovedChangePlan(request, list(request.target_ids), "APPROVED")
     before = {e.element_id: deepcopy(e.geometry) for e in plan.elements}
     after = deepcopy(before)
+
+    # Treat every supplied simulated delta as a candidate edit. The post-edit
+    # diff must therefore be able to detect changes outside the approved scope.
     if simulated_geometry:
         for element_id, geometry in simulated_geometry.items():
-            if element_id in approved.approved_target_ids:
-                after[element_id] = geometry
+            if element_id in after:
+                after[element_id] = deepcopy(geometry)
+
     changed = [i for i in before if before[i] != after[i]]
-    locked_delta = [e.element_id for e in plan.elements if e.state == "LOCKED" and before[e.element_id] != after[e.element_id]]
+    locked_delta = [
+        e.element_id for e in plan.elements
+        if e.state == "LOCKED" and before[e.element_id] != after[e.element_id]
+    ]
     unauthorized = [i for i in changed if i not in approved.approved_target_ids]
     diff = PostEditDiff(changed, unauthorized, locked_delta)
+
     final = "PASS" if not locked_delta and not unauthorized else "REJECT"
     if locked_delta:
         code = "POST_EDIT_REJECTED"
@@ -39,7 +48,13 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
         code = "POST_EDIT_UNAUTHORIZED_DELTA"
     else:
         code = None
-    return {"status": final, "approved_change_plan": approved.__dict__, "post_edit_diff": diff.__dict__, "failure_code": code}
+
+    return {
+        "status": final,
+        "approved_change_plan": approved.__dict__,
+        "post_edit_diff": diff.__dict__,
+        "failure_code": code,
+    }
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -64,6 +79,7 @@ def main():
     server = HTTPServer(("0.0.0.0", 8000), Handler)
     print("Architecture AI Agent runtime listening on :8000")
     server.serve_forever()
+
 
 if __name__ == "__main__":
     main()
