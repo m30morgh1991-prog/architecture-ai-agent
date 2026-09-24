@@ -2,6 +2,10 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
+from .execution_record import ExecutionRecordStore
+
+
+execution_records = ExecutionRecordStore()
 
 
 def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResult:
@@ -26,8 +30,6 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
     before = {e.element_id: deepcopy(e.geometry) for e in plan.elements}
     after = deepcopy(before)
 
-    # Treat every supplied simulated delta as a candidate edit. The post-edit
-    # diff must therefore be able to detect changes outside the approved scope.
     if simulated_geometry:
         for element_id, geometry in simulated_geometry.items():
             if element_id in after:
@@ -58,21 +60,60 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
 
 
 class Handler(BaseHTTPRequestHandler):
+    def _json(self, status, body):
+        payload = json.dumps(body).encode()
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(payload)))
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def do_GET(self):
+        prefix = "/v1/executions/"
+        if self.path.startswith(prefix):
+            execution_id = self.path[len(prefix):]
+            try:
+                return self._json(200, execution_records.public(execution_id))
+            except KeyError:
+                return self._json(404, {"error": "EXECUTION_RECORD_NOT_FOUND"})
+        self.send_error(404)
+
     def do_POST(self):
         if self.path != "/v1/execute":
             self.send_error(404)
             return
         length = int(self.headers.get("Content-Length", "0"))
         body = json.loads(self.rfile.read(length) or b"{}")
+
+        execution_id = body["execution_id"]
+        project_id = body["project_id"]
+        input_version_id = body["input_version_id"]
+        try:
+            execution_records.create(execution_id, project_id, input_version_id)
+        except ValueError:
+            return self._json(409, {"error": "DUPLICATE_EXECUTION_ID"})
+
+        execution_records.update(execution_id, "RUNNING")
         plan = PlanModel(body["plan_id"], [Element(**e) for e in body["elements"]])
         request = ChangeRequest(**body["request"])
         result = execute(plan, request, body.get("simulated_geometry"))
-        payload = json.dumps(result).encode()
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(payload)))
-        self.end_headers()
-        self.wfile.write(payload)
+
+        if result["status"] == "PASS":
+            execution_records.update(
+                execution_id, "SUCCEEDED", f"result://{execution_id}"
+            )
+        else:
+            execution_records.update(
+                execution_id, "FAILED",
+                error={"failure_code": result.get("failure_code"),
+                       "validation": result.get("validation")}
+            )
+
+        return self._json(200, {
+            "execution_id": execution_id,
+            "job": execution_records.public(execution_id),
+            "result": result,
+        })
 
 
 def main():
