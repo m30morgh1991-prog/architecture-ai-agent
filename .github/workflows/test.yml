@@ -20,7 +20,7 @@ jobs:
           python-version: "3.12"
 
       - name: Run runtime smoke tests
-        run: python runtime/test_runner.py
+        run: python -m runtime.test_runner
 
       - name: Run unittest suite
         run: python -m unittest discover -s tests -p "test_*.py" -v
