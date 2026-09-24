@@ -10,7 +10,7 @@ class DecisionTraceTests(unittest.TestCase):
 
     def test_missing_traceability_fails(self):
         with self.assertRaises(ValueError):
-            DecisionTrace("","","APPROVED").validate()
+            DecisionTrace("","","CONTROLLED_EDIT","APPROVED").validate()
 
 if __name__=="__main__":
     unittest.main()
