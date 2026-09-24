@@ -15,7 +15,7 @@ import fitz
 import numpy as np
 
 
-_PLAN_TITLE_RE = re.compile(r"^PLANTA\s+(.+)$", re.I)
+_PLAN_TITLE_RE = re.compile(r"\bPLANTA\s+([^\n]+)", re.I)
 _FIXED_TYPES = (
     "COLUMNS",
     "OUTER_BOUNDARY",
