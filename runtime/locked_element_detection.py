@@ -50,7 +50,7 @@ class LockedElementCandidate:
 class ConservativeLockedElementDetector:
     """Extract plan-level vector evidence and structural candidates without guessing."""
 
-    detector_id = "conservative-vector-fixed-v0.1"
+    detector_id = "conservative-vector-fixed-v0.2"
 
     def detect(self, source_path: str, source_sha256: str) -> dict[str, Any]:
         path = Path(source_path)
@@ -84,6 +84,7 @@ class ConservativeLockedElementDetector:
         drawings = page.get_drawings()
         vertical_lines = []
         filled_rects = []
+        horizontal_lines = []
         for drawing_index, drawing in enumerate(drawings):
             rect = drawing.get("rect")
             if rect is not None and drawing.get("fill") is not None:
@@ -129,13 +130,44 @@ class ConservativeLockedElementDetector:
                 1 for line in vertical_lines
                 if x0 <= line[0] <= x1 and line[1] < y1 and line[2] > y0
             )
+            panel_bbox = [round(x0, 2), round(y0, 2), round(x1, 2), round(y1, 2)]
             panels.append({
                 "panel_id": f"PLAN-{panel['index']:02d}",
                 "title": panel["title"],
-                "bbox": [round(x0, 2), round(y0, 2), round(x1, 2), round(y1, 2)],
+                "bbox": panel_bbox,
                 "evidence_ids": evidence,
                 "vertical_frame_evidence_count": panel_lines,
             })
+
+            # Evidence-backed candidates stay UNKNOWN until approval-grade semantics are proven.
+            if panel_lines >= 2:
+                candidates.append(LockedElementCandidate(
+                    candidate_id=f"{panel['index']:02d}-BOUNDARY-01",
+                    element_type="OUTER_BOUNDARY",
+                    bbox=tuple(panel_bbox),
+                    confidence=0.90,
+                    evidence_ids=(panel["evidence_id"], f"vector-frame-{panel['index']}"),
+                    status="UNKNOWN",
+                    rationale="Plan frame is evidenced by long vector lines, but architectural boundary semantics are not independently verified.",
+                ))
+                candidates.append(LockedElementCandidate(
+                    candidate_id=f"{panel['index']:02d}-FORM-01",
+                    element_type="OVERALL_PLAN_FORM",
+                    bbox=tuple(panel_bbox),
+                    confidence=0.88,
+                    evidence_ids=(panel["evidence_id"], f"vector-frame-{panel['index']}"),
+                    status="UNKNOWN",
+                    rationale="Plan extent is evidenced, but overall architectural form is not independently verified.",
+                ))
+                candidates.append(LockedElementCandidate(
+                    candidate_id=f"{panel['index']:02d}-WALLS-01",
+                    element_type="WALLS",
+                    bbox=tuple(panel_bbox),
+                    confidence=0.72,
+                    evidence_ids=(panel["evidence_id"], f"vector-wall-lines-{panel['index']}"),
+                    status="UNKNOWN",
+                    rationale="Long vector linework is consistent with walls, but wall semantics are not proven.",
+                ))
 
             square_count = 0
             for drawing_index, rect in filled_rects:
