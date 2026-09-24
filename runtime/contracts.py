@@ -34,5 +34,5 @@ class ApprovedChangePlan:
 @dataclass
 class PostEditDiff:
     changed_ids: List[str]
-    unauthorized_ids: List[str]
+    unauthorized_delta_ids: List[str]
     locked_delta_ids: List[str]
