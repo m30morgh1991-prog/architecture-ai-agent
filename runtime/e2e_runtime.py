@@ -1,20 +1,18 @@
-"""Provider-neutral end-to-end runtime orchestration slice.
-
-This boundary composes execution orchestration, visual detection/rendering and
-the existing deterministic execute path without allowing AI output to bypass
-approval or post-edit validation.
-"""
+"""H42-H45 fail-closed end-to-end runtime boundary."""
 from dataclasses import dataclass
 from typing import Any
 
-from .execution_orchestrator import ExecutionOrchestrator
 from .visual_orchestration import VisualExecutionBoundary
+from .final_validation import validate_post_edit
+from .release_gate import evaluate_release
 
 
 @dataclass(frozen=True)
 class E2ERuntimeResult:
     visual: Any
     execution: dict[str, Any]
+    final_validation: Any
+    release: Any
 
 
 class E2ERuntimeBoundary:
@@ -30,11 +28,35 @@ class E2ERuntimeBoundary:
         approved_change_plan: dict[str, Any],
         plan: dict[str, Any],
     ) -> E2ERuntimeResult:
+        if approved_change_plan.get("status") != "APPROVED":
+            return E2ERuntimeResult(
+                visual=None,
+                execution={"status": "REJECT", "failure_codes": ["APPROVED_CHANGE_PLAN_REQUIRED"]},
+                final_validation=None,
+                release=evaluate_release({
+                    "contracts": True, "workflow": True,
+                    "final_validation": False, "regression": True,
+                }),
+            )
+
         visual = self.visual_boundary.render(
-            execution_id,
-            request,
-            document,
-            approved_change_plan,
+            execution_id, request, document, approved_change_plan
         )
         execution = self.execute_fn(plan, request)
-        return E2ERuntimeResult(visual=visual, execution=execution)
+
+        diff_payload = execution.get("post_edit_diff", {}) if isinstance(execution, dict) else {}
+        final_validation = validate_post_edit(diff_payload)
+        release = evaluate_release({
+            "contracts": execution.get("contracts_ok", True) if isinstance(execution, dict) else False,
+            "workflow": execution.get("workflow_ok", True) if isinstance(execution, dict) else False,
+            "final_validation": final_validation.status == "PASS",
+            "regression": execution.get("regression_ok", True) if isinstance(execution, dict) else False,
+        })
+        if final_validation.status != "PASS":
+            execution = {**execution, "status": "REJECT", "failure_codes": final_validation.failure_codes}
+        return E2ERuntimeResult(
+            visual=visual,
+            execution=execution,
+            final_validation=final_validation,
+            release=release,
+        )
