@@ -81,52 +81,61 @@ class ConservativeLockedElementDetector:
                 })
 
         drawings = page.get_drawings()
-        line_items = []
+        vertical_lines = []
         filled_rects = []
         for drawing_index, drawing in enumerate(drawings):
             rect = drawing.get("rect")
-            if rect is None:
-                continue
-            if drawing.get("fill") is not None:
+            if rect is not None and drawing.get("fill") is not None:
                 w, h = rect.width, rect.height
                 if 20 <= w <= 80 and 20 <= h <= 80:
                     filled_rects.append((drawing_index, rect))
             for item in drawing.get("items", []):
                 if item and item[0] == "l":
                     p1, p2 = item[1], item[2]
-                    line_items.append((drawing_index, p1.x, p1.y, p2.x, p2.y))
+                    dx, dy = p2.x - p1.x, p2.y - p1.y
+                    length = (dx * dx + dy * dy) ** 0.5
+                    if length >= 500 and abs(dx) < 2:
+                        vertical_lines.append(
+                            (float((p1.x + p2.x) / 2), float(min(p1.y, p2.y)),
+                             float(max(p1.y, p2.y)), length)
+                        )
 
         panels = []
         candidates = []
         for panel in titles:
             cx = (panel["bbox"][0] + panel["bbox"][2]) / 2.0
-            # The title is below its plan. Select nearby vector geometry by x-center.
-            panel_lines = [
-                item for item in line_items
-                if abs(((item[1] + item[3]) / 2.0) - cx) < 380
-                and min(item[2], item[4]) < panel["bbox"][1]
+            left = [
+                line for line in vertical_lines
+                if line[0] < cx and line[1] < 400 and line[2] > 900
             ]
-            x_candidates = [v for item in panel_lines for v in (item[1], item[3])]
-            if x_candidates:
-                x0 = max(0.0, min(x_candidates) - 20.0)
-                x1 = min(float(page.rect.width), max(x_candidates) + 20.0)
+            right = [
+                line for line in vertical_lines
+                if line[0] > cx and line[1] < 400 and line[2] > 900
+            ]
+            left_line = min(left, key=lambda line: abs(line[0] - cx), default=None)
+            right_line = min(right, key=lambda line: abs(line[0] - cx), default=None)
+            if left_line and right_line:
+                x0 = left_line[0]
+                x1 = right_line[0]
+                y0 = min(left_line[1], right_line[1])
             else:
                 x0 = max(0.0, cx - 330.0)
                 x1 = min(float(page.rect.width), cx + 330.0)
+                y0 = 450.0
             y1 = panel["bbox"][1] - 25.0
-            y0 = 450.0
-            panel_bbox = [round(x0, 2), round(y0, 2), round(x1, 2), round(y1, 2)]
-            evidence = [panel["evidence_id"], f"vector-linework-panel-{panel['index']}"]
+            evidence = [panel["evidence_id"], f"vector-frame-{panel['index']}"]
+            panel_lines = sum(
+                1 for line in vertical_lines
+                if x0 <= line[0] <= x1 and line[1] < y1 and line[2] > y0
+            )
             panels.append({
                 "panel_id": f"PLAN-{panel['index']:02d}",
                 "title": panel["title"],
-                "bbox": panel_bbox,
+                "bbox": [round(x0, 2), round(y0, 2), round(x1, 2), round(y1, 2)],
                 "evidence_ids": evidence,
-                "line_evidence_count": len(panel_lines),
+                "vertical_frame_evidence_count": panel_lines,
             })
 
-            # Filled near-square vector marks are useful candidate evidence, but
-            # their semantics are ambiguous (dimension markers, symbols, columns).
             square_count = 0
             for drawing_index, rect in filled_rects:
                 if x0 <= rect.x0 <= x1 and y0 <= rect.y0 <= y1:
@@ -135,8 +144,8 @@ class ConservativeLockedElementDetector:
                         candidates.append(LockedElementCandidate(
                             candidate_id=f"{panel['index']:02d}-FIXED-{square_count:02d}",
                             element_type="COLUMNS",
-                            bbox=(round(rect.x0,2), round(rect.y0,2),
-                                  round(rect.x1,2), round(rect.y1,2)),
+                            bbox=(round(rect.x0, 2), round(rect.y0, 2),
+                                  round(rect.x1, 2), round(rect.y1, 2)),
                             confidence=0.62,
                             evidence_ids=(panel["evidence_id"], f"pdf-drawing-{drawing_index}"),
                             status="UNKNOWN",
