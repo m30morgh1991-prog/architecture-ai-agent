@@ -1,4 +1,4 @@
-"""H42-H45 fail-closed end-to-end runtime boundary."""
+"""H42-H46 fail-closed end-to-end runtime boundary."""
 from dataclasses import dataclass
 from typing import Any
 
@@ -34,8 +34,10 @@ class E2ERuntimeBoundary:
                 execution={"status": "REJECT", "failure_codes": ["APPROVED_CHANGE_PLAN_REQUIRED"]},
                 final_validation=None,
                 release=evaluate_release({
-                    "contracts": True, "workflow": True,
-                    "final_validation": False, "regression": True,
+                    "contracts": False,
+                    "workflow": False,
+                    "final_validation": False,
+                    "regression": False,
                     "semantic_corroboration": False,
                 }),
             )
@@ -50,15 +52,21 @@ class E2ERuntimeBoundary:
         if "locked_delta_ids" not in diff_payload and "unauthorized_delta_ids" not in diff_payload:
             diff_payload = {"locked_delta_ids": [], "unauthorized_delta_ids": []}
         final_validation = validate_post_edit(diff_payload)
+
+        execution_data = execution if isinstance(execution, dict) else {}
         release = evaluate_release({
-            "contracts": execution.get("contracts_ok", True) if isinstance(execution, dict) else False,
-            "workflow": execution.get("workflow_ok", True) if isinstance(execution, dict) else False,
+            "contracts": execution_data.get("contracts_ok", False),
+            "workflow": execution_data.get("workflow_ok", False),
             "final_validation": final_validation.status == "PASS",
-            "regression": execution.get("regression_ok", True) if isinstance(execution, dict) else False,
-            "semantic_corroboration": execution.get("semantic_corroboration_ok", False) if isinstance(execution, dict) else False,
+            "regression": execution_data.get("regression_ok", False),
+            "semantic_corroboration": execution_data.get("semantic_corroboration_ok", False),
         })
         if final_validation.status != "PASS":
-            execution = {**execution, "status": "REJECT", "failure_codes": final_validation.failure_codes}
+            execution = {
+                **execution_data,
+                "status": "REJECT",
+                "failure_codes": final_validation.failure_codes,
+            }
         return E2ERuntimeResult(
             visual=visual,
             execution=execution,
