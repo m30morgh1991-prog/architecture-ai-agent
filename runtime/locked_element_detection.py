@@ -1,0 +1,177 @@
+"""Conservative fixed-element candidate detection for real architectural artifacts.
+
+This module detects evidence-backed *candidates* but never promotes uncertain
+visual candidates to LOCKED. Approval-grade locking remains fail-closed.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from pathlib import Path
+import re
+from typing import Any
+
+import cv2
+import fitz
+import numpy as np
+
+
+_PLAN_TITLE_RE = re.compile(r"^PLANTA\s+(.+)$", re.I)
+_FIXED_TYPES = (
+    "COLUMNS",
+    "OUTER_BOUNDARY",
+    "WALLS",
+    "DOORS",
+    "WINDOWS",
+    "OVERALL_PLAN_FORM",
+)
+
+
+@dataclass(frozen=True)
+class LockedElementCandidate:
+    candidate_id: str
+    element_type: str
+    bbox: tuple[float, float, float, float]
+    confidence: float
+    evidence_ids: tuple[str, ...]
+    status: str
+    rationale: str
+
+    def validate(self) -> None:
+        if not self.candidate_id or self.element_type not in _FIXED_TYPES:
+            raise ValueError("INVALID_LOCKED_ELEMENT_CANDIDATE")
+        if not 0.0 <= self.confidence <= 1.0:
+            raise ValueError("INVALID_CANDIDATE_CONFIDENCE")
+        if not self.evidence_ids:
+            raise ValueError("MISSING_CANDIDATE_EVIDENCE")
+        if self.status == "LOCKED" and self.confidence < 0.95:
+            raise ValueError("LOCKED_CANDIDATE_CONFIDENCE_TOO_LOW")
+
+
+class ConservativeLockedElementDetector:
+    """Extract plan-level vector evidence and structural candidates without guessing."""
+
+    detector_id = "conservative-vector-fixed-v0.1"
+
+    def detect(self, source_path: str, source_sha256: str) -> dict[str, Any]:
+        path = Path(source_path)
+        if path.suffix.lower() != ".pdf":
+            return self._raster_fallback(source_sha256)
+
+        document = fitz.open(path)
+        if document.page_count == 0:
+            return {
+                "status": "UNKNOWN",
+                "reason": "SOURCE_DOCUMENT_EMPTY",
+                "plan_panels": [],
+                "candidates": [],
+            }
+
+        page = document[0]
+        blocks = page.get_text("blocks")
+        titles = []
+        for block_index, block in enumerate(blocks):
+            text = block[4].strip()
+            match = _PLAN_TITLE_RE.match(text)
+            if match:
+                titles.append({
+                    "index": len(titles) + 1,
+                    "title": text,
+                    "bbox": [float(block[0]), float(block[1]), float(block[2]), float(block[3])],
+                    "evidence_id": f"pdf-text-block-{block_index}",
+                })
+
+        drawings = page.get_drawings()
+        line_items = []
+        filled_rects = []
+        for drawing_index, drawing in enumerate(drawings):
+            rect = drawing.get("rect")
+            if rect is None:
+                continue
+            if drawing.get("fill") is not None:
+                w, h = rect.width, rect.height
+                if 20 <= w <= 80 and 20 <= h <= 80:
+                    filled_rects.append((drawing_index, rect))
+            for item in drawing.get("items", []):
+                if item and item[0] == "l":
+                    p1, p2 = item[1], item[2]
+                    line_items.append((drawing_index, p1.x, p1.y, p2.x, p2.y))
+
+        panels = []
+        candidates = []
+        for panel in titles:
+            cx = (panel["bbox"][0] + panel["bbox"][2]) / 2.0
+            # The title is below its plan. Select nearby vector geometry by x-center.
+            panel_lines = [
+                item for item in line_items
+                if abs(((item[1] + item[3]) / 2.0) - cx) < 380
+                and min(item[2], item[4]) < panel["bbox"][1]
+            ]
+            x_candidates = [v for item in panel_lines for v in (item[1], item[3])]
+            if x_candidates:
+                x0 = max(0.0, min(x_candidates) - 20.0)
+                x1 = min(float(page.rect.width), max(x_candidates) + 20.0)
+            else:
+                x0 = max(0.0, cx - 330.0)
+                x1 = min(float(page.rect.width), cx + 330.0)
+            y1 = panel["bbox"][1] - 25.0
+            y0 = 450.0
+            panel_bbox = [round(x0, 2), round(y0, 2), round(x1, 2), round(y1, 2)]
+            evidence = [panel["evidence_id"], f"vector-linework-panel-{panel['index']}"]
+            panels.append({
+                "panel_id": f"PLAN-{panel['index']:02d}",
+                "title": panel["title"],
+                "bbox": panel_bbox,
+                "evidence_ids": evidence,
+                "line_evidence_count": len(panel_lines),
+            })
+
+            # Filled near-square vector marks are useful candidate evidence, but
+            # their semantics are ambiguous (dimension markers, symbols, columns).
+            square_count = 0
+            for drawing_index, rect in filled_rects:
+                if x0 <= rect.x0 <= x1 and y0 <= rect.y0 <= y1:
+                    square_count += 1
+                    if square_count <= 12:
+                        candidates.append(LockedElementCandidate(
+                            candidate_id=f"{panel['index']:02d}-FIXED-{square_count:02d}",
+                            element_type="COLUMNS",
+                            bbox=(round(rect.x0,2), round(rect.y0,2),
+                                  round(rect.x1,2), round(rect.y1,2)),
+                            confidence=0.62,
+                            evidence_ids=(panel["evidence_id"], f"pdf-drawing-{drawing_index}"),
+                            status="UNKNOWN",
+                            rationale="Near-square filled vector mark detected, but its architectural semantics are not proven.",
+                        ))
+
+        for candidate in candidates:
+            candidate.validate()
+
+        missing = [element_type for element_type in _FIXED_TYPES
+                   if not any(c.element_type == element_type and c.status == "LOCKED"
+                              for c in candidates)]
+        return {
+            "detector_id": self.detector_id,
+            "status": "UNKNOWN" if missing else "ACCESSIBLE",
+            "source_sha256": source_sha256,
+            "page_count": document.page_count,
+            "plan_panels": panels,
+            "candidates": [candidate.__dict__ for candidate in candidates],
+            "locked_element_types": [],
+            "unresolved_fixed_element_types": missing,
+            "reason": (
+                "Vector evidence identifies plan panels and fixed-element candidates, "
+                "but does not prove approval-grade semantics for columns/walls/doors/windows."
+            ) if missing else "All fixed element types identified at approval-grade confidence.",
+        }
+
+    def _raster_fallback(self, source_sha256: str) -> dict[str, Any]:
+        return {
+            "detector_id": self.detector_id,
+            "status": "UNKNOWN",
+            "source_sha256": source_sha256,
+            "plan_panels": [],
+            "candidates": [],
+            "locked_element_types": [],
+            "unresolved_fixed_element_types": list(_FIXED_TYPES),
+            "reason": "Raster-only input lacks approval-grade semantic evidence for fixed elements.",
+        }
