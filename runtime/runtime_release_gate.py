@@ -1,7 +1,7 @@
-"""H51 runtime-to-release gate adapter.
+"""H52 hardening for runtime release readiness.
 
-Derives release-critical checks from the runtime result instead of allowing
-callers to manually assert semantic/contract readiness.
+A release decision must not be derived from component checks alone: the
+runtime's top-level state must explicitly be READY_FOR_APPROVAL.
 """
 from __future__ import annotations
 
@@ -17,28 +17,21 @@ def evaluate_runtime_release(
     final_validation_ok: bool,
     regression_ok: bool,
 ) -> ReleaseGateResult:
-    """Evaluate the frozen release boundary from an actual runtime result.
-
-    Contracts and semantic corroboration are derived from runtime evidence.
-    Workflow, final validation, and regression remain explicit CI/system
-    checks because they are external to a single visual-runtime result.
-    """
     if not isinstance(runtime_result, dict):
         return evaluate_release({
-            "contracts": False,
-            "workflow": workflow_ok,
-            "final_validation": final_validation_ok,
-            "regression": regression_ok,
+            "contracts": False, "workflow": workflow_ok,
+            "final_validation": final_validation_ok, "regression": regression_ok,
             "semantic_corroboration": False,
         })
 
+    runtime_ready = runtime_result.get("status") == "READY_FOR_APPROVAL"
     contracts = runtime_result.get("contracts") or {}
     semantics = runtime_result.get("semantic_corroboration") or {}
 
     return evaluate_release({
-        "contracts": contracts.get("status") == "VALID",
+        "contracts": runtime_ready and contracts.get("status") == "VALID",
         "workflow": workflow_ok,
         "final_validation": final_validation_ok,
         "regression": regression_ok,
-        "semantic_corroboration": semantics.get("status") == "ACCESSIBLE",
+        "semantic_corroboration": runtime_ready and semantics.get("status") == "ACCESSIBLE",
     })
