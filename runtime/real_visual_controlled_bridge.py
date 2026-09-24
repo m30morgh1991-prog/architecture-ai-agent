@@ -92,3 +92,48 @@ def evaluate_real_visual_change(
         "approved_target_ids": list(approval.approved_target_ids),
         "change_type": approval.change_type,
     }
+
+
+
+def execute_real_visual_approved_change(
+    visual_result: dict[str, Any],
+    change_request: Any,
+    plan: Any,
+    simulated_geometry: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """H48 E2E bridge: visual evidence -> approval -> controlled execution.
+
+    The visual bridge is authoritative for whether the request may enter the
+    execution path. Execution is delegated to the frozen runtime executor;
+    blocked or rejected visual evidence never reaches it.
+    """
+    decision = evaluate_real_visual_change(visual_result, change_request)
+    if decision.get("status") != "APPROVED":
+        return {
+            "status": "REJECT",
+            "stage": "APPROVAL",
+            "failure_codes": list(decision.get("failure_codes", [])),
+        }
+
+    # Defensive consistency check: the executable plan must expose exactly the
+    # approved targets as editable. This prevents approval metadata from being
+    # used to bypass the runtime's own authorization contract.
+    by_id = {element.element_id: element for element in plan.elements}
+    for element_id in decision["approved_target_ids"]:
+        element = by_id.get(element_id)
+        if element is None or element.state != "EDITABLE":
+            return {
+                "status": "REJECT",
+                "stage": "EXECUTION_AUTHORIZATION",
+                "failure_codes": [f"EDIT_PERMISSION_REQUIRED:{element_id}"],
+            }
+
+    from .app import execute
+
+    execution = execute(plan, change_request, simulated_geometry)
+    return {
+        "status": execution.get("status", "REJECT"),
+        "stage": "EXECUTION",
+        "approval": decision,
+        "execution": execution,
+    }
