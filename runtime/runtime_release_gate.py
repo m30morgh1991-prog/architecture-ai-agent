@@ -46,11 +46,14 @@ def evaluate_runtime_release(
     constraint_map_id = constraint_map.get("map_id")
     contract_constraint_map_id = contracts.get("constraint_map_id")
     constraint_map_bound = bool(constraint_map_id) and bool(contract_constraint_map_id) and constraint_map_id == contract_constraint_map_id
+    model_id = constraint_map.get("model_id")
+    contract_model_id = contracts.get("plan_model_id")
+    model_bound = bool(model_id) and bool(contract_model_id) and model_id == contract_model_id
     evidence_id = evidence.get("evidence_id")
     constraint_map_evidence_bound = bool(evidence_id) and evidence_id in (constraint_map.get("evidence_ids") or [])
 
     return evaluate_release({
-        "contracts": runtime_ready and blockers_clear and contracts.get("status") == "VALID" and constraint_map_bound and constraint_map_evidence_bound,
+        "contracts": runtime_ready and blockers_clear and contracts.get("status") == "VALID" and constraint_map_bound and model_bound and constraint_map_evidence_bound,
         "workflow": workflow_ok,
         "final_validation": final_validation_ok,
         "regression": regression_ok,
