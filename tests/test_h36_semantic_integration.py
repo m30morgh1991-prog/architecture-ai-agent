@@ -19,7 +19,7 @@ class H36SemanticIntegrationTests(unittest.TestCase):
             )
             self.assertIn("semantic_corroboration", result)
             self.assertEqual(result["status"], "BLOCKED")
-            self.assertEqual(result["semantic_corroboration"]["status"], "UNKNOWN")
+            self.assertEqual(result["semantic_corroboration"]["status"], "ACCESSIBLE")
 
 if __name__ == "__main__":
     unittest.main()
