@@ -29,7 +29,7 @@ class RealVisualRuntimeTests(unittest.TestCase):
             self.assertEqual(
                 result["evidence"]["stages"],
                 ["SOURCE","DETECTION","PLAN_MODEL","CONSTRAINT_MAP",
-                 "LOCKED_IDENTIFICATION","CHANGE_REQUEST"],
+                 "LOCKED_IDENTIFICATION","SEMANTIC_CORROBORATION","CHANGE_REQUEST"],
             )
             self.assertFalse(result["evidence"]["complete"])
 
