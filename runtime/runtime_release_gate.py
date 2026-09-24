@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Any
 
 from .release_gate import ReleaseGateResult, evaluate_release
+from .visual_evidence import REQUIRED_STAGES
 
 
 def evaluate_runtime_release(
