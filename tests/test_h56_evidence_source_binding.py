@@ -6,8 +6,8 @@ class H56EvidenceSourceBindingTests(unittest.TestCase):
         return {
             "status":"READY_FOR_APPROVAL","blockers":[],
             "contracts":{"status":"VALID","constraint_map_id":"cm-1"},
-            "constraint_map":{"map_id":"cm-1","evidence_ids":["ev-1"]},
-            "evidence":{"evidence_id":"ev-1","complete":True,"source_sha256":"src-1"},
+            "constraint_map":{"map_id":"cm-1","model_id":"model-1","evidence_ids":["ev-1"]},
+            "evidence":{"evidence_id":"ev-1","complete":True,"source_sha256":"src-1","stages":["SOURCE","DETECTION","PLAN_MODEL","CONSTRAINT_MAP","LOCKED_IDENTIFICATION","SEMANTIC_CORROBORATION","CHANGE_REQUEST","APPROVED_CHANGE_PLAN","CONTROLLED_EDIT","POST_EDIT_DETECTION","POST_EDIT_DIFF","FINAL_VALIDATION"]},
             "source":{"sha256":"src-1"},
             "semantic_corroboration":{"status":"ACCESSIBLE"},
         }
