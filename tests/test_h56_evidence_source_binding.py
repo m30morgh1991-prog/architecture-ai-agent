@@ -6,7 +6,7 @@ class H56EvidenceSourceBindingTests(unittest.TestCase):
         return {
             "status":"READY_FOR_APPROVAL","blockers":[],
             "contracts":{"status":"VALID","constraint_map_id":"cm-1"},
-            "constraint_map":{"map_id":"cm-1"},
+            "constraint_map":{"map_id":"cm-1","evidence_ids":["ev-1"]},
             "evidence":{"evidence_id":"ev-1","complete":True,"source_sha256":"src-1"},
             "source":{"sha256":"src-1"},
             "semantic_corroboration":{"status":"ACCESSIBLE"},
@@ -23,3 +23,15 @@ class H56EvidenceSourceBindingTests(unittest.TestCase):
         r=evaluate_runtime_release(x,workflow_ok=True,final_validation_ok=True,regression_ok=True)
         self.assertEqual(r.status,"BLOCKED")
 if __name__=="__main__": unittest.main()
+
+class H57EvidenceConstraintMapBindingTests(unittest.TestCase):
+    def test_evidence_id_must_be_bound_to_constraint_map(self):
+        x=H56EvidenceSourceBindingTests().base()
+        x["constraint_map"]["evidence_ids"]=[]
+        r=evaluate_runtime_release(x,workflow_ok=True,final_validation_ok=True,regression_ok=True)
+        self.assertEqual(r.status,"BLOCKED")
+    def test_matching_evidence_id_and_constraint_map_passes(self):
+        x=H56EvidenceSourceBindingTests().base()
+        x["constraint_map"]["evidence_ids"]=["ev-1"]
+        r=evaluate_runtime_release(x,workflow_ok=True,final_validation_ok=True,regression_ok=True)
+        self.assertEqual(r.status,"PASS")
