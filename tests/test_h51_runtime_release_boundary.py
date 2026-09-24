@@ -10,7 +10,8 @@ def ready_runtime_result():
         "contracts": {"status": "VALID", "constraint_map_id": "cm-1"},
         "semantic_corroboration": {"status": "ACCESSIBLE"},
         "constraint_map": {"map_id": "cm-1"},
-        "evidence": {"evidence_id": "ev-1", "complete": True},
+        "evidence": {"evidence_id": "ev-1", "complete": True, "source_sha256": "src-1"},
+        "source": {"sha256": "src-1"},
     }
 
 
