@@ -26,7 +26,13 @@ class AIRouter:
         self.providers = list(providers)
 
     def route(self, request: dict[str, Any]) -> AIRouteResult:
-        for provider in self.providers:
+        requested_provider = request.get("provider_id")
+        candidates = self.providers
+        if requested_provider is not None:
+            candidates = [p for p in self.providers if p.provider_id == requested_provider]
+            if not candidates:
+                raise RuntimeError("AI_PROVIDER_UNAVAILABLE")
+        for provider in candidates:
             if provider.available():
                 evidence = provider.interpret(request)
                 return AIRouteResult(
