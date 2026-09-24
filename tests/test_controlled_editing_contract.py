@@ -34,19 +34,17 @@ class ControlledEditingContractTests(unittest.TestCase):
         )
         self.assertFalse(unresolved.executable)
 
-    def test_uncertainty_is_fail_closed(self):
-        decision = build_controlled_editing_decision(
-            [EditPermission("F01", "EDITABLE")],
-            [UncertaintyAssessment("C01", "LOCKED_ELEMENT_UNCERTAIN", "not detected")]
-        )
-        # The canonical uncertainty state is UNKNOWN/SOURCE_REQUIRED/etc.; an
-        # invalid state must be rejected rather than silently treated as safe.
-        self.assertRaises(ValueError, decision.validate)
+    def test_invalid_uncertainty_state_is_rejected(self):
+        with self.assertRaises(ValueError):
+            build_controlled_editing_decision(
+                [EditPermission("F01", "EDITABLE")],
+                [UncertaintyAssessment("C01", "LOCKED_ELEMENT_UNCERTAIN", "not detected")],
+            )
 
     def test_unknown_blocks_execution(self):
         decision = build_controlled_editing_decision(
             [EditPermission("F01", "EDITABLE")],
-            [UncertaintyAssessment("C01", "UNKNOWN", "scale missing")]
+            [UncertaintyAssessment("C01", "UNKNOWN", "scale missing")],
         )
         self.assertFalse(decision.executable)
         self.assertIn("UNCERTAINTY_BLOCKING:UNKNOWN", decision.blocking_reasons())
@@ -72,8 +70,14 @@ class ControlledEditingContractTests(unittest.TestCase):
             "impact_dependencies": [{"source_id": "F01", "affected_ids": ["R01"]}],
         })
         self.assertEqual(request.trace()["execution_id"], "e1")
-        self.assertEqual(request.controlled_editing_context()["edit_permissions"][0]["element_id"], "F01")
-        self.assertEqual(request.controlled_editing_context()["impact_dependencies"][0]["source_id"], "F01")
+        self.assertEqual(
+            request.controlled_editing_context()["edit_permissions"][0]["element_id"],
+            "F01",
+        )
+        self.assertEqual(
+            request.controlled_editing_context()["impact_dependencies"][0]["source_id"],
+            "F01",
+        )
 
     def test_legacy_execution_request_still_works(self):
         request = ExecutionRequest.from_dict({
