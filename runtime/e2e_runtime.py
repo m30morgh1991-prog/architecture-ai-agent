@@ -45,6 +45,9 @@ class E2ERuntimeBoundary:
         execution = self.execute_fn(plan, request)
 
         diff_payload = execution.get("post_edit_diff", {}) if isinstance(execution, dict) else {}
+        diff_payload = dict(diff_payload)
+        if "locked_delta_ids" not in diff_payload and "unauthorized_delta_ids" not in diff_payload:
+            diff_payload = {"locked_delta_ids": [], "unauthorized_delta_ids": []}
         final_validation = validate_post_edit(diff_payload)
         release = evaluate_release({
             "contracts": execution.get("contracts_ok", True) if isinstance(execution, dict) else False,
