@@ -59,6 +59,16 @@ class H48EndToEndApprovalBridgeTests(unittest.TestCase):
         self.assertEqual(result["stage"], "EXECUTION_AUTHORIZATION")
         self.assertIn("EDIT_PERMISSION_REQUIRED:F01", result["failure_codes"])
 
+    def test_locked_delta_is_rejected_after_approval(self):
+        request = ChangeRequest("FURNITURE", ["F01"], "Move sofa")
+        result = execute_real_visual_approved_change(
+            self._ready(), request, self._plan(),
+            {"F01": {"x": 30, "y": 20}, "C01": {"x": 99, "y": 99}},
+        )
+        self.assertEqual(result["status"], "REJECT")
+        self.assertEqual(result["execution"]["failure_code"], "POST_EDIT_REJECTED")
+        self.assertEqual(result["execution"]["post_edit_diff"]["locked_delta_ids"], ["C01"])
+
 
 if __name__ == "__main__":
     unittest.main()
