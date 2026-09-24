@@ -15,6 +15,7 @@ from .visual_evidence import VisualEvidence
 from .locked_element_detection import ConservativeLockedElementDetector
 from .red_marker_detection import RedStructuralMarkerDetector
 from .visual_semantic_corroboration import VisualSemanticCorroborationGate
+from .plan_model_contract import ConstraintMap, PlanElement, PlanModel
 
 _SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF"}
 _SPACE_TERMS = re.compile(
@@ -111,6 +112,51 @@ class RealVisualRuntime:
         self.marker_detector = marker_detector or RedStructuralMarkerDetector()
         self.corroboration_gate = corroboration_gate or VisualSemanticCorroborationGate()
 
+    def _build_contracts(
+        self,
+        *,
+        artifact: VisualArtifact,
+        locked_elements: dict[str, Any],
+        evidence_id: str,
+    ) -> tuple[PlanModel, ConstraintMap]:
+        elements: list[PlanElement] = []
+        unresolved = list(locked_elements.get("unresolved_fixed_element_types", []))
+
+        for candidate in locked_elements.get("candidates", []):
+            elements.append(
+                PlanElement(
+                    element_id=str(candidate["candidate_id"]),
+                    element_type=str(candidate["element_type"]),
+                    state="LOCKED" if candidate.get("status") == "LOCKED" else "UNKNOWN",
+                    geometry={"bbox": list(candidate.get("bbox", ()))},
+                    evidence_ids=tuple(candidate.get("evidence_ids", ())) or (evidence_id,),
+                    confidence=float(candidate.get("confidence", 0.0)),
+                )
+            )
+
+        plan_model = PlanModel(
+            model_id=f"plan-{artifact.sha256[:16]}",
+            source_sha256=artifact.sha256,
+            drawing_count=artifact.page_count,
+            elements=tuple(elements),
+            unresolved=tuple(unresolved),
+        )
+        plan_model.validate()
+
+        locked_ids = tuple(e.element_id for e in elements if e.state == "LOCKED")
+        unknown_ids = tuple(e.element_id for e in elements if e.state == "UNKNOWN")
+        constraint_map = ConstraintMap(
+            map_id=f"constraints-{artifact.sha256[:16]}",
+            model_id=plan_model.model_id,
+            protected_element_ids=locked_ids,
+            editable_element_ids=(),
+            conditional_element_ids=(),
+            unknown_element_ids=unknown_ids,
+            evidence_ids=(evidence_id,),
+        )
+        constraint_map.validate()
+        return plan_model, constraint_map
+
     def run(self, execution_id: str, source_path: str, change_request: dict[str, Any]) -> dict[str, Any]:
         artifact = self.adapter.ingest(source_path)
         detection = self.adapter.detect(artifact)
@@ -123,12 +169,24 @@ class RealVisualRuntime:
             structural_geometry_evidence=bool(locked_elements.get("candidates")),
             contradiction_evidence=False,
         )
+        contract_error = None
+        try:
+            plan_model, constraint_map = self._build_contracts(
+                artifact=artifact,
+                locked_elements=locked_elements,
+                evidence_id=f"real-{execution_id}",
+            )
+        except ValueError as exc:
+            plan_model = None
+            constraint_map = None
+            contract_error = str(exc)
+
         stages = [
             "SOURCE","DETECTION","PLAN_MODEL","CONSTRAINT_MAP",
             "LOCKED_IDENTIFICATION","SEMANTIC_CORROBORATION","CHANGE_REQUEST"
         ]
-        blocker = None
-        if (
+        blocker = contract_error
+        if blocker is None and (
             detection["fixed_element_identification"]["status"] != "ACCESSIBLE"
             or locked_elements["status"] != "ACCESSIBLE"
             or corroboration.status != "ACCESSIBLE"
@@ -144,6 +202,14 @@ class RealVisualRuntime:
             "execution_id": execution_id,
             "status": "BLOCKED" if blocker else "READY_FOR_APPROVAL",
             "blockers": [blocker] if blocker else [],
+            "contracts": {
+                "status": "BLOCKED" if contract_error else "VALID",
+                "plan_model_id": plan_model.model_id if plan_model else None,
+                "constraint_map_id": constraint_map.map_id if constraint_map else None,
+                "element_count": len(plan_model.elements) if plan_model else 0,
+                "unresolved": list(plan_model.unresolved) if plan_model else [],
+                "error": contract_error,
+            },
             "evidence": {
                 "evidence_id": evidence.evidence_id,
                 "input_type": evidence.input_type,
