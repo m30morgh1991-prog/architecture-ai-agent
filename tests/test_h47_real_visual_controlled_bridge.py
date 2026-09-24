@@ -24,7 +24,7 @@ class H47RealVisualControlledBridgeTests(unittest.TestCase):
                 "status": "BLOCKED",
                 "blockers": ["LOCKED_ELEMENT_UNCERTAIN"],
             },
-            ChangeRequest("FURNITURE", ["F01"]),
+            ChangeRequest("FURNITURE", ["F01"], "Move furniture"),
         )
         self.assertEqual(result["status"], "REJECT")
         self.assertIn("LOCKED_ELEMENT_UNCERTAIN", result["failure_codes"])
@@ -32,7 +32,7 @@ class H47RealVisualControlledBridgeTests(unittest.TestCase):
     def test_missing_editable_target_is_rejected_fail_closed(self):
         result = evaluate_real_visual_change(
             self._ready(),
-            ChangeRequest("FURNITURE", ["F01"]),
+            ChangeRequest("FURNITURE", ["F01"], "Move furniture"),
         )
         self.assertEqual(result["status"], "REJECT")
         self.assertEqual(result["failure_codes"], ["EDIT_PERMISSION_REQUIRED"])
@@ -40,7 +40,7 @@ class H47RealVisualControlledBridgeTests(unittest.TestCase):
     def test_unresolved_elements_block_even_with_semantic_access(self):
         result = evaluate_real_visual_change(
             self._ready(unknown=("U01",)),
-            ChangeRequest("FURNITURE", ["F01"]),
+            ChangeRequest("FURNITURE", ["F01"], "Move furniture"),
         )
         self.assertEqual(result["status"], "REJECT")
         self.assertIn("UNCERTAINTY_BLOCKING:BLOCKED", result["failure_codes"])
@@ -48,7 +48,7 @@ class H47RealVisualControlledBridgeTests(unittest.TestCase):
     def test_explicit_editable_target_can_be_approved(self):
         result = evaluate_real_visual_change(
             self._ready(editable=("F01",)),
-            ChangeRequest("FURNITURE", ["F01"]),
+            ChangeRequest("FURNITURE", ["F01"], "Move furniture"),
         )
         self.assertEqual(result["status"], "APPROVED")
         self.assertEqual(result["approved_target_ids"], ["F01"])
