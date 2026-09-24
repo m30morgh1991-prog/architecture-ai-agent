@@ -4,6 +4,8 @@ from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
 from .execution_record import ExecutionRecordStore
 from .final_validation import validate_post_edit
+from .controlled_editing_contract import EditPermission, build_controlled_editing_decision
+from .approved_change_plan_contract import build_approved_change_plan
 
 
 execution_records = ExecutionRecordStore()
@@ -27,7 +29,37 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
     if validation.status != "PASS":
         return {"status": validation.status, "validation": validation.__dict__}
 
-    approved = ApprovedChangePlan(request, list(request.target_ids), "APPROVED")
+    permissions = [
+        EditPermission(element_id=e.element_id, state=e.state)
+        for e in plan.elements if e.element_id in request.target_ids
+    ]
+    controlled = build_controlled_editing_decision(permissions=permissions)
+    if not controlled.executable:
+        return {
+            "status": "REJECT",
+            "validation": {
+                "status": "REJECT",
+                "failure_codes": controlled.blocking_reasons(),
+                "messages": ["Controlled editing gate blocked execution"],
+            },
+        }
+
+    approval = build_approved_change_plan(
+        change_request=request,
+        available_element_ids=[e.element_id for e in plan.elements],
+        editable_element_ids=[e.element_id for e in plan.elements if e.state == "EDITABLE"],
+    )
+    if approval.status != "APPROVED":
+        return {
+            "status": "REJECT",
+            "validation": {
+                "status": "REJECT",
+                "failure_codes": [approval.reason],
+                "messages": ["Approved change plan rejected"],
+            },
+        }
+
+    approved = ApprovedChangePlan(request, list(approval.approved_target_ids), approval.status)
     before = {e.element_id: deepcopy(e.geometry) for e in plan.elements}
     after = deepcopy(before)
 
