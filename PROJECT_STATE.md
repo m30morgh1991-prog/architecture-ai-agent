@@ -11,6 +11,12 @@
 ## Continuation rule
 **Implement → REAL CI Run/Status → Verify → Regression (when applicable) → Persist State → Continue**
 
+## No-Wait / Forward-Motion Rule
+- **Never wait idle when a solvable path exists.** If blocked by a tool, workflow, dependency, or environment limitation, immediately investigate the root cause and pursue a technically valid solution or a compatible alternative path.
+- Prefer parallelizable, non-conflicting preparation while a gated CI run is active, provided it does not invalidate the active gate or violate stage dependencies.
+- Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
+- Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
+
 ## Current verified state — H65
 - Stage: **H65 — Space Extraction Precedence**
 - Status: **GREEN / PASS**
