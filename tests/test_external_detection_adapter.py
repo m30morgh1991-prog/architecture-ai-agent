@@ -15,7 +15,7 @@ class ExternalDetectionAdapterTest(unittest.TestCase):
         self.assertEqual([e.element_type for e in model.elements], ["WALLS","SPACE","FURNITURE"])
         self.assertTrue(all(e.state == "UNKNOWN" for e in model.elements))
 
-    def test_unknown_external_type_remains_unknown(self):
+    def test_low_confidence_locked_external_claim_remains_unknown(self):
         model = ExternalDetectionAdapter().to_plan_model(
             {"elements":[{"id":"w1","type":"wall","state":"LOCKED",
                           "geometry":{"bbox":[0,0,10,10]},"confidence":0.80}]},
