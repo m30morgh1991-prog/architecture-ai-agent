@@ -197,6 +197,7 @@ class RealVisualRuntime:
             conditional_element_ids=(),
             unknown_element_ids=unknown_ids,
             evidence_ids=(evidence_id,),
+            source_sha256=plan_model.source_sha256,
         )
         constraint_map.validate()
         return plan_model, constraint_map
