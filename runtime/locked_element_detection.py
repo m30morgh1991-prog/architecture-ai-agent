@@ -415,6 +415,63 @@ class ConservativeLockedElementDetector:
                         rationale="Native block/layer evidence yields a column candidate set, but individual structural semantics are not yet approval-grade."
                     ))
 
+            # Derive a conservative room/space graph from closed native polylines.
+            # A space is only a candidate when the source itself supplies a closed
+            # boundary; we never infer walls merely from labels.
+            spaces = []
+            for idx, (handle, pts) in enumerate(closed_shapes[:64], 1):
+                bb = bbox_of_points(pts)
+                if bb[2] <= bb[0] or bb[3] <= bb[1] or len(pts) < 3:
+                    continue
+                area = 0.0
+                for i, a in enumerate(pts):
+                    b = pts[(i + 1) % len(pts)]
+                    area += a[0] * b[1] - b[0] * a[1]
+                area = abs(area) / 2.0
+                if area <= 1.0:
+                    continue
+                cx = sum(p[0] for p in pts) / len(pts)
+                cy = sum(p[1] for p in pts) / len(pts)
+                label = None
+                label_dist = None
+                for t in text_labels:
+                    # Text positions are not consistently exposed by all ezdwg
+                    # versions, so only attach labels when a usable insertion point exists.
+                    pos = t.get("insert")
+                    if pos:
+                        d = ((float(pos[0])-cx)**2 + (float(pos[1])-cy)**2) ** 0.5
+                        if label_dist is None or d < label_dist:
+                            label_dist, label = d, t.get("text")
+                spaces.append({
+                    "space_id": f"DWG-SPACE-{idx:02d}",
+                    "boundary_handle": handle,
+                    "bbox": list(bb),
+                    "centroid": [round(cx, 4), round(cy, 4)],
+                    "area": round(area, 4),
+                    "label": label,
+                    "evidence_ids": [f"dwg-space-boundary-{handle}"],
+                    "status": "UNKNOWN",
+                })
+
+            # Relationships are deliberately topological and evidence-backed:
+            # shared boundary handle => SAME_BOUNDARY; centroid containment is
+            # recorded only when both geometries are closed.
+            space_relations = []
+            for i, a in enumerate(spaces):
+                for b in spaces[i + 1:]:
+                    ax0, ay0, ax1, ay1 = a["bbox"]
+                    bx0, by0, bx1, by1 = b["bbox"]
+                    overlap_x = max(0.0, min(ax1,bx1)-max(ax0,bx0))
+                    overlap_y = max(0.0, min(ay1,by1)-max(ay0,by0))
+                    if overlap_x > 0 and overlap_y > 0:
+                        space_relations.append({
+                            "relation_id": f"{a['space_id']}__{b['space_id']}__OVERLAP",
+                            "from": a["space_id"], "to": b["space_id"],
+                            "type": "OVERLAP_CANDIDATE",
+                            "evidence_ids": a["evidence_ids"] + b["evidence_ids"],
+                            "status": "UNKNOWN",
+                        })
+
             # Door/window candidates: arcs and short linework are represented as
             # candidate evidence; explicit layer/text naming is corroborating only.
             door_evidence = arc_count > 0 or has_any("DOOR","PUERTA")
@@ -456,6 +513,8 @@ class ConservativeLockedElementDetector:
                     "closed_shape_candidates": len(column_shapes),
                     "sample": geometry_inventory[:80],
                 },
+                "spaces": spaces,
+                "space_relations": space_relations,
                 "reason": "Native DWG entities are parsed into evidence-backed candidates; approval-grade locking remains fail-closed."
             }
         except Exception as exc:
