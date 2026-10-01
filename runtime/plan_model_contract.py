@@ -1,14 +1,15 @@
 """Evidence-backed PlanModel and ConstraintMap contracts.
 
 H63 adds the validated SpaceModel as a first-class structural component of
-PlanModel. Spatial uncertainty remains fail-closed and is never promoted by
-integration alone.
+PlanModel. H70 adds the source-bound H69 ElementEvidenceBundle so a reconstructed
+PlanModel remains traceable to its evidence and fail-closed.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from runtime.element_evidence_contract import ElementEvidenceBundle
 from runtime.space_model_contract import SpaceModel
 
 ConstraintState = Literal["LOCKED", "EDITABLE", "CONDITIONAL", "UNKNOWN"]
@@ -44,14 +45,34 @@ class PlanModel:
     elements: tuple[PlanElement, ...]
     unresolved: tuple[str, ...] = ()
     space_model: SpaceModel | None = None
+    element_evidence: ElementEvidenceBundle | None = None
 
     def validate(self) -> None:
         if not self.model_id or not self.source_sha256:
             raise ValueError("INVALID_PLAN_MODEL")
+        if len(self.source_sha256) != 64:
+            raise ValueError("INVALID_PLAN_MODEL_SOURCE")
         if self.drawing_count < 1:
             raise ValueError("INVALID_DRAWING_COUNT")
+
+        element_ids = [element.element_id for element in self.elements]
+        if len(element_ids) != len(set(element_ids)):
+            raise ValueError("PLAN_ELEMENT_ID_DUPLICATE")
+
         for element in self.elements:
             element.validate()
+
+        if self.element_evidence is not None:
+            self.element_evidence.validate()
+            if self.element_evidence.source_sha256 != self.source_sha256:
+                raise ValueError("ELEMENT_EVIDENCE_SOURCE_MISMATCH")
+            evidence_ids = {
+                item.evidence_id for item in self.element_evidence.evidences
+            }
+            for element in self.elements:
+                if not set(element.evidence_ids).issubset(evidence_ids):
+                    raise ValueError("PLAN_ELEMENT_EVIDENCE_REFERENCE_MISSING")
+
         if self.space_model is not None:
             self.space_model.validate()
             if self.space_model.source_sha256 != self.source_sha256:
