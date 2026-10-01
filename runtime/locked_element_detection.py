@@ -16,7 +16,7 @@ import numpy as np
 
 from runtime.spatial_topology import classify_space_relations
 from runtime.opening_connectivity import classify_opening_connectivity
-from runtime.space_extraction import polygonize_orthogonal_lines
+from runtime.space_extraction import polygonize_orthogonal_lines, merge_space_boundaries
 
 try:
     import ezdwg
@@ -419,18 +419,18 @@ class ConservativeLockedElementDetector:
                         rationale="Native block/layer evidence yields a column candidate set, but individual structural semantics are not yet approval-grade."
                     ))
 
-            # Derive spaces from explicit closed polylines first. If the real
-            # DWG represents rooms as separate wall LINE entities, fall back to
-            # conservative orthogonal polygonization. This is deliberately a
-            # backward step in the pipeline: better source geometry beats a weak
-            # bbox/closed-polyline assumption.
-            space_shapes = list(closed_shapes[:64])
-            if not space_shapes and line_segments:
-                for idx_face, (face_points, face_area) in enumerate(
-                    polygonize_orthogonal_lines(line_segments, tolerance=1e-6, max_spaces=64), 1
-                ):
-                    synthetic_handle = f"line-face-{idx_face:03d}"
-                    space_shapes.append((synthetic_handle, face_points))
+            # Combine both native closed boundaries and line-derived planar faces.
+            # Explicit boundaries win only when they describe the same geometry;
+            # additional line-derived enclosed regions are retained.
+            line_faces = polygonize_orthogonal_lines(
+                line_segments, tolerance=1e-6, max_spaces=64
+            ) if line_segments else []
+            merged_space_boundaries = merge_space_boundaries(
+                closed_shapes, line_faces, tolerance=1e-6, max_spaces=128
+            )
+            space_shapes = [
+                (handle, points) for handle, points, _source in merged_space_boundaries
+            ]
 
             spaces = []
             for idx, (handle, pts) in enumerate(space_shapes[:64], 1):
