@@ -22,6 +22,7 @@ from .red_marker_detection import RedStructuralMarkerDetector
 from .visual_semantic_corroboration import VisualSemanticCorroborationGate
 from .plan_model_contract import ConstraintMap, PlanElement, PlanModel
 from .drawing_standards_validation import validate_drawing_standards
+from .drawing_metadata_extractor import extract_drawing_standard_metadata
 
 _SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF",".dwg":"DWG"}
 _SPACE_TERMS = re.compile(
@@ -212,10 +213,15 @@ class RealVisualRuntime:
             structural_geometry_evidence=bool(locked_elements.get("candidates")),
             contradiction_evidence=False,
         )
+        drawing_metadata = extract_drawing_standard_metadata(
+            artifact.source_path,
+            artifact.input_type,
+            artifact_payload=artifact.image if isinstance(artifact.image, dict) else None,
+        )
         drawing_standards = validate_drawing_standards(
             source_sha256=artifact.sha256,
-            evidence_ids=[f"real-{execution_id}"],
-            metadata={},
+            evidence_ids=[f"real-{execution_id}", *drawing_metadata.get("evidence_ids", [])],
+            metadata=drawing_metadata,
             detection=detection,
         )
         contract_error = None
@@ -291,6 +297,7 @@ class RealVisualRuntime:
             "detection": detection,
             "locked_element_detection": locked_elements,
             "red_marker_evidence": marker_evidence,
+            "drawing_metadata": drawing_metadata,
             "drawing_standards": {
                 "status": drawing_standards.status,
                 "checks": drawing_standards.checks,
