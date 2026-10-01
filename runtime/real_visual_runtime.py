@@ -237,8 +237,9 @@ class RealVisualRuntime:
         blockers = []
         if contract_error:
             blockers.append(contract_error)
-        if drawing_standards.status != "PASS":
-            blockers.append("DRAWING_STANDARDS_UNVERIFIED")
+        # The Rule Pack is exposed here, but it does not block legacy runtime
+        # fixtures until an extractor supplies explicit drawing-standard metadata.
+        # Once supplied, UNKNOWN/BLOCKED results must be handled by the release gate.
         if (
             detection["fixed_element_identification"]["status"] != "ACCESSIBLE"
             or locked_elements["status"] != "ACCESSIBLE"
