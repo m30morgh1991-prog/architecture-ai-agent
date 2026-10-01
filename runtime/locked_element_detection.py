@@ -281,52 +281,156 @@ class ConservativeLockedElementDetector:
                 if e.dxftype in {"INSERT", "MINSERT"}:
                     inserts.append({"handle": e.handle, "block": dxf.get("name", dxf.get("block_name")), "insert": dxf.get("insert")})
 
-            # Native DWG geometry is now available to the PlanModel pipeline.
-            # Semantic locking stays conservative: layer/block names may support
-            # a candidate, but geometry alone never promotes to LOCKED.
+            # Native DWG geometry is now interpreted deterministically into
+            # bounded architectural candidates. Geometry can strengthen evidence,
+            # but it NEVER promotes a candidate to LOCKED by itself.
             lower_text = " ".join(str(x.get("text", "")) for x in text_labels).upper()
             layer_names = {str((e.dxf or {}).get("layer", "")).upper() for e in entities}
+            blob = lower_text + " " + " ".join(layer_names)
             def has_any(*terms: str) -> bool:
-                blob = lower_text + " " + " ".join(layer_names)
                 return any(term in blob for term in terms)
 
+            def bbox_of_points(points):
+                if not points:
+                    return (0.0, 0.0, 0.0, 0.0)
+                xs = [float(p[0]) for p in points]
+                ys = [float(p[1]) for p in points]
+                return (min(xs), min(ys), max(xs), max(ys))
+
+            def entity_points(entity):
+                try:
+                    return [(float(p[0]), float(p[1])) for p in entity.to_points()]
+                except Exception:
+                    return []
+
+            # Build a normalized geometry inventory. This is the first structured
+            # geometry layer: line segments, polylines, arcs/circles and inserts
+            # remain traceable to their original DWG handles.
+            geometry_inventory = []
+            polyline_closed = 0
+            arc_count = 0
+            circle_count = 0
+            closed_shapes = []
+            for entity in entities:
+                dxf = entity.dxf or {}
+                pts = entity_points(entity)
+                if pts:
+                    geometry_inventory.append({
+                        "handle": entity.handle,
+                        "type": entity.dxftype,
+                        "layer": dxf.get("layer"),
+                        "points": pts[:200],
+                        "closed": bool(dxf.get("closed", False)),
+                    })
+                    if entity.dxftype == "LWPOLYLINE" and bool(dxf.get("closed", False)):
+                        polyline_closed += 1
+                        closed_shapes.append((entity.handle, pts))
+                elif entity.dxftype == "ARC":
+                    arc_count += 1
+                elif entity.dxftype == "CIRCLE":
+                    circle_count += 1
+
             if len(line_segments) >= 4:
-                xs = [p for s in line_segments for p in (s[0], s[2])]
-                ys = [p for s in line_segments for p in (s[1], s[3])]
+                xs = [p for seg in line_segments for p in (seg[0], seg[2])]
+                ys = [p for seg in line_segments for p in (seg[1], seg[3])]
                 bbox = (min(xs), min(ys), max(xs), max(ys))
                 candidates.append(LockedElementCandidate(
                     candidate_id="DWG-BOUNDARY-01", element_type="OUTER_BOUNDARY",
-                    bbox=bbox, confidence=0.76, evidence_ids=(f"dwg-geometry-{source_sha256[:8]}",),
-                    status="UNKNOWN", rationale="Native DWG line geometry establishes a drawing extent candidate; architectural boundary semantics are not independently proven."
+                    bbox=bbox, confidence=0.82, evidence_ids=(f"dwg-geometry-{source_sha256[:8]}",),
+                    status="UNKNOWN", rationale="Native line geometry establishes the drawing envelope; closed-boundary semantics are still unverified."
                 ))
                 candidates.append(LockedElementCandidate(
                     candidate_id="DWG-FORM-01", element_type="OVERALL_PLAN_FORM",
-                    bbox=bbox, confidence=0.74, evidence_ids=(f"dwg-geometry-{source_sha256[:8]}",),
-                    status="UNKNOWN", rationale="Native DWG geometry establishes a plan-form candidate; architectural semantics remain unverified."
+                    bbox=bbox, confidence=0.80, evidence_ids=(f"dwg-geometry-{source_sha256[:8]}",),
+                    status="UNKNOWN", rationale="Native geometry establishes a coherent plan-form candidate; architectural form semantics remain unverified."
                 ))
-            if has_any("WALL", "MURO", "WALLS"):
+
+            # Wall candidate: require either explicit architectural layer evidence
+            # or a geometry pattern of multiple long, approximately parallel lines.
+            long_segments = []
+            for x0, y0, x1, y1, handle in line_segments:
+                length = ((x1-x0)**2 + (y1-y0)**2) ** 0.5
+                if length > 0:
+                    long_segments.append((x0,y0,x1,y1,handle,length))
+            span = max(
+                [abs(x1-x0) for x0,y0,x1,y1,_ in line_segments] +
+                [abs(y1-y0) for x0,y0,x1,y1,_ in line_segments] + [1.0]
+            )
+            parallel_pairs = 0
+            for i, a in enumerate(long_segments):
+                ax, ay, bx, by, _, alen = a
+                av=(bx-ax,by-ay)
+                for b in long_segments[i+1:]:
+                    cx, cy, dx, dy, _, blen = b
+                    if min(alen, blen) < span * 0.08:
+                        continue
+                    bv=(dx-cx,dy-cy)
+                    cross=abs(av[0]*bv[1]-av[1]*bv[0])
+                    if cross > max(alen*blen*0.02, 1e-9):
+                        continue
+                    # Distance from one endpoint of b to line a.
+                    den=max(alen,1e-9)
+                    dist=abs(av[0]*(cy-ay)-av[1]*(cx-ax))/den
+                    if span*0.002 <= dist <= span*0.08:
+                        parallel_pairs += 1
+                        if parallel_pairs >= 4:
+                            break
+                if parallel_pairs >= 4:
+                    break
+            wall_geom = parallel_pairs >= 2
+            if has_any("WALL", "MURO", "WALLS") or wall_geom:
+                evidence = f"dwg-wall-geometry-{source_sha256[:8]}" if wall_geom else f"dwg-layer-{source_sha256[:8]}"
                 candidates.append(LockedElementCandidate(
-                    candidate_id="DWG-WALLS-01", element_type="WALLS", bbox=(0,0,0,0), confidence=0.84,
-                    evidence_ids=(f"dwg-layer-{source_sha256[:8]}",), status="UNKNOWN",
-                    rationale="DWG layer/text evidence suggests wall semantics but does not independently verify the complete wall set."
+                    candidate_id="DWG-WALLS-01", element_type="WALLS", bbox=bbox if line_segments else (0,0,0,0),
+                    confidence=0.86 if wall_geom and has_any("WALL","MURO","WALLS") else 0.78,
+                    evidence_ids=(evidence,), status="UNKNOWN",
+                    rationale="Wall semantics are supported by native geometry/layer evidence, but the complete wall graph and architectural role are not yet approval-grade."
                 ))
-            if has_any("COLUMN", "COL", "COLUM", "STRUCT") or inserts:
+
+            # Columns: closed polylines/circles or block inserts become individual
+            # geometry candidates; block/layer semantics only corroborate them.
+            column_shapes = []
+            for handle, pts in closed_shapes:
+                bb=bbox_of_points(pts)
+                w,h=bb[2]-bb[0],bb[3]-bb[1]
+                if w > 0 and h > 0:
+                    ratio=max(w,h)/max(min(w,h),1e-9)
+                    if ratio <= 2.5:
+                        column_shapes.append((handle,bb))
+            if inserts or column_shapes or has_any("COLUMN","COLUM","STRUCT"):
+                if column_shapes:
+                    for idx,(handle,bb) in enumerate(column_shapes[:24],1):
+                        candidates.append(LockedElementCandidate(
+                            candidate_id=f"DWG-COLUMN-{idx:02d}", element_type="COLUMNS", bbox=bb,
+                            confidence=0.82 if has_any("COLUMN","COLUM","STRUCT") else 0.74,
+                            evidence_ids=(f"dwg-closed-shape-{handle}",),
+                            status="UNKNOWN",
+                            rationale="Closed near-rectangular native geometry is a column candidate; structural semantics remain unverified."
+                        ))
+                else:
+                    candidates.append(LockedElementCandidate(
+                        candidate_id="DWG-COLUMNS-01", element_type="COLUMNS", bbox=bbox if line_segments else (0,0,0,0),
+                        confidence=0.72, evidence_ids=(f"dwg-entity-{source_sha256[:8]}",), status="UNKNOWN",
+                        rationale="Native block/layer evidence yields a column candidate set, but individual structural semantics are not yet approval-grade."
+                    ))
+
+            # Door/window candidates: arcs and short linework are represented as
+            # candidate evidence; explicit layer/text naming is corroborating only.
+            door_evidence = arc_count > 0 or has_any("DOOR","PUERTA")
+            window_evidence = circle_count > 0 or has_any("WINDOW","VENT","WINDOWS")
+            if door_evidence:
                 candidates.append(LockedElementCandidate(
-                    candidate_id="DWG-COLUMNS-01", element_type="COLUMNS", bbox=(0,0,0,0), confidence=0.70,
-                    evidence_ids=(f"dwg-entity-{source_sha256[:8]}",), status="UNKNOWN",
-                    rationale="Native block/structure evidence yields a column candidate set, but individual structural semantics are not yet approval-grade."
+                    candidate_id="DWG-DOORS-01", element_type="DOORS", bbox=bbox if line_segments else (0,0,0,0),
+                    confidence=0.78 if has_any("DOOR","PUERTA") and arc_count else 0.70,
+                    evidence_ids=(f"dwg-door-geometry-{source_sha256[:8]}",), status="UNKNOWN",
+                    rationale="Native arc/layer/text evidence supports a door candidate set; individual openings and swing semantics are not yet approval-grade."
                 ))
-            if has_any("DOOR", "PUERTA", "D"):
+            if window_evidence:
                 candidates.append(LockedElementCandidate(
-                    candidate_id="DWG-DOORS-01", element_type="DOORS", bbox=(0,0,0,0), confidence=0.68,
-                    evidence_ids=(f"dwg-text-{source_sha256[:8]}",), status="UNKNOWN",
-                    rationale="DWG text/layer evidence suggests door semantics; geometry-level door detection is not yet approval-grade."
-                ))
-            if has_any("WINDOW", "VENT", "WINDOWS"):
-                candidates.append(LockedElementCandidate(
-                    candidate_id="DWG-WINDOWS-01", element_type="WINDOWS", bbox=(0,0,0,0), confidence=0.68,
-                    evidence_ids=(f"dwg-text-{source_sha256[:8]}",), status="UNKNOWN",
-                    rationale="DWG text/layer evidence suggests window semantics; geometry-level window detection is not yet approval-grade."
+                    candidate_id="DWG-WINDOWS-01", element_type="WINDOWS", bbox=bbox if line_segments else (0,0,0,0),
+                    confidence=0.76 if has_any("WINDOW","VENT","WINDOWS") else 0.66,
+                    evidence_ids=(f"dwg-window-geometry-{source_sha256[:8]}",), status="UNKNOWN",
+                    rationale="Native circle/layer/text evidence supports a window candidate set; wall-host relationships are not yet approval-grade."
                 ))
             for candidate in candidates:
                 candidate.validate()
@@ -341,6 +445,16 @@ class ConservativeLockedElementDetector:
                 "locked_element_types": [], "unresolved_fixed_element_types": missing,
                 "dwg_entity_counts": by_type, "dwg_text_labels": text_labels[:200],
                 "dwg_insert_count": len(inserts), "dwg_version": doc.version, "dwg_units": doc.units,
+                "dwg_geometry": {
+                    "inventory_count": len(geometry_inventory),
+                    "line_segment_count": len(line_segments),
+                    "closed_polyline_count": polyline_closed,
+                    "arc_count": arc_count,
+                    "circle_count": circle_count,
+                    "parallel_wall_pair_evidence": parallel_pairs,
+                    "closed_shape_candidates": len(column_shapes),
+                    "sample": geometry_inventory[:80],
+                },
                 "reason": "Native DWG entities are parsed into evidence-backed candidates; approval-grade locking remains fail-closed."
             }
         except Exception as exc:
