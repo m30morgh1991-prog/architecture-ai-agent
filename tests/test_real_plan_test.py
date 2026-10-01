@@ -35,6 +35,8 @@ class RealPlanTestBaseline(unittest.TestCase):
         self.assertGreaterEqual(result["locked_element_detection"]["dwg_geometry"]["inventory_count"], 0)
         self.assertIsInstance(result["locked_element_detection"]["spaces"], list)
         self.assertIsInstance(result["locked_element_detection"]["space_relations"], list)
+        self.assertTrue(all(x["type"] in {"SHARED_BOUNDARY", "CONTAINS", "OVERLAPS", "DISCONNECTED"} for x in result["locked_element_detection"]["space_relations"]))
+        self.assertTrue(all(x["status"] == "UNKNOWN" for x in result["locked_element_detection"]["space_relations"]))
         self.assertIn("dwg_geometry", result["locked_element_detection"])
         self.assertIn("spaces", result["locked_element_detection"])
         self.assertIn("space_relations", result["locked_element_detection"])
