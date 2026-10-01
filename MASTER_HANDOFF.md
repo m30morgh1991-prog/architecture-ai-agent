@@ -8,11 +8,14 @@ This document is the durable continuation point for the Architecture AI Agent pr
 
 1. Do not redo completed work unless regression evidence requires it.
 2. Implement the current stage.
-3. Run the real CI workflow.
-4. Verify the actual result and distinguish success from queued/running/failed.
-5. Persist the state in the repository.
-6. Sync Notion when available; if unavailable, continue without blocking.
-7. Do not start the next gated H stage until the current gate has real evidence.
+3. Run the **real CI workflow** for the current commit.
+4. Verify the actual result and distinguish `success` from queued/running/failed/unobserved.
+5. Run required regression checks when applicable.
+6. Persist the verified state in the repository.
+7. **Green Gate:** a stage is GREEN/PASS only when the relevant real CI run is `completed` with `success` and required verification/regression evidence is confirmed.
+8. Do not start the next gated H stage until the current gate has real evidence.
+9. **Notion is excluded from governance and execution.** It is neither a source of truth nor a condition for PASS, continuation, persistence, or release.
+10. Never convert Logical/Static PASS or unknown evidence into Real Runtime/Visual PASS.
 
 ## Architecture principles
 
@@ -73,16 +76,22 @@ Run #222 on the same development line failed before Run #223 succeeded. Do not t
 
 Continue from the active real-DWG / plan-space reconstruction work. The latest successful evidence indicates the planar-face traversal fix passed Runtime Tests. The next action must still be determined from the current PR/main state and the project's H-gate evidence, not guessed from a commit message alone.
 
-## Notion outage/fallback procedure
+## Continuation procedure
 
-If Notion cannot be opened:
-- Do not stop development.
+- Do not stop development because Notion is unavailable or absent.
 - Read PROJECT_STATE.md and this file.
 - Inspect main and the active feature branch.
 - Inspect the latest CI workflow runs.
 - Continue only from verified evidence.
-- When Notion returns, mirror the repository state back into the Notion project page.
-- Never make Notion the sole copy of project state.
+- Repository-backed state is the durable continuation record.
+
+## Governance lock — 2026-10-01
+
+The execution rule is permanently recorded as:
+
+**Implement → REAL CI Run/Status → Verify → Regression (when applicable) → Persist State → Continue**
+
+No Notion action is required at any point in this chain.
 
 ## Integrity rule
 
