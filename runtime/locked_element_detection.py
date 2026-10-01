@@ -87,17 +87,17 @@ class ConservativeLockedElementDetector:
         horizontal_lines = []
         for drawing_index, drawing in enumerate(drawings):
             rect = drawing.get("rect")
-            if rect is not None and drawing.get("fill") is not None:
-                w, h = rect.width, rect.height
+            fill = drawing.get("fill")
+            if rect is not None and fill is not None:
+                w, h = float(rect.width), float(rect.height)
                 if 20 <= w <= 80 and 20 <= h <= 80:
                     filled_rects.append((drawing_index, rect))
+
             for item in drawing.get("items", []):
                 if not item:
                     continue
-                # PyMuPDF has used "l" for line primitives across releases,
-                # but keep the evidence extractor tolerant of equivalent
-                # line-item representations so vector evidence is not lost.
-                if item[0] in {"l", "line"}:
+                kind = item[0]
+                if kind in {"l", "line"}:
                     p1, p2 = item[1], item[2]
                     dx, dy = float(p2.x - p1.x), float(p2.y - p1.y)
                     length = (dx * dx + dy * dy) ** 0.5
@@ -111,16 +111,26 @@ class ConservativeLockedElementDetector:
                             (float(min(p1.x, p2.x)), float((p1.y + p2.y) / 2),
                              float(max(p1.x, p2.x)), length)
                         )
+                elif kind in {"re", "rect", "rectangle"} and len(item) >= 2:
+                    item_rect = item[1]
+                    w, h = float(item_rect.width), float(item_rect.height)
+                    if 20 <= w <= 80 and 20 <= h <= 80:
+                        filled_rects.append((drawing_index, item_rect))
 
-            # A filled rectangle is explicit vector evidence even when a
-            # release represents it through a compound drawing primitive.
-            # Keep the geometry gate conservative; never infer a LOCKED state.
-            rect = drawing.get("rect")
-            fill = drawing.get("fill")
-            if rect is not None and fill is not None:
-                w, h = float(rect.width), float(rect.height)
-                if 20 <= w <= 80 and 20 <= h <= 80:
-                    filled_rects.append((drawing_index, rect))
+        # Build a vector frame even if text extraction does not expose the
+        # plan title. This keeps detection evidence-driven and conservative:
+        # geometry can establish a candidate panel, but never approval-grade
+        # semantics or LOCKED state.
+        if not titles and len(vertical_lines) >= 2:
+            left = min(vertical_lines, key=lambda line: line[0])
+            right = max(vertical_lines, key=lambda line: line[0])
+            if left[0] < right[0] and left[1] < 500 and right[1] < 500:
+                titles.append({
+                    "index": 1,
+                    "title": "PLANTA VECTOR PANEL",
+                    "bbox": [left[0], left[1], right[0], min(left[2], right[2])],
+                    "evidence_id": "pdf-vector-frame-0",
+                })
 
         panels = []
         candidates = []
