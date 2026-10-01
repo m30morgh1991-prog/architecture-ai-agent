@@ -19,7 +19,7 @@ class SpatialTopologyTests(unittest.TestCase):
     def test_bbox_overlap_does_not_become_adjacency(self):
         spaces=self._spaces()
         spaces[1]["bbox"]=[5,5,15,15]
-        spaces[1]["centroid"]=[10,10]
+        spaces[1]["centroid"]=[13.5,13.5]
         boundaries={"A":[(0,0),(10,0),(10,10),(0,10)],"B":[(12,12),(15,12),(15,15),(12,15)]}
         r=classify_space_relations(spaces,boundaries)
         self.assertEqual(r[0]["type"],"OVERLAPS")
