@@ -14,6 +14,11 @@ import cv2
 import fitz
 import numpy as np
 
+try:
+    import ezdwg
+except ImportError:  # pragma: no cover
+    ezdwg = None
+
 
 _PLAN_TITLE_RE = re.compile(r"\bPLANTA\s+([^\n]+)", re.I)
 _FIXED_TYPES = (
@@ -54,6 +59,8 @@ class ConservativeLockedElementDetector:
 
     def detect(self, source_path: str, source_sha256: str) -> dict[str, Any]:
         path = Path(source_path)
+        if path.suffix.lower() == ".dwg":
+            return self._dwg_detect(path, source_sha256)
         if path.suffix.lower() != ".pdf":
             return self._raster_fallback(source_sha256)
 
@@ -244,6 +251,105 @@ class ConservativeLockedElementDetector:
                 "but does not prove approval-grade semantics for columns/walls/doors/windows."
             ) if missing else "All fixed element types identified at approval-grade confidence.",
         }
+
+    def _dwg_detect(self, path: Path, source_sha256: str) -> dict[str, Any]:
+        if ezdwg is None:
+            return self._dwg_unknown(source_sha256, "DWG_PARSER_UNAVAILABLE")
+        try:
+            doc = ezdwg.read(str(path))
+            msp = doc.modelspace()
+            entity_types = "LINE LWPOLYLINE ARC CIRCLE ELLIPSE POINT TEXT MTEXT DIMENSION INSERT MINSERT HATCH SPLINE"
+            entities = list(msp.query(entity_types))
+            headers = doc.header_variables()
+            extmin, extmax = headers.get("extmin"), headers.get("extmax")
+            by_type: dict[str, int] = {}
+            candidates: list[LockedElementCandidate] = []
+            text_labels: list[dict[str, Any]] = []
+            line_segments: list[tuple[float,float,float,float,int]] = []
+            inserts: list[dict[str, Any]] = []
+            for e in entities:
+                by_type[e.dxftype] = by_type.get(e.dxftype, 0) + 1
+                dxf = e.dxf or {}
+                if e.dxftype in {"TEXT", "MTEXT"}:
+                    value = str(dxf.get("text", dxf.get("plain_text", ""))).strip()
+                    if value:
+                        text_labels.append({"handle": e.handle, "text": value, "layer": dxf.get("layer")})
+                if e.dxftype == "LINE":
+                    p1, p2 = dxf.get("start"), dxf.get("end")
+                    if p1 and p2:
+                        line_segments.append((float(p1[0]),float(p1[1]),float(p2[0]),float(p2[1]),e.handle))
+                if e.dxftype in {"INSERT", "MINSERT"}:
+                    inserts.append({"handle": e.handle, "block": dxf.get("name", dxf.get("block_name")), "insert": dxf.get("insert")})
+
+            # Native DWG geometry is now available to the PlanModel pipeline.
+            # Semantic locking stays conservative: layer/block names may support
+            # a candidate, but geometry alone never promotes to LOCKED.
+            lower_text = " ".join(str(x.get("text", "")) for x in text_labels).upper()
+            layer_names = {str((e.dxf or {}).get("layer", "")).upper() for e in entities}
+            def has_any(*terms: str) -> bool:
+                blob = lower_text + " " + " ".join(layer_names)
+                return any(term in blob for term in terms)
+
+            if len(line_segments) >= 4:
+                xs = [p for s in line_segments for p in (s[0], s[2])]
+                ys = [p for s in line_segments for p in (s[1], s[3])]
+                bbox = (min(xs), min(ys), max(xs), max(ys))
+                candidates.append(LockedElementCandidate(
+                    candidate_id="DWG-BOUNDARY-01", element_type="OUTER_BOUNDARY",
+                    bbox=bbox, confidence=0.76, evidence_ids=(f"dwg-geometry-{source_sha256[:8]}",),
+                    status="UNKNOWN", rationale="Native DWG line geometry establishes a drawing extent candidate; architectural boundary semantics are not independently proven."
+                ))
+                candidates.append(LockedElementCandidate(
+                    candidate_id="DWG-FORM-01", element_type="OVERALL_PLAN_FORM",
+                    bbox=bbox, confidence=0.74, evidence_ids=(f"dwg-geometry-{source_sha256[:8]}",),
+                    status="UNKNOWN", rationale="Native DWG geometry establishes a plan-form candidate; architectural semantics remain unverified."
+                ))
+            if has_any("WALL", "MURO", "WALLS"):
+                candidates.append(LockedElementCandidate(
+                    candidate_id="DWG-WALLS-01", element_type="WALLS", bbox=(0,0,0,0), confidence=0.84,
+                    evidence_ids=(f"dwg-layer-{source_sha256[:8]}",), status="UNKNOWN",
+                    rationale="DWG layer/text evidence suggests wall semantics but does not independently verify the complete wall set."
+                ))
+            if has_any("COLUMN", "COL", "COLUM", "STRUCT") or inserts:
+                candidates.append(LockedElementCandidate(
+                    candidate_id="DWG-COLUMNS-01", element_type="COLUMNS", bbox=(0,0,0,0), confidence=0.70,
+                    evidence_ids=(f"dwg-entity-{source_sha256[:8]}",), status="UNKNOWN",
+                    rationale="Native block/structure evidence yields a column candidate set, but individual structural semantics are not yet approval-grade."
+                ))
+            if has_any("DOOR", "PUERTA", "D"):
+                candidates.append(LockedElementCandidate(
+                    candidate_id="DWG-DOORS-01", element_type="DOORS", bbox=(0,0,0,0), confidence=0.68,
+                    evidence_ids=(f"dwg-text-{source_sha256[:8]}",), status="UNKNOWN",
+                    rationale="DWG text/layer evidence suggests door semantics; geometry-level door detection is not yet approval-grade."
+                ))
+            if has_any("WINDOW", "VENT", "WINDOWS"):
+                candidates.append(LockedElementCandidate(
+                    candidate_id="DWG-WINDOWS-01", element_type="WINDOWS", bbox=(0,0,0,0), confidence=0.68,
+                    evidence_ids=(f"dwg-text-{source_sha256[:8]}",), status="UNKNOWN",
+                    rationale="DWG text/layer evidence suggests window semantics; geometry-level window detection is not yet approval-grade."
+                ))
+            for candidate in candidates:
+                candidate.validate()
+            present = {c.element_type for c in candidates}
+            missing = [x for x in _FIXED_TYPES if x not in present]
+            return {
+                "detector_id": self.detector_id + "-dwg",
+                "status": "UNKNOWN" if missing or any(c.status != "LOCKED" for c in candidates) else "ACCESSIBLE",
+                "source_sha256": source_sha256, "page_count": 1,
+                "plan_panels": [{"panel_id":"DWG-MODELSPACE-01","bbox":[extmin,extmax],"evidence_ids":[f"dwg-geometry-{source_sha256[:8]}"]}],
+                "candidates": [c.__dict__ for c in candidates],
+                "locked_element_types": [], "unresolved_fixed_element_types": missing,
+                "dwg_entity_counts": by_type, "dwg_text_labels": text_labels[:200],
+                "dwg_insert_count": len(inserts), "dwg_version": doc.version, "dwg_units": doc.units,
+                "reason": "Native DWG entities are parsed into evidence-backed candidates; approval-grade locking remains fail-closed."
+            }
+        except Exception as exc:
+            return self._dwg_unknown(source_sha256, "DWG_DETECTION_FAILED:" + type(exc).__name__)
+
+    def _dwg_unknown(self, source_sha256: str, reason: str) -> dict[str, Any]:
+        return {"detector_id": self.detector_id + "-dwg", "status":"UNKNOWN", "source_sha256":source_sha256,
+                "page_count":1, "plan_panels":[], "candidates":[], "locked_element_types":[],
+                "unresolved_fixed_element_types":list(_FIXED_TYPES), "reason":reason}
 
     def _raster_fallback(self, source_sha256: str) -> dict[str, Any]:
         return {
