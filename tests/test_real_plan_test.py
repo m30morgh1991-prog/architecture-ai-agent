@@ -29,6 +29,17 @@ class RealPlanTestBaseline(unittest.TestCase):
         self.assertEqual(result["constraint_map"]["map_id"], result["contracts"]["constraint_map_id"])
         self.assertEqual(result["constraint_map"]["model_id"], result["contracts"]["plan_model_id"])
         self.assertIn(result["evidence"]["evidence_id"], result["constraint_map"]["evidence_ids"])
+        self.assertIn("dwg_geometry", result["locked_element_detection"])
+        self.assertIn("spaces", result["locked_element_detection"])
+        self.assertIn("space_relations", result["locked_element_detection"])
+        self.assertGreaterEqual(result["locked_element_detection"]["dwg_geometry"]["inventory_count"], 0)
+        self.assertIsInstance(result["locked_element_detection"]["spaces"], list)
+        self.assertIsInstance(result["locked_element_detection"]["space_relations"], list)
+        self.assertIn("dwg_geometry", result["locked_element_detection"])
+        self.assertIn("spaces", result["locked_element_detection"])
+        self.assertIn("space_relations", result["locked_element_detection"])
+        self.assertIsInstance(result["locked_element_detection"]["spaces"], list)
+        self.assertIsInstance(result["locked_element_detection"]["space_relations"], list)
         self.assertIsNone(result["next_stage"])
 
     def test_afifiiiii_dwg_also_fails_closed(self):
