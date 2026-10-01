@@ -92,9 +92,14 @@ class ConservativeLockedElementDetector:
                 if 20 <= w <= 80 and 20 <= h <= 80:
                     filled_rects.append((drawing_index, rect))
             for item in drawing.get("items", []):
-                if item and item[0] == "l":
+                if not item:
+                    continue
+                # PyMuPDF has used "l" for line primitives across releases,
+                # but keep the evidence extractor tolerant of equivalent
+                # line-item representations so vector evidence is not lost.
+                if item[0] in {"l", "line"}:
                     p1, p2 = item[1], item[2]
-                    dx, dy = p2.x - p1.x, p2.y - p1.y
+                    dx, dy = float(p2.x - p1.x), float(p2.y - p1.y)
                     length = (dx * dx + dy * dy) ** 0.5
                     if length >= 500 and abs(dx) < 2:
                         vertical_lines.append(
@@ -106,6 +111,16 @@ class ConservativeLockedElementDetector:
                             (float(min(p1.x, p2.x)), float((p1.y + p2.y) / 2),
                              float(max(p1.x, p2.x)), length)
                         )
+
+            # A filled rectangle is explicit vector evidence even when a
+            # release represents it through a compound drawing primitive.
+            # Keep the geometry gate conservative; never infer a LOCKED state.
+            rect = drawing.get("rect")
+            fill = drawing.get("fill")
+            if rect is not None and fill is not None:
+                w, h = float(rect.width), float(rect.height)
+                if 20 <= w <= 80 and 20 <= h <= 80:
+                    filled_rects.append((drawing_index, rect))
 
         panels = []
         candidates = []
