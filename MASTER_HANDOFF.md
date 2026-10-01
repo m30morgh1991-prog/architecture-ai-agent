@@ -14,6 +14,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 8. Do not start the next gated H until the current gate has real evidence.
 9. **Notion is excluded from governance and execution.**
 10. Never convert Logical/Static PASS or UNKNOWN evidence into Real Runtime/Visual PASS.
+11. **No-Wait / Forward-Motion Rule:** never remain idle when a solvable path exists; investigate blockers immediately and use a technically valid solution or compatible alternative. Parallel preparation is allowed while CI runs only when it does not invalidate the active gate or violate stage dependencies. Alternatives may accelerate progress but never replace required real CI evidence. Stop only for a genuine external blocker or unavoidable human decision.
 
 ## Architecture principles
 - This is not an image editor.
