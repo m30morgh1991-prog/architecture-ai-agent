@@ -21,6 +21,7 @@ from .locked_element_detection import ConservativeLockedElementDetector
 from .red_marker_detection import RedStructuralMarkerDetector
 from .visual_semantic_corroboration import VisualSemanticCorroborationGate
 from .plan_model_contract import ConstraintMap, PlanElement, PlanModel
+from .drawing_standards_validation import validate_drawing_standards
 
 _SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF",".dwg":"DWG"}
 _SPACE_TERMS = re.compile(
@@ -211,6 +212,12 @@ class RealVisualRuntime:
             structural_geometry_evidence=bool(locked_elements.get("candidates")),
             contradiction_evidence=False,
         )
+        drawing_standards = validate_drawing_standards(
+            source_sha256=artifact.sha256,
+            evidence_ids=[f"real-{execution_id}"],
+            metadata={},
+            detection=detection,
+        )
         contract_error = None
         try:
             plan_model, constraint_map = self._build_contracts(
@@ -227,13 +234,18 @@ class RealVisualRuntime:
             "SOURCE","DETECTION","PLAN_MODEL","CONSTRAINT_MAP",
             "LOCKED_IDENTIFICATION","SEMANTIC_CORROBORATION","CHANGE_REQUEST"
         ]
-        blocker = contract_error
-        if blocker is None and (
+        blockers = []
+        if contract_error:
+            blockers.append(contract_error)
+        if drawing_standards.status != "PASS":
+            blockers.append("DRAWING_STANDARDS_UNVERIFIED")
+        if (
             detection["fixed_element_identification"]["status"] != "ACCESSIBLE"
             or locked_elements["status"] != "ACCESSIBLE"
             or corroboration.status != "ACCESSIBLE"
         ):
-            blocker = "LOCKED_ELEMENT_UNCERTAIN"
+            blockers.append("LOCKED_ELEMENT_UNCERTAIN")
+        blocker = blockers[0] if blockers else None
         evidence = VisualEvidence(
             evidence_id=f"real-{execution_id}",
             input_type=artifact.input_type,
@@ -243,7 +255,7 @@ class RealVisualRuntime:
         return {
             "execution_id": execution_id,
             "status": "BLOCKED" if blocker else "READY_FOR_APPROVAL",
-            "blockers": [blocker] if blocker else [],
+            "blockers": blockers,
             "contracts": {
                 "status": "BLOCKED" if contract_error else "VALID",
                 "plan_model_id": plan_model.model_id if plan_model else None,
@@ -278,6 +290,12 @@ class RealVisualRuntime:
             "detection": detection,
             "locked_element_detection": locked_elements,
             "red_marker_evidence": marker_evidence,
+            "drawing_standards": {
+                "status": drawing_standards.status,
+                "checks": drawing_standards.checks,
+                "evidence_ids": list(drawing_standards.evidence_ids),
+                "unresolved": list(drawing_standards.unresolved),
+            },
             "semantic_corroboration": {
                 "status": corroboration.status,
                 "semantics": corroboration.semantics,
