@@ -3,6 +3,7 @@
 H63 adds the validated SpaceModel as a first-class structural component of
 PlanModel. H70 binds the source-bound H69 ElementEvidenceBundle so a
 reconstructed PlanModel remains traceable to its evidence and fail-closed.
+H71 makes ConstraintMap source-bound to the same PlanModel/evidence lineage.
 """
 from __future__ import annotations
 
@@ -98,10 +99,13 @@ class ConstraintMap:
     conditional_element_ids: tuple[str, ...]
     unknown_element_ids: tuple[str, ...]
     evidence_ids: tuple[str, ...]
+    source_sha256: str = ""
 
     def validate(self) -> None:
         if not self.map_id or not self.model_id:
             raise ValueError("INVALID_CONSTRAINT_MAP")
+        if len(self.source_sha256) != 64:
+            raise ValueError("INVALID_CONSTRAINT_MAP_SOURCE")
         if not self.evidence_ids:
             raise ValueError("MISSING_CONSTRAINT_EVIDENCE")
         buckets = [
