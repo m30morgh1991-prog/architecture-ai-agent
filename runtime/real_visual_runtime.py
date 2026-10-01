@@ -56,7 +56,7 @@ class RealVisualArtifactAdapter:
             if ezdwg is None:
                 raise ValueError("DWG_PARSER_UNAVAILABLE")
             try:
-                document = ezdwg.read(path)
+                document = ezdwg.read(str(path))
                 modelspace = document.modelspace()
                 entity_count = len(list(modelspace))
                 header = document.header_variables()
