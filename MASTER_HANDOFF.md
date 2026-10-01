@@ -25,16 +25,16 @@ Durable repository-backed continuation point for Architecture AI Agent.
 
 ## Current verified continuation point
 
-### H68 — Architectural Element Detection
+### H69 — Element Evidence Contract
 - Status: **GREEN / PASS**
-- PR #12 merged.
-- Head: `65327be27fcb5187eebcec04e91af6efa5df3f10`
-- Merge commit: `8a63761ad665da5564468a3b0a0b902db95bf365`
-- Runtime Tests #252: **completed / success**
-- Verification: Golden DWG regression coverage passed for conservative architectural element candidate detection, deterministic evidence, allowed element types/statuses, and fail-closed uncertainty handling on both golden projects.
+- PR #13 merged.
+- PR head: `25aa5221e603600f0b5ab700139cb7087b78e739`
+- Merge commit: `4151cce12134f24e8f76d489e2b9ced7fea5b1f0`
+- Runtime Tests #256: **completed / success** on the H69 PR head.
+- Verification: source-bound element evidence contract, confidence/status validation, unresolved element handling, source matching, and queryability passed.
 
 ### Next
-After this H68 persistence checkpoint is CI-verified, begin **H69 — Element Evidence Contract**.
+After the H69 persistence checkpoint is CI-verified, begin **H70 — PlanModel Full Reconstruction**.
 
 ## MVP
 Inputs: JPG / PNG / WEBP / PDF + prompt.
@@ -48,7 +48,6 @@ Locked elements: Columns C01–C12, Outer Boundary, Walls, Doors, Windows, Overa
 
 ## Integrity
 Golden assets are additive and historical commits remain immutable.
-
 
 ## Automation — Project Auto-Runner
 - **Automation:** Architecture Auto-Runner is enabled for the project.
