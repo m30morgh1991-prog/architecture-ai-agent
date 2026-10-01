@@ -1,9 +1,18 @@
-"""Evidence-backed PlanModel and ConstraintMap contracts."""
+"""Evidence-backed PlanModel and ConstraintMap contracts.
+
+H63 adds the validated SpaceModel as a first-class structural component of
+PlanModel. Spatial uncertainty remains fail-closed and is never promoted by
+integration alone.
+"""
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any, Literal
 
-ConstraintState = Literal["LOCKED","EDITABLE","CONDITIONAL","UNKNOWN"]
+from runtime.space_model_contract import SpaceModel
+
+ConstraintState = Literal["LOCKED", "EDITABLE", "CONDITIONAL", "UNKNOWN"]
+
 
 @dataclass(frozen=True)
 class PlanElement:
@@ -26,6 +35,7 @@ class PlanElement:
         if self.state == "EDITABLE" and self.confidence < 0.90:
             raise ValueError("EDITABLE_ELEMENT_CONFIDENCE_TOO_LOW")
 
+
 @dataclass(frozen=True)
 class PlanModel:
     model_id: str
@@ -33,6 +43,7 @@ class PlanModel:
     drawing_count: int
     elements: tuple[PlanElement, ...]
     unresolved: tuple[str, ...] = ()
+    space_model: SpaceModel | None = None
 
     def validate(self) -> None:
         if not self.model_id or not self.source_sha256:
@@ -41,6 +52,25 @@ class PlanModel:
             raise ValueError("INVALID_DRAWING_COUNT")
         for element in self.elements:
             element.validate()
+        if self.space_model is not None:
+            self.space_model.validate()
+            if self.space_model.source_sha256 != self.source_sha256:
+                raise ValueError("SPACE_MODEL_SOURCE_MISMATCH")
+
+    @property
+    def spaces(self):
+        """Validated spatial records, or an empty tuple when no space model exists."""
+        if self.space_model is None:
+            return ()
+        return self.space_model.spaces
+
+    @property
+    def space_relations(self):
+        """Validated spatial relations, or an empty tuple when no space model exists."""
+        if self.space_model is None:
+            return ()
+        return self.space_model.relations
+
 
 @dataclass(frozen=True)
 class ConstraintMap:
