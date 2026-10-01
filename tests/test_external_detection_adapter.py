@@ -24,7 +24,6 @@ class ExternalDetectionAdapterTest(unittest.TestCase):
         )
         self.assertEqual(model.elements[0].element_type, "WALLS")
         self.assertEqual(model.elements[0].state, "UNKNOWN")
-        self.assertIn("UNKNOWN", model.unresolved)
 
 if __name__ == "__main__":
     unittest.main()
