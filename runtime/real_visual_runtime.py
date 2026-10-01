@@ -7,6 +7,11 @@ from pathlib import Path
 from typing import Any
 import re
 
+try:
+    import ezdwg
+except ImportError:  # pragma: no cover - optional until DWG tests run
+    ezdwg = None
+
 import cv2
 import fitz
 import numpy as np
@@ -17,7 +22,7 @@ from .red_marker_detection import RedStructuralMarkerDetector
 from .visual_semantic_corroboration import VisualSemanticCorroborationGate
 from .plan_model_contract import ConstraintMap, PlanElement, PlanModel
 
-_SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF"}
+_SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF",".dwg":"DWG"}
 _SPACE_TERMS = re.compile(
     r"(?i)\b(COCINA|COMEDOR|SALA|ESTUDIO|HALL|SS\.?HH\.?|LAVANDERIA|DEPOSITO|"
     r"DORM(?:ITORIO)?(?:\.?\s+(?:01|02|03|HIJA|HIJO|PRINCIP\.?|SERV\.?)?)?|"
@@ -47,6 +52,22 @@ class RealVisualArtifactAdapter:
             raise ValueError("SOURCE_DOCUMENT_MISSING")
         raw = path.read_bytes()
         digest = sha256(raw).hexdigest()
+        if input_type == "DWG":
+            if ezdwg is None:
+                raise ValueError("DWG_PARSER_UNAVAILABLE")
+            try:
+                document = ezdwg.read(path)
+                modelspace = document.modelspace()
+                entity_count = len(list(modelspace))
+                header = document.header_variables()
+                extmin = header.get("extmin")
+                extmax = header.get("extmax")
+                return VisualArtifact(
+                    str(path), input_type, digest, 0, 0, 1,
+                    {"entity_count": entity_count, "extmin": extmin, "extmax": extmax},
+                )
+            except Exception as exc:
+                raise ValueError("DWG_PARSE_FAILED") from exc
         if input_type == "PDF":
             document = fitz.open(stream=raw, filetype="pdf")
             if document.page_count == 0:
@@ -67,6 +88,27 @@ class RealVisualArtifactAdapter:
         return VisualArtifact(str(path), input_type, digest, width, height, 1, image)
 
     def detect(self, artifact: VisualArtifact) -> dict[str, Any]:
+        if artifact.input_type == "DWG":
+            payload = artifact.image if isinstance(artifact.image, dict) else {}
+            return {
+                "artifact_sha256": artifact.sha256,
+                "input_type": "DWG",
+                "dimensions": [0, 0],
+                "page_count": 1,
+                "visual_line_count": 0,
+                "major_regions": [],
+                "recognized_space_labels": [],
+                "dwg_entity_count": int(payload.get("entity_count", 0)),
+                "dwg_extents": [payload.get("extmin"), payload.get("extmax")],
+                "fixed_element_identification": {
+                    "status": "UNKNOWN",
+                    "reason": (
+                        "DWG geometry was parsed, but approval-grade identification of "
+                        "columns and other structural fixed elements is not yet implemented "
+                        "for native DWG entities. The runtime therefore remains fail-closed."
+                    ),
+                },
+            }
         gray = cv2.cvtColor(artifact.image, cv2.COLOR_BGR2GRAY)
         scale = min(1.0, 1800.0 / max(gray.shape[1], 1))
         small = cv2.resize(gray, (0, 0), fx=scale, fy=scale)
@@ -160,12 +202,21 @@ class RealVisualRuntime:
     def run(self, execution_id: str, source_path: str, change_request: dict[str, Any]) -> dict[str, Any]:
         artifact = self.adapter.ingest(source_path)
         detection = self.adapter.detect(artifact)
-        locked_elements = self.locked_detector.detect(artifact.source_path, artifact.sha256)
-        marker_evidence = self.marker_detector.detect(artifact.source_path, artifact.sha256)
+        if artifact.input_type == "DWG":
+            locked_elements = {
+                "status": "UNKNOWN",
+                "candidates": [],
+                "unresolved_fixed_element_types": ["COLUMNS", "OUTER_BOUNDARY", "WALLS", "DOORS", "WINDOWS"],
+                "plan_panels": [],
+            }
+            marker_evidence = {"markers": [], "status": "UNKNOWN"}
+        else:
+            locked_elements = self.locked_detector.detect(artifact.source_path, artifact.sha256)
+            marker_evidence = self.marker_detector.detect(artifact.source_path, artifact.sha256)
         corroboration = self.corroboration_gate.evaluate(
             marker_evidence=bool(marker_evidence.get("markers")),
             wall_geometry_evidence=bool(detection.get("visual_line_count", 0) > 0),
-            vector_or_grid_evidence=bool(locked_elements.get("plan_panels")),
+            vector_or_grid_evidence=bool(locked_elements.get("plan_panels")) or bool(detection.get("dwg_entity_count", 0)),
             structural_geometry_evidence=bool(locked_elements.get("candidates")),
             contradiction_evidence=False,
         )
