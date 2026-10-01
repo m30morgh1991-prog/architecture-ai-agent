@@ -25,24 +25,16 @@ Durable repository-backed continuation point for Architecture AI Agent.
 
 ## Current verified continuation point
 
-### H65 — Space Extraction Precedence
+### H68 — Architectural Element Detection
 - Status: **GREEN / PASS**
-- PR #9 merged.
-- Head: `81657ddf1ff93bb7fb0aba51d433c6d4fb9aba83`
-- Merge commit: `fe5b271e11675aa1431857ca78c49076c2ff29d6`
-- Runtime Tests #238: **completed / success**
-- Verification: explicit native closed boundaries precede identical derived faces, duplicates are suppressed, and additional derived faces remain available.
-
-### H64 — Space Extraction Evidence Contract
-- Status: **GREEN / PASS**
-- PR #8 merged.
-- Head: `d34195e3745eb7ad00bb9b3a94da8f0ae80a1155`
-- Merge commit: `f14fa94e41c8640d3298e1b0db02a3cce198bffb`
-- Runtime Tests #234: **completed / success**
-- Verification: extraction-result contract tests passed, including evidence identity, unresolved relation tracking, typed SpaceModel normalization, and UNKNOWN preservation.
+- PR #12 merged.
+- Head: `65327be27fcb5187eebcec04e91af6efa5df3f10`
+- Merge commit: `8a63761ad665da5564468a3b0a0b902db95bf365`
+- Runtime Tests #252: **completed / success**
+- Verification: Golden DWG regression coverage passed for conservative architectural element candidate detection, deterministic evidence, allowed element types/statuses, and fail-closed uncertainty handling on both golden projects.
 
 ### Next
-After the H65 persistence checkpoint is CI-green, begin **H66** based on current repository evidence, focusing on golden-DWG regression coverage for space extraction and space-model normalization.
+After this H68 persistence checkpoint is CI-verified, begin **H69 — Element Evidence Contract**.
 
 ## MVP
 Inputs: JPG / PNG / WEBP / PDF + prompt.
