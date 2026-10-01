@@ -14,6 +14,8 @@ import cv2
 import fitz
 import numpy as np
 
+from runtime.spatial_topology import classify_space_relations
+
 try:
     import ezdwg
 except ImportError:  # pragma: no cover
@@ -453,24 +455,10 @@ class ConservativeLockedElementDetector:
                     "status": "UNKNOWN",
                 })
 
-            # Relationships are deliberately topological and evidence-backed:
-            # shared boundary handle => SAME_BOUNDARY; centroid containment is
-            # recorded only when both geometries are closed.
-            space_relations = []
-            for i, a in enumerate(spaces):
-                for b in spaces[i + 1:]:
-                    ax0, ay0, ax1, ay1 = a["bbox"]
-                    bx0, by0, bx1, by1 = b["bbox"]
-                    overlap_x = max(0.0, min(ax1,bx1)-max(ax0,bx0))
-                    overlap_y = max(0.0, min(ay1,by1)-max(ay0,by0))
-                    if overlap_x > 0 and overlap_y > 0:
-                        space_relations.append({
-                            "relation_id": f"{a['space_id']}__{b['space_id']}__OVERLAP",
-                            "from": a["space_id"], "to": b["space_id"],
-                            "type": "OVERLAP_CANDIDATE",
-                            "evidence_ids": a["evidence_ids"] + b["evidence_ids"],
-                            "status": "UNKNOWN",
-                        })
+            # Classify only from native closed-boundary geometry. Bounding-box
+            # overlap is retained as OVERLAPS evidence and never promoted to ADJACENT.
+            boundary_points = {handle: pts for handle, pts in closed_shapes}
+            space_relations = classify_space_relations(spaces, boundary_points)
 
             # Door/window candidates: arcs and short linework are represented as
             # candidate evidence; explicit layer/text naming is corroborating only.
