@@ -273,7 +273,7 @@ class ConservativeLockedElementDetector:
                 if e.dxftype in {"TEXT", "MTEXT"}:
                     value = str(dxf.get("text", dxf.get("plain_text", ""))).strip()
                     if value:
-                        text_labels.append({"handle": e.handle, "text": value, "layer": dxf.get("layer")})
+                        text_labels.append({"handle": e.handle, "text": value, "layer": dxf.get("layer"), "insert": dxf.get("insert", dxf.get("location"))})
                 if e.dxftype == "LINE":
                     p1, p2 = dxf.get("start"), dxf.get("end")
                     if p1 and p2:
