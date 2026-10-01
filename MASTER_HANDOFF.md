@@ -24,6 +24,14 @@ Durable repository-backed continuation point for Architecture AI Agent.
 
 ## Current verified continuation point
 
+### H65 — Space Extraction Precedence
+- Status: **GREEN / PASS**
+- PR #9 merged.
+- Head: `81657ddf1ff93bb7fb0aba51d433c6d4fb9aba83`
+- Merge commit: `fe5b271e11675aa1431857ca78c49076c2ff29d6`
+- Runtime Tests #238: **completed / success**
+- Verification: explicit native closed boundaries precede identical derived faces, duplicates are suppressed, and additional derived faces remain available.
+
 ### H64 — Space Extraction Evidence Contract
 - Status: **GREEN / PASS**
 - PR #8 merged.
@@ -32,12 +40,8 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Runtime Tests #234: **completed / success**
 - Verification: extraction-result contract tests passed, including evidence identity, unresolved relation tracking, typed SpaceModel normalization, and UNKNOWN preservation.
 
-### Persistence checkpoint
-- PROJECT_STATE.md persistence commit: `a428bd8762a07ad5e246a1318eaa649a2b905677`
-- This checkpoint must receive its own real CI verification before H65 begins.
-
 ### Next
-After the persistence commit is CI-green, begin **H65** based on current repository evidence, focusing on real-DWG space extraction integration/precedence and avoiding false space selection when explicit closed polylines and line-derived planar faces coexist.
+After the H65 persistence checkpoint is CI-green, begin **H66** based on current repository evidence, focusing on golden-DWG regression coverage for space extraction and space-model normalization.
 
 ## MVP
 Inputs: JPG / PNG / WEBP / PDF + prompt.
