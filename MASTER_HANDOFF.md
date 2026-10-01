@@ -51,3 +51,14 @@ Locked elements: Columns C01–C12, Outer Boundary, Walls, Doors, Windows, Overa
 
 ## Integrity
 Golden assets are additive and historical commits remain immutable.
+
+
+## Automation — Project Auto-Runner
+- **Automation:** Architecture Auto-Runner is enabled for the project.
+- It follows the repository governance loop: **Implement → REAL CI → Verify → Regression → Persist State → Continue**.
+- It must not claim GREEN without `completed / success` evidence for the relevant current commit.
+- It must not invalidate an active CI gate with unnecessary concurrent commits.
+- On CI failure it inspects evidence, patches the root cause, reruns CI, and continues only after verification.
+- On success it verifies, merges when appropriate, persists durable state, verifies the persistence checkpoint, and advances to the next gated H.
+- It stops only when a genuine human/external action is required.
+- Notion is excluded from this automation and from all Green Gates.
