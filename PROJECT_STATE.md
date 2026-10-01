@@ -6,17 +6,14 @@
 
 - **Technical source of truth:** Git repository, commits, CI results, runtime tests, and release gates.
 - **Architecture source of truth:** PlanModel + ConstraintMap + ApprovedChangePlan.
-- **Notion:** documentation/dashboard mirror only; Notion availability must never block implementation, CI, verification, or continuation.
+- **Notion:** removed from the project execution/governance loop. It is not a source of truth, not a Green Gate, and its availability must never affect implementation, CI, verification, persistence, or continuation.
 - **Rule:** never claim CI green from assumptions. A stage becomes PASS only from observable evidence.
 
 ## Continuation rule
 
-**Implement → CI Run/Status → Verify → Persist State → Continue**
+**Implement → REAL CI Run/Status → Verify → Regression (when applicable) → Persist State → Continue**
 
-If Notion is unavailable:
-1. Continue using repository + CI + this file + MASTER_HANDOFF.md.
-2. Record the exact commit SHA and CI run/status.
-3. Sync Notion later when access returns; do not rewrite history.
+Notion is not part of the continuation protocol. Continue using repository + CI + this file + MASTER_HANDOFF.md. Record exact commit SHA, workflow/run/status, verification and blockers. Do not wait for or require Notion.
 
 ## Current repository baseline
 
@@ -53,9 +50,9 @@ Real Visual Runtime has historically remained a separate verification gate. Visu
 - Logical/Simulation/Static PASS
 - Real Runtime/Visual PASS
 
-## Notion fallback status
+## Governance update — 2026-10-01
 
-Notion is currently treated as a mirror. No existing PROJECT_STATE.md or MASTER_HANDOFF.md was found before this fallback layer was added.
+Notion has been explicitly removed from the execution/Green-Gate workflow. Repository-backed state is the persistence mechanism. No stage may be blocked, delayed, marked PASS, or marked FAIL because of Notion availability.
 
 ## Update protocol
 
@@ -63,6 +60,11 @@ After every meaningful milestone:
 - update this file with exact evidence;
 - update MASTER_HANDOFF.md when the continuation point changes materially;
 - record commit SHA;
-- record CI workflow/run/conclusion;
+- record CI workflow/run/status/conclusion;
+- record verification/regression evidence;
 - record unresolved blockers;
 - only then continue to the next gated stage.
+
+## Green Gate — mandatory
+
+A stage is **GREEN/PASS** only when the relevant real CI run for the current commit is `completed` with `success`, and the required verification/regression evidence is confirmed. `queued`, `in_progress`, `cancelled`, `failure`, missing, or unobserved CI is not GREEN. Logical/Static PASS must never be represented as Real Runtime/Visual PASS.
