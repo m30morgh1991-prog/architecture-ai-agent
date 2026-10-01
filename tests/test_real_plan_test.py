@@ -23,6 +23,9 @@ class RealPlanTestBaseline(unittest.TestCase):
         self.assertEqual(result["source"]["sha256"], result["evidence"]["source_sha256"])
         self.assertEqual(result["source"]["sha256"], result["detection"]["artifact_sha256"])
         self.assertGreater(result["detection"]["dwg_entity_count"], 0)
+        self.assertGreater(result["contracts"]["element_count"], 0)
+        self.assertGreater(len(result["locked_element_detection"]["candidates"]), 0)
+        self.assertIn("OUTER_BOUNDARY", {x["element_type"] for x in result["locked_element_detection"]["candidates"]})
         self.assertEqual(result["constraint_map"]["map_id"], result["contracts"]["constraint_map_id"])
         self.assertEqual(result["constraint_map"]["model_id"], result["contracts"]["plan_model_id"])
         self.assertIn(result["evidence"]["evidence_id"], result["constraint_map"]["evidence_ids"])
@@ -34,6 +37,8 @@ class RealPlanTestBaseline(unittest.TestCase):
         self.assertIn("LOCKED_ELEMENT_UNCERTAIN", result["blockers"])
         self.assertEqual(result["evidence"]["input_type"], "DWG")
         self.assertGreater(result["detection"]["dwg_entity_count"], 0)
+        self.assertGreater(result["contracts"]["element_count"], 0)
+        self.assertGreater(len(result["locked_element_detection"]["candidates"]), 0)
         self.assertIsNone(result["next_stage"])
 
 
