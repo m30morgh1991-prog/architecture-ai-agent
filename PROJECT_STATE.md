@@ -11,17 +11,16 @@
 ## Continuation rule
 **Implement → REAL CI Run/Status → Verify → Regression (when applicable) → Persist State → Continue**
 
-## Current verified state — H64
-- Stage: **H64 — Space Extraction Evidence Contract**
+## Current verified state — H65
+- Stage: **H65 — Space Extraction Precedence**
 - Status: **GREEN / PASS**
-- PR: **#8**
-- Head: `d34195e3745eb7ad00bb9b3a94da8f0ae80a1155`
-- Merge commit on main: `f14fa94e41c8640d3298e1b0db02a3cce198bffb`
-- CI: **Runtime Tests #234 — completed / success**
-- Verification: H64 evidence-backed extraction result contract tests passed.
-- Coverage: detector/source identity, space/relation evidence, unresolved-relation tracking, typed SpaceModel normalization, UNKNOWN preservation.
-- H62 and H63 remain GREEN/PASS.
-- Next gated stage: **H65**, after this persistence commit is itself verified by real CI.
+- PR: **#9**
+- Head: `81657ddf1ff93bb7fb0aba51d433c6d4fb9aba83`
+- Merge commit on main: `fe5b271e11675aa1431857ca78c49076c2ff29d6`
+- CI: **Runtime Tests #238 — completed / success**
+- Verification: explicit native closed DWG boundaries take precedence over identical derived line faces; additional derived enclosed faces are retained; duplicate boundaries are suppressed.
+- H62, H63 and H64 remain GREEN/PASS.
+- Next gated stage: **H66**, after this H65 persistence commit is itself verified by real CI.
 
 ## Current technical direction
 Extend real-DWG evidence toward reliable architectural space reconstruction. Preserve conservative/fail-closed behavior: insufficient evidence remains UNKNOWN.
