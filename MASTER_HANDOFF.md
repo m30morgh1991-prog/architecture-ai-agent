@@ -2,14 +2,14 @@
 
 ## Purpose
 
-This document is the durable continuation point for the Architecture AI Agent project. It is intentionally repository-backed so development can continue without Notion.
+This document is the durable continuation point for the Architecture AI Agent project. It is repository-backed so development can continue without Notion.
 
 ## Non-negotiable governance
 
 1. Do not redo completed work unless regression evidence requires it.
 2. Implement the current stage.
 3. Run the **real CI workflow** for the current commit.
-4. Verify the actual result and distinguish `success` from queued/running/failed/unobserved.
+4. Verify the actual result and distinguish success from queued/running/failed/unobserved.
 5. Run required regression checks when applicable.
 6. Persist the verified state in the repository.
 7. **Green Gate:** a stage is GREEN/PASS only when the relevant real CI run is `completed` with `success` and required verification/regression evidence is confirmed.
@@ -25,6 +25,19 @@ This document is the durable continuation point for the Architecture AI Agent pr
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown or insufficient evidence must fail closed.
 - Provider selection must remain provider-neutral and deterministic where required.
+
+## Current verified continuation point
+
+### H62 — Space Model Contract
+- Status: **GREEN / PASS**
+- PR #6 merged to main.
+- Head: `523781daefcbb2f2c971803994df4ab4ffdf92e0`
+- Merge commit: `364307fb25d8e4149ee001dd0cc8b3416e6a939d`
+- Runtime Tests #228: **completed / success**
+- Verification: H62 contract tests passed for evidence-backed spaces and relations, including fail-closed unresolved opening connectivity.
+
+### Next
+Continue with **H63** only after selecting its scope from the current repository implementation and evidence. Do not infer PASS from static code alone.
 
 ## MVP scope
 
@@ -54,44 +67,6 @@ Repository: m30morgh1991-prog/architecture-ai-agent
 Golden projects:
 - test-assets/golden-projects/bagheri7.dwg
 - test-assets/golden-projects/afifiiiii.end.edit3.dwg
-
-These files are intended to remain the stable real-project regression inputs when present in the repository.
-
-## Latest verified repository evidence
-
-Main currently points to:
-ef75ce077284a308e9c720b4d20f6b29098f1809
-
-Latest observed successful Runtime Tests:
-- Run #223
-- branch: feat/real-plan-space-rebuild
-- head: 3bd1233e702db681f8ef59fa2647d13a363e9aa5
-- conclusion: success
-- PR: #5
-- commit message: Fix planar face traversal for orthogonal space extraction
-
-Run #222 on the same development line failed before Run #223 succeeded. Do not treat the failed run as the current result; preserve it as historical evidence.
-
-## Current continuation point
-
-Continue from the active real-DWG / plan-space reconstruction work. The latest successful evidence indicates the planar-face traversal fix passed Runtime Tests. The next action must still be determined from the current PR/main state and the project's H-gate evidence, not guessed from a commit message alone.
-
-## Continuation procedure
-
-- Do not stop development because Notion is unavailable or absent.
-- Read PROJECT_STATE.md and this file.
-- Inspect main and the active feature branch.
-- Inspect the latest CI workflow runs.
-- Continue only from verified evidence.
-- Repository-backed state is the durable continuation record.
-
-## Governance lock — 2026-10-01
-
-The execution rule is permanently recorded as:
-
-**Implement → REAL CI Run/Status → Verify → Regression (when applicable) → Persist State → Continue**
-
-No Notion action is required at any point in this chain.
 
 ## Integrity rule
 
