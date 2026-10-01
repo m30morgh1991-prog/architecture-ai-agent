@@ -58,7 +58,7 @@ class RealVisualArtifactAdapter:
             try:
                 document = ezdwg.read(str(path))
                 modelspace = document.modelspace()
-                entity_count = len(list(modelspace))
+                entity_count = len(list(modelspace.query()))
                 header = document.header_variables()
                 extmin = header.get("extmin")
                 extmax = header.get("extmax")
