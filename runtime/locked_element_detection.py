@@ -16,6 +16,7 @@ import numpy as np
 
 from runtime.spatial_topology import classify_space_relations
 from runtime.opening_connectivity import classify_opening_connectivity
+from runtime.space_extraction import polygonize_orthogonal_lines
 
 try:
     import ezdwg
@@ -418,11 +419,21 @@ class ConservativeLockedElementDetector:
                         rationale="Native block/layer evidence yields a column candidate set, but individual structural semantics are not yet approval-grade."
                     ))
 
-            # Derive a conservative room/space graph from closed native polylines.
-            # A space is only a candidate when the source itself supplies a closed
-            # boundary; we never infer walls merely from labels.
+            # Derive spaces from explicit closed polylines first. If the real
+            # DWG represents rooms as separate wall LINE entities, fall back to
+            # conservative orthogonal polygonization. This is deliberately a
+            # backward step in the pipeline: better source geometry beats a weak
+            # bbox/closed-polyline assumption.
+            space_shapes = list(closed_shapes[:64])
+            if not space_shapes and line_segments:
+                for idx_face, (face_points, face_area) in enumerate(
+                    polygonize_orthogonal_lines(line_segments, tolerance=1e-6, max_spaces=64), 1
+                ):
+                    synthetic_handle = f"line-face-{idx_face:03d}"
+                    space_shapes.append((synthetic_handle, face_points))
+
             spaces = []
-            for idx, (handle, pts) in enumerate(closed_shapes[:64], 1):
+            for idx, (handle, pts) in enumerate(space_shapes[:64], 1):
                 bb = bbox_of_points(pts)
                 if bb[2] <= bb[0] or bb[3] <= bb[1] or len(pts) < 3:
                     continue
@@ -458,7 +469,7 @@ class ConservativeLockedElementDetector:
 
             # Classify only from native closed-boundary geometry. Bounding-box
             # overlap is retained as OVERLAPS evidence and never promoted to ADJACENT.
-            boundary_points = {handle: pts for handle, pts in closed_shapes}
+            boundary_points = {handle: pts for handle, pts in space_shapes}
             space_relations = classify_space_relations(spaces, boundary_points)
             # Extract only native block linework when the DWG reader exposes it.
             # Missing virtual geometry remains UNKNOWN rather than guessed.
