@@ -20,7 +20,7 @@ class VisualEvidence:
     def validate(self)->None:
         if not self.evidence_id:
             raise ValueError("VISUAL_EVIDENCE_ID_MISSING")
-        if self.input_type not in {"JPG","PNG","WEBP","PDF"}:
+        if self.input_type not in {"JPG","PNG","WEBP","PDF","DWG"}:
             raise ValueError("UNSUPPORTED_VISUAL_INPUT")
         if self.stages != [s for s in REQUIRED_STAGES if s in self.stages]:
             raise ValueError("VISUAL_STAGE_ORDER_INVALID")
