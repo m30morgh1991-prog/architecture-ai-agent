@@ -70,7 +70,7 @@ def _dimension_evidence(entities,lines):
         record={"dimension_id":f"DWG-DIM-{handle}","evidence_id":f"dwg-dimension-{handle}","definition_points":[list(p) for p in points],"measurement":measurement,"matched_geometry":matched,"status":"UNKNOWN"}
         dims.append(record)
         if len(points)<2 or len(matched)<2: unresolved.append(record["dimension_id"])
-    return {"count":len(dims),"dimensions":dims,"dimensions_geometry_associated":(bool(dims) and not unresolved) if dims else None,"unresolved":unresolved,"evidence_ids":[x["evidence_id"] for x in dims]}
+    return {"count":len(dims),"dimensions":dims,"dimensions_geometry_associated":True if dims and not unresolved else None,"unresolved":unresolved,"evidence_ids":[x["evidence_id"] for x in dims]}
 
 def _view_evidence(entities,document):
     labels=[]
