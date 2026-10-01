@@ -282,7 +282,7 @@ class ConservativeLockedElementDetector:
                     if p1 and p2:
                         line_segments.append((float(p1[0]),float(p1[1]),float(p2[0]),float(p2[1]),e.handle))
                 if e.dxftype in {"INSERT", "MINSERT"}:
-                    inserts.append({"handle": e.handle, "block": dxf.get("name", dxf.get("block_name")), "insert": dxf.get("insert"), "layer": dxf.get("layer")})
+                    inserts.append({"handle": e.handle, "block": dxf.get("name", dxf.get("block_name")), "insert": dxf.get("insert"), "layer": dxf.get("layer"), "_entity": e})
 
             # Native DWG geometry is now interpreted deterministically into
             # bounded architectural candidates. Geometry can strengthen evidence,
@@ -460,19 +460,75 @@ class ConservativeLockedElementDetector:
             # overlap is retained as OVERLAPS evidence and never promoted to ADJACENT.
             boundary_points = {handle: pts for handle, pts in closed_shapes}
             space_relations = classify_space_relations(spaces, boundary_points)
+            # Extract only native block linework when the DWG reader exposes it.
+            # Missing virtual geometry remains UNKNOWN rather than guessed.
+            def _native_block_lines(entity):
+                try:
+                    getter = getattr(entity, "virtual_entities", None)
+                    if not callable(getter):
+                        return []
+                    result = []
+                    for child in getter():
+                        if getattr(child, "dxftype", None) != "LINE":
+                            continue
+                        cdxf = getattr(child, "dxf", {}) or {}
+                        a, b = cdxf.get("start"), cdxf.get("end")
+                        if a and b:
+                            result.append(([float(a[0]), float(a[1])],
+                                           [float(b[0]), float(b[1])],
+                                           getattr(child, "handle", None)))
+                    return result
+                except Exception:
+                    return []
+
+            def _nearest_line(point):
+                best = None
+                for x0, y0, x1, y1, handle in line_segments:
+                    den = (x1-x0)**2 + (y1-y0)**2
+                    if den <= 0:
+                        continue
+                    t = max(0.0, min(1.0, ((point[0]-x0)*(x1-x0) +
+                                           (point[1]-y0)*(y1-y0)) / den))
+                    q = [x0+t*(x1-x0), y0+t*(y1-y0)]
+                    d = ((point[0]-q[0])**2 + (point[1]-q[1])**2) ** 0.5
+                    if best is None or d < best[0]:
+                        best = (d, str(handle))
+                return best
+
+            wall_line_ids = {str(seg[4]) for seg in line_segments}
             opening_candidates = []
             for ins in inserts:
                 block = str(ins.get("block") or "").upper()
                 layer = str(ins.get("layer") or "").upper()
                 point = ins.get("insert")
-                if point and ("DOOR" in block or "DOOR" in layer or "DR" == block.strip()):
-                    opening_candidates.append({
-                        "opening_id": f"DWG-OPENING-{ins['handle']}",
-                        "opening_type": "DOOR",
-                        "point": [float(point[0]), float(point[1])],
-                        "evidence_id": f"dwg-opening-{ins['handle']}",
-                    })
-            opening_relations = classify_opening_connectivity(opening_candidates, spaces, boundary_points)
+                if not (point and ("DOOR" in block or "DOOR" in layer or "DR" == block.strip())):
+                    continue
+                opening = {
+                    "opening_id": f"DWG-OPENING-{ins['handle']}",
+                    "opening_type": "DOOR",
+                    "point": [float(point[0]), float(point[1])],
+                    "evidence_id": f"dwg-opening-{ins['handle']}",
+                }
+                native_lines = _native_block_lines(ins.get("_entity"))
+                if native_lines:
+                    native_lines.sort(key=lambda item:
+                        ((item[0][0]-point[0])**2 + (item[0][1]-point[1])**2) ** 0.5 +
+                        ((item[1][0]-point[0])**2 + (item[1][1]-point[1])**2) ** 0.5)
+                    a, b, child_handle = native_lines[0]
+                    opening["span"] = [a, b]
+                    opening["span_evidence_id"] = (
+                        f"dwg-opening-span-{child_handle or ins['handle']}"
+                    )
+                    midpoint = [(a[0]+b[0])/2.0, (a[1]+b[1])/2.0]
+                    host = _nearest_line(midpoint)
+                    if host is not None and host[0] <= 2.0 and host[1] in wall_line_ids:
+                        opening["host_wall_id"] = host[1]
+                        opening["host_wall_evidence_id"] = f"dwg-host-wall-{host[1]}"
+                opening_candidates.append(opening)
+            opening_relations = classify_opening_connectivity(
+                opening_candidates, spaces, boundary_points,
+                tolerance=1.0, host_wall_ids=wall_line_ids
+            )
             space_relations.extend(opening_relations)
 
             # Door/window candidates: arcs and short linework are represented as
