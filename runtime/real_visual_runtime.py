@@ -202,17 +202,8 @@ class RealVisualRuntime:
     def run(self, execution_id: str, source_path: str, change_request: dict[str, Any]) -> dict[str, Any]:
         artifact = self.adapter.ingest(source_path)
         detection = self.adapter.detect(artifact)
-        if artifact.input_type == "DWG":
-            locked_elements = {
-                "status": "UNKNOWN",
-                "candidates": [],
-                "unresolved_fixed_element_types": ["COLUMNS", "OUTER_BOUNDARY", "WALLS", "DOORS", "WINDOWS"],
-                "plan_panels": [],
-            }
-            marker_evidence = {"markers": [], "status": "UNKNOWN"}
-        else:
-            locked_elements = self.locked_detector.detect(artifact.source_path, artifact.sha256)
-            marker_evidence = self.marker_detector.detect(artifact.source_path, artifact.sha256)
+        locked_elements = self.locked_detector.detect(artifact.source_path, artifact.sha256)
+        marker_evidence = self.marker_detector.detect(artifact.source_path, artifact.sha256) if artifact.input_type != "DWG" else {"markers": [], "status": "UNKNOWN"}
         corroboration = self.corroboration_gate.evaluate(
             marker_evidence=bool(marker_evidence.get("markers")),
             wall_geometry_evidence=bool(detection.get("visual_line_count", 0) > 0),
