@@ -42,6 +42,8 @@ class RealPlanTestBaseline(unittest.TestCase):
         self.assertIn("space_relations", result["locked_element_detection"])
         self.assertIsInstance(result["locked_element_detection"]["spaces"], list)
         self.assertIsInstance(result["locked_element_detection"]["space_relations"], list)
+        self.assertEqual(result["drawing_standards"]["status"], "UNKNOWN")
+        self.assertIn("DRAWING_STANDARDS_UNVERIFIED", result["blockers"])
         self.assertIsNone(result["next_stage"])
 
     def test_afifiiiii_dwg_also_fails_closed(self):
