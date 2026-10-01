@@ -18,12 +18,13 @@ class PlanModelContractTests(unittest.TestCase):
         model=PlanModel(
             "pm-real-01",
             "f5748f3f19f34b1503497616e82db15f985ec4bc5b202cca3cd6f3a05d2399d7",
-            4,(element,),("columns","structural-fixed-elements")
+            4,(element,),( "columns","structural-fixed-elements")
         )
         model.validate()
         cmap=ConstraintMap(
             "cm-real-01","pm-real-01",(),("PANEL-A1",),(),("C01-C12",),
-            ("real-f5748f3f",)
+            ("real-f5748f3f",),
+            "f5748f3f19f34b1503497616e82db15f985ec4bc5b202cca3cd6f3a05d2399d7",
         )
         cmap.validate()
         self.assertIn("C01-C12", cmap.unknown_element_ids)
@@ -31,7 +32,7 @@ class PlanModelContractTests(unittest.TestCase):
     def test_constraint_states_must_not_overlap(self):
         with self.assertRaisesRegex(ValueError, "CONSTRAINT_STATE_OVERLAP"):
             ConstraintMap(
-                "cm","pm",("E1",),("E1",),(),(),("ev",)
+                "cm","pm",("E1",),("E1",),(),(),("ev",),"a"*64
             ).validate()
 
 
