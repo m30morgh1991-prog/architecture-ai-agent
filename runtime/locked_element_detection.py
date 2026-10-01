@@ -311,8 +311,13 @@ class ConservativeLockedElementDetector:
             arc_count = 0
             circle_count = 0
             closed_shapes = []
+            bbox = (0.0, 0.0, 0.0, 0.0)
             for entity in entities:
                 dxf = entity.dxf or {}
+                if entity.dxftype == "ARC":
+                    arc_count += 1
+                if entity.dxftype == "CIRCLE":
+                    circle_count += 1
                 pts = entity_points(entity)
                 if pts:
                     geometry_inventory.append({
@@ -325,10 +330,6 @@ class ConservativeLockedElementDetector:
                     if entity.dxftype == "LWPOLYLINE" and bool(dxf.get("closed", False)):
                         polyline_closed += 1
                         closed_shapes.append((entity.handle, pts))
-                elif entity.dxftype == "ARC":
-                    arc_count += 1
-                elif entity.dxftype == "CIRCLE":
-                    circle_count += 1
 
             if len(line_segments) >= 4:
                 xs = [p for seg in line_segments for p in (seg[0], seg[2])]
