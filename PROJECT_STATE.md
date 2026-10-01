@@ -47,3 +47,15 @@ A stage is GREEN/PASS only when its relevant real CI run for the current commit 
 
 ## Update protocol
 After meaningful milestones, persist exact stage, commit, CI evidence, verification/regression evidence, blockers, and continuation point before starting the next gated H.
+
+
+## Automation — Project Auto-Runner
+- **Automation:** Architecture Auto-Runner
+- **Purpose:** automatically monitor the project continuation cycle and advance gated H stages without requiring a manual “check CI” prompt.
+- **Execution policy:** Implement → REAL CI Run/Status → Verify → Regression (when applicable) → Persist State → Continue.
+- **CI rule:** never treat queued/in_progress/cancelled/failure/missing/unobserved as GREEN.
+- **Safety:** do not create unnecessary commits while a required CI gate is running if they would invalidate that gate.
+- **Failure path:** inspect CI logs → identify root cause → patch → rerun CI → verify.
+- **Success path:** verify → regression when required → merge when ready → persist PROJECT_STATE/MASTER_HANDOFF → verify persistence CI → continue to next gated H.
+- **Human intervention:** stop only for genuine external blockers such as required access, CAPTCHA, missing files, or an unavoidable human decision.
+- **Notion:** never used as an execution/governance gate.
