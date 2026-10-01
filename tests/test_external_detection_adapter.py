@@ -17,8 +17,8 @@ class ExternalDetectionAdapterTest(unittest.TestCase):
 
     def test_unknown_external_type_remains_unknown(self):
         model = ExternalDetectionAdapter().to_plan_model(
-            {"elements":[{"id":"c1","type":"column","state":"LOCKED",
-                          "geometry":{"bbox":[0,0,10,10]},"confidence":0.99}]},
+            {"elements":[{"id":"w1","type":"wall","state":"LOCKED",
+                          "geometry":{"bbox":[0,0,10,10]},"confidence":0.80}]},
             model_id="plan-unknown-test", source_sha256="b"*64,
             drawing_count=1, evidence_prefix="ext-test",
         )
