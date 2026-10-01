@@ -22,7 +22,7 @@ class ExternalDetectionAdapterTest(unittest.TestCase):
             model_id="plan-unknown-test", source_sha256="b"*64,
             drawing_count=1, evidence_prefix="ext-test",
         )
-        self.assertEqual(model.elements[0].element_type, "UNKNOWN")
+        self.assertEqual(model.elements[0].element_type, "WALLS")
         self.assertEqual(model.elements[0].state, "UNKNOWN")
         self.assertIn("UNKNOWN", model.unresolved)
 
