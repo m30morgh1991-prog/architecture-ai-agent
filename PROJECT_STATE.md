@@ -17,19 +17,19 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H68
-- Stage: **H68 — Architectural Element Detection**
+## Current verified state — H69
+- Stage: **H69 — Element Evidence Contract**
 - Status: **GREEN / PASS**
-- PR: **#12**
-- Head: `65327be27fcb5187eebcec04e91af6efa5df3f10`
-- Merge commit on main: `8a63761ad665da5564468a3b0a0b902db95bf365`
-- CI: **Runtime Tests #252 — completed / success**
-- Verification: Golden DWG regression coverage passed for conservative architectural element candidate detection, deterministic evidence, allowed element types/statuses, and fail-closed uncertainty handling on both golden projects.
-- H62–H67 remain GREEN/PASS.
-- Next gated stage: **H69 — Element Evidence Contract**.
+- PR: **#13 — merged**
+- PR head: `25aa5221e603600f0b5ab700139cb7087b78e739`
+- Merge commit on main: `4151cce12134f24e8f76d489e2b9ced7fea5b1f0`
+- CI: **Runtime Tests #256 — completed / success** on the H69 PR head.
+- Verification: source-bound element evidence contract and fail-closed validation passed.
+- H62–H68 remain GREEN/PASS.
+- Next gated stage: **H70 — PlanModel Full Reconstruction**.
 
 ## Current technical direction
-Extend real-DWG evidence toward reliable architectural space reconstruction. Preserve conservative/fail-closed behavior: insufficient evidence remains UNKNOWN.
+Reconstruct a deterministic, evidence-backed PlanModel from real DWG architectural detection and space extraction. Preserve conservative/fail-closed behavior: insufficient or contradictory evidence remains unresolved/UNKNOWN and cannot be promoted to PASS.
 
 ## Golden DWG test assets
 - test-assets/golden-projects/bagheri7.dwg
@@ -52,7 +52,6 @@ A stage is GREEN/PASS only when its relevant real CI run for the current commit 
 
 ## Update protocol
 After meaningful milestones, persist exact stage, commit, CI evidence, verification/regression evidence, blockers, and continuation point before starting the next gated H.
-
 
 ## Automation — Project Auto-Runner
 - **Automation:** Architecture Auto-Runner
