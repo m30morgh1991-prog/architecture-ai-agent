@@ -136,13 +136,17 @@ class ConservativeLockedElementDetector:
         candidates = []
         for panel in titles:
             cx = (panel["bbox"][0] + panel["bbox"][2]) / 2.0
+            # The plan frame in a PDF may start below the title block.
+            # Do not assume its top/bottom coordinates relative to the title;
+            # use the actual long-vector evidence and let the frame geometry
+            # establish the panel bounds.
             left = [
                 line for line in vertical_lines
-                if line[0] < cx and line[1] < 400 and line[2] > 900
+                if line[0] < cx and (line[2] - line[1]) >= 500
             ]
             right = [
                 line for line in vertical_lines
-                if line[0] > cx and line[1] < 400 and line[2] > 900
+                if line[0] > cx and (line[2] - line[1]) >= 500
             ]
             left_line = min(left, key=lambda line: abs(line[0] - cx), default=None)
             right_line = min(right, key=lambda line: abs(line[0] - cx), default=None)
