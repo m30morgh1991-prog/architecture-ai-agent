@@ -17,16 +17,16 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H65
-- Stage: **H65 — Space Extraction Precedence**
+## Current verified state — H68
+- Stage: **H68 — Architectural Element Detection**
 - Status: **GREEN / PASS**
-- PR: **#9**
-- Head: `81657ddf1ff93bb7fb0aba51d433c6d4fb9aba83`
-- Merge commit on main: `fe5b271e11675aa1431857ca78c49076c2ff29d6`
-- CI: **Runtime Tests #238 — completed / success**
-- Verification: explicit native closed DWG boundaries take precedence over identical derived line faces; additional derived enclosed faces are retained; duplicate boundaries are suppressed.
-- H62, H63 and H64 remain GREEN/PASS.
-- Next gated stage: **H66**, after this H65 persistence commit is itself verified by real CI.
+- PR: **#12**
+- Head: `65327be27fcb5187eebcec04e91af6efa5df3f10`
+- Merge commit on main: `8a63761ad665da5564468a3b0a0b902db95bf365`
+- CI: **Runtime Tests #252 — completed / success**
+- Verification: Golden DWG regression coverage passed for conservative architectural element candidate detection, deterministic evidence, allowed element types/statuses, and fail-closed uncertainty handling on both golden projects.
+- H62–H67 remain GREEN/PASS.
+- Next gated stage: **H69 — Element Evidence Contract**.
 
 ## Current technical direction
 Extend real-DWG evidence toward reliable architectural space reconstruction. Preserve conservative/fail-closed behavior: insufficient evidence remains UNKNOWN.
