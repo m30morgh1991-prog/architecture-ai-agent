@@ -64,14 +64,13 @@ def polygonize_orthogonal_lines(line_segments, tolerance=1e-6, max_spaces=128):
     for u in outgoing:
         outgoing[u].sort(key=lambda v:math.atan2(unique[v][1]-unique[u][1],unique[v][0]-unique[u][0]))
 
-    # Traverse each directed half-edge with the face on its left.
     next_edge={}
     for u,v in ((u,v) for e in edges for u,v in (e,(e[1],e[0]))):
         nbrs=outgoing[v]
         if not nbrs: continue
         try: pos=nbrs.index(u)
         except ValueError: continue
-        w=nbrs[(pos-1)%len(nbrs)]  # predecessor in CCW order => left-face walk
+        w=nbrs[(pos-1)%len(nbrs)]
         next_edge[(u,v)]=(v,w)
 
     visited=set(); faces=[]
@@ -96,3 +95,53 @@ def polygonize_orthogonal_lines(line_segments, tolerance=1e-6, max_spaces=128):
         seen.add(sig); selected.append((pts,area))
         if len(selected)>=max_spaces: break
     return selected
+
+
+def merge_space_boundaries(explicit_shapes, line_faces, tolerance=1e-6, max_spaces=128):
+    """Merge explicit closed boundaries with derived line faces without duplicate rooms.
+
+    Explicit native closed polylines are preferred when they describe the same
+    boundary as a derived face. Line-derived faces are still retained when they
+    represent additional enclosed regions. No semantic status is inferred.
+    """
+    merged = []
+    signatures = set()
+
+    def signature(points):
+        return tuple(sorted((round(float(x), 6), round(float(y), 6)) for x, y in points))
+
+    for handle, points in list(explicit_shapes)[:max_spaces]:
+        if len(points) < 3:
+            continue
+        area = abs(_signed_area(points))
+        if area <= 1.0:
+            continue
+        sig = signature(points)
+        if sig in signatures:
+            continue
+        signatures.add(sig)
+        merged.append((handle, points, "EXPLICIT_CLOSED_BOUNDARY"))
+
+    for index, item in enumerate(list(line_faces)[:max_spaces], 1):
+        points, area = item
+        if len(points) < 3 or area <= 1.0:
+            continue
+        sig = signature(points)
+        if sig in signatures:
+            continue
+        # Guard against a line-derived face that is merely the same room with
+        # tiny coordinate noise: compare centroid and area ratio.
+        cx = sum(p[0] for p in points) / len(points)
+        cy = sum(p[1] for p in points) / len(points)
+        duplicate = False
+        for _, existing, _ in merged:
+            ex_area = abs(_signed_area(existing))
+            ex_cx = sum(p[0] for p in existing) / len(existing)
+            ex_cy = sum(p[1] for p in existing) / len(existing)
+            area_ratio = min(area, ex_area) / max(area, ex_area)
+            if area_ratio >= 0.995 and ((cx-ex_cx)**2 + (cy-ex_cy)**2) ** 0.5 <= tolerance * 10:
+                duplicate = True
+                break
+        if not duplicate:
+            merged.append((f"line-face-{index:03d}", points, "DERIVED_LINE_FACE"))
+    return merged
