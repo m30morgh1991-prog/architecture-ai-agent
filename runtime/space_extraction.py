@@ -63,8 +63,6 @@ def polygonize_orthogonal_lines(line_segments, tolerance=1e-6, max_spaces=128):
     adjacency={i:set() for i in range(len(unique))}
     for u,v in edge_pairs: adjacency[u].add(v); adjacency[v].add(u)
 
-    # Enumerate each directed half-edge. At the destination, choose the
-    # clockwise-most outgoing edge relative to the reverse incoming ray.
     directed={(u,v) for u,v in edge_pairs for u,v in ((u,v),(v,u))}
     faces=[]
     max_steps=max(8,len(directed)+2)
@@ -76,18 +74,19 @@ def polygonize_orthogonal_lines(line_segments, tolerance=1e-6, max_spaces=128):
             rev=math.atan2(unique[u][1]-unique[v][1],unique[u][0]-unique[v][0])
             options=[]
             for n in adjacency[v]:
-                if (v,n) not in directed: continue
-                ang=math.atan2(unique[n][1]-unique[v][1],unique[n][0]-unique[v][0])
-                options.append(((rev-ang)%(2*math.pi),n))
+                candidate=(v,n)
+                if candidate in directed or candidate == start:
+                    ang=math.atan2(unique[n][1]-unique[v][1],unique[n][0]-unique[v][0])
+                    options.append(((rev-ang)%(2*math.pi),n,candidate==start))
             if not options: break
-            _,nxt=min(options)
-            u,v=v,nxt
-            if (u,v)==start:
+            _,nxt,is_start=min(options)
+            if is_start:
                 pts=[unique[i] for i in cycle]
                 if len(pts)>=3:
                     area=_signed_area(pts)
                     if area>tolerance: faces.append((pts,area))
                 break
+            u,v=v,nxt
     selected=[]; seen=set()
     for pts,area in sorted(faces,key=lambda x:x[1]):
         sig=tuple(sorted((round(x,6),round(y,6)) for x,y in pts))
