@@ -15,6 +15,7 @@ import fitz
 import numpy as np
 
 from runtime.spatial_topology import classify_space_relations
+from runtime.opening_connectivity import classify_opening_connectivity
 
 try:
     import ezdwg
@@ -281,7 +282,7 @@ class ConservativeLockedElementDetector:
                     if p1 and p2:
                         line_segments.append((float(p1[0]),float(p1[1]),float(p2[0]),float(p2[1]),e.handle))
                 if e.dxftype in {"INSERT", "MINSERT"}:
-                    inserts.append({"handle": e.handle, "block": dxf.get("name", dxf.get("block_name")), "insert": dxf.get("insert")})
+                    inserts.append({"handle": e.handle, "block": dxf.get("name", dxf.get("block_name")), "insert": dxf.get("insert"), "layer": dxf.get("layer")})
 
             # Native DWG geometry is now interpreted deterministically into
             # bounded architectural candidates. Geometry can strengthen evidence,
@@ -459,6 +460,20 @@ class ConservativeLockedElementDetector:
             # overlap is retained as OVERLAPS evidence and never promoted to ADJACENT.
             boundary_points = {handle: pts for handle, pts in closed_shapes}
             space_relations = classify_space_relations(spaces, boundary_points)
+            opening_candidates = []
+            for ins in inserts:
+                block = str(ins.get("block") or "").upper()
+                layer = str(ins.get("layer") or "").upper()
+                point = ins.get("insert")
+                if point and ("DOOR" in block or "DOOR" in layer or "DR" == block.strip()):
+                    opening_candidates.append({
+                        "opening_id": f"DWG-OPENING-{ins['handle']}",
+                        "opening_type": "DOOR",
+                        "point": [float(point[0]), float(point[1])],
+                        "evidence_id": f"dwg-opening-{ins['handle']}",
+                    })
+            opening_relations = classify_opening_connectivity(opening_candidates, spaces, boundary_points)
+            space_relations.extend(opening_relations)
 
             # Door/window candidates: arcs and short linework are represented as
             # candidate evidence; explicit layer/text naming is corroborating only.
