@@ -17,16 +17,16 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H69
-- Stage: **H69 — Element Evidence Contract**
+## Current verified state — H75
+- Stage: **H75 — Impact Analysis**
 - Status: **GREEN / PASS**
-- PR: **#13 — merged**
-- PR head: `25aa5221e603600f0b5ab700139cb7087b78e739`
-- Merge commit on main: `4151cce12134f24e8f76d489e2b9ced7fea5b1f0`
-- CI: **Runtime Tests #256 — completed / success** on the H69 PR head.
-- Verification: source-bound element evidence contract and fail-closed validation passed.
-- H62–H68 remain GREEN/PASS.
-- Next gated stage: **H70 — PlanModel Full Reconstruction**.
+- PR: **#20 — merged**
+- PR head: c64a56017a0813eab8d3c232e5ecd9b3531a5b23
+- Merge commit on main: f2ae155ed14ad24c5bb71f5539692af75538d221
+- CI: **Runtime Tests #274 — completed / success** on the H75 PR head.
+- Verification: deterministic source/model-bound impact analysis passed; editable targets can PASS, missing/unknown/protected/unclassified targets fail closed, source/model mismatches block, and overall architectural layout never auto-passes.
+- H62–H74 remain GREEN/PASS.
+- Next gated stage: **H76 — Architecture Rule Engine**.
 
 ## Current technical direction
 Reconstruct a deterministic, evidence-backed PlanModel from real DWG architectural detection and space extraction. Preserve conservative/fail-closed behavior: insufficient or contradictory evidence remains unresolved/UNKNOWN and cannot be promoted to PASS.
