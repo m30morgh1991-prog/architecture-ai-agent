@@ -93,3 +93,24 @@ def test_overall_layout_never_auto_passes():
     )
     assert result.status == "BLOCKED"
     assert "OVERALL_LAYOUT_REQUIRES_PROTECTED_IMPACT_REVIEW" in result.blockers
+
+
+from runtime.plan_model_contract import BIMElementRelation
+
+def test_bim_relation_protected_neighbor_blocks():
+    plan = _plan()
+    plan = PlanModel(model_id=plan.model_id, source_sha256=plan.source_sha256, drawing_count=plan.drawing_count,
+                     elements=plan.elements, bim_relations=(BIMElementRelation("ADJACENT_TO","F01","W01"),))
+    result = analyze_impact(plan, _map(), _request())
+    assert result.status == "BLOCKED"
+    assert "PROTECTED_INDIRECT_IMPACT" in result.blockers
+    assert any(i.element_id == "W01" and i.scope == "PROTECTED" for i in result.items)
+
+def test_bim_relation_unknown_neighbor_fails_closed():
+    plan = _plan()
+    plan = PlanModel(model_id=plan.model_id, source_sha256=plan.source_sha256, drawing_count=plan.drawing_count,
+                     elements=plan.elements, unresolved=("U01",),
+                     bim_relations=(BIMElementRelation("ADJACENT_TO","F01","U01"),))
+    result = analyze_impact(plan, _map(), _request())
+    assert result.status == "BLOCKED"
+    assert "UNKNOWN_INDIRECT_IMPACT" in result.blockers
