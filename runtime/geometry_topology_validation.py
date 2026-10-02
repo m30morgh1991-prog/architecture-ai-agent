@@ -176,10 +176,15 @@ def validate_relation_topology(plan_model, relation_set) -> TopologyValidation:
     issues = []
     for relation in relation_set.relations:
         checked.extend((relation.from_id, relation.to_id))
-        if relation.relation_kind.startswith("SPACE_"):
+        if relation.relation_kind == "SPACE_ADJACENCY":
             if relation.from_id not in space_ids or relation.to_id not in space_ids:
                 issues.append("SPACE_RELATION_ENDPOINT_INVALID")
-        else:
+        elif relation.relation_kind in {"SPACE_BOUNDARY_ELEMENT", "SPACE_OPENING_ELEMENT"}:
+            if relation.from_id not in space_ids or relation.to_id not in element_ids:
+                issues.append("SPACE_ELEMENT_RELATION_ENDPOINT_INVALID")
+        elif relation.relation_kind in {
+            "ELEMENT_ADJACENCY", "ELEMENT_CONTAINS", "ELEMENT_INTERSECTS"
+        }:
             if relation.from_id not in element_ids or relation.to_id not in element_ids:
                 issues.append("ELEMENT_RELATION_ENDPOINT_INVALID")
         if relation.status != "SUPPORTED":
