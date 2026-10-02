@@ -29,7 +29,7 @@ class BugHuntingGateTests(unittest.TestCase):
         self.assertTrue(any(e.startswith("MISSING_SECTION:## Regression") for e in errors))
 
     def test_missing_fail_closed_token_blocks(self):
-        text = GOOD.replace("BLOCKED", "blocked-state-omitted")
+        text = GOOD.replace("BLOCKED", "NO_FAIL_CLOSED_TOKEN")
         errors = validate_evidence(text)
         self.assertTrue(any(e == "MISSING_TOKEN:BLOCKED" for e in errors))
 
