@@ -38,7 +38,8 @@ class PostEditDiff:
 
 def build_post_edit_diff(*, before_after: BeforeAfterDetection | None) -> PostEditDiff:
     if before_after is None:
-        return PostEditDiff((), (), (), (), (), "", "", False, "UNKNOWN", "BEFORE_AFTER_DETECTION_MISSING")
+        raise ValueError("BEFORE_AFTER_DETECTION_MISSING")
+    before_after.validate()
 
     status = before_after.status
     valid = bool(
