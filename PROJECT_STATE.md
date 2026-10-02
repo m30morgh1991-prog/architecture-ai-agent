@@ -17,16 +17,26 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H75
-- Stage: **H75 — Impact Analysis**
-- Status: **GREEN / PASS**
-- PR: **#20 — merged**
-- PR head: c64a56017a0813eab8d3c232e5ecd9b3531a5b23
-- Merge commit on main: f2ae155ed14ad24c5bb71f5539692af75538d221
-- CI: **Runtime Tests #274 — completed / success** on the H75 PR head.
-- Verification: deterministic source/model-bound impact analysis passed; editable targets can PASS, missing/unknown/protected/unclassified targets fail closed, source/model mismatches block, and overall architectural layout never auto-passes.
-- H62–H74 remain GREEN/PASS.
-- Next gated stage: **H76 — Architecture Rule Engine**.
+## Current verified state — H75 / H76 / H77 checkpoint
+- Main verified baseline: **H75 — Impact Analysis**
+- H75 status: **GREEN / PASS**
+- H75 PR #20 merged; merge commit: f2ae155ed14ad24c5bb71f5539692af75538d221
+- H75 CI: Runtime Tests #274 — completed / success.
+- H76 Architecture Rule Engine PR #21: open, mergeable=false, head 9611c96eada263109d516ca3f97c2a0688d90e4b.
+- H76 CI: Runtime Tests #282 — completed / success.
+- H76 BIM-ready PlanModel core PR #22: open, mergeable=false, head ee7169c8e65e2faadb9b1446816a95d412d74ccf.
+- H76 BIM-ready core CI: Runtime Tests #283 — completed / success.
+- H77 BIM-ready PlanModel integration PR #24: open, mergeable=true, head b0f97dfae71e2ba44c782f4eea4275566f3aac4e.
+- H77 CI: Runtime Tests #288 — in_progress; not GREEN until completed/success.
+- Latest observed repository checkpoint commit: a706d0ede1c7fdd683fe2c219a13d7cbf825d815 (chore: enable PR CI gate).
+- Safe continuation: preserve H77 active CI; do not merge until real CI completes/succeeds and PR is verified.
+
+## Backup checkpoint
+- Repository-only recovery checkpoint recorded for continuation if Notion or auxiliary tools are unavailable.
+- Active continuation branch: feat/h77-bim-planmodel-integration via PR #24.
+- Important changes since prior documented checkpoint: H76 rule engine, H76 BIM-ready PlanModel core, H77 BIM-ready PlanModel integration, PR CI gate workflow.
+- No destructive deletion or overwrite was performed.
+- Recovery order: inspect main, active PR head, latest real CI, then continue from latest verified green stage.
 
 ## Current technical direction
 Reconstruct a deterministic, evidence-backed PlanModel from real DWG architectural detection and space extraction. Preserve conservative/fail-closed behavior: insufficient or contradictory evidence remains unresolved/UNKNOWN and cannot be promoted to PASS.
