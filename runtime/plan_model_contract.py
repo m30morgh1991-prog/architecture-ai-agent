@@ -3,12 +3,14 @@
 H63 adds the validated SpaceModel as a first-class structural component of
 PlanModel. H70 binds the source-bound H69 ElementEvidenceBundle so a
 reconstructed PlanModel remains traceable to its evidence and fail-closed.
+H76 adds optional BIM-ready semantic identity and relationship graph support.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from runtime.bim_ready_contract import BIMElementIdentity, BIMElementRelation, validate_bim_graph
 from runtime.element_evidence_contract import ElementEvidenceBundle
 from runtime.space_model_contract import SpaceModel
 
@@ -23,6 +25,7 @@ class PlanElement:
     geometry: dict[str, Any]
     evidence_ids: tuple[str, ...]
     confidence: float
+    bim_identity: BIMElementIdentity | None = None
 
     def validate(self) -> None:
         if not self.element_id or not self.element_type:
@@ -35,6 +38,8 @@ class PlanElement:
             raise ValueError("LOCKED_ELEMENT_CONFIDENCE_TOO_LOW")
         if self.state == "EDITABLE" and self.confidence < 0.90:
             raise ValueError("EDITABLE_ELEMENT_CONFIDENCE_TOO_LOW")
+        if self.bim_identity is not None:
+            self.bim_identity.validate()
 
 
 @dataclass(frozen=True)
@@ -46,6 +51,7 @@ class PlanModel:
     unresolved: tuple[str, ...] = ()
     space_model: SpaceModel | None = None
     element_evidence: ElementEvidenceBundle | None = None
+    bim_relations: tuple[BIMElementRelation, ...] = ()
 
     def validate(self) -> None:
         if not self.model_id or not self.source_sha256:
@@ -61,6 +67,8 @@ class PlanModel:
 
         for element in self.elements:
             element.validate()
+
+        validate_bim_graph(set(element_ids), self.bim_relations)
 
         if self.element_evidence is not None:
             self.element_evidence.validate()
