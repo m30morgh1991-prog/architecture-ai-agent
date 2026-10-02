@@ -25,16 +25,16 @@ Durable repository-backed continuation point for Architecture AI Agent.
 
 ## Current verified continuation point
 
-### H69 — Element Evidence Contract
+### H75 — Impact Analysis
 - Status: **GREEN / PASS**
-- PR #13 merged.
-- PR head: `25aa5221e603600f0b5ab700139cb7087b78e739`
-- Merge commit: `4151cce12134f24e8f76d489e2b9ced7fea5b1f0`
-- Runtime Tests #256: **completed / success** on the H69 PR head.
-- Verification: source-bound element evidence contract, confidence/status validation, unresolved element handling, source matching, and queryability passed.
+- PR #20 merged.
+- PR head: c64a56017a0813eab8d3c232e5ecd9b3531a5b23
+- Merge commit: f2ae155ed14ad24c5bb71f5539692af75538d221
+- Runtime Tests #274: **completed / success** on the H75 PR head.
+- Verification: deterministic source/model-bound impact analysis, fail-closed target/constraint handling, and overall-layout review gating passed.
 
 ### Next
-After the H69 persistence checkpoint is CI-verified, begin **H70 — PlanModel Full Reconstruction**.
+Begin **H76 — Architecture Rule Engine** after this persistence checkpoint is CI-verified.
 
 ## MVP
 Inputs: JPG / PNG / WEBP / PDF + prompt.
