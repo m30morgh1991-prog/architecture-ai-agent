@@ -1,6 +1,7 @@
 from runtime.change_request_contract import ChangeRequest
 from runtime.impact_analysis import ImpactStatus, analyze_impact
 from runtime.plan_model_contract import ConstraintMap, PlanElement, PlanModel
+from runtime.bim_ready_contract import BIMElementRelation
 
 
 SOURCE = "a" * 64
@@ -63,6 +64,40 @@ def test_unknown_target_fails_closed():
     result = analyze_impact(_plan(), _map(), _request(target_ids=("MISSING",)))
     assert result.status == "UNKNOWN"
     assert "TARGET_ELEMENT_MISSING" in result.blockers
+
+
+def test_bim_relation_expands_impact_to_protected_neighbor():
+    plan = _plan()
+    plan = PlanModel(
+        model_id=plan.model_id,
+        source_sha256=plan.source_sha256,
+        drawing_count=plan.drawing_count,
+        elements=plan.elements,
+        bim_relations=(BIMElementRelation("ADJACENT_TO", "F01", "W01"),),
+    )
+    result = analyze_impact(plan, _map(), _request())
+    assert result.status == "BLOCKED"
+    assert "PROTECTED_INDIRECT_IMPACT" in result.blockers
+    assert "W01" in result.impacted_element_ids
+
+
+def test_bim_relation_to_unknown_neighbor_fails_closed():
+    plan = _plan()
+    plan = PlanModel(
+        model_id=plan.model_id,
+        source_sha256=plan.source_sha256,
+        drawing_count=plan.drawing_count,
+        elements=plan.elements,
+        bim_relations=(BIMElementRelation("ADJACENT_TO", "F01", "W01"),),
+    )
+    constraint = ConstraintMap(
+        map_id="cm-75", model_id="pm-75", protected_element_ids=(),
+        editable_element_ids=("F01",), conditional_element_ids=(),
+        unknown_element_ids=("W01",), evidence_ids=("ev-f01", "ev-w01"),
+    )
+    result = analyze_impact(plan, constraint, _request())
+    assert result.status == "BLOCKED"
+    assert "UNKNOWN_INDIRECT_IMPACT" in result.blockers
 
 
 def test_protected_target_is_blocked():
