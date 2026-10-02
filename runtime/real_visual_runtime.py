@@ -23,6 +23,7 @@ from .visual_semantic_corroboration import VisualSemanticCorroborationGate
 from .plan_model_contract import ConstraintMap, PlanElement, PlanModel
 from .drawing_standards_validation import validate_drawing_standards
 from .drawing_metadata_extractor import extract_drawing_standard_metadata
+from .native_dwg_structural_detection import detect_native_dwg_candidates, promote_candidates
 
 _SUPPORTED = {".jpg":"JPG",".jpeg":"JPG",".png":"PNG",".webp":"WEBP",".pdf":"PDF",".dwg":"DWG"}
 _SPACE_TERMS = re.compile(
@@ -64,9 +65,39 @@ class RealVisualArtifactAdapter:
                 header = document.header_variables()
                 extmin = header.get("extmin")
                 extmax = header.get("extmax")
+                entities = []
+                for index, entity in enumerate(modelspace.query()):
+                    try:
+                        layer = str(entity.dxf.get("layer", ""))
+                    except Exception:
+                        layer = ""
+                    block = ""
+                    try:
+                        block = str(entity.dxf.get("name", entity.dxf.get("block", "")))
+                    except Exception:
+                        block = ""
+                    closed = False
+                    try:
+                        closed = bool(entity.closed)
+                    except Exception:
+                        closed = False
+                    raw_dxftype = getattr(entity, "dxftype", "")
+                    entity_type = str(raw_dxftype() if callable(raw_dxftype) else raw_dxftype)
+                    entities.append({
+                        "index": index,
+                        "type": entity_type,
+                        "layer": layer,
+                        "block": block,
+                        "closed": closed,
+                    })
                 return VisualArtifact(
                     str(path), input_type, digest, 0, 0, 1,
-                    {"entity_count": entity_count, "extmin": extmin, "extmax": extmax},
+                    {
+                        "entity_count": entity_count,
+                        "extmin": extmin,
+                        "extmax": extmax,
+                        "entities": entities,
+                    },
                 )
             except Exception as exc:
                 raise ValueError("DWG_PARSE_FAILED") from exc
@@ -92,6 +123,11 @@ class RealVisualArtifactAdapter:
     def detect(self, artifact: VisualArtifact) -> dict[str, Any]:
         if artifact.input_type == "DWG":
             payload = artifact.image if isinstance(artifact.image, dict) else {}
+            candidates = detect_native_dwg_candidates(payload.get("entities", []))
+            promoted = promote_candidates(candidates)
+            locked = [c for c in promoted if c.status == "LOCKED"]
+            unresolved = [c for c in promoted if c.status != "LOCKED"]
+            status = "LOCKED" if locked and not unresolved else ("NEEDS_REVIEW" if promoted else "UNKNOWN")
             return {
                 "artifact_sha256": artifact.sha256,
                 "input_type": "DWG",
@@ -102,12 +138,22 @@ class RealVisualArtifactAdapter:
                 "recognized_space_labels": [],
                 "dwg_entity_count": int(payload.get("entity_count", 0)),
                 "dwg_extents": [payload.get("extmin"), payload.get("extmax")],
+                "native_dwg_candidates": [
+                    {
+                        "candidate_id": c.candidate_id,
+                        "element_type": c.element_type,
+                        "evidence_ids": list(c.evidence_ids),
+                        "signals": list(c.signals),
+                        "confidence": c.confidence,
+                        "status": c.status,
+                    }
+                    for c in promoted
+                ],
                 "fixed_element_identification": {
-                    "status": "UNKNOWN",
+                    "status": status,
                     "reason": (
-                        "DWG geometry was parsed, but approval-grade identification of "
-                        "columns and other structural fixed elements is not yet implemented "
-                        "for native DWG entities. The runtime therefore remains fail-closed."
+                        "Native DWG candidates are promoted only from independent evidence; "
+                        "insufficient corroboration remains fail-closed."
                     ),
                 },
             }
