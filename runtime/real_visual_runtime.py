@@ -61,10 +61,19 @@ class RealVisualArtifactAdapter:
             try:
                 document = ezdwg.read(str(path))
                 modelspace = document.modelspace()
-                entity_count = len(list(modelspace.query()))
-                header = document.header_variables()
-                extmin = header.get("extmin")
-                extmax = header.get("extmax")
+                queried_entities = list(modelspace.query())
+                entity_count = len(queried_entities)
+                # Header metadata is optional evidence; ezdwg versions may
+                # expose different header APIs and must not make a valid DWG
+                # unreadable.
+                extmin = None
+                extmax = None
+                try:
+                    header = document.header_variables()
+                    extmin = header.get("extmin")
+                    extmax = header.get("extmax")
+                except Exception:
+                    pass
                 entities = []
                 for index, entity in enumerate(modelspace.query()):
                     try:
