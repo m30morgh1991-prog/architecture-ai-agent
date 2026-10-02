@@ -19,7 +19,7 @@ class PostEditDiffIntegrationTests(unittest.TestCase):
         before = self._det(geometry=(0, 0))
         after = self._det(geometry=(10, 0))
         diff = build_post_edit_diff(
-            before_after=__import__("runtime.runtime_before_after", fromlist=["compare_runtime_detections"]).compare_runtime_detections(
+            before_after=compare_runtime_detections(
                 before_detection=before,
                 after_detection=after,
                 source_sha256="a" * 64,
@@ -52,7 +52,7 @@ class PostEditDiffIntegrationTests(unittest.TestCase):
         self.assertFalse(diff.valid)
         self.assertEqual(diff.status, "BLOCKED")
 
-    def test_missing_after_never_passes(self):
+    def test_missing_before_after_input_is_rejected(self):\n        with self.assertRaisesRegex(ValueError, "BEFORE_AFTER_DETECTION_MISSING"):\n            build_post_edit_diff(before_after=None)\n\n    def test_unauthorized_change_blocks(self):\n        diff = build_post_edit_diff_from_runtime(\n            before_detection=self._det(geometry=(0, 0)),\n            after_detection=self._det(geometry=(10, 0)),\n            source_sha256="d" * 64,\n            model_id="M4",\n            before_status="PASS",\n            after_status="PASS",\n            approved_target_ids=(),\n        )\n        self.assertFalse(diff.valid)\n        self.assertEqual(diff.status, "BLOCKED")\n        self.assertEqual(diff.unauthorized_changes, ("F01",))\n\n    def test_missing_after_never_passes(self):
         from runtime.runtime_before_after import compare_runtime_detections
         comparison = compare_runtime_detections(
             before_detection=self._det(),
