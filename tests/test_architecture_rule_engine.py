@@ -96,4 +96,6 @@ def test_invalid_source_identity_blocks():
 def test_project_basis_is_lower_priority_than_binding_regulation():
     binding = RuleSource("reg", "Binding regulation", "BINDING_REGULATION", "section-x")
     project = RuleSource("project", "Project basis", "PROJECT_BASIS", "note-x")
-    assert binding.tier != project.tier
+    assert binding.priority < project.priority
+    ruleset = RuleSet("ordered", "1.0.0", (_rule(),))
+    assert ruleset.ordered_rules()[0].source.priority == 6
