@@ -26,15 +26,24 @@ Durable repository-backed continuation point for Architecture AI Agent.
 ## Current verified continuation point
 
 ### H75 — Impact Analysis
-- Status: **GREEN / PASS**
+- Status: GREEN / PASS
 - PR #20 merged.
-- PR head: c64a56017a0813eab8d3c232e5ecd9b3531a5b23
 - Merge commit: f2ae155ed14ad24c5bb71f5539692af75538d221
-- Runtime Tests #274: **completed / success** on the H75 PR head.
-- Verification: deterministic source/model-bound impact analysis, fail-closed target/constraint handling, and overall-layout review gating passed.
+- Runtime Tests #274: completed / success.
 
-### Next
-Begin **H76 — Architecture Rule Engine** after this persistence checkpoint is CI-verified.
+### Active continuation checkpoint — H77
+- H76 Architecture Rule Engine PR #21: open, mergeable=false; head 9611c96eada263109d516ca3f97c2a0688d90e4b; Runtime Tests #282 completed/success.
+- H76 BIM-ready PlanModel core PR #22: open, mergeable=false; head ee7169c8e65e2faadb9b1446816a95d412d74ccf; Runtime Tests #283 completed/success.
+- H77 BIM-ready PlanModel integration PR #24: open, mergeable=true; head b0f97dfae71e2ba44c782f4eea4275566f3aac4e; Runtime Tests #288 in_progress.
+- Do not declare H77 GREEN or merge until its real CI is completed/success and the PR is verified.
+- Latest observed repository checkpoint commit: a706d0ede1c7fdd683fe2c219a13d7cbf825d815 (chore: enable PR CI gate).
+- Recovery must rely only on Repository + PROJECT_STATE.md + MASTER_HANDOFF.md + real CI evidence.
+
+## Backup checkpoint
+- Additive and non-destructive.
+- No files were deleted or destructively overwritten.
+- This checkpoint records the latest known stage, branches, PRs, heads, CI state, and recovery order.
+- After H77 completes, persist the verified merge and CI result here before starting H78.
 
 ## MVP
 Inputs: JPG / PNG / WEBP / PDF + prompt.
