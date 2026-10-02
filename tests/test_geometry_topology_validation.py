@@ -68,3 +68,25 @@ def test_topology_source_mismatch_is_blocked():
 def test_unsupported_relation_is_never_pass():
     result = validate_relation_topology(_model({"kind":"bbox","bbox":[0,0,1,1]}), _relations("UNKNOWN"))
     assert result.status == "NEEDS_REVIEW"
+
+
+def test_mixed_space_element_relations_use_correct_endpoint_domains():
+    from runtime.space_model_contract import SpaceModel, SpaceRecord
+    space = SpaceRecord(
+        "S1", "b1", (0, 0, 10, 10), (5, 5), 100, "Living", ("e1",), "ACCESSIBLE"
+    )
+    model = PlanModel(
+        model_id="pm-h73-mixed",
+        source_sha256="a" * 64,
+        drawing_count=1,
+        elements=(PlanElement("W1", "WALL", "LOCKED", {"kind":"bbox","bbox":[0,0,1,1]}, ("e1",), 0.99),),
+        space_model=SpaceModel("sm1", "a" * 64, (space,), ()),
+    )
+    relation = ArchitecturalRelation(
+        "r-mixed", "a" * 64, "SPACE_BOUNDARY_ELEMENT",
+        "S1", "W1", ("e1",), "SUPPORTED", 1.0
+    )
+    relations = ArchitecturalRelationSet("rs-mixed", "a" * 64, (relation,))
+    result = validate_relation_topology(model, relations)
+    assert result.status == "PASS"
+    assert result.issues == ()
