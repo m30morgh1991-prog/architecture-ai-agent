@@ -100,6 +100,16 @@ def analyze_impact(
 
     items = []
     blockers = []
+
+    # BIM relations expand impact symmetrically but never grant edit authority.
+    direct_targets = set(request.target_ids)
+    indirect_ids = set()
+    for relation in tuple(getattr(plan_model, "bim_relations", ()) or ()):
+        if relation.source_id in direct_targets:
+            indirect_ids.add(relation.target_id)
+        if relation.target_id in direct_targets:
+            indirect_ids.add(relation.source_id)
+    indirect_ids -= direct_targets
     for element_id in request.target_ids:
         if element_id in protected:
             items.append(ImpactItem(element_id, "PROTECTED", "Target is protected by ConstraintMap."))
@@ -115,6 +125,25 @@ def analyze_impact(
         else:
             items.append(ImpactItem(element_id, "UNKNOWN", "Target is not classified by ConstraintMap."))
             blockers.append("UNCLASSIFIED_TARGET")
+
+    for element_id in sorted(indirect_ids):
+        if element_id not in element_ids:
+            items.append(ImpactItem(element_id, "UNKNOWN", "BIM relation references an element absent from PlanModel."))
+            blockers.append("UNKNOWN_INDIRECT_IMPACT")
+        elif element_id in protected:
+            items.append(ImpactItem(element_id, "PROTECTED", "BIM relation makes a protected neighbor indirectly impacted."))
+            blockers.append("PROTECTED_INDIRECT_IMPACT")
+        elif element_id in unknown:
+            items.append(ImpactItem(element_id, "UNKNOWN", "BIM relation makes an unknown neighbor indirectly impacted."))
+            blockers.append("UNKNOWN_INDIRECT_IMPACT")
+        elif element_id in conditional:
+            items.append(ImpactItem(element_id, "INDIRECT", "BIM relation makes a conditional neighbor indirectly impacted."))
+            blockers.append("CONDITIONAL_INDIRECT_IMPACT")
+        elif element_id in editable:
+            items.append(ImpactItem(element_id, "INDIRECT", "BIM relation makes an editable neighbor indirectly impacted."))
+        else:
+            items.append(ImpactItem(element_id, "UNKNOWN", "BIM relation neighbor is unclassified."))
+            blockers.append("UNCLASSIFIED_INDIRECT_IMPACT")
 
     if request.change_type == _OVERALL:
         if protected:
