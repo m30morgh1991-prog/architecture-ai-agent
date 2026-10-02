@@ -30,3 +30,33 @@ def test_real_visual_runtime_exposes_native_dwg_candidates():
     assert len(result["native_dwg_candidates"]) == 1
     assert result["native_dwg_candidates"][0]["candidate_id"] == "DWG-00000"
     assert result["native_dwg_candidates"][0]["evidence_ids"] == ["dwg-e1", "dwg-e2"]
+
+
+class _DxftypePropertyEntity:
+    dxftype = "INSERT"
+    dxf = {"layer": "COLUMNS", "name": "COL_02"}
+    closed = True
+
+
+class _FakeModelspace:
+    def query(self):
+        return [_DxftypePropertyEntity()]
+
+
+class _FakeDocument:
+    def modelspace(self):
+        return _FakeModelspace()
+
+    def header_variables(self):
+        return {"extmin": (0, 0), "extmax": (100, 100)}
+
+
+def test_real_visual_runtime_accepts_dxftype_property(tmp_path, monkeypatch):
+    import runtime.real_visual_runtime as module
+
+    source = tmp_path / "sample.dwg"
+    source.write_bytes(b"fake-dwg")
+    monkeypatch.setattr(module.ezdwg, "read", lambda _path: _FakeDocument())
+
+    artifact = RealVisualArtifactAdapter().ingest(str(source))
+    assert artifact.image["entities"][0]["type"] == "INSERT"
