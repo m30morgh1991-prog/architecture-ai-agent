@@ -41,6 +41,10 @@ class RuleSource:
     locator: str
     evidence_required: bool = True
 
+    @property
+    def priority(self) -> int:
+        return _PRIORITY[self.tier]
+
     def validate(self) -> None:
         if not self.source_id.strip():
             raise ValueError("RULE_SOURCE_ID_MISSING")
@@ -118,6 +122,10 @@ class RuleSet:
             raise ValueError("RULE_ID_DUPLICATE")
         for rule in self.rules:
             rule.validate()
+
+    def ordered_rules(self) -> tuple[Rule, ...]:
+        self.validate()
+        return tuple(sorted(self.rules, key=lambda rule: (rule.source.priority, rule.rule_id, rule.version)))
 
 
 def evaluate_rule(
