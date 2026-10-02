@@ -17,23 +17,25 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H75 / H76 / H77 checkpoint
-- Main verified baseline: **H75 — Impact Analysis**
-- H75 status: **GREEN / PASS**
-- H75 PR #20 merged; merge commit: f2ae155ed14ad24c5bb71f5539692af75538d221
-- H75 CI: Runtime Tests #274 — completed / success.
-- H76 Architecture Rule Engine PR #21: open, mergeable=false, head 9611c96eada263109d516ca3f97c2a0688d90e4b.
-- H76 CI: Runtime Tests #282 — completed / success.
-- H76 BIM-ready PlanModel core PR #22: open, mergeable=false, head ee7169c8e65e2faadb9b1446816a95d412d74ccf.
-- H76 BIM-ready core CI: Runtime Tests #283 — completed / success.
-- H77 BIM-ready PlanModel integration PR #24: open, mergeable=true, head b0f97dfae71e2ba44c782f4eea4275566f3aac4e.
-- H77 CI: Runtime Tests #288 — in_progress; not GREEN until completed/success.
-- Latest observed repository checkpoint commit: a706d0ede1c7fdd683fe2c219a13d7cbf825d815 (chore: enable PR CI gate).
-- Safe continuation: preserve H77 active CI; do not merge until real CI completes/succeeds and PR is verified.
+## Current verified state — H78 / H79 checkpoint
+- H77 BIM-ready PlanModel integration: **GREEN / MERGED**
+- H77 PR #24 merge commit: edc1900a33d9310f7e81f7dd32384782208dd6ea
+- H77 Runtime Tests #288: completed / success.
+- H78 BIM-to-Constraint binding: **GREEN / MERGED**
+- H78 PR #25 merge commit: 0ca7fd0fc1265e8170e89945138ed47087913d07
+- H78 Runtime Tests #293: completed / success.
+- H78 PR CI Gate #6: completed / success.
+- H79 evidence-backed BIM ConstraintMap: implementation complete, PR #26 open.
+- H79 head: 429f4ef5bd51cecbd06a238a797bb8b5cf974366
+- H79 Runtime Tests #295: **in_progress**; not GREEN until completed/success.
+- H79 PR CI Gate #8: **in_progress**; not GREEN until completed/success.
+- Current gated continuation: PR #26 / H79.
+- No H80 merge or GREEN claim is permitted until H79's current real CI gates complete successfully.
+- Parallel preparation is allowed only when it does not alter the active H79 head or invalidate its CI gate.
 
 ## Backup checkpoint
 - Repository-only recovery checkpoint recorded for continuation if Notion or auxiliary tools are unavailable.
-- Active continuation branch: feat/h77-bim-planmodel-integration via PR #24.
+- Active continuation branch: feat/h79-evidence-backed-bim-constraintmap via PR #26.
 - Important changes since prior documented checkpoint: H76 rule engine, H76 BIM-ready PlanModel core, H77 BIM-ready PlanModel integration, PR CI gate workflow.
 - No destructive deletion or overwrite was performed.
 - Recovery order: inspect main, active PR head, latest real CI, then continue from latest verified green stage.
