@@ -100,6 +100,19 @@ def analyze_impact(
 
     items = []
     blockers = []
+    relations = tuple(getattr(plan_model, "bim_relations", ()) or ())
+    direct_targets = set(request.target_ids)
+    # Relationship-aware impact expansion is conservative: graph neighbors of
+    # requested targets are reported as INDIRECT. Protected/conditional/
+    # unknown neighbors block instead of being silently ignored.
+    indirect_ids = set()
+    for relation in relations:
+        if relation.source_id in direct_targets:
+            indirect_ids.add(relation.target_id)
+        if relation.target_id in direct_targets:
+            indirect_ids.add(relation.source_id)
+    indirect_ids -= direct_targets
+
     for element_id in request.target_ids:
         if element_id in protected:
             items.append(ImpactItem(element_id, "PROTECTED", "Target is protected by ConstraintMap."))
@@ -115,6 +128,22 @@ def analyze_impact(
         else:
             items.append(ImpactItem(element_id, "UNKNOWN", "Target is not classified by ConstraintMap."))
             blockers.append("UNCLASSIFIED_TARGET")
+
+    for element_id in sorted(indirect_ids):
+        if element_id in protected:
+            items.append(ImpactItem(element_id, "PROTECTED", "Related element is protected by ConstraintMap."))
+            blockers.append("PROTECTED_INDIRECT_IMPACT")
+        elif element_id in unknown:
+            items.append(ImpactItem(element_id, "UNKNOWN", "Related element has unknown constraint state."))
+            blockers.append("UNKNOWN_INDIRECT_IMPACT")
+        elif element_id in conditional:
+            items.append(ImpactItem(element_id, "INDIRECT", "Related element is conditional and requires rule review."))
+            blockers.append("CONDITIONAL_INDIRECT_IMPACT")
+        elif element_id in editable:
+            items.append(ImpactItem(element_id, "INDIRECT", "Related element is editable but affected by the requested target."))
+        else:
+            items.append(ImpactItem(element_id, "UNKNOWN", "Related element is not classified by ConstraintMap."))
+            blockers.append("UNCLASSIFIED_INDIRECT_IMPACT")
 
     if request.change_type == _OVERALL:
         if protected:
