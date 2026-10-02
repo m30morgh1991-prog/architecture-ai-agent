@@ -90,7 +90,8 @@ class RealVisualArtifactAdapter:
                         closed = bool(entity.closed)
                     except Exception:
                         closed = False
-                    entity_type = str(getattr(entity, "dxftype", lambda: "")())
+                    raw_dxftype = getattr(entity, "dxftype", "")
+                    entity_type = str(raw_dxftype() if callable(raw_dxftype) else raw_dxftype)
                     entities.append({
                         "index": index,
                         "type": entity_type,
