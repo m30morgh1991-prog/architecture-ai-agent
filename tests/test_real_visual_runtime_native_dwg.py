@@ -34,30 +34,29 @@ def test_real_visual_runtime_exposes_native_dwg_candidates():
 
 class _DxftypePropertyEntity:
     dxftype = "INSERT"
+    dxf = {"layer": "COLUMNS", "name": "COL_02"}
+    closed = True
 
 
-def test_real_visual_runtime_accepts_dxftype_property():
-    artifact = VisualArtifact(
-        source_path="sample.dwg",
-        input_type="DWG",
-        sha256="b" * 64,
-        width=0,
-        height=0,
-        page_count=1,
-        image={
-            "entity_count": 1,
-            "extmin": None,
-            "extmax": None,
-            "entities": [{
-                "type": _DxftypePropertyEntity.dxftype,
-                "layer": "COLUMNS",
-                "block": "COL_02",
-                "closed": True,
-                "topology_neighbor_count": 2,
-                "evidence_ids": ("dwg-e3", "dwg-e4"),
-            }],
-        },
-    )
+class _FakeModelspace:
+    def query(self):
+        return [_DxftypePropertyEntity()]
 
-    result = RealVisualArtifactAdapter().detect(artifact)
-    assert result["native_dwg_candidates"][0]["element_type"]
+
+class _FakeDocument:
+    def modelspace(self):
+        return _FakeModelspace()
+
+    def header_variables(self):
+        return {"extmin": (0, 0), "extmax": (100, 100)}
+
+
+def test_real_visual_runtime_accepts_dxftype_property(tmp_path, monkeypatch):
+    import runtime.real_visual_runtime as module
+
+    source = tmp_path / "sample.dwg"
+    source.write_bytes(b"fake-dwg")
+    monkeypatch.setattr(module.ezdwg, "read", lambda _path: _FakeDocument())
+
+    artifact = RealVisualArtifactAdapter().ingest(str(source))
+    assert artifact.image["entities"][0]["type"] == "INSERT"
