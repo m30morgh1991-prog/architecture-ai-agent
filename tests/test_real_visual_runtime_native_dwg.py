@@ -60,3 +60,21 @@ def test_real_visual_runtime_accepts_dxftype_property(tmp_path, monkeypatch):
 
     artifact = RealVisualArtifactAdapter().ingest(str(source))
     assert artifact.image["entities"][0]["type"] == "INSERT"
+
+
+class _FakeDocumentWithoutHeader:
+    def modelspace(self):
+        return _FakeModelspace()
+
+
+def test_real_visual_runtime_allows_missing_optional_header_metadata(tmp_path, monkeypatch):
+    import runtime.real_visual_runtime as module
+
+    source = tmp_path / "sample-no-header.dwg"
+    source.write_bytes(b"fake-dwg")
+    monkeypatch.setattr(module.ezdwg, "read", lambda _path: _FakeDocumentWithoutHeader())
+
+    artifact = RealVisualArtifactAdapter().ingest(str(source))
+    assert artifact.image["extmin"] is None
+    assert artifact.image["extmax"] is None
+    assert artifact.image["entity_count"] == 1
