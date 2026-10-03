@@ -1,0 +1,27 @@
+name: Bug Hunt Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  bug-hunt:
+    name: Mandatory Bug Hunt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run governance contract tests
+        run: python -m unittest tests/test_bug_hunting_gate.py -v
+      - name: Require PR-specific Bug Hunt evidence
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python runtime/bug_hunting_gate.py --pr-number "$PR_NUMBER"
+      - name: Mainline governance smoke test
+        if: github.event_name == 'push'
+        run: python -m unittest tests/test_bug_hunting_gate.py -v
