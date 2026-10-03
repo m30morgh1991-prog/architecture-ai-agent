@@ -86,3 +86,19 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - Important changes since the previous durable state checkpoint include H91 final-validation fail-closed hardening and H92 final-validation bypass-guard changes, including runtime/e2e/final-validation and regression-test updates plus `docs/bug-hunting/PR-52.md`.
 - Recovery rule: use Repository + this file + MASTER_HANDOFF.md + real CI evidence only; auxiliary tools such as Notion are non-authoritative.
 - Backup is additive and non-destructive. Historical commits and Golden DWG assets remain untouched.
+
+
+## Current verified state — H93 / H94 checkpoint
+- **H93 — Audit Evidence Integration:** GREEN / PASS.
+- H93 final head: `aacff6d879d6c7a101576c7ef1ec25e5618782ff`.
+- H93 CI: Runtime Tests #375 = completed/success; Bug Hunt Gate #45 = completed/success; PR CI Gate #88 = completed/success.
+- H93 merge commit: `037177cb90eb857960250a13b386f548bf7e7038`.
+- H93 functional fix: WorkflowGuard now maps API outcomes `REJECT` → audit `BLOCKED` and `NEEDS_REVISION` → audit `NEEDS_REVIEW`; regression coverage verifies the fail-closed audit states.
+- **H94 — Native DWG Visual Evidence Hardening:** GREEN / PASS.
+- H94 final head: `19433daf8743d7b68bf7892bcadc4782e4ee35af`.
+- H94 CI: Runtime Tests #373 = completed/success; Bug Hunt Gate #43 = completed/success; PR CI Gate #86 = completed/success.
+- H94 merge commit: `706caf87de9e9b887592f58c7ac18c04c942ea67`.
+- Mainline verification on H94 merge commit: Runtime Tests #377 = completed/success; Bug Hunt Gate #47 = completed/success; PR CI Gate #90 = completed/success.
+- **Performance root cause fixed:** native DWG space polygonization previously performed broad all-segment intersection and repeated global point scans; the optimized implementation restricts intersections to orthogonal pairs and retains split points per source segment. Runtime suite completed successfully in ~63s on H93 instead of hitting the 10-minute timeout.
+- Fail-closed semantics were preserved; no UNKNOWN/NEEDS_REVIEW/BLOCKED evidence is promoted to PASS.
+- **Next gated continuation:** H95. Do not declare H95 GREEN until its own current-head CI is completed/success.
