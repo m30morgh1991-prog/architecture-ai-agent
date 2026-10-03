@@ -26,7 +26,8 @@ class H42H45E2ETests(unittest.TestCase):
             },
         )
         result=e2e.run("e2",{},None,{"status":"APPROVED"}, {})
-        self.assertEqual(result.final_validation.status,"REJECT")
+        self.assertEqual(result.final_validation.status,"UNKNOWN")
+        self.assertIn("FINAL_VALIDATION_EVIDENCE_MISSING", result.final_validation.failure_codes)
         self.assertEqual(result.release.status,"BLOCKED")
         self.assertEqual(result.execution["status"],"REJECT")
 
