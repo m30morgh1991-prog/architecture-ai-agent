@@ -62,9 +62,7 @@ class RuntimeSliceTests(unittest.TestCase):
         self.assertEqual(
             result["post_edit_diff"]["unauthorized_delta_ids"], ["C01"]
         )
-        self.assertEqual(
-            result["failure_code"], "POST_EDIT_REJECTED"
-        )
+        self.assertEqual(result["failure_code"], "FINAL_VALIDATION_EVIDENCE_BLOCKED")
 
     def test_input_plan_is_not_mutated(self):
         original = deepcopy(self.plan)
