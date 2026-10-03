@@ -61,6 +61,9 @@ class H49RuntimeE2EIntegrityTests(unittest.TestCase):
         self.assertEqual(
             result["execution"]["post_edit_diff"]["locked_delta_ids"], ["C01"]
         )
+        self.assertEqual(
+            result["execution"]["failure_code"], "FINAL_VALIDATION_EVIDENCE_BLOCKED"
+        )
 
 
 if __name__ == "__main__":
