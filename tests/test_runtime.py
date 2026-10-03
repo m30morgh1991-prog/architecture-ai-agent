@@ -58,7 +58,7 @@ class RuntimeSliceTests(unittest.TestCase):
                 "C01": {"x": 11, "y": 10},
             },
         )
-        self.assertEqual(result["status"], "REJECT")
+        self.assertEqual(result["status"], "BLOCKED")
         self.assertEqual(
             result["post_edit_diff"]["unauthorized_delta_ids"], ["C01"]
         )
