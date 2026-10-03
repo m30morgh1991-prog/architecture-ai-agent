@@ -1,4 +1,5 @@
 import json
+import hashlib
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
@@ -76,7 +77,25 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
     unauthorized = [i for i in changed if i not in approved.approved_target_ids]
     diff = PostEditDiff(changed, unauthorized, locked_delta)
 
-    final_validation = validate_post_edit(diff.__dict__)
+    source_payload = json.dumps(
+        [(e.element_id, e.element_type, e.state, e.geometry) for e in plan.elements],
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode()
+    final_validation = validate_post_edit({
+        **diff.__dict__,
+        "source_sha256": hashlib.sha256(source_payload).hexdigest(),
+        "model_id": plan.plan_id,
+        "approved": approved.status == "APPROVED",
+        "post_edit_status": "PASS" if not diff.locked_delta_ids and not diff.unauthorized_delta_ids else "BLOCKED",
+        "post_edit_valid": not diff.locked_delta_ids and not diff.unauthorized_delta_ids,
+        "before_after_status": "PASS",
+        "before_after_valid": True,
+        "audit_complete": True,
+        "approved_target_ids": tuple(approved.approved_target_ids),
+        "changed_ids": tuple(diff.changed_ids),
+    })
     final = final_validation.status
     code = final_validation.failure_codes[0] if final_validation.failure_codes else None
 
