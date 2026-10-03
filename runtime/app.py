@@ -7,9 +7,11 @@ from .execution_record import ExecutionRecordStore
 from .final_validation import validate_post_edit
 from .controlled_editing_contract import EditPermission, build_controlled_editing_decision
 from .approved_change_plan_contract import build_approved_change_plan
+from .audit import AuditTrail
 
 
 execution_records = ExecutionRecordStore()
+audit_trail = AuditTrail()
 
 
 def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResult:
@@ -25,7 +27,9 @@ def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResul
     return ValidationResult("PASS")
 
 
-def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
+def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, execution_id=None):
+    audit_id = execution_id or f"local:{plan.plan_id}"
+    audit_trail.record(audit_id, "EXECUTE", "PASS")
     validation = validate_request(plan, request)
     if validation.status != "PASS":
         return {"status": validation.status, "validation": validation.__dict__}
@@ -83,6 +87,8 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
         separators=(",", ":"),
         default=str,
     ).encode()
+    audit_trail.record(audit_id, "POST_EDIT_DIFF", "PASS" if not diff.locked_delta_ids and not diff.unauthorized_delta_ids else "BLOCKED")
+    audit_complete = audit_trail.is_complete(audit_id, ("EXECUTE", "POST_EDIT_DIFF"))
     final_validation = validate_post_edit({
         **diff.__dict__,
         "source_sha256": hashlib.sha256(source_payload).hexdigest(),
@@ -92,7 +98,7 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None):
         "post_edit_valid": not diff.locked_delta_ids and not diff.unauthorized_delta_ids,
         "before_after_status": "PASS",
         "before_after_valid": True,
-        "audit_complete": True,
+        "audit_complete": audit_complete,
         "approved_target_ids": tuple(approved.approved_target_ids),
         "changed_ids": tuple(diff.changed_ids),
     })
@@ -144,7 +150,7 @@ class Handler(BaseHTTPRequestHandler):
         execution_records.update(execution_id, "RUNNING")
         plan = PlanModel(body["plan_id"], [Element(**e) for e in body["elements"]])
         request = ChangeRequest(**body["request"])
-        result = execute(plan, request, body.get("simulated_geometry"))
+        result = execute(plan, request, body.get("simulated_geometry"), execution_id=execution_id)
 
         if result["status"] == "PASS":
             execution_records.update(
