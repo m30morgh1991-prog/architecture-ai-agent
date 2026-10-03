@@ -9,5 +9,6 @@ class FinalValidationContractTests(unittest.TestCase):
  def test_unapproved_scope_blocks(self): self.assertEqual(evaluate_final_validation(**{**GOOD,"changed_ids":("F01","W01")}).status,"BLOCKED")
  def test_bad_identity_blocks(self): self.assertEqual(evaluate_final_validation(**{**GOOD,"source_sha256":"bad"}).status,"BLOCKED")
  def test_needs_review_post_edit_never_passes(self): self.assertEqual(evaluate_final_validation(**{**GOOD,"post_edit_status":"NEEDS_REVIEW","post_edit_valid":False}).status,"NEEDS_REVIEW")
+ def test_missing_model_id_blocks(self): self.assertEqual(evaluate_final_validation(**{**GOOD,"model_id":""}).status,"BLOCKED")
  def test_fail_closed_statuses_are_explicit(self):
   for status in ("UNKNOWN","NEEDS_REVIEW","BLOCKED"): self.assertNotEqual(evaluate_final_validation(**{**GOOD,"before_after_status":status,"before_after_valid":False}).status,"PASS")
