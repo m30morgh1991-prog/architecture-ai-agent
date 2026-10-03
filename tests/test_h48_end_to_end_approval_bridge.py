@@ -66,7 +66,7 @@ class H48EndToEndApprovalBridgeTests(unittest.TestCase):
             {"F01": {"x": 30, "y": 20}, "C01": {"x": 99, "y": 99}},
         )
         self.assertEqual(result["status"], "REJECT")
-        self.assertEqual(result["execution"]["failure_code"], "POST_EDIT_REJECTED")
+        self.assertEqual(result["execution"]["failure_code"], "FINAL_VALIDATION_EVIDENCE_BLOCKED")
         self.assertEqual(result["execution"]["post_edit_diff"]["locked_delta_ids"], ["C01"])
 
 
