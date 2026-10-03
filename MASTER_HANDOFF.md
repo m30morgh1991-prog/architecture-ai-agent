@@ -80,3 +80,14 @@ Golden assets are additive and historical commits remain immutable.
 - Important changes since the previous durable state checkpoint include H91 final-validation fail-closed hardening and H92 final-validation bypass-guard changes, including runtime/e2e/final-validation and regression-test updates plus `docs/bug-hunting/PR-52.md`.
 - Recovery rule: use Repository + this file + MASTER_HANDOFF.md + real CI evidence only; auxiliary tools such as Notion are non-authoritative.
 - Backup is additive and non-destructive. Historical commits and Golden DWG assets remain untouched.
+
+
+## Current verified continuation point — H94 complete
+- H93 and H94 are merged and verified on main.
+- H93 merge: `037177cb90eb857960250a13b386f548bf7e7038`.
+- H94 merge: `706caf87de9e9b887592f58c7ac18c04c942ea67`.
+- Mainline CI for H94 merge commit: Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — all completed/success.
+- H93 audit evidence mapping fix is verified by the full Runtime Tests #375.
+- H94 DWG polygonization performance fix is verified by Runtime Tests #373 and then by main Runtime Tests #377.
+- Next gated stage: **H95**.
+- Recovery rule: inspect main, current H95 branch/PR (if any), latest real CI, then continue. Never infer Green from missing or stale checks.
