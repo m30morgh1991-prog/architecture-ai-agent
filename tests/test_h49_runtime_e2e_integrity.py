@@ -57,7 +57,7 @@ class H49RuntimeE2EIntegrityTests(unittest.TestCase):
             self._ready(), ChangeRequest("FURNITURE", ["F01"], "Move sofa"),
             self._plan(), {"F01": {"x": 30, "y": 20}, "C01": {"x": 99, "y": 99}}
         )
-        self.assertEqual(result["status"], "REJECT")
+        self.assertEqual(result["status"], "BLOCKED")
         self.assertEqual(
             result["execution"]["post_edit_diff"]["locked_delta_ids"], ["C01"]
         )
