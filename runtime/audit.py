@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import Any
 
-_ALLOWED_STATUSES = {"PASS", "UNKNOWN", "NEEDS_REVIEW", "BLOCKED"}
+# STARTED is a lifecycle marker; only PASS can satisfy audit completeness.
+_ALLOWED_STATUSES = {"PASS", "UNKNOWN", "NEEDS_REVIEW", "BLOCKED", "STARTED"}
 
 @dataclass(frozen=True)
 class AuditEvent:
