@@ -18,8 +18,8 @@ class FinalValidationContract:
     checks: dict[str, Any]
     def validate(self) -> None:
         if self.status not in _ALLOWED: raise ValueError("FINAL_VALIDATION_STATUS_INVALID")
-        if not self.source_sha256 or len(self.source_sha256) != 64: raise ValueError("FINAL_VALIDATION_IDENTITY_INVALID")
-        if not self.model_id: raise ValueError("FINAL_VALIDATION_MODEL_ID_MISSING")
+        if self.status == "PASS" and (not self.source_sha256 or len(self.source_sha256) != 64): raise ValueError("FINAL_VALIDATION_IDENTITY_INVALID")
+        if self.status == "PASS" and not self.model_id: raise ValueError("FINAL_VALIDATION_MODEL_ID_MISSING")
         if self.status == "PASS" and self.failure_codes: raise ValueError("FINAL_VALIDATION_PASS_HAS_FAILURE_CODES")
 
 def evaluate_final_validation(*, source_sha256: str, model_id: str, approved: bool,
