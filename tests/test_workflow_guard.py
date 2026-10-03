@@ -19,6 +19,7 @@ class WorkflowGuardTests(unittest.TestCase):
         result = guard.finish("E18B", "K18B", "LOCKED_ELEMENT_CONFLICT")
         self.assertEqual(result.status, "REJECT")
         self.assertEqual(result.state, "BLOCKED")
+        self.assertEqual(guard.trace("E18B")[-1].status, "BLOCKED")
 
     def test_nonblocking_failure_needs_revision(self):
         guard = WorkflowGuard()
@@ -26,6 +27,7 @@ class WorkflowGuardTests(unittest.TestCase):
         result = guard.finish("E18C", "K18C", "TARGET_NOT_FOUND")
         self.assertEqual(result.status, "NEEDS_REVISION")
         self.assertEqual(result.state, "FAILED")
+        self.assertEqual(guard.trace("E18C")[-1].status, "NEEDS_REVIEW")
 
 
 if __name__ == "__main__":
