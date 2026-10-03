@@ -35,7 +35,21 @@ class WorkflowGuard:
             decision = WorkflowDecision("REJECT" if state == "BLOCKED" else "NEEDS_REVISION", state, failure_code)
         else:
             decision = WorkflowDecision("PASS", "SUCCEEDED")
-        self.audit.record(execution_id, "WORKFLOW", decision.status, {"state": decision.state, "failure_code": failure_code})
+        # WorkflowDecision statuses are API-level outcomes. AuditTrail uses
+        # evidence states, so map non-terminal API labels to their explicit
+        # fail-closed audit equivalents rather than recording unsupported values.
+        audit_status = {
+            "PASS": "PASS",
+            "REJECT": "BLOCKED",
+            "NEEDS_REVISION": "NEEDS_REVIEW",
+        }[decision.status]
+        self.audit.record(
+            execution_id,
+            "WORKFLOW",
+            audit_status,
+            {"state": decision.state, "failure_code": failure_code},
+        )
+
         self.idempotency.store(key, decision)
         return decision
 
