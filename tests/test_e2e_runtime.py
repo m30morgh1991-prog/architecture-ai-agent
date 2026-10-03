@@ -44,6 +44,18 @@ class E2ETests(unittest.TestCase):
                 "workflow_ok": True,
                 "regression_ok": True,
                 "semantic_corroboration_ok": True,
+                "post_edit_diff": {
+                    "source_sha256": "a" * 64,
+                    "model_id": "e2e-model",
+                    "approved": True,
+                    "post_edit_status": "PASS",
+                    "post_edit_valid": True,
+                    "before_after_status": "PASS",
+                    "before_after_valid": True,
+                    "audit_complete": True,
+                    "approved_target_ids": ("F01",),
+                    "changed_ids": ("F01",),
+                },
             }
 
         return E2ERuntimeBoundary(visual, execute)
