@@ -8,10 +8,12 @@ from .final_validation import validate_post_edit
 from .controlled_editing_contract import EditPermission, build_controlled_editing_decision
 from .approved_change_plan_contract import build_approved_change_plan
 from .audit import AuditTrail
+from .idempotency import IdempotencyGuard
 
 
 execution_records = ExecutionRecordStore()
 audit_trail = AuditTrail()
+idempotency_guard = IdempotencyGuard()
 
 
 def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResult:
@@ -140,17 +142,34 @@ class Handler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(length) or b"{}")
 
         execution_id = body["execution_id"]
+        cached_result = idempotency_guard.check(execution_id)
+        if cached_result is not None:
+            try:
+                job = execution_records.public(execution_id)
+            except KeyError:
+                # Cache without a matching execution record is inconsistent evidence.
+                return self._json(409, {"error": "IDEMPOTENCY_RECORD_MISSING"})
+            return self._json(200, {
+                "execution_id": execution_id,
+                "job": job,
+                "result": cached_result,
+                "idempotent_replay": True,
+            })
+
         project_id = body["project_id"]
         input_version_id = body["input_version_id"]
         try:
             execution_records.create(execution_id, project_id, input_version_id)
         except ValueError:
-            return self._json(409, {"error": "DUPLICATE_EXECUTION_ID"})
+            # A duplicate without a completed cached result is in-flight/unknown.
+            # Do not rerun it and do not manufacture a result.
+            return self._json(409, {"error": "DUPLICATE_EXECUTION_ID", "idempotency_state": "UNKNOWN"})
 
         execution_records.update(execution_id, "RUNNING")
         plan = PlanModel(body["plan_id"], [Element(**e) for e in body["elements"]])
         request = ChangeRequest(**body["request"])
         result = execute(plan, request, body.get("simulated_geometry"), execution_id=execution_id)
+        idempotency_guard.store(execution_id, result)
 
         if result["status"] == "PASS":
             execution_records.update(
@@ -167,6 +186,7 @@ class Handler(BaseHTTPRequestHandler):
             "execution_id": execution_id,
             "job": execution_records.public(execution_id),
             "result": result,
+            "idempotent_replay": False,
         })
 
 
