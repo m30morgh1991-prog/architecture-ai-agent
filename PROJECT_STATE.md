@@ -17,7 +17,7 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H97 checkpoint
+## Current verified state — H98 checkpoint
 - **H95 — Idempotent Execution Recovery:** merged and verified.
 - **H96 — Evidence-based Release Gate:** merged as PR #56; merge commit `75117399336135f654a99a805977a93251be0946`.
 - **H97 — Runtime Evidence Integration:** PR #57 merged on 2026-10-04.
@@ -74,8 +74,9 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 
 ## Daily Backup — 2026-10-04
 - Additive checkpoint after H97 merge.
-- Current main: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
+- Current main: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
 - H97 exact-head evidence: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
+- H98 exact-head evidence: Bug Hunt #72, PR CI #115, Runtime #402 — completed/success.
 - No destructive reset/rewrite performed; Golden DWG assets and historical commits remain intact.
 
 ## Historical verification — H93 / H94
@@ -84,7 +85,10 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - The H94 DWG polygonization performance root cause was fixed and regression-verified.
 
 ## Current continuation
-- Mainline continuation commit: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
+- Mainline continuation commit: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
 - H97 is merged and its exact-head gate is green.
-- Main post-merge CI is unobserved; do not declare the merge GREEN solely from PR evidence.
-- Continue with repository-backed hardening and persist each verified milestone before advancing. 
+- H98 — Plan Understanding Core: merged as PR #59; merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
+- H98 exact-head `754331041aa67625c5e78b4ac83e16d718dfb149`: Bug Hunt #72, Runtime Tests #402, PR CI #115 — all completed/success.
+- H98 integrates Detection → PlanModel Reconstruction → ConstraintMap with fail-closed UNKNOWN propagation.
+- Post-merge Main CI for H98 merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a` is currently unobserved; this is not GREEN evidence.
+- Continue with the next gated hardening stage only after recording this checkpoint.
