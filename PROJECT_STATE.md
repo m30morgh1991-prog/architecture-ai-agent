@@ -21,38 +21,72 @@
 - **H95 — Idempotent Execution Recovery:** merged and verified.
 - **H96 — Evidence-based Release Gate:** merged as PR #56; merge commit `75117399336135f654a99a805977a93251be0946`.
 - **H97 — Runtime Evidence Integration:** PR #57 merged on 2026-10-04.
-- H97 head: `b52474cce806fc096d4ad92a64598714f39a70a9`.
 - H97 exact-head CI: Bug Hunt Gate #66, PR CI Gate #109, Runtime Tests #396 — all `completed / success`.
-- H97 merge commit / current main: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
+- H97 merge commit: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
 - H97 wires audit completeness, idempotency completion, and runtime PASS evidence into the hardened H96 release gate and persists the enriched result for replay.
-- **Post-merge Main CI is currently unobserved** on `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`; combined status and commit-associated workflow lookup returned no runs. This is **not GREEN evidence** and must not be inferred as success.
-- Next action: synchronize durable state, then define/implement the next gated hardening stage from the current mainline rather than redoing completed H95–H97 work.
+- **H98 — Plan Understanding Core:** merged as PR #59; merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
+- H98 exact-head: `754331041aa67625c5e78b4ac83e16d718dfb149`; Bug Hunt #72, PR CI #115, Runtime Tests #402 — all `completed / success`.
+- H98 composes Detection → PlanModel Reconstruction → ConstraintMap and preserves UNKNOWN/NEEDS_REVIEW/BLOCKED fail-closed.
+- **Post-merge Main CI for H98 is currently unobserved**. This is not GREEN evidence.
+- PR #60 is the active durable-state synchronization checkpoint for H98.
 
-## Backup checkpoint
-- Repository-only recovery checkpoint recorded for continuation if Notion or auxiliary tools are unavailable.
-- Active continuation branch: feat/h77-bim-planmodel-integration via PR #24.
-- Important changes since prior documented checkpoint: H76 rule engine, H76 BIM-ready PlanModel core, H77 BIM-ready PlanModel integration, PR CI gate workflow.
-- No destructive deletion or overwrite was performed.
-- Recovery order: inspect main, active PR head, latest real CI, then continue from latest verified green stage.
+## Integrated project knowledge checkpoint — 2026-10-04
+This section is the consolidated continuation baseline from the recent project conversations and repository state.
 
-## Current technical direction
-Reconstruct a deterministic, evidence-backed PlanModel from real DWG architectural detection and space extraction. Preserve conservative/fail-closed behavior: insufficient or contradictory evidence remains unresolved/UNKNOWN and cannot be promoted to PASS.
+### Product / architecture direction
+- Product: **Architecture AI Agent — MVP**, provider-neutral, low-cost/open-source oriented, Iran-friendly, tablet/PWA friendly.
+- It is **not an image editor**.
+- Source of Truth: **PlanModel + ConstraintMap + ApprovedChangePlan**.
+- Core pipeline:
+  Prompt → Understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
+- MVP inputs: JPG / PNG / WEBP / PDF + prompt.
+- Native DWG/DXF editing is excluded from MVP; Golden DWG assets are retained as real-artifact regression boundaries.
+- Golden assets:
+  - `test-assets/golden-projects/bagheri7.dwg`
+  - `test-assets/golden-projects/afifiiiii.end.edit3.dwg`
 
-## Golden DWG test assets
-- test-assets/golden-projects/bagheri7.dwg
-- test-assets/golden-projects/afifiiiii.end.edit3.dwg
+### Fail-closed and constraint semantics
+- Constraint states: LOCKED / EDITABLE / CONDITIONAL / UNKNOWN.
+- Fail-closed states: UNKNOWN / SOURCE_REQUIRED / NEEDS_REVIEW / ABSTAIN / BLOCKED.
+- Uncertain or contradictory evidence must never become PASS.
+- Logical/Static PASS, Real Runtime PASS, and Visual Runtime PASS remain distinct gates.
+- MVP protected elements: columns, outer boundary, walls, doors, windows, overall plan form.
+- Detection order: Structural Fixed → Walls/Doors/Windows → Furniture → Spaces.
 
-## Constraints
-- MVP inputs: JPG/PNG/WEBP/PDF + prompt; native DWG is the real-artifact validation/test boundary.
-- Locked MVP elements: columns, outer boundary, walls, doors, windows, overall plan form.
-- Constraint states: LOCKED / EDITABLE / CONDITIONAL.
-- Fail-closed: UNKNOWN / SOURCE_REQUIRED / NEEDS_REVIEW / ABSTAIN / BLOCKED.
-- No PASS on uncertainty.
-- This is not an image editor; Source of Truth is structured plan/constraint/change data.
-- Real Visual Runtime remains a separate gate; Logical/Static PASS is not Visual PASS.
+### Plan understanding / BIM direction
+- H98 establishes the deterministic boundary:
+  **Detection → PlanModel Reconstruction → ConstraintMap**.
+- PlanModel is evidence-backed and source-bound.
+- ConstraintMap partitions protected/editable/conditional/unknown elements and requires evidence.
+- BIM is integrated as a **BIM-ready semantic layer**, not as a full IFC dependency.
+- `BIMElementIdentity` and `BIMElementRelation` provide semantic identity, hierarchy/level/parent/property references, and validated relations.
+- BIM must remain provider/software neutral and must not weaken MVP fail-closed behavior.
+- Next stages must be derived from actual repository contracts/tests rather than blindly replaying the historical H71–H90 roadmap.
 
-## Backup / recovery
-Repository state is the durable recovery mechanism. Manual «بکاپ بگیر» checkpoints preserve the current continuation point and never restart from zero.
+### Architectural knowledge / rules direction
+Research gathered in prior conversations is part of the project knowledge direction and should feed future Rule/Validation layers, not be mixed into raw detection:
+- Iran: National Building Regulations, Engineering Organization rules, Shiraz/local rules, relevant نشریه 55 / 246 / 256, façade, accessibility, mechanical and electrical provisions.
+- International: ISO 128 / 129-1 / 5457 / 7200, Neufert, Metric Handbook, Time-Saver.
+- Education/vocational references: پایه 10 ترسیم فنی و نقشه‌کشی and پایه 11 نقشه‌کشی معماری.
+- CAD/BIM/Revit/AutoCAD layer, symbol, annotation, and modeling conventions.
+- Rule sources must remain traceable and should ultimately become explicit, testable rules rather than undocumented model assumptions.
+
+### Runtime / governance direction
+- Mandatory cycle: Implement → REAL CI → Verify → Regression when applicable → Persist → Continue.
+- Green Gate: only exact-head real CI with `completed / success` plus required verification/regression evidence.
+- queued / in_progress / cancelled / failure / missing / unobserved is never GREEN.
+- Bug Hunting is mandatory after red tests; root cause → patch → rerun → verify.
+- No-Wait Rule: perform safe, non-conflicting preparation while CI runs, but never bypass a gate.
+- “بکاپ بگیر” means an additive checkpoint from the current point; never reset to version zero.
+- Repository-backed state is the durable recovery mechanism.
+- Notion is excluded from governance.
+- Project Auto-Runner should advance the cycle automatically when technically possible, but must respect Green Gate and human/external blockers.
+
+## Golden / validation integrity
+- Golden DWG files are preserved and must not be deleted or overwritten destructively.
+- Historical verified commits remain immutable.
+- Real DWG regression remains important even though native DWG editing is outside MVP.
+- Visual Runtime remains a separate gate from logical reconstruction.
 
 ## Green Gate
 A stage is GREEN/PASS only when its relevant real CI run for the current commit is `completed` with `success`, with required verification/regression evidence confirmed. queued/in_progress/cancelled/failure/missing/unobserved is not GREEN.
@@ -61,34 +95,27 @@ A stage is GREEN/PASS only when its relevant real CI run for the current commit 
 After meaningful milestones, persist exact stage, commit, CI evidence, verification/regression evidence, blockers, and continuation point before starting the next gated H.
 
 ## Automation — Project Auto-Runner
-- **Automation:** Architecture Auto-Runner
-- **Purpose:** automatically monitor the project continuation cycle and advance gated H stages without requiring a manual “check CI” prompt.
-- **Execution policy:** Implement → REAL CI Run/Status → Verify → Regression (when applicable) → Persist State → Continue.
-- **CI rule:** never treat queued/in_progress/cancelled/failure/missing/unobserved as GREEN.
-- **Safety:** do not create unnecessary commits while a required CI gate is running if they would invalidate that gate.
-- **Failure path:** inspect CI logs → identify root cause → patch → rerun CI → verify.
-- **Success path:** verify → regression when required → merge when ready → persist PROJECT_STATE/MASTER_HANDOFF → verify persistence CI → continue to next gated H.
-- **Human intervention:** stop only for genuine external blockers such as required access, CAPTCHA, missing files, or an unavoidable human decision.
-- **Notion:** never used as an execution/governance gate.
-
+- **Automation:** Architecture Auto-Runner.
+- Purpose: monitor the continuation cycle and advance gated H stages without requiring a manual “check CI” prompt.
+- Failure path: inspect CI logs → root cause → patch → rerun → verify.
+- Success path: verify → regression → merge when ready → persist state → verify persistence CI → continue.
+- Never invalidate an active gate with unnecessary concurrent commits.
+- Stop only for genuine external blockers or unavoidable human decisions.
 
 ## Daily Backup — 2026-10-04
-- Additive checkpoint after H97 merge.
-- Current main: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
-- H97 exact-head evidence: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
+- Additive checkpoint after H98 merge.
+- H98 merge commit: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
 - H98 exact-head evidence: Bug Hunt #72, PR CI #115, Runtime #402 — completed/success.
-- No destructive reset/rewrite performed; Golden DWG assets and historical commits remain intact.
+- PR #60 persists this checkpoint; its exact-head CI must be re-evaluated after any content update.
+- No destructive reset/rewrite performed.
 
 ## Historical verification — H93 / H94
 - H93 and H94 were previously merged and verified on main.
-- H94 mainline CI was Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — all completed/success.
-- The H94 DWG polygonization performance root cause was fixed and regression-verified.
+- H94 mainline CI: Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — all completed/success.
+- H94 DWG polygonization performance root cause was fixed and regression-verified.
 
 ## Current continuation
-- Mainline continuation commit: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
-- H97 is merged and its exact-head gate is green.
-- H98 — Plan Understanding Core: merged as PR #59; merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
-- H98 exact-head `754331041aa67625c5e78b4ac83e16d718dfb149`: Bug Hunt #72, Runtime Tests #402, PR CI #115 — all completed/success.
-- H98 integrates Detection → PlanModel Reconstruction → ConstraintMap with fail-closed UNKNOWN propagation.
-- Post-merge Main CI for H98 merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a` is currently unobserved; this is not GREEN evidence.
-- Continue with the next gated hardening stage only after recording this checkpoint.
+- Current durable continuation is **H98 complete + PR #60 state synchronization**.
+- Do not redo H95–H98.
+- Once #60 is verified green and merged, inspect current main, active PRs, exact-head CI, and repository contracts/tests.
+- Define H99 from actual repository evidence and dependencies, not from an assumed old roadmap.
