@@ -112,6 +112,9 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
         "approved_change_plan": approved.__dict__,
         "post_edit_diff": diff.__dict__,
         "failure_code": code,
+        "audit_complete": audit_complete,
+        "audit_ok": audit_complete is True and final == "PASS",
+        "runtime_ok": final == "PASS",
     }
 
 
@@ -169,6 +172,11 @@ class Handler(BaseHTTPRequestHandler):
         plan = PlanModel(body["plan_id"], [Element(**e) for e in body["elements"]])
         request = ChangeRequest(**body["request"])
         result = execute(plan, request, body.get("simulated_geometry"), execution_id=execution_id)
+        result = {
+            **result,
+            "idempotency_ok": True,
+            "runtime_ok": result.get("runtime_ok") is True,
+        }
         idempotency_guard.store(execution_id, result)
 
         if result["status"] == "PASS":
