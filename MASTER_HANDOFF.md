@@ -14,7 +14,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 8. Do not start the next gated H until the current gate has real evidence.
 9. **Notion is excluded from governance and execution.**
 10. Never convert Logical/Static PASS or UNKNOWN evidence into Real Runtime/Visual PASS.
-11. **No-Wait / Forward-Motion Rule:** never remain idle when a solvable path exists; investigate blockers immediately and use a technically valid solution or compatible alternative. Parallel preparation is allowed while CI runs only when it does not invalidate the active gate or violate stage dependencies. Alternatives may accelerate progress but never replace required real CI evidence. Stop only for a genuine external blocker or unavoidable human decision.
+11. **No-Wait / Forward-Motion Rule:** investigate blockers immediately; safe parallel preparation is allowed only when it does not invalidate the active gate or violate dependencies.
 
 ## Architecture principles
 - This is not an image editor.
@@ -24,60 +24,64 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Unknown/insufficient evidence fails closed.
 
 ## Current verified continuation point — H98 complete
-- **H97 — Runtime Evidence Integration:** merged as PR #57.
-- H97 exact head: `b52474cce806fc096d4ad92a64598714f39a70a9`.
-- Exact-head gates: Bug Hunt Gate #66, PR CI Gate #109, Runtime Tests #396 — all completed/success.
-- Merge commit / current main: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
-- H97 integrates audit completeness, idempotency completion, and runtime PASS evidence into the H96 release gate and persists enriched evidence for replay.
-- **H98 — Plan Understanding Core:** merged as PR #59; merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
-- H98 exact-head `754331041aa67625c5e78b4ac83e16d718dfb149`: Bug Hunt #72, PR CI #115, Runtime #402 — all completed/success.
-- H98 integrates Detection → PlanModel Reconstruction → ConstraintMap with fail-closed UNKNOWN propagation.
-- **Important:** post-merge main CI for `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a` is currently unobserved. Missing/unobserved main CI is not GREEN.
-- Do not redo H95–H98. Continue from current main with the next verifiable hardening stage after durable state synchronization.
+- H97 merged as PR #57; exact-head CI: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
+- H97 merge: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
+- H98 — Plan Understanding Core merged as PR #59.
+- H98 exact head: `754331041aa67625c5e78b4ac83e16d718dfb149`.
+- H98 gates: Bug Hunt #72, PR CI #115, Runtime #402 — completed/success.
+- H98 merge: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
+- H98 composes Detection → PlanModel Reconstruction → ConstraintMap and preserves fail-closed UNKNOWN propagation.
+- Post-merge CI on the H98 merge commit is unobserved and therefore not GREEN.
+- PR #60 is the active durable-state synchronization checkpoint.
 
-## Backup checkpoint
-- Additive and non-destructive.
-- No files were deleted or destructively overwritten.
-- This checkpoint records the latest known stage, branches, PRs, heads, CI state, and recovery order.
-- After H77 completes, persist the verified merge and CI result here before starting H78.
+## Consolidated architecture baseline
+### Product
+- Architecture AI Agent MVP; provider-neutral, low-cost/open-source oriented, Iran-friendly, tablet/PWA friendly.
+- MVP input: JPG / PNG / WEBP / PDF + prompt.
+- Native DWG/DXF editing is outside MVP; Golden DWGs remain regression assets.
+- Golden DWGs: `bagheri7.dwg`, `afifiiiii.end.edit3.dwg`.
 
-## MVP
-Inputs: JPG / PNG / WEBP / PDF + prompt.
-Native DWG evidence is the real-artifact validation/test boundary.
-Edit classes: Furniture/Furnishing; Furniture Layout Change; Overall Architectural Layout Change.
-Locked elements: Columns C01–C12, Outer Boundary, Walls, Doors, Windows, Overall Plan Form.
+### Source of Truth and pipeline
+- Source of Truth: PlanModel + ConstraintMap + ApprovedChangePlan.
+- Pipeline: Prompt → Understanding → ChangeRequest → PlanModel → ConstraintMap → Impact → Rules → Proposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → Diff → Final Validation → Audit.
 
-## Golden projects
-- test-assets/golden-projects/bagheri7.dwg
-- test-assets/golden-projects/afifiiiii.end.edit3.dwg
+### Safety / fail-closed
+- LOCKED / EDITABLE / CONDITIONAL / UNKNOWN.
+- UNKNOWN / SOURCE_REQUIRED / NEEDS_REVIEW / ABSTAIN / BLOCKED.
+- No uncertainty may become PASS.
+- Logical, Runtime, and Visual PASS are separate.
+- Protected MVP elements: columns, outer boundary, walls, doors, windows, overall plan form.
 
-## Integrity
-Golden assets are additive and historical commits remain immutable.
+### BIM and plan understanding
+- H98 is the deterministic Detection → PlanModel Reconstruction → ConstraintMap integration boundary.
+- PlanModel remains evidence-backed and source-bound.
+- BIM-ready semantic contracts provide identity and validated relations without making full IFC/BIM a runtime dependency.
+- BIM must remain provider/software neutral and fail-closed.
+- Future H stages must be derived from actual repository contracts, tests, and dependencies.
 
-## Automation — Project Auto-Runner
-- **Automation:** Architecture Auto-Runner is enabled for the project.
-- It follows the repository governance loop: **Implement → REAL CI → Verify → Regression → Persist State → Continue**.
-- It must not claim GREEN without `completed / success` evidence for the relevant current commit.
-- It must not invalidate an active CI gate with unnecessary concurrent commits.
-- On CI failure it inspects evidence, patches the root cause, reruns CI, and continues only after verification.
-- On success it verifies, merges when appropriate, persists durable state, verifies the persistence checkpoint, and advances to the next gated H.
-- It stops only when a genuine human/external action is required.
-- Notion is excluded from this automation and from all Green Gates.
+### Knowledge / rules
+- Future Rule/Validation layers should incorporate traceable Iran building regulations, Engineering Organization/local rules, relevant نشریه 55/246/256, accessibility/façade/MEP rules, ISO 128/129-1/5457/7200, Neufert, Metric Handbook, Time-Saver, vocational drafting references, and CAD/BIM/Revit conventions.
+- Keep rule sources separate from raw detection and make rules explicit/testable.
 
+### Governance
+- Implement → REAL CI → Verify → Regression → Persist → Continue.
+- Exact-head `completed / success` is required for GREEN.
+- Bug Hunting is mandatory after red tests.
+- No-Wait Rule permits safe parallel preparation but never bypasses a gate.
+- “بکاپ بگیر” is additive from the current point and never resets the project.
+- Repository is durable recovery state; Notion is not governance.
+- Auto-Runner should keep forward motion while respecting all gates.
 
-## Daily Backup — 2026-10-04
-- Additive checkpoint after H97 merge.
-- Main: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
-- H97 exact-head CI: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
-- H98 exact-head CI: Bug Hunt #72, PR CI #115, Runtime #402 — completed/success.
-- No destructive reset/rewrite performed.
+## Golden / regression integrity
+- Golden DWG assets must remain preserved.
+- No destructive history reset.
+- Real DWG regression remains a validation boundary.
+- Visual Runtime remains separate from logical/static reconstruction.
 
-## Historical verification — H94 complete
-- H93/H94 were previously merged and mainline-verified.
-- H94 mainline CI: Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — completed/success.
-
-## Continuation rule after H98
-- Inspect current main and any active PRs.
-- Treat only exact-head completed/success CI as GREEN.
-- If main post-merge CI is unavailable, record it as unobserved rather than inferring success.
-- Advance only after implementing and verifying the next gated milestone; persist state again at the milestone.
+## Continuation after #60
+1. Verify #60 exact-head CI after the final state-sync commit.
+2. Merge #60 only after required gates are completed/success.
+3. Verify the resulting main commit; unobserved CI remains explicitly unobserved.
+4. Inspect repository contracts/tests/active PRs.
+5. Define H99 from actual code and dependencies.
+6. Implement H99 → real CI → verify → regression → persist → continue.
