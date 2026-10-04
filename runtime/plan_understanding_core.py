@@ -1,8 +1,9 @@
 """Evidence-backed Plan Understanding Core (H98).
 
-Composes the existing detector and PlanModel reconstruction into one
-provider-neutral understanding boundary. It does not guess missing semantics:
-UNKNOWN/NEEDS_REVIEW/BLOCKED remain unresolved and therefore cannot become PASS.
+Composes source detection, PlanModel reconstruction, and ConstraintMap into
+one provider-neutral understanding boundary. Space identity prefers explicit
+plan labels/numbers and schedule mappings; it never promotes an inferred or
+conflicting identity to PASS.
 """
 from __future__ import annotations
 
@@ -88,13 +89,6 @@ class PlanUnderstandingCore:
                              if plan_model.element_evidence is not None else ())
         )
         if not evidence_ids:
-            evidence_ids = tuple(
-                str(item.get("evidence_id"))
-                for item in detection.get("candidates", ())
-                for _ in [0]
-                if item.get("evidence_id") or item.get("evidence_ids")
-            )
-            # Candidate payloads normally expose evidence_ids; flatten them.
             flattened = []
             for item in detection.get("candidates", ()):
                 flattened.extend(str(x) for x in item.get("evidence_ids", ()))
@@ -110,13 +104,20 @@ class PlanUnderstandingCore:
             evidence_ids=evidence_ids,
         )
 
-        # Any unresolved evidence, missing fixed type, or non-LOCKED fixed
-        # candidate keeps the core fail-closed.
+        # Explicit plan/schedule identity outranks geometric inference.
+        # A plan-vs-schedule conflict remains unresolved and fail-closed.
+        identity_conflicts = tuple(
+            space.space_id
+            for space in plan_model.spaces
+            if space.identity_status == "CONFLICT"
+        )
+
         has_unresolved = bool(
             plan_model.unresolved
             or detection.get("unresolved_fixed_element_types")
             or detection.get("status") != "ACCESSIBLE"
             or unknown
+            or identity_conflicts
         )
         status = "UNKNOWN" if has_unresolved else "PASS"
 
