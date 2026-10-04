@@ -43,6 +43,9 @@ class E2ERuntimeBoundary:
             "final_validation":final_validation.status=="PASS",
             "regression":execution_data.get("regression_ok",False),
             "semantic_corroboration":execution_data.get("semantic_corroboration_ok",False),
+            "audit":execution_data.get("audit_ok",False),
+            "idempotency":execution_data.get("idempotency_ok",False),
+            "runtime":execution_data.get("runtime_ok",False),
         })
         if final_validation.status!="PASS":
             execution={**execution_data,"status":"REJECT","failure_codes":final_validation.failure_codes}

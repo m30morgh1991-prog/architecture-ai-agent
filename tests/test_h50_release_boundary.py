@@ -11,6 +11,9 @@ class H50ReleaseBoundaryTests(unittest.TestCase):
             "final_validation": True,
             "regression": True,
             "semantic_corroboration": True,
+            "audit": True,
+            "idempotency": True,
+            "runtime": True,
         })
         self.assertEqual(result.status, "PASS")
         self.assertEqual(result.failure_codes, [])
@@ -37,7 +40,12 @@ class H50ReleaseBoundaryTests(unittest.TestCase):
         self.assertEqual(result.status, "BLOCKED")
         self.assertEqual(
             result.failure_codes,
-            ["RELEASE_SEMANTIC_CORROBORATION_FAILED"],
+            [
+                "RELEASE_SEMANTIC_CORROBORATION_FAILED",
+                "RELEASE_AUDIT_FAILED",
+                "RELEASE_IDEMPOTENCY_FAILED",
+                "RELEASE_RUNTIME_FAILED",
+            ],
         )
 
     def test_extra_non_required_check_cannot_bypass_required_boundary(self):

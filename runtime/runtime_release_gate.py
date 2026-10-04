@@ -52,10 +52,19 @@ def evaluate_runtime_release(
     evidence_id = evidence.get("evidence_id")
     constraint_map_evidence_bound = bool(evidence_id) and evidence_id in (constraint_map.get("evidence_ids") or [])
 
+    audit = runtime_result.get("audit") or {}
+    idempotency = runtime_result.get("idempotency") or {}
+    audit_ok = audit.get("status") == "PASS" or runtime_result.get("audit_complete") is True
+    idempotency_ok = idempotency.get("status") == "PASS" or runtime_result.get("idempotency_ok") is True
+    runtime_ok = runtime_ready and blockers_clear
+
     return evaluate_release({
         "contracts": runtime_ready and blockers_clear and contracts.get("status") == "VALID" and constraint_map_bound and model_bound and constraint_map_evidence_bound,
         "workflow": workflow_ok,
         "final_validation": final_validation_ok,
         "regression": regression_ok,
         "semantic_corroboration": runtime_ready and blockers_clear and semantics.get("status") == "ACCESSIBLE" and evidence_complete and constraint_map_evidence_bound,
+        "audit": audit_ok,
+        "idempotency": idempotency_ok,
+        "runtime": runtime_ok,
     })

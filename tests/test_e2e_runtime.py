@@ -44,6 +44,9 @@ class E2ETests(unittest.TestCase):
                 "workflow_ok": True,
                 "regression_ok": True,
                 "semantic_corroboration_ok": True,
+                "audit_ok": True,
+                "idempotency_ok": True,
+                "runtime_ok": True,
                 "post_edit_diff": {
                     "source_sha256": "a" * 64,
                     "model_id": "e2e-model",
