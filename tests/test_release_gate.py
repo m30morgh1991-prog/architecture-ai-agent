@@ -3,33 +3,39 @@ from runtime.release_gate import evaluate_release
 
 
 class ReleaseGateTests(unittest.TestCase):
-    def test_integrated_green_release_gate(self):
-        result = evaluate_release({
-            "contracts": True,
-            "workflow": True,
-            "final_validation": True,
-            "regression": True,
-            "semantic_corroboration": True,
-        })
+    def complete(self):
+        return {
+            "contracts": True, "workflow": True, "final_validation": True,
+            "regression": True, "semantic_corroboration": True,
+            "audit": True, "idempotency": True, "runtime": True,
+        }
+
+    def test_complete_evidence_passes(self):
+        result = evaluate_release(self.complete())
         self.assertEqual(result.status, "PASS")
         self.assertEqual(result.failure_codes, [])
 
-    def test_any_missing_gate_blocks_release(self):
-        result = evaluate_release({
-            "contracts": True,
-            "workflow": True,
-            "final_validation": False,
-            "regression": True,
-            "semantic_corroboration": True,
-        })
+    def test_missing_evidence_blocks(self):
+        checks = self.complete()
+        del checks["audit"]
+        result = evaluate_release(checks)
         self.assertEqual(result.status, "BLOCKED")
-        self.assertIn("RELEASE_FINAL_VALIDATION_FAILED", result.failure_codes)
+        self.assertIn("RELEASE_AUDIT_FAILED", result.failure_codes)
 
-    def test_missing_checks_are_not_assumed_green(self):
-        result = evaluate_release({})
+    def test_truthy_non_boolean_does_not_pass(self):
+        checks = self.complete()
+        checks["runtime"] = "PASS"
+        result = evaluate_release(checks)
         self.assertEqual(result.status, "BLOCKED")
-        self.assertEqual(len(result.failure_codes), 5)
-        self.assertIn("RELEASE_SEMANTIC_CORROBORATION_FAILED", result.failure_codes)
+
+    def test_fail_closed_states_do_not_pass(self):
+        checks = self.complete()
+        checks["audit"] = "UNKNOWN"
+        checks["idempotency"] = "NEEDS_REVIEW"
+        result = evaluate_release(checks)
+        self.assertEqual(result.status, "BLOCKED")
+        self.assertIn("RELEASE_AUDIT_FAILED", result.failure_codes)
+        self.assertIn("RELEASE_IDEMPOTENCY_FAILED", result.failure_codes)
 
 
 if __name__ == "__main__":
