@@ -23,21 +23,14 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown/insufficient evidence fails closed.
 
-## Current verified continuation point
-
-### H75 — Impact Analysis
-- Status: GREEN / PASS
-- PR #20 merged.
-- Merge commit: f2ae155ed14ad24c5bb71f5539692af75538d221
-- Runtime Tests #274: completed / success.
-
-### Active continuation checkpoint — H77
-- H76 Architecture Rule Engine PR #21: open, mergeable=false; head 9611c96eada263109d516ca3f97c2a0688d90e4b; Runtime Tests #282 completed/success.
-- H76 BIM-ready PlanModel core PR #22: open, mergeable=false; head ee7169c8e65e2faadb9b1446816a95d412d74ccf; Runtime Tests #283 completed/success.
-- H77 BIM-ready PlanModel integration PR #24: open, mergeable=true; head b0f97dfae71e2ba44c782f4eea4275566f3aac4e; Runtime Tests #288 in_progress.
-- Do not declare H77 GREEN or merge until its real CI is completed/success and the PR is verified.
-- Latest observed repository checkpoint commit: a706d0ede1c7fdd683fe2c219a13d7cbf825d815 (chore: enable PR CI gate).
-- Recovery must rely only on Repository + PROJECT_STATE.md + MASTER_HANDOFF.md + real CI evidence.
+## Current verified continuation point — H97 complete
+- **H97 — Runtime Evidence Integration:** merged as PR #57.
+- H97 exact head: `b52474cce806fc096d4ad92a64598714f39a70a9`.
+- Exact-head gates: Bug Hunt Gate #66, PR CI Gate #109, Runtime Tests #396 — all completed/success.
+- Merge commit / current main: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
+- H97 integrates audit completeness, idempotency completion, and runtime PASS evidence into the H96 release gate and persists enriched evidence for replay.
+- **Important:** post-merge main CI for `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d` is currently unobserved. Missing/unobserved main CI is not GREEN.
+- Do not redo H95–H97. Continue from current main with the next verifiable hardening stage after durable state synchronization.
 
 ## Backup checkpoint
 - Additive and non-destructive.
@@ -69,25 +62,18 @@ Golden assets are additive and historical commits remain immutable.
 - Notion is excluded from this automation and from all Green Gates.
 
 
-## Daily Backup — 2026-10-03
-- Backup checkpoint verified against GitHub Repository.
-- Active continuation branch: `feat/h92-final-validation-bypass-guard`.
-- Active head: `41f18f2f6d616b7e2809feb0e8027d71b86ef03b`.
-- Main baseline: `2d1271de8c1dc0a23e11c6b1216d937386ffe3b0` (H91 v2).
-- Active branch is 15 commits ahead of main; no destructive reset/rewrite performed.
-- H92 / PR #52 CI evidence on current head: Runtime Tests #362 = completed/success; Bug Hunt Gate #32 = completed/success; PR CI Gate #75 = completed/success.
-- H92 is therefore CI-green on its current head; PR #52 remains the active continuation point unless/ until merged and post-merge main CI is verified.
-- Important changes since the previous durable state checkpoint include H91 final-validation fail-closed hardening and H92 final-validation bypass-guard changes, including runtime/e2e/final-validation and regression-test updates plus `docs/bug-hunting/PR-52.md`.
-- Recovery rule: use Repository + this file + MASTER_HANDOFF.md + real CI evidence only; auxiliary tools such as Notion are non-authoritative.
-- Backup is additive and non-destructive. Historical commits and Golden DWG assets remain untouched.
+## Daily Backup — 2026-10-04
+- Additive checkpoint after H97 merge.
+- Main: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
+- H97 exact-head CI: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
+- No destructive reset/rewrite performed.
 
+## Historical verification — H94 complete
+- H93/H94 were previously merged and mainline-verified.
+- H94 mainline CI: Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — completed/success.
 
-## Current verified continuation point — H94 complete
-- H93 and H94 are merged and verified on main.
-- H93 merge: `037177cb90eb857960250a13b386f548bf7e7038`.
-- H94 merge: `706caf87de9e9b887592f58c7ac18c04c942ea67`.
-- Mainline CI for H94 merge commit: Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — all completed/success.
-- H93 audit evidence mapping fix is verified by the full Runtime Tests #375.
-- H94 DWG polygonization performance fix is verified by Runtime Tests #373 and then by main Runtime Tests #377.
-- Next gated stage: **H95**.
-- Recovery rule: inspect main, current H95 branch/PR (if any), latest real CI, then continue. Never infer Green from missing or stale checks.
+## Continuation rule after H97
+- Inspect current main and any active PRs.
+- Treat only exact-head completed/success CI as GREEN.
+- If main post-merge CI is unavailable, record it as unobserved rather than inferring success.
+- Advance only after implementing and verifying the next gated milestone; persist state again at the milestone.
