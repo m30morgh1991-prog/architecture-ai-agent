@@ -4,6 +4,7 @@ from runtime.architectural_relations import (
     ArchitecturalRelation,
     ArchitecturalRelationSet,
     build_architectural_relation_set,
+    build_architectural_relation_set_from_plan_model,
 )
 from runtime.element_evidence_contract import build_element_evidence_bundle
 from runtime.plan_model_contract import PlanElement, PlanModel
@@ -119,3 +120,40 @@ class ArchitecturalRelationsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_plan_model_space_relations_remain_unknown(self):
+        result = build_architectural_relation_set_from_plan_model(
+            set_id="m:space-relations",
+            plan_model=model_with_evidence(),
+        )
+        self.assertEqual(result.relations, ())
+        self.assertEqual(result.unresolved, ())
+
+    def test_space_relation_adapter_preserves_unknown_status(self):
+        model = model_with_evidence()
+        from runtime.space_model_contract import build_space_model
+        space_model = build_space_model(
+            model_id="m:spaces",
+            source_sha256=SOURCE,
+            spaces=[
+                {"space_id":"S1","boundary_handle":"b1","bbox":[0,0,10,10],"centroid":[5,5],"area":100,"label":None,"evidence_ids":["e1"]},
+                {"space_id":"S2","boundary_handle":"b2","bbox":[10,0,20,10],"centroid":[15,5],"area":100,"label":None,"evidence_ids":["e2"]},
+            ],
+            relations=[{
+                "relation_id":"sr1","type":"SHARED_BOUNDARY","from":"S1","to":"S2",
+                "evidence_ids":["e1","e2"],"status":"UNKNOWN",
+            }],
+        )
+        from runtime.plan_model_contract import PlanModel
+        model = PlanModel(
+            model_id="m", source_sha256=SOURCE, drawing_count=1,
+            elements=model.elements, element_evidence=model.element_evidence,
+            space_model=space_model,
+        )
+        result = build_architectural_relation_set_from_plan_model(
+            set_id="m:space-relations", plan_model=model,
+        )
+        self.assertEqual(result.relations[0].relation_id, "sr1")
+        self.assertEqual(result.relations[0].status, "UNKNOWN")
+        self.assertEqual(result.unresolved, ("sr1",))
