@@ -7,6 +7,8 @@ def ready_runtime_result():
     return {
         "status": "READY_FOR_APPROVAL",
         "blockers": [],
+        "audit": {"status": "PASS"},
+        "idempotency": {"status": "PASS"},
         "contracts": {"status": "VALID", "constraint_map_id": "cm-1", "plan_model_id": "model-1"},
         "semantic_corroboration": {"status": "ACCESSIBLE"},
         "constraint_map": {"map_id": "cm-1", "model_id": "model-1", "evidence_ids": ["ev-1"]},
