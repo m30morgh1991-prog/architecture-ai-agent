@@ -11,6 +11,9 @@ class H50ReleaseBoundaryTests(unittest.TestCase):
             "final_validation": True,
             "regression": True,
             "semantic_corroboration": True,
+            "audit": True,
+            "idempotency": True,
+            "runtime": True,
         })
         self.assertEqual(result.status, "PASS")
         self.assertEqual(result.failure_codes, [])
