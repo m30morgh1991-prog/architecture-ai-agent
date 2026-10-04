@@ -23,14 +23,17 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown/insufficient evidence fails closed.
 
-## Current verified continuation point — H97 complete
+## Current verified continuation point — H98 complete
 - **H97 — Runtime Evidence Integration:** merged as PR #57.
 - H97 exact head: `b52474cce806fc096d4ad92a64598714f39a70a9`.
 - Exact-head gates: Bug Hunt Gate #66, PR CI Gate #109, Runtime Tests #396 — all completed/success.
 - Merge commit / current main: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
 - H97 integrates audit completeness, idempotency completion, and runtime PASS evidence into the H96 release gate and persists enriched evidence for replay.
-- **Important:** post-merge main CI for `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d` is currently unobserved. Missing/unobserved main CI is not GREEN.
-- Do not redo H95–H97. Continue from current main with the next verifiable hardening stage after durable state synchronization.
+- **H98 — Plan Understanding Core:** merged as PR #59; merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
+- H98 exact-head `754331041aa67625c5e78b4ac83e16d718dfb149`: Bug Hunt #72, PR CI #115, Runtime #402 — all completed/success.
+- H98 integrates Detection → PlanModel Reconstruction → ConstraintMap with fail-closed UNKNOWN propagation.
+- **Important:** post-merge main CI for `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a` is currently unobserved. Missing/unobserved main CI is not GREEN.
+- Do not redo H95–H98. Continue from current main with the next verifiable hardening stage after durable state synchronization.
 
 ## Backup checkpoint
 - Additive and non-destructive.
@@ -64,15 +67,16 @@ Golden assets are additive and historical commits remain immutable.
 
 ## Daily Backup — 2026-10-04
 - Additive checkpoint after H97 merge.
-- Main: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
+- Main: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
 - H97 exact-head CI: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
+- H98 exact-head CI: Bug Hunt #72, PR CI #115, Runtime #402 — completed/success.
 - No destructive reset/rewrite performed.
 
 ## Historical verification — H94 complete
 - H93/H94 were previously merged and mainline-verified.
 - H94 mainline CI: Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — completed/success.
 
-## Continuation rule after H97
+## Continuation rule after H98
 - Inspect current main and any active PRs.
 - Treat only exact-head completed/success CI as GREEN.
 - If main post-merge CI is unavailable, record it as unobserved rather than inferring success.
