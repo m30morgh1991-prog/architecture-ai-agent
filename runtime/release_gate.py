@@ -1,5 +1,21 @@
-"""Final release gate for the coherent runtime path."""
+"""Evidence-backed final release gate.
+
+Release readiness must be based on explicit evidence states, not truthy
+caller-provided booleans.
+"""
 from dataclasses import dataclass
+
+
+_REQUIRED = (
+    "contracts",
+    "workflow",
+    "final_validation",
+    "regression",
+    "semantic_corroboration",
+    "audit",
+    "idempotency",
+    "runtime",
+)
 
 
 @dataclass(frozen=True)
@@ -9,20 +25,15 @@ class ReleaseGateResult:
     failure_codes: list[str]
 
 
-def evaluate_release(checks: dict[str, bool]) -> ReleaseGateResult:
-    required = (
-        "contracts",
-        "workflow",
-        "final_validation",
-        "regression",
-        "semantic_corroboration",
-    )
-    normalized = {name: bool(checks.get(name, False)) for name in required}
-    failures = [
-        f"RELEASE_{name.upper()}_FAILED"
-        for name, ok in normalized.items()
-        if not ok
-    ]
+def evaluate_release(checks: dict[str, object]) -> ReleaseGateResult:
+    normalized = {}
+    failures = []
+    for name in _REQUIRED:
+        value = checks.get(name)
+        ok = value is True
+        normalized[name] = ok
+        if not ok:
+            failures.append(f"RELEASE_{name.upper()}_FAILED")
     return ReleaseGateResult(
         "PASS" if not failures else "BLOCKED",
         normalized,
