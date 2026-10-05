@@ -119,3 +119,17 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - Do not redo H95–H98.
 - Once #60 is verified green and merged, inspect current main, active PRs, exact-head CI, and repository contracts/tests.
 - Define H99 from actual repository evidence and dependencies, not from an assumed old roadmap.
+
+
+## Daily Backup — 2026-10-05
+- Additive checkpoint from current main; no reset, rewrite, or rerun of completed H milestones.
+- **Main/head:** `3b77e30d5e36d0fc88922c4834bef99428ddd879` (merge of PR #60; H98 state synchronization).
+- **Main exact-head CI:** GitHub returned no combined statuses and no commit-associated workflow runs for this head. Therefore post-merge main CI is **UNOBSERVED, NOT GREEN**; no success is inferred.
+- **Latest verified merged milestone:** H98 — Plan Understanding Core; merge `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`. Exact H98 head `754331041aa67625c5e78b4ac83e16d718dfb149`; Bug Hunt #72, PR CI #115, Runtime #402 were completed/success.
+- **Active continuation:** PR #61 / H99, head `e469af2ff2157fc8e097b6c4f8675907530f50d0`. Exact-head Bug Hunt #81, Runtime #411, PR CI #124 are all completed/success. H99 remains unmerged and therefore does not replace the latest merged checkpoint.
+- **Bug Hunt findings:** H99 identified the integration gap between existing architectural-relation primitives and current PlanModel/SpaceModel relations. Fix adds a deterministic PlanModel → ArchitecturalRelationSet adapter, preserves UNKNOWN status, rejects unknown endpoints/missing evidence, and leaves unresolved opening connectivity unresolved rather than guessing.
+- **Red-test status:** no red exact-head H99 gate is currently observed. Historical red/failure evidence remains governed by the bug-hunt rule; any future red run requires root-cause inspection, patch, rerun, and verification before Green Gate.
+- **Unresolved states:** UNKNOWN relation evidence remains unresolved by design; NEEDS_REVIEW/BLOCKED remain non-PASS. H99 explicitly does not promote SpaceModel presence to SUPPORTED. Main post-merge CI remains UNKNOWN/UNOBSERVED.
+- **Golden DWG regression:** Golden assets remain preserved at `test-assets/golden-projects/bagheri7.dwg` and `test-assets/golden-projects/afifiiiii.end.edit3.dwg`. No destructive modification observed in this checkpoint. Real DWG regression remains a validation boundary; native DWG/DXF editing remains outside MVP.
+- **BIM / Plan Understanding:** H98 provides the deterministic Detection → PlanModel Reconstruction → ConstraintMap boundary. BIM remains a provider-neutral semantic layer via BIM identity/relations without full IFC runtime dependency. H99 extends this boundary by adapting PlanModel/SpaceModel relations into the common architectural relation contract while retaining fail-closed semantics.
+- **Next continuation:** keep H99 as the active gated stage; verify/merge only after its exact-head evidence remains green, then verify the resulting main commit independently. Do not restart H95–H98 or replay the historical H71–H90 roadmap blindly; derive the next stage from current repository contracts/tests.
