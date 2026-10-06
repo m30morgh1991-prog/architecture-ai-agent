@@ -118,19 +118,13 @@ class ArchitecturalRelationsTests(unittest.TestCase):
             ).validate()
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
-    def test_plan_model_space_relations_remain_unknown(self):
+(self):
         result = build_architectural_relation_set_from_plan_model(
             set_id="m:space-relations",
             plan_model=model_with_evidence(),
         )
         self.assertEqual(result.relations, ())
-        self.assertEqual(result.unresolved, ())
-
-    def test_space_relation_adapter_preserves_unknown_status(self):
+        self.assertEqual(result.unresolved, ())\n\n    def test_space_relation_adapter_preserves_unknown_status(self):
         model = model_with_evidence()
         from runtime.space_model_contract import build_space_model
         space_model = build_space_model(
@@ -157,3 +151,8 @@ if __name__ == "__main__":
         self.assertEqual(result.relations[0].relation_id, "sr1")
         self.assertEqual(result.relations[0].status, "UNKNOWN")
         self.assertEqual(result.unresolved, ("sr1",))
+
+
+
+if __name__ == "__main__":
+    unittest.main()
