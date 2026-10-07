@@ -86,8 +86,8 @@ class ArchitecturalRelationSet:
             relation.validate()
             if relation.source_sha256 != self.source_sha256:
                 raise ValueError("ARCH_RELATION_SOURCE_MISMATCH")
-        if not set(self.unresolved).issubset(ids):
-            raise ValueError("ARCH_RELATION_UNRESOLVED_UNKNOWN")
+        if any(not unresolved_id for unresolved_id in self.unresolved):
+            raise ValueError("ARCH_RELATION_UNRESOLVED_ID_MISSING")
 
 
 def build_architectural_relation_set(
@@ -147,10 +147,12 @@ def build_architectural_relation_set_from_plan_model(
         )
 
     records = []
+    unresolved = []
     for relation in plan_model.space_model.relations:
         kind = _SPACE_TO_ARCH_KIND[relation.relation_type]
         if relation.from_space_id is None or relation.to_space_id is None:
-            # Preserve unresolved opening evidence without inventing endpoints.
+            # Preserve the source relation identity/evidence without inventing endpoints.
+            unresolved.append(relation.relation_id)
             continue
         records.append({
             "relation_id": relation.relation_id,
@@ -161,6 +163,15 @@ def build_architectural_relation_set_from_plan_model(
             "status": "UNKNOWN",
             "confidence": 0.0,
         })
-    return build_architectural_relation_set(
+    result = build_architectural_relation_set(
         set_id=set_id, plan_model=plan_model, relations=records,
     )
+    if unresolved:
+        result = ArchitecturalRelationSet(
+            set_id=result.set_id,
+            source_sha256=result.source_sha256,
+            relations=result.relations,
+            unresolved=tuple((*result.unresolved, *unresolved)),
+        )
+        result.validate()
+    return result
