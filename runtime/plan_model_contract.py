@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from runtime.bim_ready_contract import BIMElementIdentity, BIMElementRelation, validate_bim_graph
+from runtime.architectural_annotation_contract import ArchitecturalAnnotation, validate_annotation_set
 from runtime.element_evidence_contract import ElementEvidenceBundle
 from runtime.space_model_contract import SpaceModel
 
@@ -52,6 +53,7 @@ class PlanModel:
     space_model: SpaceModel | None = None
     element_evidence: ElementEvidenceBundle | None = None
     bim_relations: tuple[BIMElementRelation, ...] = ()
+    annotations: tuple[ArchitecturalAnnotation, ...] = ()
 
     def validate(self) -> None:
         if not self.model_id or not self.source_sha256:
@@ -69,6 +71,7 @@ class PlanModel:
             element.validate()
 
         validate_bim_graph(set(element_ids), self.bim_relations)
+        validate_annotation_set(self.source_sha256, self.annotations)
 
         if self.element_evidence is not None:
             self.element_evidence.validate()
