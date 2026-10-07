@@ -17,7 +17,7 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H98 checkpoint
+## Current verified state — H99 checkpoint
 - **H95 — Idempotent Execution Recovery:** merged and verified.
 - **H96 — Evidence-based Release Gate:** merged as PR #56; merge commit `75117399336135f654a99a805977a93251be0946`.
 - **H97 — Runtime Evidence Integration:** PR #57 merged on 2026-10-04.
@@ -25,10 +25,13 @@
 - H97 merge commit: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
 - H97 wires audit completeness, idempotency completion, and runtime PASS evidence into the hardened H96 release gate and persists the enriched result for replay.
 - **H98 — Plan Understanding Core:** merged as PR #59; merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
+- **H99 — Architectural Relations / Space Identity:** merged as PR #61; merge commit `2344e1083937e5d91857ba24b6a0f077414f06ca`.
+- H99 exact-head: `09f75ee5de2319e51d1fbabdce62c864b427de42`; Bug Hunt #85, PR CI #128, Runtime Tests #415 — all `completed / success`.
+- H99 adds evidence-backed architectural relations, fail-closed unresolved opening relations, stronger space identity semantics, and Plan Understanding Core integration.
+- Post-merge main CI for H99 is currently unobserved; this is not GREEN evidence.
 - H98 exact-head: `754331041aa67625c5e78b4ac83e16d718dfb149`; Bug Hunt #72, PR CI #115, Runtime Tests #402 — all `completed / success`.
 - H98 composes Detection → PlanModel Reconstruction → ConstraintMap and preserves UNKNOWN/NEEDS_REVIEW/BLOCKED fail-closed.
-- **Post-merge Main CI for H98 is currently unobserved**. This is not GREEN evidence.
-- PR #60 is the active durable-state synchronization checkpoint for H98.
+- The H99 merge commit currently has no observed post-merge workflow run/status; this is explicitly unobserved and is not GREEN evidence.
 
 ## Integrated project knowledge checkpoint — 2026-10-04
 This section is the consolidated continuation baseline from the recent project conversations and repository state.
@@ -102,6 +105,12 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - Never invalidate an active gate with unnecessary concurrent commits.
 - Stop only for genuine external blockers or unavoidable human decisions.
 
+## H99 Persistence Checkpoint — 2026-10-08
+- Additive checkpoint after H99 merge.
+- H99 merge commit: `2344e1083937e5d91857ba24b6a0f077414f06ca`.
+- H99 exact-head evidence: Bug Hunt #85, PR CI #128, Runtime #415 — completed/success.
+- Post-merge main CI remains unobserved and must not be represented as green.
+
 ## Daily Backup — 2026-10-04
 - Additive checkpoint after H98 merge.
 - H98 merge commit: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
@@ -115,7 +124,8 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - H94 DWG polygonization performance root cause was fixed and regression-verified.
 
 ## Current continuation
-- Current durable continuation is **H98 complete + PR #60 state synchronization**.
-- Do not redo H95–H98.
-- Once #60 is verified green and merged, inspect current main, active PRs, exact-head CI, and repository contracts/tests.
-- Define H99 from actual repository evidence and dependencies, not from an assumed old roadmap.
+- Current durable continuation is **H99 complete and merged**.
+- Do not redo H95–H99.
+- First verify/persist this H99 state checkpoint; do not claim post-merge main GREEN while its CI remains unobserved.
+- Then inspect current main, active PRs, exact-head CI, and repository contracts/tests.
+- Next architectural work should extend the Plan Understanding Core with the remaining evidence-backed architectural language: host/opening connectivity, stair↔level and elevation-code semantics, section/view markers, and topology normalization, followed by deterministic rules/tests.
