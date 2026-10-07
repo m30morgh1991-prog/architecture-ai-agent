@@ -1,7 +1,8 @@
 """H62 evidence-backed space model contract.
 
 Space extraction is not approval-grade semantics by itself. This contract
-keeps room geometry, labels, and spatial relations traceable and fail-closed.
+keeps room geometry, labels, room numbers, schedule mappings, and spatial
+relations traceable and fail-closed.
 """
 from __future__ import annotations
 
@@ -9,13 +10,10 @@ from dataclasses import dataclass
 from typing import Literal
 
 SpaceStatus = Literal["UNKNOWN", "ACCESSIBLE", "BLOCKED"]
+SpaceIdentityStatus = Literal["EXPLICIT", "SCHEDULE_MAPPED", "INFERRED", "CONFLICT", "UNKNOWN"]
 RelationType = Literal[
-    "SHARED_BOUNDARY",
-    "CONTAINS",
-    "OVERLAPS",
-    "DISCONNECTED",
-    "CONNECTED_BY_OPENING",
-    "OPENING_CONNECTIVITY_UNKNOWN",
+    "SHARED_BOUNDARY", "CONTAINS", "OVERLAPS", "DISCONNECTED",
+    "CONNECTED_BY_OPENING", "OPENING_CONNECTIVITY_UNKNOWN",
 ]
 
 
@@ -29,6 +27,24 @@ class SpaceRecord:
     label: str | None
     evidence_ids: tuple[str, ...]
     status: SpaceStatus = "UNKNOWN"
+    name: str | None = None
+    number: str | None = None
+    schedule_name: str | None = None
+    schedule_number: str | None = None
+    identity_status: SpaceIdentityStatus = "UNKNOWN"
+
+    @property
+    def resolved_name(self) -> str | None:
+        """Use explicit plan/schedule identity; do not replace it with a guess."""
+        if self.identity_status == "CONFLICT":
+            return None
+        return self.name or self.schedule_name or self.label
+
+    @property
+    def resolved_number(self) -> str | None:
+        if self.identity_status == "CONFLICT":
+            return None
+        return self.number or self.schedule_number
 
     def validate(self) -> None:
         if not self.space_id or not self.boundary_handle:
@@ -44,6 +60,10 @@ class SpaceRecord:
             raise ValueError("SPACE_EVIDENCE_MISSING")
         if self.status not in {"UNKNOWN", "ACCESSIBLE", "BLOCKED"}:
             raise ValueError("SPACE_STATUS_INVALID")
+        if self.identity_status not in {
+            "EXPLICIT", "SCHEDULE_MAPPED", "INFERRED", "CONFLICT", "UNKNOWN"
+        }:
+            raise ValueError("SPACE_IDENTITY_STATUS_INVALID")
 
 
 @dataclass(frozen=True)
@@ -59,12 +79,8 @@ class SpaceRelation:
         if not self.relation_id:
             raise ValueError("SPACE_RELATION_ID_MISSING")
         if self.relation_type not in {
-            "SHARED_BOUNDARY",
-            "CONTAINS",
-            "OVERLAPS",
-            "DISCONNECTED",
-            "CONNECTED_BY_OPENING",
-            "OPENING_CONNECTIVITY_UNKNOWN",
+            "SHARED_BOUNDARY", "CONTAINS", "OVERLAPS", "DISCONNECTED",
+            "CONNECTED_BY_OPENING", "OPENING_CONNECTIVITY_UNKNOWN",
         }:
             raise ValueError("SPACE_RELATION_TYPE_INVALID")
         if self.relation_type == "OPENING_CONNECTIVITY_UNKNOWN":
@@ -75,7 +91,7 @@ class SpaceRelation:
         if not self.evidence_ids:
             raise ValueError("SPACE_RELATION_EVIDENCE_MISSING")
         if self.status not in {"UNKNOWN", "ACCESSIBLE", "BLOCKED"}:
-            raise ValueError("SPACE_RELATION_STATUS_INVALID")
+            raise ValueError("SPACE_STATUS_INVALID")
 
 
 @dataclass(frozen=True)
@@ -122,6 +138,14 @@ def build_space_model(
             label=item.get("label"),
             evidence_ids=tuple(str(x) for x in item.get("evidence_ids", [])),
             status=str(item.get("status", "UNKNOWN")),
+            name=item.get("name"),
+            number=str(item["number"]) if item.get("number") is not None else None,
+            schedule_name=item.get("schedule_name"),
+            schedule_number=(
+                str(item["schedule_number"])
+                if item.get("schedule_number") is not None else None
+            ),
+            identity_status=str(item.get("identity_status", "UNKNOWN")),
         )
         for item in spaces
     )
