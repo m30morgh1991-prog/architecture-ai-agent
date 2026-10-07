@@ -50,15 +50,15 @@
 | F17 | Schedules | Higharc, SketchPro, Floorra pattern | `plan_model_contract.py`, `space_model_contract.py`, `bim_ready_contract.py` | `schedule_generation.py` | semantic elements, identity, properties | schedule ↔ model reconciliation | H106 | P0 |
 | F18 | Sheet composition/title blocks | SketchPro | `drawing_standards_validation.py` | `sheet_composition.py` | views, annotations, schedules | sheet completeness + title metadata | H106 | P1 |
 | F19 | Canonical multi-output synchronization | Higharc | `plan_model_contract.py`, `approved_change_plan_contract.py`, `post_edit_diff.py` | `output_sync.py` | PlanModel, IR, outputs | same semantic IDs across outputs; change propagation | H107 | P0 |
-| F20 | BIM semantic export boundary | Higharc, Trace-BIM | `bim_ready_contract.py`, `bim_constraint_contract.py`, `bim_constraintmap_contract.py` | `bim_export_contract.py` | IR, BIM identity/relation | provider-neutral semantic round trip | H107 | P0 |
+| F20 | BIM semantic export boundary | Higharc, Trace-BIM, buildingSMART IFC/ifcJSON | `bim_ready_contract.py`, `bim_constraint_contract.py`, `bim_constraintmap_contract.py` | `bim_export_contract.py` + IFC/ifcJSON adapters | semantic identities, relations, placement, properties | provider-neutral round trip; provenance preserved | H107 | P0 |
 | F21 | Multi-agent orchestration | CraftBot | `execution_orchestrator.py`, `visual_orchestration.py`, `workflow_guard.py` | `architecture_agent_orchestrator.py`, role contracts | intent, generator, rules, inspector | deterministic role handoff + blocked-state tests | H108 | P0 |
 | F22 | Designer/Researcher/Builder/Inspector roles | CraftBot | `rule_engine.py`, `final_validation.py`, `decision_trace.py` | role prompts/contracts under `runtime/agents/` | orchestrator, evidence | role isolation + evidence trace | H108 | P1 |
 | F23 | Iterative propose → inspect → revise loop | CraftBot | `change_request_contract.py`, `impact_analysis.py`, `controlled_editing_runtime.py`, `bug_hunting_gate.py` | `design_iteration.py` | approved change plan, validation | bounded iterations, no silent mutation, fail-closed stop | H109 | P0 |
-| F24 | Raster → semantic canonical package | Trace-BIM | `plan_understanding_core.py`, `plan_model_reconstruction.py`, `element_evidence_contract.py` | extend existing contracts; avoid duplicate canonical model | detection, scale, evidence | existing H98/H99 regressions + new package invariants | H100+ | P0 |
+| F24 | Raster → semantic canonical package | Trace-BIM, Raster2Seq | `element_evidence_contract.py`, `plan_model_reconstruction.py`, `plan_understanding_core.py` | extend existing contracts; avoid duplicate canonical model; explicit Evidence→Identity→Geometry boundary | detection, geometry, scale, topology, relations | reconstruction + provenance + ambiguity regressions | H100+ | P0 |
 | F25 | Placement/hosting semantics | Trace-BIM | `architectural_relations.py`, `opening_connectivity.py`, `bim_ready_contract.py` | `placement_rules.py` or RuleEngine extension | relations, BIM identities | host/opening/level consistency | H102+ | P1 |
-| F26 | Evidence-backed diagnostics | Trace-BIM, ArchLang | `element_evidence_contract.py`, `decision_trace.py`, `final_validation.py` | extend existing evidence contracts; no duplicate evidence system | all semantic stages | provenance, confidence, UNKNOWN propagation | continuous | P0 |
+| F26 | Evidence-backed diagnostics | Trace-BIM, ArchLang | `element_evidence_contract.py`, `architectural_relations.py`, `decision_trace.py`, `final_validation.py` | extend existing evidence/relation contracts; preserve one provenance chain | all semantic stages | provenance, confidence, contradiction and UNKNOWN propagation | continuous | P0 |
 | F27 | Firm / Iran drawing standards | SketchPro + project research | `drawing_standards_validation.py`, `docs/knowledge/drawing_standards/*` | versioned rule packs under `docs/knowledge/drawing_standards/` | RuleContext, source traceability | rule fixture suite; source/version trace | H104+ | P0 |
-| F28 | Architectural symbol/line/layer semantics | ArchLang/SketchPro + project research | `drawing_metadata_extractor.py`, drawing standards | `drawing_semantics_contract.py` if not already covered by H100 | PlanModel, IR | symbol/line/layer evidence | H100 | P0 |
+| F28 | Architectural symbol/line/layer semantics | ArchLang/SketchPro + project research | `drawing_metadata_extractor.py`, `drawing_standards_validation.py`, `scale_unit_evidence.py` | extend H100 semantics; add `architectural_semantics_contract.py` only if required | evidence, geometry, topology, relations, PlanModel | symbol/line/layer/hatch/marker evidence + UNKNOWN propagation | H100/H102 | P0 |
 | F29 | Cross-format round trip | Trace-BIM, ArchLang | `golden_dwg_regression.py`, `post_edit_diff_validation.py` | `format_roundtrip_validation.py` | DXF/SVG/PDF/BIM adapters | semantic equivalence, no geometry drift | H110 | P0 |
 | F30 | Production documentation gate | SketchPro, Higharc | `production_readiness_gate.py`, `release_gate.py`, `runtime_release_gate.py` | extend existing gates | drawing set, validation, evidence | exact-head REAL CI + drawing regression | H111 | P0 |
 
@@ -84,7 +84,7 @@
 
 Do **not** create parallel PlanModel, evidence, ConstraintMap, or release-gate systems just because an external project uses different names.
 
-## 5. Dependency order
+## 5. Semantic understanding chain\n\nThe architecture-understanding research adds an explicit chain that must sit inside the existing canonical pipeline:\n\n`Source Evidence → Element Identity → Geometry → Topology → Spatial Relation → Architectural Semantics → BIM Semantics → Rule Context`\n\nThe chain is an integration boundary, not a new Source of Truth. Existing evidence, PlanModel, relation, BIM, and rule contracts remain authoritative. See `docs/research/PLAN_UNDERSTANDING_SEMANTIC_CHAIN.md`.\n\n## 6. Dependency order
 
 ### Track A — generation foundation
 
@@ -108,7 +108,7 @@ Do **not** create parallel PlanModel, evidence, ConstraintMap, or release-gate s
 
 The tracks may be prepared in parallel, but implementation must respect dependency boundaries and Green Gates.
 
-## 6. Recommended H sequencing
+## 7. Recommended H sequencing
 
 | Stage | Scope | Exit evidence |
 |---|---|---|
@@ -127,7 +127,7 @@ The tracks may be prepared in parallel, but implementation must respect dependen
 
 > H100 is treated as the immediate drawing-semantics boundary only if/when its implementation is actually present on a branch/main. This matrix does not claim a stage is green merely because it is planned.
 
-## 7. Priority rule
+## 8. Priority rule
 
 P0 items are required for the core product direction. P1 items improve completeness but must not block the semantic/validation backbone.
 
@@ -143,7 +143,7 @@ The first implementation wave should therefore prioritize:
 8. F19/F20 synchronization + BIM boundary
 9. F21/F23 agent orchestration + bounded iteration
 
-## 8. External-project lessons mapped to our architecture
+## 9. External-project lessons mapped to our architecture
 
 ### Higharc
 Adopt the **canonical live model + synchronized downstream outputs** idea.
@@ -162,7 +162,7 @@ Adopt **declarative IR + compiler + lint/diagnostics**. This is the strongest ar
 ### Trace-BIM
 Adopt **canonical semantic exchange + evidence/placement validation**, while reusing our existing PlanModel and evidence contracts.
 
-## 9. Definition of Done for this matrix
+## 10. Definition of Done for this matrix
 
 A matrix item is not considered implemented because a file exists.
 
@@ -177,7 +177,7 @@ It is complete only when:
 7. State is persisted in repository-backed project state.
 8. No duplicate Source of Truth was introduced.
 
-## 10. Current repository baseline
+## 11. Current repository baseline
 
 - Main head: `2344e1083937e5d91857ba24b6a0f077414f06ca`
 - Current merged feature: H99 — Architectural Relations integrated with PlanModel.
