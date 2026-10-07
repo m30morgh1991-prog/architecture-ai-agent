@@ -23,7 +23,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown/insufficient evidence fails closed.
 
-## Current verified continuation point — H98 complete
+## Current verified continuation point — H99 complete
 - H97 merged as PR #57; exact-head CI: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
 - H97 merge: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
 - H98 — Plan Understanding Core merged as PR #59.
@@ -31,8 +31,11 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - H98 gates: Bug Hunt #72, PR CI #115, Runtime #402 — completed/success.
 - H98 merge: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
 - H98 composes Detection → PlanModel Reconstruction → ConstraintMap and preserves fail-closed UNKNOWN propagation.
-- Post-merge CI on the H98 merge commit is unobserved and therefore not GREEN.
-- PR #60 is the active durable-state synchronization checkpoint.
+- H99 merged as PR #61; merge commit `2344e1083937e5d91857ba24b6a0f077414f06ca`.
+- H99 exact head: `09f75ee5de2319e51d1fbabdce62c864b427de42`.
+- H99 gates: Bug Hunt #85, PR CI #128, Runtime #415 — completed/success.
+- H99 adds evidence-backed architectural relations, fail-closed unresolved opening relations, stronger SpaceModel identity semantics, and Plan Understanding Core integration.
+- Post-merge CI on the H99 merge commit is unobserved and therefore not GREEN.
 
 ## Consolidated architecture baseline
 ### Product
@@ -78,10 +81,10 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Real DWG regression remains a validation boundary.
 - Visual Runtime remains separate from logical/static reconstruction.
 
-## Continuation after #60
-1. Verify #60 exact-head CI after the final state-sync commit.
-2. Merge #60 only after required gates are completed/success.
+## Continuation after H99
+1. Verify this H99 state-sync commit with real CI.
+2. Merge the state-sync checkpoint only after required gates are completed/success.
 3. Verify the resulting main commit; unobserved CI remains explicitly unobserved.
 4. Inspect repository contracts/tests/active PRs.
-5. Define H99 from actual code and dependencies.
-6. Implement H99 → real CI → verify → regression → persist → continue.
+5. Define the next stage from actual code/dependencies.
+6. Implement → real CI → verify → regression → persist → continue.
