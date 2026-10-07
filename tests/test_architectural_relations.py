@@ -9,7 +9,6 @@ from runtime.architectural_relations import (
 from runtime.element_evidence_contract import build_element_evidence_bundle
 from runtime.plan_model_contract import PlanElement, PlanModel
 
-
 SOURCE = "a" * 64
 
 
@@ -117,16 +116,18 @@ class ArchitecturalRelationsTests(unittest.TestCase):
                 ),
             ).validate()
 
-
-(self):
+    def test_plan_model_without_relations_returns_empty_set(self):
         result = build_architectural_relation_set_from_plan_model(
             set_id="m:space-relations",
             plan_model=model_with_evidence(),
         )
         self.assertEqual(result.relations, ())
-        self.assertEqual(result.unresolved, ())\n\n    def test_space_relation_adapter_preserves_unknown_status(self):
-        model = model_with_evidence()
+        self.assertEqual(result.unresolved, ())
+
+    def test_space_relation_adapter_preserves_unknown_status(self):
         from runtime.space_model_contract import build_space_model
+
+        model = model_with_evidence()
         space_model = build_space_model(
             model_id="m:spaces",
             source_sha256=SOURCE,
@@ -139,19 +140,21 @@ class ArchitecturalRelationsTests(unittest.TestCase):
                 "evidence_ids":["e1","e2"],"status":"UNKNOWN",
             }],
         )
-        from runtime.plan_model_contract import PlanModel
         model = PlanModel(
-            model_id="m", source_sha256=SOURCE, drawing_count=1,
-            elements=model.elements, element_evidence=model.element_evidence,
+            model_id="m",
+            source_sha256=SOURCE,
+            drawing_count=1,
+            elements=model.elements,
+            element_evidence=model.element_evidence,
             space_model=space_model,
         )
         result = build_architectural_relation_set_from_plan_model(
-            set_id="m:space-relations", plan_model=model,
+            set_id="m:space-relations",
+            plan_model=model,
         )
         self.assertEqual(result.relations[0].relation_id, "sr1")
         self.assertEqual(result.relations[0].status, "UNKNOWN")
         self.assertEqual(result.unresolved, ("sr1",))
-
 
 
 if __name__ == "__main__":
