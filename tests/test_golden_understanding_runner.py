@@ -1,5 +1,7 @@
 import hashlib
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -52,6 +54,49 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
             self.assertEqual(case["observed"]["source_profile"]["source_class"], "ENGINEERING_VECTOR")
             self.assertEqual(case["observed"]["source_profile"]["input_mode"], "ENGINEERING_PLAN")
             self.assertIn(case["decision"], {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
+
+
+    def test_standalone_cli_emits_machine_checkable_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "sample.dwg"
+            source.write_bytes(b"cli-golden-source")
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            manifest = root / "manifest.json"
+            output = root / "report.json"
+            manifest.write_text(json.dumps({
+                "schema": "golden-understanding-v1",
+                "version": "2026-10-08",
+                "truth_policy": "DIRECT_AND_VALIDATED_DERIVED_ONLY",
+                "cases": [{
+                    "case_id": "CASE-CLI",
+                    "source_path": str(source),
+                    "source_sha256": digest,
+                    "expected_elements": [],
+                    "expected_domains": ["source_profile", "elements", "fail_closed_decision"],
+                    "expected_status": "UNKNOWN"
+                }]
+            }), encoding="utf-8")
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "runtime.golden_understanding_runner",
+                    "--manifest",
+                    str(manifest),
+                    "--output",
+                    str(output),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(completed.returncode, 0)
+            self.assertTrue(output.is_file())
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["schema"], "golden-understanding-report-v1")
+            self.assertEqual(report["summary"]["case_count"], 1)
+            self.assertIn(report["cases"][0]["decision"], {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
 
     def test_understanding_exception_becomes_blocked_report(self):
         with tempfile.TemporaryDirectory() as directory:
