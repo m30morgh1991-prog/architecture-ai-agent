@@ -1,8 +1,8 @@
 # Project State
 
-## **H100 — Golden Understanding Gate — active on main after PR #70 merge**
+## **H100 — Golden Understanding Gate — active on main after PR #70 and PR #71 merge**
 
-**H100 — Golden Understanding Gate — active (PR #70, not merged)**
+**H100 — Golden Understanding Gate — active on main; PR #70 and PR #71 are merged.**
 
 ### H100 historical input-source boundary verification
 - PR: #66
@@ -28,7 +28,9 @@ PR #66 established the source boundary; PR #68 established semantic/drawing evid
 Do not start H101 until UG-01..UG-09 are Green and the verified state is persisted.
 
 Current active sequence:
-1. Complete UG-03 end-to-end runner emission (CLI added; CI verification pending), then complete UG-06 adversarial coverage and UG-07 per-domain metrics.
+1. PR #71 standalone Golden Understanding runner is merged at `671133d4ab8941b2a38c79597769d8df2b18269e`; exact-head pre-merge gates were green.
+2. Post-merge main workflows for `671133d4...` are not yet observed; therefore mainline Green Gate is not claimed.
+3. Complete UG-03 end-to-end runner verification, then complete UG-06 adversarial coverage and UG-07 per-domain metrics.
 2. Execute preserved Golden DWGs and independently verify SHA-256 and evidence snapshots.
 3. Keep dimensions, levels, view markers and vertical circulation UNKNOWN unless source evidence supports them.
 4. Apply reconciliation/provenance/fail-closed checks before authoritative PlanModel promotion.
