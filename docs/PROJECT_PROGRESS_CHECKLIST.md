@@ -40,7 +40,7 @@
 - [x] H100 — Golden Understanding Regression: contract + manifest + fail-closed evaluator implemented; exact-head Green still required
 - [ ] H100 — Golden Understanding: real Golden DWG execution + source hashes + ground truth
 - [ ] H100 — UG-01..UG-08 Golden Understanding Gate checks Green
-- [ ] H100 — UG-09 exact-head REAL CI + Runtime + Bug Hunt Green
+- [x] H100 — PR #70 exact-head PR CI + Runtime + Bug Hunt Green (pre-merge); post-merge mainline verification remains pending
 - [ ] H100 — UG-10 Green → persist verified state and unlock H101
 - [ ] H101 — Architectural Intent + Program + Plan Generation + deterministic geometry/layout
 - [ ] H101 — REAL CI + Bug Hunt Green
