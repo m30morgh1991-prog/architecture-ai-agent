@@ -178,3 +178,20 @@ PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f`. Exact-head `3ea24d6
 - Post-merge workflow runs for `c4011e0...` are not claimed until exposed.
 
 Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
+
+
+## H100 PR #91 checkpoint — persisted after PR #90
+
+- PR #91 merged to main at \`2dfcd893ed97028f69982477dc7d9d6741eff9ca\`.
+- Exact PR #91 head \`1d6eb08b16abaf60b2c2bd5ed390db962c38b864\`: PR CI #287, Runtime #574, Bug Hunt #244 = SUCCESS.
+- This is a documentation/state checkpoint only; it does not claim new runtime semantics or post-merge mainline Green.
+- H100 remains active and H101 remains locked.
+
+## H100 PR #93 — section-marker evidence implementation in progress
+
+- Branch: \`feature/h100-section-marker-semantics\`.
+- Adds conservative read-only DWG evidence for explicitly contextualized section/cut-plane/elevation/detail markers and explicitly named marker blocks.
+- Marker evidence is bound to source SHA-256 and DIRECT provenance.
+- Bare labels such as \`A-A\` remain unpromoted without context.
+- Direction and cut-plane geometry remain UNKNOWN even when marker presence is supported; arrow glyphs do not establish direction.
+- Exact-head PR CI, Runtime Tests, Bug Hunt, and required Golden regression are pending verification. This branch is NOT Green until all required gates are completed/success.
