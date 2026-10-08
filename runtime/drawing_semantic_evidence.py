@@ -84,14 +84,15 @@ class DimensionEvidence:
     def validate(self) -> None:
         if not self.dimension_id or not self.evidence_id:
             raise ValueError("DIMENSION_ID_MISSING")
-        if not self.measured_geometry_ids or not self.extension_geometry_ids:
-            raise ValueError("DIMENSION_GEOMETRY_REFERENCE_MISSING")
-        if self.value is None or self.value <= 0:
-            raise ValueError("DIMENSION_VALUE_UNKNOWN")
-        if not self.unit:
-            raise ValueError("DIMENSION_UNIT_MISSING")
         if self.status not in _ALLOWED_STATUSES:
             raise ValueError("DIMENSION_STATUS_INVALID")
+        if self.status == "SUPPORTED":
+            if not self.measured_geometry_ids or not self.extension_geometry_ids:
+                raise ValueError("DIMENSION_GEOMETRY_REFERENCE_MISSING")
+            if self.value is None or self.value <= 0:
+                raise ValueError("DIMENSION_VALUE_UNKNOWN")
+            if not self.unit:
+                raise ValueError("DIMENSION_UNIT_MISSING")
 
 @dataclass(frozen=True)
 class LevelEvidence:
@@ -106,12 +107,13 @@ class LevelEvidence:
     def validate(self) -> None:
         if not self.level_id or not self.evidence_id or not self.label:
             raise ValueError("LEVEL_EVIDENCE_ID_MISSING")
-        if self.elevation is None:
-            raise ValueError("LEVEL_ELEVATION_UNKNOWN")
-        if not self.unit:
-            raise ValueError("LEVEL_UNIT_MISSING")
         if self.status not in _ALLOWED_STATUSES:
             raise ValueError("LEVEL_STATUS_INVALID")
+        if self.status == "SUPPORTED":
+            if self.elevation is None:
+                raise ValueError("LEVEL_ELEVATION_UNKNOWN")
+            if not self.unit:
+                raise ValueError("LEVEL_UNIT_MISSING")
 
 @dataclass(frozen=True)
 class ViewMarkerEvidence:
@@ -129,10 +131,10 @@ class ViewMarkerEvidence:
             raise ValueError("VIEW_MARKER_ID_MISSING")
         if self.marker_type not in {"SECTION","ELEVATION"}:
             raise ValueError("VIEW_MARKER_TYPE_INVALID")
-        if not self.referenced_element_ids:
-            raise ValueError("VIEW_MARKER_REFERENCES_MISSING")
         if self.status not in _ALLOWED_STATUSES:
             raise ValueError("VIEW_MARKER_STATUS_INVALID")
+        if self.status == "SUPPORTED" and not self.referenced_element_ids:
+            raise ValueError("VIEW_MARKER_REFERENCES_MISSING")
         if self.marker_type=="SECTION" and self.status=="SUPPORTED":
             if not self.direction or not self.cut_plane:
                 raise ValueError("SECTION_MARKER_SEMANTICS_INCOMPLETE")
