@@ -121,3 +121,27 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - H99 and PR #65 are already merged and post-merge main CI is GREEN.
 - Finish H100 from actual repository contracts/tests: drawing-language evidence, source provenance, PDF/vector-vs-raster evidence, dimensions/annotations, markers, scale/unit and regression coverage.
 - Required cycle remains: Implement → REAL CI → Verify → Regression → Persist State → Continue.
+
+
+## Integrated research checkpoint — 2026-10-08
+
+### Newly consolidated decisions
+- External architecture-agent research is now part of the project knowledge layer; it does not create a second semantic graph.
+- Useful patterns: scene graph/relations (JMU), raster-to-wall/opening reconstruction + uncertainty (RedrawAI), semantic intent → deterministic geometry (Draftly), knowledge/skills + feedback (CraftBot), and CV → CAD/BIM/IFC bridging (dwg-bim_AI).
+- YQArch/AutoCAD is classified as a future **Execution Adapter** capability, not the project brain. PlanModel + ConstraintMap + ApprovedChangePlan remain authoritative.
+- No arbitrary LISP path and no direct LLM → AutoCAD geometry authority.
+- Engineering Plan Input and Image Input are separate. Geometry evidence hierarchy is DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP.
+- PDF representation must be evidence-classified; unknown PDF remains UNKNOWN/SOURCE_REQUIRED.
+- Iranian architectural drawing language is a first-class semantic evidence layer: symbols/orientation, line types/weights/layers, dimensions, level codes, room labels, section markers/direction/cut plane, elevation markers, hatch, structural symbols, scale/unit, title-block metadata, floor relationships and evidence-based stair/vertical-circulation reasoning.
+- Level/stair/section inferences remain fail-closed and require explicit consistent evidence.
+- Standards and knowledge sources feed traceable Rule/Validation layers rather than undocumented detection assumptions.
+- Core invariant: **understand the plan before generating or editing the plan**.
+
+### H100 continuation priorities
+1. Bind evidence IDs/provenance to semantic facts.
+2. Wire contradiction/missing-evidence handling and fail-closed propagation.
+3. Complete drawing semantics/dimensions/annotations/markers/scale/unit coverage.
+4. Integrate architectural relations into the canonical PlanModel/ConstraintMap.
+5. Apply Golden DWG regression where applicable.
+6. Run exact-head REAL CI + Bug Hunt + required regression; persist only verified state.
+7. Continue to H101 only after Green Gate.
