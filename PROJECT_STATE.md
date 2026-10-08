@@ -101,3 +101,13 @@ Current active sequence:
 - Exact-head PR CI #233, Runtime #520, Bug Hunt #190 = SUCCESS.
 - A machine-checkable adversarial manifest now covers every current fail-closed category with explicit non-PASS expected decisions.
 - These are contract-level adversarial fixtures; real-world image/DWG adversarial fixtures remain a follow-up and H101 remains locked.
+
+
+## H100 mainline checkpoint — PR #82
+
+PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f`. Exact-head `3ea24d659490c7f809bb8579b3ea1e3efbe627fb` had PR CI #244 SUCCESS, Runtime #531 SUCCESS, Bug Hunt #201 SUCCESS. The PR closed the evaluator gap so `expected_domain_status` is actually consumed; current Golden semantic truth remains explicitly UNKNOWN, so this does not claim semantic understanding. Post-merge workflow runs for the merge commit are not exposed by the current workflow-run query; therefore mainline post-merge Green is not claimed.
+
+### Next H100 priority
+- Build actual semantic Golden truth from read-only DWG/CAD evidence, not guessed labels or VLM-only interpretation.
+- Expand contract-level adversarial fixtures into real-world transformed/defective drawing fixtures.
+- Keep H101 locked until the remaining Golden Understanding gates have real evidence.
