@@ -19,11 +19,15 @@
 
 - [x] Architecture Agent feature-to-file matrix defined (PR #65)
 - [x] Plan Understanding Semantic Chain defined
-- [ ] PR #65 — CI + Bug Hunt Green
-- [ ] PR #65 — Merge
-- [ ] Post-merge main REAL CI Green
-- [ ] Persist State after merge
+- [x] PR #65 — CI + Bug Hunt Green
+- [x] PR #65 — Merge (`176bc2ceb330e2987891ef6edbbaf33b73dc77d3`)
+- [x] Post-merge main REAL CI Green — Runtime #427, PR CI #140; Bug Hunt #97
+- [ ] Persist State after H100 input-boundary implementation
 - [ ] H100 — Drawing Semantics + Dimension/Annotation Evidence
+- [x] H100 — Input source boundary: engineering-plan vs image input
+- [x] H100 — Geometry evidence hierarchy: DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP
+- [x] H100 — PDF representation must be evidence-classified; unknown PDF is fail-closed
+- [x] H100 — Source profile carried through ExecutionRequest metadata
 - [ ] H100 — Semantic Chain fully wired and validated
 - [ ] H100 — REAL CI + Bug Hunt Green
 - [ ] H101 — Architectural Intent + Program + Plan Generation + deterministic geometry/layout
@@ -56,6 +60,7 @@
 - [ ] Stairs/landings and stair-count inference only with explicit consistent evidence
 - [ ] Scale/unit evidence
 - [ ] Title-block/drawing metadata evidence
+- [x] Input source classification/provenance boundary
 - [ ] Evidence IDs/provenance bound to semantic facts
 - [ ] UNKNOWN / NEEDS_REVIEW / BLOCKED propagation
 - [ ] Contradiction detection
