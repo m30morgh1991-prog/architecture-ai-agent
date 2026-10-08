@@ -35,7 +35,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - PDF must be classified by evidence as vector or raster; unknown representation remains fail-closed.
 - `runtime/input_source_contract.py` defines the source classes and trust ordering.
 - `runtime/request_contract.py` carries optional `source_profile` metadata.
-- H100 is **not complete yet**. Golden Understanding Regression, adversarial coverage, real Golden DWG execution, source hashing, and UG-09 Green Gate remain incomplete.
+- H100 is **not complete yet**; PR #70 Golden Understanding Regression foundation is merged to main at `2c58783ae03ad755688107b2875f08180f5dc3b0`. Real Golden DWG execution, source hashing/ground truth, UG-03/04/06, and UG-09/UG-10 remain incomplete. Golden Understanding Regression, adversarial coverage, real Golden DWG execution, source hashing, and UG-09 Green Gate remain incomplete.
 
 ## Consolidated architecture baseline
 ### Product
