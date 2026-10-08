@@ -23,22 +23,26 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown/insufficient evidence fails closed.
 
-## Current verified continuation point — H98 complete
-- H97 merged as PR #57; exact-head CI: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
-- H97 merge: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
-- H98 — Plan Understanding Core merged as PR #59.
-- H98 exact head: `754331041aa67625c5e78b4ac83e16d718dfb149`.
-- H98 gates: Bug Hunt #72, PR CI #115, Runtime #402 — completed/success.
-- H98 merge: `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
-- H98 composes Detection → PlanModel Reconstruction → ConstraintMap and preserves fail-closed UNKNOWN propagation.
-- Post-merge CI on the H98 merge commit is unobserved and therefore not GREEN.
-- PR #60 is the active durable-state synchronization checkpoint.
+## Current verified continuation point — H100 input-source boundary
+
+- H99 — Architectural Relations is merged on main: `2344e1083937e5d91857ba24b6a0f077414f06ca`.
+- PR #65 Feature-to-File Matrix + semantic-chain research is merged: `176bc2ceb330e2987891ef6edbbaf33b73dc77d3`.
+- PR #65 pre-merge gates: PR CI #138, Runtime #425, Bug Hunt #96 — completed/success.
+- Post-merge main gates on `176bc2c`: Runtime #427, PR CI #140, Bug Hunt #97 — completed/success.
+- H100 is now active on branch `feat/h100-input-source-boundary`.
+- Implemented boundary: Image Input remains supported but is separate from Engineering Plan Input.
+- Geometry evidence hierarchy: **DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP**.
+- PDF must be classified by evidence as vector or raster; unknown representation remains fail-closed.
+- `runtime/input_source_contract.py` defines the source classes and trust ordering.
+- `runtime/request_contract.py` carries optional `source_profile` metadata.
+- H100 is **not complete yet**. Remaining drawing-semantics/evidence work must be implemented, tested, Bug-Hunted, regression-verified and persisted before merge.
 
 ## Consolidated architecture baseline
 ### Product
 - Architecture AI Agent MVP; provider-neutral, low-cost/open-source oriented, Iran-friendly, tablet/PWA friendly.
-- MVP input: JPG / PNG / WEBP / PDF + prompt.
-- Native DWG/DXF editing is outside MVP; Golden DWGs remain regression assets.
+- MVP supports image/document inputs, but the architecture now distinguishes Engineering Plan Input from Image Input.
+- Source hierarchy for geometry reconstruction: DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP.
+- Native DWG/DXF editing remains outside the current MVP editing boundary; Golden DWGs remain regression assets.
 - Golden DWGs: `bagheri7.dwg`, `afifiiiii.end.edit3.dwg`.
 
 ### Source of Truth and pipeline
@@ -78,10 +82,11 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Real DWG regression remains a validation boundary.
 - Visual Runtime remains separate from logical/static reconstruction.
 
-## Continuation after #60
-1. Verify #60 exact-head CI after the final state-sync commit.
-2. Merge #60 only after required gates are completed/success.
-3. Verify the resulting main commit; unobserved CI remains explicitly unobserved.
-4. Inspect repository contracts/tests/active PRs.
-5. Define H99 from actual code and dependencies.
-6. Implement H99 → real CI → verify → regression → persist → continue.
+## Continuation after H99 / PR #65
+
+1. H99 is complete and post-merge main CI is GREEN.
+2. Finish H100 from the actual repository contracts and tests.
+3. Keep PDF representation evidence-driven; never guess vector/raster.
+4. Preserve one canonical PlanModel/evidence chain; do not create duplicate semantic graphs.
+5. Run REAL CI + Bug Hunt + required regression on the H100 head.
+6. Persist verified state, then continue to H101 only after Green Gate evidence.
