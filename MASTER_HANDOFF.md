@@ -23,19 +23,19 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown/insufficient evidence fails closed.
 
-## Current verified continuation point — H100 input-source boundary
+## Current verified continuation point — H100 Golden Understanding Gate
 
 - H99 — Architectural Relations is merged on main: `2344e1083937e5d91857ba24b6a0f077414f06ca`.
 - PR #65 Feature-to-File Matrix + semantic-chain research is merged: `176bc2ceb330e2987891ef6edbbaf33b73dc77d3`.
 - PR #65 pre-merge gates: PR CI #138, Runtime #425, Bug Hunt #96 — completed/success.
 - Post-merge main gates on `176bc2c`: Runtime #427, PR CI #140, Bug Hunt #97 — completed/success.
-- H100 is now active on branch `feat/h100-input-source-boundary`.
+- H100 source-boundary work is historical; active H100 work is PR #70 on `research/h100-golden-understanding-lock`.
 - Implemented boundary: Image Input remains supported but is separate from Engineering Plan Input.
 - Geometry evidence hierarchy: **DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP**.
 - PDF must be classified by evidence as vector or raster; unknown representation remains fail-closed.
 - `runtime/input_source_contract.py` defines the source classes and trust ordering.
 - `runtime/request_contract.py` carries optional `source_profile` metadata.
-- H100 is **not complete yet**. Remaining drawing-semantics/evidence work must be implemented, tested, Bug-Hunted, regression-verified and persisted before merge.
+- H100 is **not complete yet**. Golden Understanding Regression, adversarial coverage, real Golden DWG execution, source hashing, and UG-09 Green Gate remain incomplete.
 
 ## Consolidated architecture baseline
 ### Product
