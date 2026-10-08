@@ -120,4 +120,6 @@ def test_domain_metrics_do_not_promote_unknown_to_understood(tmp_path):
     report = evaluate_golden_case(case, observed)
     metrics = summarize_domain_metrics([report])
     assert metrics["geometry"]["covered"] == 1
-    assert metrics["geometry"]["coverage"] == 1.0
+    assert metrics["geometry"]["unknown"] == 1
+    assert metrics["geometry"]["understood"] == 0
+    assert metrics["geometry"]["understood_rate"] == 0.0
