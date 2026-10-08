@@ -42,7 +42,7 @@ def test_manifest_schema_and_case_load(tmp_path):
 def test_complete_observation_passes(tmp_path):
     case = _case(tmp_path)
     observed = {
-        domain: {} for domain in case.expected_domains
+        domain: {"evidence": "present"} for domain in case.expected_domains
     }
     observed["elements"] = ["WALL", "DOOR"]
     observed["fail_closed_decision"] = "UNKNOWN"
