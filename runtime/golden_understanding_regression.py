@@ -124,9 +124,11 @@ def evaluate_golden_case(
             failures.append(f"MISSING_DOMAIN:{domain}")
 
     observed_elements = set(observed.get("elements", ()))
-    for element in case.expected_elements:
-        if element not in observed_elements:
-            failures.append(f"MISSING_ELEMENT:{element}")
+    expected_elements_status = (case.expected_domain_status or {}).get("elements")
+    if expected_elements_status != "UNKNOWN":
+        for element in case.expected_elements:
+            if element not in observed_elements:
+                failures.append(f"MISSING_ELEMENT:{element}")
 
     observed_decision = observed.get("fail_closed_decision")
     if observed_decision not in ALLOWED_DECISIONS:
