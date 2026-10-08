@@ -50,6 +50,26 @@ def test_complete_observation_passes(tmp_path):
     assert not report.failures
 
 
+def test_empty_domain_requires_review(tmp_path):
+    case = _case(tmp_path)
+    observed = {domain: {} for domain in case.expected_domains}
+    observed["elements"] = ["WALL", "DOOR"]
+    observed["fail_closed_decision"] = "UNKNOWN"
+    report = evaluate_golden_case(case, observed)
+    assert report.decision == "NEEDS_REVIEW"
+    assert "MISSING_DOMAIN:source_profile" in report.failures
+
+
+def test_explicit_unknown_domain_is_covered(tmp_path):
+    case = _case(tmp_path)
+    observed = {domain: "UNKNOWN" for domain in case.expected_domains}
+    observed["elements"] = ["WALL", "DOOR"]
+    observed["fail_closed_decision"] = "UNKNOWN"
+    report = evaluate_golden_case(case, observed)
+    assert report.decision == "PASS"
+    assert not report.failures
+
+
 def test_missing_domain_requires_review(tmp_path):
     case = _case(tmp_path)
     observed = {
