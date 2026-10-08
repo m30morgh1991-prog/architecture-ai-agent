@@ -27,12 +27,25 @@ def reconcile_dwg_candidates(
 
     Only SUPPORTED DrawingEvidence may support a fact. CONTRADICTED evidence is
     never silently discarded; it is passed to the canonical contradiction path.
+    Contradiction and required-evidence references must belong to the same
+    source-bound DrawingEvidenceSet; cross-source or missing references fail
+    closed instead of influencing the result.
     UNKNOWN/UNCERTAIN evidence yields UNKNOWN unless required evidence is
     missing, in which case NEEDS_REVIEW is returned.
     """
     evidence_set.validate()
     contradictions = contradictions or {}
     required_evidence = required_evidence or {}
+
+    evidence_by_id = {item.evidence_id: item for item in evidence_set.evidences}
+
+    def validate_refs(refs: tuple[str, ...], error_code: str) -> None:
+        for evidence_id in refs:
+            evidence = evidence_by_id.get(evidence_id)
+            if evidence is None:
+                raise ValueError(error_code)
+            if evidence.source_sha256 != evidence_set.source_sha256:
+                raise ValueError("CANDIDATE_FACT_SOURCE_MISMATCH")
 
     facts: list[CandidateFact] = []
     results: list[ReconciliationResult] = []
@@ -48,8 +61,14 @@ def reconcile_dwg_candidates(
         fact.validate()
 
         supporting = (evidence.evidence_id,) if evidence.status == "SUPPORTED" else ()
-        contradicting = tuple(contradictions.get(fact.fact_id, ()))
-        required = tuple(required_evidence.get(fact.fact_id, ()))
+        contradicting = tuple(dict.fromkeys(contradictions.get(fact.fact_id, ())))
+        required = tuple(dict.fromkeys(required_evidence.get(fact.fact_id, ())))
+
+        validate_refs(contradicting, "CANDIDATE_FACT_CONTRADICTION_REFERENCE_MISSING")
+        validate_refs(required, "CANDIDATE_FACT_REQUIRED_EVIDENCE_REFERENCE_MISSING")
+
+        if evidence.evidence_id in contradicting:
+            raise ValueError("CANDIDATE_FACT_SUPPORT_CONTRADICTION_OVERLAP")
 
         result = reconcile_fact(
             fact,
