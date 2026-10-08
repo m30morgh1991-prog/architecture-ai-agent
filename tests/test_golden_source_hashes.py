@@ -29,6 +29,20 @@ class GoldenSourceHashTests(unittest.TestCase):
             )
 
 
+    def test_missing_domain_status_is_detected(self):
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        case = manifest["cases"][0]
+        status = dict(case["expected_domain_status"])
+        status.pop(case["expected_domains"][0])
+        self.assertNotEqual(set(status), set(case["expected_domains"]))
+
+    def test_invalid_domain_status_is_detected(self):
+        manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+        case = manifest["cases"][0]
+        status = dict(case["expected_domain_status"])
+        status[case["expected_domains"][0]] = "UNVERIFIED"
+        self.assertNotIn(status[case["expected_domains"][0]], {"PASS", "UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
+
     def test_manifest_has_explicit_status_for_every_required_domain(self):
 
         manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
