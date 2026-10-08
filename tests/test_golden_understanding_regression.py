@@ -47,7 +47,6 @@ class GoldenUnderstandingRegressionTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             case = self._case(Path(tmp))
             observed = {domain: "UNKNOWN" for domain in case.expected_domains}
-            observed["elements"] = ["WALL", "DOOR"]
             observed["fail_closed_decision"] = "UNKNOWN"
             report = evaluate_golden_case(case, observed)
             self.assertEqual(report.decision, "PASS")
@@ -67,8 +66,6 @@ class GoldenUnderstandingRegressionTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             case = self._case(Path(tmp))
             observed = {domain: "UNKNOWN" for domain in case.expected_domains}
-            observed["elements"] = ["WALL", "DOOR"]
-            observed["fail_closed_decision"] = "UNKNOWN"
             report = evaluate_golden_case(case, observed)
             self.assertEqual(report.decision, "PASS")
             self.assertFalse(report.failures)
