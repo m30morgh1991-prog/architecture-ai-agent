@@ -38,4 +38,6 @@ def test_runner_emits_machine_checkable_report(tmp_path):
     assert case["source_exists"] is True
     assert len(case["source_sha256"]) == 64
     assert case["observed"]["source_profile"]["sha256"] == case["source_sha256"]
+    assert case["observed"]["source_profile"]["source_class"] == "ENGINEERING_VECTOR"
+    assert case["observed"]["source_profile"]["input_mode"] == "ENGINEERING_PLAN"
     assert case["decision"] in {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"}
