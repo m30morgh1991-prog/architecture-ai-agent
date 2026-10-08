@@ -78,6 +78,7 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                     "expected_elements": [],
                     "expected_domains": ["source_profile", "elements", "fail_closed_decision"],
                     "expected_status": "UNKNOWN",
+                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
                     "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"}
                 }]
             }), encoding="utf-8")
