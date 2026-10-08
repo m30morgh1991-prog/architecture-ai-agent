@@ -63,7 +63,7 @@
 - [x] UG-01 Golden case manifest exists
 - [x] UG-02 Ground-truth schema is source-bound and versioned
 - [x] UG-03 End-to-end Understanding Runner emits a machine-checkable report
-- [ ] UG-04 All required semantic domains have expected truth or explicit UNKNOWN
+- [x] UG-04 All required semantic domains have expected truth or explicit UNKNOWN (machine-checked; current truth explicitly UNKNOWN)
 - [x] UG-05 Public benchmark calibration is separated from project acceptance
 - [ ] UG-06 Adversarial cases exist for every fail-closed category
 - [x] UG-07 Metrics are computed per domain (implementation); Green evidence still required
@@ -225,3 +225,10 @@ Notion is not a governance or Green-Gate source of truth.
 - Exact-head gates: PR CI #225 / Runtime #512 / Bug Hunt #182 = SUCCESS
 - Mainline checkpoint regression coverage is merged.
 - Semantic Golden ground truth and remaining adversarial gates remain pending.
+
+
+## 2026-10-08 — H100 UG-04 checkpoint
+- PR #78 merged: `79790fce10ec89b64dfbe613e5dbb1b321eadb76`
+- Exact-head gates: PR CI #229 / Runtime #516 / Bug Hunt #186 = SUCCESS
+- UG-04 per-domain explicit status contract implemented; all current statuses are UNKNOWN.
+- UG-06 adversarial coverage and semantic ground truth remain pending.
