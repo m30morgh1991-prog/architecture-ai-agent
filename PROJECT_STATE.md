@@ -2,9 +2,9 @@
 
 ## Current Stage
 
-**H100 — input-source boundary implementation — merged**
+**H100 — Golden Understanding Gate — active (PR #70, not merged)**
 
-### H100 PR #66 verification
+### H100 historical input-source boundary verification
 - PR: #66
 - Branch: feat/h100-input-source-boundary
 - PR head before merge: `2b0627c67e039db79749d67c000bc2bc2f84eeb4`
@@ -24,13 +24,16 @@
 - Raster/image evidence cannot silently become authoritative geometry.
 
 ### H100 continuation
-Do not redo H95–H99. Do not treat the PR merge alone as final H100 completion until post-merge main verification is observed.
+PR #66 established the source boundary; PR #68 established semantic/drawing evidence; PR #69 locked Golden Understanding research; PR #70 is the active Golden Understanding Regression implementation.
+Do not start H101 until UG-01..UG-09 are Green and the verified state is persisted.
 
-Next sequence:
-1. Observe main CI for merge commit `4f1363ead6c10378cbf807d29271ae315ae01c36`.
-2. If main CI is GREEN, persist the verified H100 checkpoint and continue.
-3. If main CI is RED, perform mandatory Bug Hunt → patch → rerun → verify.
-4. Continue H100 semantic/drawing evidence strengthening only after the current mainline gate is verified.
+Current active sequence:
+1. Complete UG-06 adversarial coverage and UG-07 per-domain metrics.
+2. Execute preserved Golden DWGs and independently verify SHA-256 and evidence snapshots.
+3. Keep dimensions, levels, view markers and vertical circulation UNKNOWN unless source evidence supports them.
+4. Apply reconciliation/provenance/fail-closed checks before authoritative PlanModel promotion.
+5. Run exact-head REAL CI + Runtime + Bug Hunt + required regression.
+6. Persist only verified state, then unlock H101.
 
 ## Integrated research checkpoint — 2026-10-08
 
