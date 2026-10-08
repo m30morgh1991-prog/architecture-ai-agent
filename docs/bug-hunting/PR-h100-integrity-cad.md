@@ -36,5 +36,17 @@ exact-head
 ## CI Verification
 Exact-head PR CI, Runtime Tests, and Bug Hunt must complete successfully. Real AutoCAD connectivity and live write PASS are explicitly out of scope.
 
+## Affected Contracts
+Golden manifest, Golden regression runner, Bug Hunt gate, CAD adapter boundary, PlanModel source binding.
+
+## Risk Classification
+HIGH: false PASS, source SHA mismatch, and accidental CAD write authority.
+
+## Negative Tests
+Wrong SHA, missing source, incomplete Bug Hunt evidence, unsupported capability, and unresolved findings are blocked.
+
+## Unresolved Findings
+None. Live AutoCAD connectivity remains intentionally unresolved and therefore out of scope/blocked.
+
 ## Final Decision
 BLOCKED until exact-head CI is green. This change does not promote Golden Understanding to semantic PASS and does not enable live CAD execution.
