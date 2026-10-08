@@ -4,7 +4,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from runtime.golden_understanding_runner import run_manifest_to_report, sha256_file
+from runtime.golden_understanding_runner import (
+    run_golden_case,
+    run_manifest_to_report,
+    sha256_file,
+)
+from runtime.golden_understanding_regression import GoldenCase
 
 
 class GoldenUnderstandingRunnerTests(unittest.TestCase):
@@ -47,6 +52,30 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
             self.assertEqual(case["observed"]["source_profile"]["source_class"], "ENGINEERING_VECTOR")
             self.assertEqual(case["observed"]["source_profile"]["input_mode"], "ENGINEERING_PLAN")
             self.assertIn(case["decision"], {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
+
+    def test_understanding_exception_becomes_blocked_report(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "sample.dwg"
+            source.write_bytes(b"source")
+            digest = hashlib.sha256(source.read_bytes()).hexdigest()
+            case = GoldenCase(
+                case_id="CASE-EXCEPTION",
+                source_path=str(source),
+                source_sha256=digest,
+                expected_elements=(),
+                expected_domains=("source_profile", "elements", "fail_closed_decision"),
+                expected_status="UNKNOWN",
+            )
+
+            class _FailingCore:
+                def understand(self, **_kwargs):
+                    raise ValueError("MISSING_CONSTRAINT_EVIDENCE")
+
+            report = run_golden_case(case, core=_FailingCore())
+            self.assertTrue(report["source_exists"])
+            self.assertEqual(report["observed"]["fail_closed_decision"], "BLOCKED")
+            self.assertEqual(report["decision"], "NEEDS_REVIEW")
+            self.assertIn("UNDERSTANDING_EXECUTION_BLOCKED", report["failures"])
 
 
 if __name__ == "__main__":
