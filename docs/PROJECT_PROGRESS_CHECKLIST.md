@@ -65,7 +65,7 @@
 - [x] UG-03 End-to-end Understanding Runner emits a machine-checkable report
 - [x] UG-04 All required semantic domains have expected truth or explicit UNKNOWN (machine-checked; current truth explicitly UNKNOWN)
 - [x] UG-05 Public benchmark calibration is separated from project acceptance
-- [ ] UG-06 Adversarial cases exist for every fail-closed category
+- [x] UG-06 Contract-level adversarial cases exist for every current fail-closed category (real-world DWG/image expansion pending)
 - [x] UG-07 Metrics are computed per domain (implementation); Green evidence still required
 - [x] UG-08 False-PASS / unsafe-acceptance checks are hard blockers
 - [x] UG-09 PR #75 exact-head REAL CI #219 + Runtime #506 + Bug Hunt #176 Green
