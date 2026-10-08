@@ -49,6 +49,7 @@ class GoldenRegressionReport:
     unsafe_acceptance: bool
     decision: str
     failures: tuple[str, ...]
+    unknown_domains: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if self.decision not in ALLOWED_DECISIONS:
