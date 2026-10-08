@@ -151,3 +151,22 @@ def run_manifest(
         evaluate_golden_case(case, observations.get(case.case_id, {}))
         for case in cases
     )
+
+
+def summarize_domain_metrics(
+    reports: tuple[GoldenRegressionReport, ...] | list[GoldenRegressionReport],
+) -> dict[str, Any]:
+    """Return coverage metrics without treating UNKNOWN as successful understanding."""
+    domain_names = sorted(
+        {domain for report in reports for domain in report.domain_results}
+    )
+    metrics: dict[str, Any] = {}
+    for domain in domain_names:
+        total = len(reports)
+        covered = sum(report.domain_results.get(domain, False) for report in reports)
+        metrics[domain] = {
+            "cases": total,
+            "covered": covered,
+            "coverage": covered / total if total else 0.0,
+        }
+    return metrics
