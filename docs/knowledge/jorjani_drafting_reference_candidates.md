@@ -82,3 +82,11 @@ Potential project role: MEP drawing vocabulary and coordination between architec
 - When the full text is unavailable, set content status to SOURCE_REQUIRED / NOT_YET_STUDIED.
 - Do not claim that a rule was derived from جرجانی until the relevant passage is actually reviewed.
 - Official regulations, approved project documents, and verified technical standards outrank educational references.
+
+
+## 5. Additional catalogue-confirmed acquisition lead — Grade 1 architecture, Volume 1
+
+A bookstore listing identifies **نقشه‌کشی معماری مهارت فنی درجه ۱ جلد اول**, author عبیدالله جرجانی, publisher دانش و فن, catalogued year 1397, 244 pages. The page was marked **in stock** when searched. Its listed topics include architectural plans, plans for constrained sites, stairs, mechanical/electrical services plans, construction details, interior-decoration and lighting plans, and curved/domed forms.  
+Source: https://fekrenobook.ir/architecture/interior/drafting-architecture-skill-technical-degree-1-volume-1/
+
+**Status:** CATALOG-VERIFIED / NOT YET STUDIED. This is a stronger acquisition lead than the older out-of-stock Grade 2 listing if the goal is to obtain a currently available Jorjani book. Still, keep Grade 2 at P0 for foundational drawing grammar; treat this Grade 1 architecture volume as P1 for broader architectural plan/detail coverage. Verify current stock and exact edition with the seller before purchase.
