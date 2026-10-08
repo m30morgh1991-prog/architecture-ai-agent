@@ -19,13 +19,25 @@
 
 - [x] Architecture Agent feature-to-file matrix defined (PR #65)
 - [x] Plan Understanding Semantic Chain defined
-- [ ] PR #65 — CI + Bug Hunt Green
-- [ ] PR #65 — Merge
-- [ ] Post-merge main REAL CI Green
-- [ ] Persist State after merge
+- [x] PR #65 — CI + Bug Hunt Green
+- [x] PR #65 — Merge (`176bc2ceb330e2987891ef6edbbaf33b73dc77d3`)
+- [x] Post-merge main REAL CI Green — Runtime #427, PR CI #140, Bug Hunt #97
+- [x] H100 — Input source boundary: engineering-plan vs image input
+- [x] H100 — Geometry evidence hierarchy: DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP
+- [x] H100 — PDF representation must be evidence-classified; unknown PDF is fail-closed
+- [x] H100 — Source profile carried through ExecutionRequest metadata
+- [x] 2026-10-08 — GitHub architecture-agent research consolidated
+- [x] 2026-10-08 — YQArch/AutoCAD execution adapter direction recorded
+- [x] 2026-10-08 — Iranian architectural drawing-language requirements consolidated
 - [ ] H100 — Drawing Semantics + Dimension/Annotation Evidence
 - [ ] H100 — Semantic Chain fully wired and validated
+- [ ] H100 — Evidence IDs/provenance bound to semantic facts
+- [ ] H100 — UNKNOWN / NEEDS_REVIEW / BLOCKED propagation
+- [ ] H100 — Contradiction detection
+- [ ] H100 — Missing-evidence detection
+- [ ] H100 — Golden DWG regression
 - [ ] H100 — REAL CI + Bug Hunt Green
+- [ ] H100 — Persist verified state after Green Gate
 - [ ] H101 — Architectural Intent + Program + Plan Generation + deterministic geometry/layout
 - [ ] H101 — REAL CI + Bug Hunt Green
 - [ ] H102 — Architecture IR + lint/diagnostics
@@ -47,20 +59,65 @@
 - [ ] Dimensions + extension lines
 - [ ] Elevation/level codes
 - [ ] Room/space labels
-- [ ] Section markers + direction lines
+- [ ] Section markers + direction lines + cut-plane semantics
 - [ ] Elevation markers + direction
 - [ ] Hatch semantics
 - [ ] Column/structural symbols
 - [ ] Element ↔ wall/space relations
 - [ ] Floor/level semantics
+- [ ] Floor-to-floor relationships
 - [ ] Stairs/landings and stair-count inference only with explicit consistent evidence
 - [ ] Scale/unit evidence
 - [ ] Title-block/drawing metadata evidence
+- [x] Input source classification/provenance boundary
 - [ ] Evidence IDs/provenance bound to semantic facts
 - [ ] UNKNOWN / NEEDS_REVIEW / BLOCKED propagation
 - [ ] Contradiction detection
 - [ ] Missing-evidence detection
 - [ ] Golden DWG regression
+
+## Integrated research findings
+
+### External architecture-agent patterns
+
+- JMU → scene graph / relations
+- RedrawAI → raster → wall graph → openings → validation + uncertainty
+- Draftly → semantic intent → deterministic geometry + incremental editing
+- CraftBot → knowledge/skills + feedback loop
+- dwg-bim_AI → CV segmentation → CAD/BIM/IFC
+
+Transfer rule: use these as patterns only; keep one canonical PlanModel/evidence graph.
+
+### YQArch / AutoCAD
+
+- YQArch is an Execution Adapter candidate, not the project brain.
+- Use Capability Registry + controlled adapter boundary.
+- No arbitrary LISP execution path.
+- No direct LLM → AutoCAD geometry authority.
+- PlanModel + ApprovedChangePlan remain authoritative.
+
+### Input-source boundary
+
+**DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP**
+
+Engineering-plan and image inputs remain distinct. Raster evidence may inform candidates but cannot silently become authoritative geometry.
+
+### Iranian drawing-language additions
+
+Treat the following as semantic evidence, not decoration:
+
+- conventional symbols and orientation;
+- line types/weights/layers;
+- dimensions and extension lines;
+- level/elevation codes;
+- floor relationships and vertical circulation;
+- stairs/landings/riser evidence;
+- section markers, direction lines and cut planes;
+- elevation markers/direction;
+- hatch;
+- title block;
+- scale/unit;
+- space labels and element relations.
 
 ## Plan Understanding — target semantic chain
 
