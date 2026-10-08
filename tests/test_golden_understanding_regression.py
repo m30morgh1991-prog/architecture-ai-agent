@@ -27,6 +27,9 @@ class GoldenUnderstandingRegressionTests(unittest.TestCase):
                     "provenance", "fail_closed_decision"
                 ],
                 "expected_status": "UNKNOWN",
+                "expected_domain_status": {d: "UNKNOWN" for d in [
+                    "source_profile", "elements", "geometry", "topology", "relations", "drawing_evidence", "provenance", "fail_closed_decision"
+                ]},
                 "adversarial": False,
             }],
         }
@@ -43,12 +46,20 @@ class GoldenUnderstandingRegressionTests(unittest.TestCase):
     def test_complete_observation_passes(self):
         with TemporaryDirectory() as tmp:
             case = self._case(Path(tmp))
-            observed = {domain: {"evidence": "present"} for domain in case.expected_domains}
-            observed["elements"] = ["WALL", "DOOR"]
+            observed = {domain: "UNKNOWN" for domain in case.expected_domains}
             observed["fail_closed_decision"] = "UNKNOWN"
             report = evaluate_golden_case(case, observed)
             self.assertEqual(report.decision, "PASS")
             self.assertFalse(report.failures)
+
+    def test_unknown_element_truth_does_not_require_element_inventory(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {domain: "UNKNOWN" for domain in case.expected_domains}
+            observed["fail_closed_decision"] = "UNKNOWN"
+            report = evaluate_golden_case(case, observed)
+            self.assertEqual(report.decision, "PASS")
+            self.assertFalse(any(failure.startswith("MISSING_ELEMENT:") for failure in report.failures))
 
     def test_empty_domain_requires_review(self):
         with TemporaryDirectory() as tmp:
@@ -64,8 +75,6 @@ class GoldenUnderstandingRegressionTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             case = self._case(Path(tmp))
             observed = {domain: "UNKNOWN" for domain in case.expected_domains}
-            observed["elements"] = ["WALL", "DOOR"]
-            observed["fail_closed_decision"] = "UNKNOWN"
             report = evaluate_golden_case(case, observed)
             self.assertEqual(report.decision, "PASS")
             self.assertFalse(report.failures)

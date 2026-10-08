@@ -42,7 +42,10 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                         "relations", "drawing_evidence", "provenance",
                         "fail_closed_decision"
                     ],
-                    "expected_status": "UNKNOWN"
+                    "expected_status": "UNKNOWN",
+                    "expected_domain_status": {d: "UNKNOWN" for d in [
+                        "source_profile", "elements", "geometry", "topology", "relations", "drawing_evidence", "provenance", "fail_closed_decision"
+                    ]}
                 }]
             }), encoding="utf-8")
             report = run_manifest_to_report(manifest)
@@ -74,7 +77,9 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                     "source_sha256": digest,
                     "expected_elements": [],
                     "expected_domains": ["source_profile", "elements", "fail_closed_decision"],
-                    "expected_status": "UNKNOWN"
+                    "expected_status": "UNKNOWN",
+                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
+                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"}
                 }]
             }), encoding="utf-8")
             completed = subprocess.run(
@@ -110,6 +115,7 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                 expected_elements=(),
                 expected_domains=("source_profile", "elements", "fail_closed_decision"),
                 expected_status="UNKNOWN",
+                expected_domain_status={"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
             )
 
             class _FailingCore:
