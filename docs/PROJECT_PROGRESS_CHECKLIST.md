@@ -218,3 +218,10 @@ Notion is not a governance or Green-Gate source of truth.
 - AutoCAD-MCP: provider-neutral boundary + read-only source-identity adapter merged; live write remains blocked.
 - Bug Hunt evidence contract now requires affected contracts, risk classification, negative tests, unresolved findings, plus existing fail-closed/exact-head evidence.
 - H101 remains locked until remaining Golden semantic/adversarial gates are Green.
+
+
+## 2026-10-08 — H100 PR #76 checkpoint
+- PR #76 merged: `8880b1890d5094771662464b48a294c9563a3059`
+- Exact-head gates: PR CI #225 / Runtime #512 / Bug Hunt #182 = SUCCESS
+- Mainline checkpoint regression coverage is merged.
+- Semantic Golden ground truth and remaining adversarial gates remain pending.
