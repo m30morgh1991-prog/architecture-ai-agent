@@ -35,7 +35,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - PDF must be classified by evidence as vector or raster; unknown representation remains fail-closed.
 - `runtime/input_source_contract.py` defines the source classes and trust ordering.
 - `runtime/request_contract.py` carries optional `source_profile` metadata.
-- H100 is **not complete yet**; PR #70 Golden Understanding Regression foundation is merged to main at `2c58783ae03ad755688107b2875f08180f5dc3b0`, and PR #71 standalone Golden Understanding runner is merged at `671133d4ab8941b2a38c79597769d8df2b18269e`. Real Golden DWG execution, source hashing/ground truth, UG-03/04/06, and UG-09/UG-10 remain incomplete. Golden Understanding Regression, adversarial coverage, real Golden DWG execution, source hashing, and UG-09 Green Gate remain incomplete.
+- H100 is **not complete yet**; PR #70, #71, #72, #73, #74 and #75 are merged. PR #75 merge is `c056c31ff97db532381c7466388200ff3cb62aeb`. Exact-head PR #75 gates: PR CI #219, Runtime #506, Bug Hunt #176 — completed/success. Golden source SHA-256 values are now persisted and byte-verified. A dependency-free read-only CAD inspection adapter is merged behind the provider-neutral boundary. Full Golden semantic ground truth, adversarial coverage, and the remaining UG gates are still incomplete; H101 remains locked.
 
 ## Consolidated architecture baseline
 ### Product
@@ -107,4 +107,4 @@ The project now carries forward the latest research without changing the Source 
 **Understanding the plan comes before generating or editing the plan.**
 
 ### Current H100 work
-Finish source provenance/evidence binding, drawing-language semantics, contradiction/missing-evidence handling, fail-closed propagation and Golden DWG regression. H100 is not Green until exact-head REAL CI, Bug Hunt and required regression evidence are completed/successful.
+Finish source provenance/evidence binding, drawing-language semantics, contradiction/missing-evidence handling, fail-closed propagation, adversarial Golden coverage, and semantic ground truth. The persisted Golden hashes prove source identity only; they do not promote uncertain understanding to PASS. H101 remains locked until UG-01..UG-09 are actually Green.
