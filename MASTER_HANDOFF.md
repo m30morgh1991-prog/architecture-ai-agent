@@ -145,3 +145,16 @@ PR #83 merged at `d92eb9d3f63819e744b1c901504d447508cd9cab` after exact head `ce
 4. Expand layer/block/text/dimension/level/section semantics without allowing unsupported inference to PASS.
 5. Run exact-head REAL CI + Runtime + Bug Hunt + Golden regression before every gate transition.
 6. Persist only verified state; H101 remains locked.
+
+
+## H100 PR #84 checkpoint — DWG evidence reconciliation
+
+PR #84 merged at `2038ea392fcaeccafc67f8d5ea695a16ff34a918` after repaired exact head `bd86bb20141fba44cc25c1c93aee44b00645125d` passed PR CI #258, Runtime #545, and Bug Hunt #215. The bridge is source-bound and read-only: it normalizes DWG semantic candidates, text, and dimensions into the existing DrawingEvidence contract, while generic geometry remains non-authoritative and no second PlanModel is introduced. The first Bug Hunt failure was governance-format-only and was fixed before merge. Semantic Golden truth is still unresolved; real-world adversarial fixtures are still pending; H101 remains locked. Post-merge workflows for `2038ea392fcaeccafc67f8d5ea695a16ff34a918` are not exposed, so post-merge Green is not claimed.
+
+### Next execution order
+1. Bind normalized evidence to CandidateFacts with explicit DIRECT/DERIVED/INFERRED provenance and source SHA continuity.
+2. Add contradiction/negative-evidence handling at the DWG evidence boundary.
+3. Expand conservative level/section/scale/unit/drawing-language semantics.
+4. Build real-world transformed/defective Golden fixtures and expected fail-closed outcomes.
+5. Run exact-head REAL CI + Runtime + Bug Hunt + required Golden regression before each gate transition.
+6. Persist only verified state; keep H101 locked until H100 Green evidence is complete.
