@@ -225,3 +225,10 @@ Notion is not a governance or Green-Gate source of truth.
 - Exact-head gates: PR CI #225 / Runtime #512 / Bug Hunt #182 = SUCCESS
 - Mainline checkpoint regression coverage is merged.
 - Semantic Golden ground truth and remaining adversarial gates remain pending.
+
+
+## 2026-10-08 — H100 UG-04 checkpoint
+- PR #78 merged: `79790fce10ec89b64dfbe613e5dbb1b321eadb76`
+- Exact-head gates: PR CI #229 / Runtime #516 / Bug Hunt #186 = SUCCESS
+- UG-04 per-domain explicit status contract implemented; all current statuses are UNKNOWN.
+- UG-06 adversarial coverage and semantic ground truth remain pending.
