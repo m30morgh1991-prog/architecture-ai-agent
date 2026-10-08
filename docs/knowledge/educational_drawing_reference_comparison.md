@@ -180,3 +180,27 @@ Until the newer books are actually studied:
 The most valuable next step is **not collecting many books blindly**. It is obtaining and studying the 1402 same-series Volume 1 first, then using the 1403 architecture-specific book and the 1402 MEP volume to fill identified gaps.
 
 This keeps the knowledge base traceable and prevents source proliferation without measurable benefit to the Plan Understanding Core.
+
+
+## 7. Jorjani vocational drafting references — new research findings
+
+**Primary lead:** نقشه‌کشی عمومی ساختمان مهارت فنی درجه ۲, عبیدالله جرجانی, دانش و فن, catalogued year 1400, 816 pages. The catalog listing is currently marked out of stock. The listed topic groups include line types and geometric constructions, orthographic views/sections, drawing symbols, building plans, stairs, axes/grids, foundation plans, sections/dimensioning, elevations/schedules, roof slope plans, and site/location plans. Source: https://fekrenobook.ir/architecture/drafting/drafting-general-building-skill-technical-degree-2/
+
+A historical vocational teaching reference lists these related Jorjani titles:
+- نقشه‌کشی ساختمان مهارت فنی درجه ۱ — اسکلت فلزی / اسکلت بتنی
+- نقشه‌کشی ساختمان مهارت فنی درجه ۱ — اتوکد
+- نقشه‌کشی عمومی ساختمان مهارت فنی درجه ۲ — جلد اول و جلد دوم
+
+Source: https://g-naghshekeshi.blogfa.com/post/124
+
+A separate catalog record identifies a related AutoCAD volume titled نقشه‌کشی معماری درجه ۱ جلد ۳ (اتوکد ۲ بعدی و ۳ بعدی), publisher دانش و فن, ISBN 9789642945146. The exact title/edition relationship to the historical course title is not confirmed. Source: https://oxinbook.com/book/%D9%86%D9%82%D8%B4%D9%87-%DA%A9%D8%B4%DB%8C-%D9%85%D8%B9%D9%85%D8%A7%D8%B1%DB%8C-%D8%AF%D8%B1%D8%AC%D9%871%D8%AC%D9%84%D8%AF3%28%D8%A7%D8%AA%D9%88%DA%A9%D8%AF2%D8%A8%D8%B9%D8%AF%DB%8C-%D9%883%D8%A8%D8%B9%D8%AF%DB%8C%29%D8%B9%D8%A8%DB%8C%D8%AF%D8%A7%D9%84%D9%84%D9%87-%D8%AC%D8%B1%D8%AC%D8%A7%D9%86%DB%8C
+
+A historical bibliography also attributes a title about mechanical/electrical building-services drawings to Jorjani, Tehran, 1386, but the exact edition and full contents remain unverified. Source: https://mohandesi-omran.blogfa.com/post/480
+
+### Decision
+
+- **P0:** locate/obtain and study the 1400 catalogue-listed Grade 2 book first; its listed scope most directly supports foundational drawing-grammar and evaluation fixtures.
+- **P1:** verify the Grade 1 steel/concrete title and the mechanical/electrical services title for cross-discipline drawing interpretation.
+- **P2:** verify the AutoCAD volume identity/edition; it is contextual for future CAD output but does not change the MVP's current no-DWG-editing boundary.
+
+A dedicated record is maintained in `docs/knowledge/jorjani_drafting_reference_candidates.md`. All Jorjani sources remain CATALOG-VERIFIED or BIBLIOGRAPHIC LEAD / NOT YET STUDIED; no chapter-level rule is promoted without studying the actual text.
