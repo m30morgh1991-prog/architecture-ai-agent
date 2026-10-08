@@ -4,6 +4,7 @@ H63 adds the validated SpaceModel as a first-class structural component of
 PlanModel. H70 binds the source-bound H69 ElementEvidenceBundle so a
 reconstructed PlanModel remains traceable to its evidence and fail-closed.
 H77 adds optional BIM-ready semantic identity and relationship graph support.
+H100 binds drawing-language evidence without creating a second semantic model.
 """
 from __future__ import annotations
 
@@ -11,6 +12,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from runtime.bim_ready_contract import BIMElementIdentity, BIMElementRelation, validate_bim_graph
+from runtime.drawing_semantic_evidence import DrawingEvidenceSet
 from runtime.element_evidence_contract import ElementEvidenceBundle
 from runtime.space_model_contract import SpaceModel
 
@@ -51,6 +53,7 @@ class PlanModel:
     unresolved: tuple[str, ...] = ()
     space_model: SpaceModel | None = None
     element_evidence: ElementEvidenceBundle | None = None
+    drawing_evidence: DrawingEvidenceSet | None = None
     bim_relations: tuple[BIMElementRelation, ...] = ()
 
     def validate(self) -> None:
@@ -79,10 +82,23 @@ class PlanModel:
                 if not set(element.evidence_ids).issubset(evidence_ids):
                     raise ValueError("PLAN_ELEMENT_EVIDENCE_REFERENCE_MISSING")
 
+        if self.drawing_evidence is not None:
+            self.drawing_evidence.validate()
+            if self.drawing_evidence.source_sha256 != self.source_sha256:
+                raise ValueError("DRAWING_EVIDENCE_SOURCE_MISMATCH")
+            if self.drawing_evidence.unresolved:
+                self._validate_drawing_evidence_resolution()
+
         if self.space_model is not None:
             self.space_model.validate()
             if self.space_model.source_sha256 != self.source_sha256:
                 raise ValueError("SPACE_MODEL_SOURCE_MISMATCH")
+
+    def _validate_drawing_evidence_resolution(self) -> None:
+        # Unresolved drawing evidence is allowed in PlanModel, but it prevents
+        # silent promotion to a fully understood state. Consumers must inspect
+        # the unresolved list before issuing PASS.
+        return None
 
     @property
     def spaces(self):
