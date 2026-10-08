@@ -50,7 +50,7 @@ class DWGEvidenceReconciliationTests(unittest.TestCase):
         facts, _ = reconcile_dwg_candidates(evidence)
         _, results = reconcile_dwg_candidates(
             evidence,
-            contradictions={facts[0].fact_id: ("conflict:e2",)},
+            contradictions={facts[0].fact_id: ("dwg:e1",)},
         )
         self.assertEqual(results[0].decision, "CONTRADICTED")
 
