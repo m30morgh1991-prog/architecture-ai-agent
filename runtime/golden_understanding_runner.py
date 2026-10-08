@@ -13,7 +13,7 @@ from runtime.golden_understanding_regression import (
     summarize_domain_metrics,
 )
 from runtime.plan_understanding_core import PlanUnderstandingCore
-from runtime.input_source_contract import classify_source
+from runtime.input_source_contract import SourceProfile, classify_source
 
 
 def sha256_file(path: str | Path) -> str:
@@ -24,23 +24,23 @@ def sha256_file(path: str | Path) -> str:
     return digest.hexdigest()
 
 
+def _source_profile_observation(profile: SourceProfile, source_sha256: str) -> dict[str, Any]:
+    return {
+        "sha256": source_sha256,
+        "source_class": profile.source_class.value,
+        "input_mode": profile.input_mode.value,
+        "geometry_trust_rank": profile.geometry_trust_rank,
+        "requires_pdf_inspection": profile.requires_pdf_inspection,
+    }
+
+
 def _domain_observation(result, source_sha256: str, source_path: str) -> dict[str, Any]:
     detection = result.detection
     model = result.plan_model
-    elements = [element.element_type for element in model.elements]
-
     source_profile = classify_source(source_path)
     return {
-        "source_profile": {
-            "sha256": source_sha256,
-            "source_class": source_profile.source_class.value,
-            "input_mode": source_profile.input_mode.value,
-            "geometry_trust_rank": source_profile.geometry_trust_rank,
-            "requires_pdf_inspection": source_profile.requires_pdf_inspection,
-            "detector_id": detection.get("detector_id"),
-            "status": detection.get("status"),
-        },
-        "elements": elements,
+        "source_profile": _source_profile_observation(source_profile, source_sha256),
+        "elements": [element.element_type for element in model.elements],
         "geometry": detection.get("dwg_geometry", {}),
         "topology": {
             "spaces": detection.get("spaces", ()),
@@ -74,15 +74,35 @@ def _domain_observation(result, source_sha256: str, source_path: str) -> dict[st
     }
 
 
-def _blocked_observation(reason: str) -> dict[str, Any]:
+def _blocked_observation(
+    reason: str,
+    *,
+    source_sha256: str | None = None,
+    source_profile: SourceProfile | None = None,
+) -> dict[str, Any]:
+    profile_value: Any
+    if source_profile is not None and source_sha256 is not None:
+        profile_value = _source_profile_observation(source_profile, source_sha256)
+    else:
+        profile_value = "UNKNOWN"
     return {
-        domain: "UNKNOWN" for domain in REQUIRED_DOMAINS
-    } | {
-        "uncertainties": (reason,),
-        "missing_evidence": (reason,),
-        "contradictions": (),
-        "fail_closed_decision": "BLOCKED",
+        "source_profile": profile_value,
         "elements": (),
+        "geometry": "UNKNOWN",
+        "topology": "UNKNOWN",
+        "relations": "UNKNOWN",
+        "drawing_evidence": "UNKNOWN",
+        "text": "UNKNOWN",
+        "dimensions": "UNKNOWN",
+        "levels": "UNKNOWN",
+        "view_markers": "UNKNOWN",
+        "vertical_circulation": "UNKNOWN",
+        "bim_mapping": "UNKNOWN",
+        "provenance": "UNKNOWN",
+        "uncertainties": (reason,),
+        "contradictions": (),
+        "missing_evidence": (reason,),
+        "fail_closed_decision": "BLOCKED",
     }
 
 
@@ -120,8 +140,13 @@ def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None)
         )
 
     source_sha256 = sha256_file(path)
+    source_profile = classify_source(str(path))
     if case.source_sha256 is not None and source_sha256 != case.source_sha256:
-        observed = _blocked_observation("SOURCE_SHA256_MISMATCH")
+        observed = _blocked_observation(
+            "SOURCE_SHA256_MISMATCH",
+            source_sha256=source_sha256,
+            source_profile=source_profile,
+        )
         return _case_report(
             case,
             observed,
@@ -137,12 +162,12 @@ def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None)
             model_id=f"golden:{case.case_id}",
         )
     except Exception as exc:
-        # A Golden runner must never turn an execution/contract exception into
-        # a test-process crash. Preserve the failure as an explicit BLOCKED
-        # observation so the regression report remains machine-checkable and
-        # fail-closed.
         reason = f"UNDERSTANDING_EXECUTION_BLOCKED:{type(exc).__name__}:{exc}"
-        observed = _blocked_observation(reason)
+        observed = _blocked_observation(
+            reason,
+            source_sha256=source_sha256,
+            source_profile=source_profile,
+        )
         return _case_report(
             case,
             observed,
@@ -183,10 +208,7 @@ def run_manifest_to_report(
             ),
             "domain_metrics": summarize_domain_metrics(
                 tuple(
-                    evaluate_golden_case(
-                        case,
-                        report["observed"],
-                    )
+                    evaluate_golden_case(case, report["observed"])
                     for case, report in zip(cases, reports)
                 )
             ),
