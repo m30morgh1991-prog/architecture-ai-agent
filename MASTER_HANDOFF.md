@@ -191,3 +191,17 @@ Next: level/elevation → section marker/cut-plane/direction → scale/unit → 
 PR #90 merged at `c4011e0a8b67b3da41b755dfb485c1f2b60a71a0`. Exact head `5ab500c72151e64f8a63c80c211c3d5522ed7cb3` passed PR CI #276, Runtime #563 and Bug Hunt #233. Level extraction remains conservative and source-bound; numeric text alone is not promoted, and stair/floor inference remains pending.
 
 Next: section marker/cut-plane/direction → scale/unit → Iranian drawing language → real-world adversarial Golden fixtures.
+
+
+## H100 PR #91 checkpoint — merged state
+
+PR #91 was merged at \`2dfcd893ed97028f69982477dc7d9d6741eff9ca\` after exact-head \`1d6eb08b16abaf60b2c2bd5ed390db962c38b864\` passed PR CI #287, Runtime #574, and Bug Hunt #244. It is a documentation checkpoint only; it does not close H100 or unlock H101. No post-merge mainline Green is claimed.
+
+## H100 PR #93 — current implementation branch
+
+- Branch: \`feature/h100-section-marker-semantics\`.
+- Scope: typed, source-bound, read-only section/cut-plane/elevation/detail marker candidates from explicit contextual text or explicitly named marker blocks.
+- False-positive boundary: bare \`A-A\` is not enough; section marker presence does not prove direction, cut-plane endpoints, or view geometry.
+- Source SHA-256 and DIRECT provenance are carried into each emitted candidate.
+- Tests cover Persian section context, bare-label rejection, named marker blocks, and fail-closed direction/cut-plane status.
+- Run exact-head PR CI + Runtime + Bug Hunt and preserve Golden regression before merge. H101 stays locked.

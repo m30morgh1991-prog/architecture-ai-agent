@@ -321,3 +321,16 @@ Notion is not a governance or Green-Gate source of truth.
 - [ ] H100 semantic Golden ground truth / authoritative understanding
 - [ ] H100 UG-10 Green and H101 unlock
 - Post-merge workflow evidence for PR #90 is not currently exposed.
+
+
+## 2026-10-09 — H100 section-marker evidence continuation
+
+- [x] PR #91 merged at \`2dfcd893ed97028f69982477dc7d9d6741eff9ca\`; exact-head PR CI #287 / Runtime #574 / Bug Hunt #244 = SUCCESS.
+- [ ] PR #93 — explicit section/cut-plane/elevation/detail marker evidence implementation (branch in progress; gates not yet verified)
+- [ ] Reject bare section-like labels without contextual evidence
+- [ ] Keep marker direction and cut-plane geometry UNKNOWN until geometric/source evidence supports them
+- [ ] Scale/unit evidence
+- [ ] Iranian drawing-language semantic coverage
+- [ ] Real-world transformed/defective Golden fixtures
+- [ ] H100 semantic Golden ground truth / authoritative understanding
+- [ ] H100 UG-10 Green and H101 unlock

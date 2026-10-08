@@ -73,6 +73,50 @@ def _level_candidate(text: str, handle: int, source_sha256: str, source_units: A
         "source_sha256": source_sha256,
     }
 
+
+_SECTION_CONTEXT_RE = re.compile(
+    r"(?:\b(?:SECTION|SECT\.?|CUT[\s_-]*PLANE|ELEVATION|ELEV\.?|DETAIL)\b|مقطع|برش|جزئیات)",
+    re.IGNORECASE,
+)
+_SECTION_LABEL_RE = re.compile(
+    r"(?P<label>(?:[A-Z]{1,2}|\d{1,2})\s*[-–—/]\s*(?:[A-Z]{1,2}|\d{1,2}))",
+    re.IGNORECASE,
+)
+_SECTION_BLOCK_RE = re.compile(r"(?:SECTION|SECT|CUT[\s_-]*PLANE|ELEVATION|DETAIL)", re.IGNORECASE)
+
+def _section_marker_candidate(
+    text: str, handle: int, source_sha256: str, evidence_kind: str = "TEXT"
+) -> dict[str, Any] | None:
+    """Record explicit marker evidence only; never infer direction or cut-plane geometry."""
+    raw = " ".join(str(text).split())
+    if not raw:
+        return None
+    label_match = _SECTION_LABEL_RE.search(raw)
+    context = bool(_SECTION_CONTEXT_RE.search(raw))
+    block_context = evidence_kind == "BLOCK" and bool(_SECTION_BLOCK_RE.search(raw))
+    if not ((context and label_match) or block_context):
+        return None
+    if re.search(r"(?:CUT[\s_-]*PLANE|برش)", raw, re.IGNORECASE):
+        marker_type = "CUT_PLANE_MARKER"
+    elif re.search(r"(?:ELEVATION|ELEV\.?)", raw, re.IGNORECASE):
+        marker_type = "ELEVATION_MARKER"
+    elif re.search(r"(?:DETAIL|جزئیات)", raw, re.IGNORECASE):
+        marker_type = "DETAIL_MARKER"
+    else:
+        marker_type = "SECTION_MARKER"
+    return {
+        "handle": handle,
+        "raw_text": raw,
+        "marker_type": marker_type,
+        "label": re.sub(r"\s+", "", label_match.group("label")).upper() if label_match else "",
+        "evidence_kind": evidence_kind,
+        "direction_status": "UNKNOWN",
+        "cut_plane_status": "UNKNOWN",
+        "provenance": "DIRECT",
+        "status": "SUPPORTED",
+        "source_sha256": source_sha256,
+    }
+
 def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     import ezdwg
     source = Path(path)
@@ -81,44 +125,50 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     entities = list(doc.modelspace().query())
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
     geometry_counts = Counter()
-    text_evidence, dimension_evidence, level_evidence = [], [], []
+    text_evidence, dimension_evidence, level_evidence, section_marker_evidence = [], [], [], []
     candidates = {k: [] for k in SEMANTIC_TOKENS}
 
     for entity in entities:
         dxftype = str(getattr(entity, "dxftype", "UNKNOWN"))
         type_counts[dxftype] += 1
+        handle = int(getattr(entity, "handle", 0))
         layer = _value(entity, "layer")
         if layer:
             layer_name = str(layer); layer_counts[layer_name] += 1
             for semantic in _token_hits(layer_name):
                 candidates[semantic].append({"kind":"LAYER_NAME","value":layer_name,
-                    "handle":int(getattr(entity,"handle",0)),"provenance":"DIRECT"})
+                    "handle":handle,"provenance":"DIRECT"})
         if dxftype in {"INSERT","MINSERT"}:
             name = _value(entity, "name")
             if name:
                 block_name = str(name); block_counts[block_name] += 1
                 for semantic in _token_hits(block_name):
                     candidates[semantic].append({"kind":"BLOCK_NAME","value":block_name,
-                        "handle":int(getattr(entity,"handle",0)),"provenance":"DIRECT"})
+                        "handle":handle,"provenance":"DIRECT"})
+                section_marker = _section_marker_candidate(block_name, handle, source_sha256, "BLOCK")
+                if section_marker:
+                    section_marker_evidence.append(section_marker)
         if dxftype in {"LINE","LWPOLYLINE","ARC","CIRCLE","ELLIPSE","SPLINE","HATCH"}:
             geometry_counts[dxftype] += 1
         if dxftype in {"TEXT","MTEXT","ATTRIB","ATTDEF"}:
-            text = str(getattr(entity,"text",None) or _value(entity,"text",""))
-            handle = int(getattr(entity,"handle",0))
+            text = str(getattr(entity, "text", None) or _value(entity, "text", ""))
             text_evidence.append({"handle":handle,"type":dxftype,
                 "text":text,
-                "insert":_jsonable(_value(entity,"insert")),
-                "rotation":_jsonable(_value(entity,"rotation")),"provenance":"DIRECT"})
-            level = _level_candidate(text, handle, source_sha256, getattr(doc,"units",None))
+                "insert":_jsonable(_value(entity, "insert")),
+                "rotation":_jsonable(_value(entity, "rotation")),"provenance":"DIRECT"})
+            level = _level_candidate(text, handle, source_sha256, getattr(doc, "units", None))
             if level:
                 level_evidence.append(level)
+            section_marker = _section_marker_candidate(text, handle, source_sha256)
+            if section_marker:
+                section_marker_evidence.append(section_marker)
         if dxftype == "DIMENSION":
-            dimension_evidence.append({"handle":int(getattr(entity,"handle",0)),"type":dxftype,
-                "text":str(_value(entity,"text","")),
-                "actual_measurement":_jsonable(_value(entity,"actual_measurement")),
-                "defpoint":_jsonable(_value(entity,"defpoint")),
-                "defpoint2":_jsonable(_value(entity,"defpoint2")),
-                "defpoint3":_jsonable(_value(entity,"defpoint3")),"provenance":"DIRECT"})
+            dimension_evidence.append({"handle":handle,"type":dxftype,
+                "text":str(_value(entity, "text", "")),
+                "actual_measurement":_jsonable(_value(entity, "actual_measurement")),
+                "defpoint":_jsonable(_value(entity, "defpoint")),
+                "defpoint2":_jsonable(_value(entity, "defpoint2")),
+                "defpoint3":_jsonable(_value(entity, "defpoint3")),"provenance":"DIRECT"})
 
     semantic_support = {semantic:{
         "status":"SUPPORTED" if rows else "UNKNOWN",
@@ -140,6 +190,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "block_counts":dict(sorted(block_counts.items())),
         "geometry_counts":dict(sorted(geometry_counts.items())),
         "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
+        "section_markers":section_marker_evidence,
         "semantic_candidates":semantic_support,"header":header,
         "authority":{"read_only":True,"semantic_authority":False,
             "generic_linework_is_not_architectural_truth":True},
