@@ -1,0 +1,67 @@
+{
+  "schema": "golden-adversarial-v1",
+  "version": "2026-10-08",
+  "policy": "FAIL_CLOSED",
+  "cases": [
+    {
+      "case_id": "ADV-SOURCE-MISSING",
+      "category": "SOURCE_REQUIRED",
+      "trigger": "source_missing",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "case_id": "ADV-SOURCE-SHA-MISMATCH",
+      "category": "SOURCE_IDENTITY",
+      "trigger": "source_sha_mismatch",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "case_id": "ADV-DETECTION-UNCERTAIN",
+      "category": "DETECTION_UNCERTAIN",
+      "trigger": "element_identity_uncertain",
+      "expected_decision": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "ADV-CONTRADICTION",
+      "category": "CONTRADICTION",
+      "trigger": "conflicting_evidence",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "case_id": "ADV-MISSING-EVIDENCE",
+      "category": "MISSING_EVIDENCE",
+      "trigger": "required_evidence_missing",
+      "expected_decision": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "ADV-LOCKED-ELEMENT-UNCERTAIN",
+      "category": "LOCKED_ELEMENT_UNCERTAIN",
+      "trigger": "protected_element_uncertain",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "case_id": "ADV-SCALE-UNKNOWN",
+      "category": "SCALE_UNKNOWN",
+      "trigger": "scale_or_unit_unknown",
+      "expected_decision": "NEEDS_REVIEW"
+    },
+    {
+      "case_id": "ADV-EDITOR-GUARD",
+      "category": "EDITOR_GUARD_UNVERIFIED",
+      "trigger": "write_capability_unverified",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "case_id": "ADV-POST-EDIT-MISSING",
+      "category": "POST_EDIT_DETECTION_MISSING",
+      "trigger": "post_edit_evidence_missing",
+      "expected_decision": "BLOCKED"
+    },
+    {
+      "case_id": "ADV-UNSUPPORTED-CAPABILITY",
+      "category": "UNSUPPORTED_CAPABILITY",
+      "trigger": "adapter_capability_missing",
+      "expected_decision": "BLOCKED"
+    }
+  ]
+}
