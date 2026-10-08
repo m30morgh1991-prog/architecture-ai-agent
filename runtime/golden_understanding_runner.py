@@ -10,6 +10,7 @@ from runtime.golden_understanding_regression import (
     GoldenCase,
     evaluate_golden_case,
     load_manifest,
+    summarize_domain_metrics,
 )
 from runtime.plan_understanding_core import PlanUnderstandingCore
 
@@ -147,6 +148,15 @@ def run_manifest_to_report(
             ),
             "unsafe_acceptance_count": sum(
                 report["unsafe_acceptance"] for report in reports
+            ),
+            "domain_metrics": summarize_domain_metrics(
+                tuple(
+                    evaluate_golden_case(
+                        case,
+                        report["observed"],
+                    )
+                    for case, report in zip(cases, reports)
+                )
             ),
         },
     }
