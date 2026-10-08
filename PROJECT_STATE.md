@@ -94,3 +94,10 @@ Current active sequence:
 - Exact-head PR CI #229, Runtime #516, Bug Hunt #186 = SUCCESS.
 - Every required Golden semantic domain now has explicit machine-readable `expected_domain_status`; current truth is explicitly UNKNOWN.
 - UG-04 is implementation-complete; semantic truth remains unresolved and fail-closed.
+
+
+### H100 UG-06 checkpoint — PR #80
+- PR #80 merged at `d0f40f2fac5f1df20c3bbfbd96eaeab966002e03`.
+- Exact-head PR CI #233, Runtime #520, Bug Hunt #190 = SUCCESS.
+- A machine-checkable adversarial manifest now covers every current fail-closed category with explicit non-PASS expected decisions.
+- These are contract-level adversarial fixtures; real-world image/DWG adversarial fixtures remain a follow-up and H101 remains locked.
