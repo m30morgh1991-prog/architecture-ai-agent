@@ -203,6 +203,5 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - Initial review covers: grade-10 architectural drafting, Principles of Building Drawing/Reading (Navid Soleimani-Pour, 1396), a short phase-2 plan-drawing chapter, a phase-2 drawing-preparation guide, the Archline phase-2 PDF, and the Design Architecture vocational textbook.
 - Main implementation candidates: Iranian drawing-symbol vocabulary; dimension/scale evidence; plan-section-elevation-roof-detail relations; phase-2 drawing-set completeness; stair/level evidence; cross-view coordination; source/page/confidence traceability; and ambiguity/missing-view/contradiction tests.
 - The two 31-page phase-2 PDFs appear to overlap strongly, but exact duplication is not proven; preserve as separate sources until compared.
-- The 2204251.pdf file was identified as unrelated medical content and excluded from project research/documentation.
 - This is an initial text/index review, not a full visual audit or an implementation claim. No runtime code or H100 acceptance status is changed.
 - H100 remains active; H101 remains locked. This research must be mapped to actual repository contracts and tests before implementation.
