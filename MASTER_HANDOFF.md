@@ -90,3 +90,21 @@ Durable repository-backed continuation point for Architecture AI Agent.
 4. Preserve one canonical PlanModel/evidence chain; do not create duplicate semantic graphs.
 5. Run REAL CI + Bug Hunt + required regression on the H100 head.
 6. Persist verified state, then continue to H101 only after Green Gate evidence.
+
+
+## Integrated research checkpoint — 2026-10-08
+
+The project now carries forward the latest research without changing the Source of Truth.
+
+### Research-derived architecture rules
+- Use JMU-style explicit relations, RedrawAI-style staged raster reconstruction/uncertainty, Draftly-style semantic-intent-to-deterministic-geometry separation, CraftBot-style knowledge/feedback loops, and dwg-bim_AI-style CV→CAD/BIM bridging only as implementation patterns.
+- YQArch/AutoCAD belongs behind a future Capability Registry / Execution Adapter. It is not the semantic authority.
+- Do not allow arbitrary LISP or direct LLM-generated AutoCAD geometry to bypass PlanModel, ApprovedChangePlan and validation.
+- Treat Iranian drawing conventions as semantic evidence: symbols, orientation, line weights/layers, dimensions, level codes, floor/stair relations, section/elevation markers and directions, cut planes, hatch, scale/unit and title-block metadata.
+- Section markers/direction are semantic relations; level codes can constrain floor and vertical-circulation reasoning when evidence is complete and consistent.
+
+### Current invariant
+**Understanding the plan comes before generating or editing the plan.**
+
+### Current H100 work
+Finish source provenance/evidence binding, drawing-language semantics, contradiction/missing-evidence handling, fail-closed propagation and Golden DWG regression. H100 is not Green until exact-head REAL CI, Bug Hunt and required regression evidence are completed/successful.
