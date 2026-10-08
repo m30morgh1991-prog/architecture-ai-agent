@@ -40,6 +40,28 @@ class TestDwgSemanticEvidence(unittest.TestCase):
         self.assertEqual(result["text"][0]["provenance"],"DIRECT")
         self.assertEqual(result["dimensions"][0]["actual_measurement"],300.0)
 
+
+    def test_explicit_level_code_becomes_direct_level_evidence(self):
+        doc=_Doc([_Entity("TEXT",10,layer="A-LEVEL",text="کد ارتفاعی +0.15m")])
+        with tempfile.TemporaryDirectory() as td:
+            source=Path(td)/"sample.dwg"; source.write_bytes(b"level")
+            with patch.dict("sys.modules",{"ezdwg":_Ezdwg(doc)}):
+                result=extract_dwg_evidence(source)
+        self.assertEqual(len(result["levels"]), 1)
+        self.assertEqual(result["levels"][0]["status"], "SUPPORTED")
+        self.assertEqual(result["levels"][0]["elevation"], 0.15)
+        self.assertEqual(result["levels"][0]["unit"], "m")
+        self.assertEqual(result["levels"][0]["provenance"], "DIRECT")
+        self.assertEqual(result["levels"][0]["source_sha256"], hashlib.sha256(b"level").hexdigest())
+
+    def test_uncontextualized_number_is_not_promoted_to_level(self):
+        doc=_Doc([_Entity("TEXT",11,layer="A-NOTES",text="300")])
+        with tempfile.TemporaryDirectory() as td:
+            source=Path(td)/"sample.dwg"; source.write_bytes(b"unknown-level")
+            with patch.dict("sys.modules",{"ezdwg":_Ezdwg(doc)}):
+                result=extract_dwg_evidence(source)
+        self.assertEqual(result["levels"][0]["status"] if result["levels"] else "NONE", "UNKNOWN")
+
     def test_missing_direct_semantic_evidence_stays_unknown(self):
         doc=_Doc([_Entity("LINE",1,layer="A-GENERIC")])
         with tempfile.TemporaryDirectory() as td:
