@@ -54,6 +54,34 @@ class DWGEvidenceReconciliationTests(unittest.TestCase):
         )
         self.assertEqual(results[0].decision, "CONTRADICTED")
 
+
+    def test_missing_contradiction_reference_fails_closed(self):
+        evidence = self.make_set()
+        facts, _ = reconcile_dwg_candidates(evidence)
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_FACT_CONTRADICTION_REFERENCE_MISSING"):
+            reconcile_dwg_candidates(
+                evidence,
+                contradictions={facts[0].fact_id: ("foreign:evidence",)},
+            )
+
+    def test_missing_required_evidence_reference_fails_closed(self):
+        evidence = self.make_set()
+        facts, _ = reconcile_dwg_candidates(evidence)
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_FACT_REQUIRED_EVIDENCE_REFERENCE_MISSING"):
+            reconcile_dwg_candidates(
+                evidence,
+                required_evidence={facts[0].fact_id: ("missing:required",)},
+            )
+
+    def test_support_and_contradiction_overlap_fails_closed(self):
+        evidence = self.make_set()
+        facts, _ = reconcile_dwg_candidates(evidence)
+        with self.assertRaisesRegex(ValueError, "CANDIDATE_FACT_SUPPORT_CONTRADICTION_OVERLAP"):
+            reconcile_dwg_candidates(
+                evidence,
+                contradictions={facts[0].fact_id: ("dwg:e1",)},
+            )
+
     def test_missing_evidence_reference_blocks_provenance(self):
         evidence = self.make_set()
         facts, _ = reconcile_dwg_candidates(evidence)
