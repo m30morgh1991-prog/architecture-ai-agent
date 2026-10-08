@@ -52,6 +52,15 @@ class GoldenUnderstandingRegressionTests(unittest.TestCase):
             self.assertEqual(report.decision, "PASS")
             self.assertFalse(report.failures)
 
+    def test_unknown_element_truth_does_not_require_element_inventory(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {domain: "UNKNOWN" for domain in case.expected_domains}
+            observed["fail_closed_decision"] = "UNKNOWN"
+            report = evaluate_golden_case(case, observed)
+            self.assertEqual(report.decision, "PASS")
+            self.assertFalse(any(failure.startswith("MISSING_ELEMENT:") for failure in report.failures))
+
     def test_empty_domain_requires_review(self):
         with TemporaryDirectory() as tmp:
             case = self._case(Path(tmp))
