@@ -63,7 +63,7 @@
 - [x] UG-01 Golden case manifest exists
 - [x] UG-02 Ground-truth schema is source-bound and versioned
 - [x] UG-03 End-to-end Understanding Runner emits a machine-checkable report
-- [ ] UG-04 All required semantic domains have expected truth or explicit UNKNOWN
+- [x] UG-04 All required semantic domains have expected truth or explicit UNKNOWN (machine-checked; current truth explicitly UNKNOWN)
 - [x] UG-05 Public benchmark calibration is separated from project acceptance
 - [ ] UG-06 Adversarial cases exist for every fail-closed category
 - [x] UG-07 Metrics are computed per domain (implementation); Green evidence still required
