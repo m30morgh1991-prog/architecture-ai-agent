@@ -134,12 +134,21 @@ def evaluate_golden_case(
     else:
         decision = "PASS"
 
+    unknown_domains = tuple(
+        domain for domain in case.expected_domains
+        if observed.get(domain) == "UNKNOWN"
+        or (
+            isinstance(observed.get(domain), Mapping)
+            and observed[domain].get("status") == "UNKNOWN"
+        )
+    )
     return GoldenRegressionReport(
         case_id=case.case_id,
         domain_results=domain_results,
         unsafe_acceptance=unsafe_acceptance,
         decision=decision,
         failures=tuple(failures),
+        unknown_domains=unknown_domains,
     )
 
 
@@ -164,9 +173,13 @@ def summarize_domain_metrics(
     for domain in domain_names:
         total = len(reports)
         covered = sum(report.domain_results.get(domain, False) for report in reports)
+        unknown = sum(domain in report.unknown_domains for report in reports)
         metrics[domain] = {
             "cases": total,
             "covered": covered,
+            "unknown": unknown,
+            "understood": covered - unknown,
             "coverage": covered / total if total else 0.0,
+            "understood_rate": (covered - unknown) / total if total else 0.0,
         }
     return metrics
