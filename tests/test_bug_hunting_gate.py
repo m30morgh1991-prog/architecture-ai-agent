@@ -25,6 +25,14 @@ PASS
 unresolved
 ## CI Verification
 Exact-head PR CI and Runtime Tests are required and must be green.
+## Affected Contracts
+PlanModel, ConstraintMap, Golden manifest, CAD adapter boundary.
+## Risk Classification
+HIGH: false PASS, source identity mismatch, unauthorized write.
+## Negative Tests
+Wrong source hash, missing evidence, stale revision, and unsupported capability are blocked.
+## Unresolved Findings
+None. Any unresolved finding remains BLOCKED.
 ## Final Decision
 PASS only after exact-head CI verification; unresolved findings block merge and false pass is prohibited.
 """
@@ -39,7 +47,7 @@ class BugHuntingGateTests(unittest.TestCase):
         self.assertTrue(any(e.startswith("MISSING_SECTION:## Regression") for e in errors))
 
     def test_missing_fail_closed_token_blocks(self):
-        text = GOOD.replace("BLOCKED", "NO_FAIL_CLOSED_TOKEN")
+        text = GOOD.replace("BLOCKED", "NO_FAIL_CLOSED_TOKEN").replace("blocked", "no-fail-closed")
         errors = validate_evidence(text)
         self.assertTrue(any(e == "MISSING_TOKEN:BLOCKED" for e in errors))
 
@@ -48,14 +56,24 @@ class BugHuntingGateTests(unittest.TestCase):
         errors = validate_evidence(text)
         self.assertIn("MISSING_TOKEN:exact-head", errors)
 
+    def test_missing_affected_contract_blocks(self):
+        text = GOOD.replace("## Affected Contracts", "## Missing Contracts")
+        errors = validate_evidence(text)
+        self.assertIn("MISSING_SECTION:## Affected Contracts", errors)
+
+    def test_missing_negative_test_token_blocks(self):
+        text = GOOD.replace("Negative Tests", "Positive Tests")
+        errors = validate_evidence(text)
+        self.assertIn("MISSING_SECTION:## Negative Tests", errors)
+
     def test_missing_pr_evidence_blocks(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             self.assertEqual(run("123", root), 1)
 
     def test_required_contract_is_stronger(self):
-        self.assertEqual(len(REQUIRED_SECTIONS), 9)
-        self.assertEqual(len(REQUIRED_TOKENS), 9)
+        self.assertEqual(len(REQUIRED_SECTIONS), 13)
+        self.assertEqual(len(REQUIRED_TOKENS), 13)
 
 if __name__ == "__main__":
     unittest.main()

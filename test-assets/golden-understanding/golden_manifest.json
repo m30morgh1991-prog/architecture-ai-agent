@@ -6,7 +6,7 @@
     {
       "case_id": "GOLDEN-DWG-BAGHERI7",
       "source_path": "test-assets/golden-projects/bagheri7.dwg",
-      "source_sha256": null,
+      "source_sha256": "865244d69e260d9ad23abed7b3ecaeb4df8b5f7da562c8d0284b466f3da13e6a",
       "expected_elements": ["WALLS", "DOORS", "WINDOWS", "COLUMNS"],
       "expected_domains": ["source_profile","elements","geometry","topology","relations","drawing_evidence","text","dimensions","levels","view_markers","vertical_circulation","bim_mapping","provenance","uncertainties","contradictions","missing_evidence","fail_closed_decision"],
       "expected_status": "UNKNOWN",
@@ -15,7 +15,7 @@
     {
       "case_id": "GOLDEN-DWG-AFIFIIIII",
       "source_path": "test-assets/golden-projects/afifiiiii.end.edit3.dwg",
-      "source_sha256": null,
+      "source_sha256": "508673cf44661b8b46fbb7f98992fffc99bd7d87531c1011fc5b8139d65a11a5",
       "expected_elements": ["WALLS", "DOORS", "WINDOWS", "COLUMNS"],
       "expected_domains": ["source_profile","elements","geometry","topology","relations","drawing_evidence","text","dimensions","levels","view_markers","vertical_circulation","bim_mapping","provenance","uncertainties","contradictions","missing_evidence","fail_closed_decision"],
       "expected_status": "UNKNOWN",

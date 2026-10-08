@@ -19,6 +19,10 @@ REQUIRED_SECTIONS = (
     "## Regression",
     "## Required fail-closed states",
     "## CI Verification",
+    "## Affected Contracts",
+    "## Risk Classification",
+    "## Negative Tests",
+    "## Unresolved Findings",
     "## Final Decision",
 )
 REQUIRED_TOKENS = (
@@ -31,6 +35,10 @@ REQUIRED_TOKENS = (
     "PASS",
     "exact-head",
     "false pass",
+    "affected contract",
+    "risk",
+    "negative test",
+    "unresolved findings",
 )
 
 def evidence_path(pr_number: str, root: Path | None = None) -> Path:
