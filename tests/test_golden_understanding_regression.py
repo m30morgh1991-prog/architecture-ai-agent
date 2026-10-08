@@ -1,5 +1,7 @@
 import json
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from runtime.golden_understanding_regression import (
     evaluate_golden_case,
@@ -9,121 +11,117 @@ from runtime.golden_understanding_regression import (
 
 
 class GoldenUnderstandingRegressionTests(unittest.TestCase):
+    def _case(self, root: Path):
+        manifest = {
+            "schema": "golden-understanding-v1",
+            "version": "2026-10-08",
+            "truth_policy": "DIRECT_AND_VALIDATED_DERIVED_ONLY",
+            "cases": [{
+                "case_id": "CASE-1",
+                "source_path": "test-assets/golden-projects/example.dwg",
+                "source_sha256": None,
+                "expected_elements": ["WALL", "DOOR"],
+                "expected_domains": [
+                    "source_profile", "elements", "geometry",
+                    "topology", "relations", "drawing_evidence",
+                    "provenance", "fail_closed_decision"
+                ],
+                "expected_status": "UNKNOWN",
+                "adversarial": False,
+            }],
+        }
+        path = root / "manifest.json"
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        return load_manifest(path)[0]
 
-    def _case(self, tmp_path):
-    manifest = {
-        "schema": "golden-understanding-v1",
-        "version": "2026-10-08",
-        "truth_policy": "DIRECT_AND_VALIDATED_DERIVED_ONLY",
-        "cases": [{
-            "case_id": "CASE-1",
-            "source_path": "test-assets/golden-projects/example.dwg",
-            "source_sha256": None,
-            "expected_elements": ["WALL", "DOOR"],
-            "expected_domains": [
-                "source_profile", "elements", "geometry",
-                "topology", "relations", "drawing_evidence",
-                "provenance", "fail_closed_decision"
-            ],
-            "expected_status": "UNKNOWN",
-            "adversarial": False,
-        }],
-    }
-    p = tmp_path / "manifest.json"
-    p.write_text(json.dumps(manifest), encoding="utf-8")
-        return load_manifest(p)[0]
+    def test_manifest_schema_and_case_load(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            self.assertEqual(case.case_id, "CASE-1")
+            self.assertEqual(case.expected_status, "UNKNOWN")
 
+    def test_complete_observation_passes(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {domain: {"evidence": "present"} for domain in case.expected_domains}
+            observed["elements"] = ["WALL", "DOOR"]
+            observed["fail_closed_decision"] = "UNKNOWN"
+            report = evaluate_golden_case(case, observed)
+            self.assertEqual(report.decision, "PASS")
+            self.assertFalse(report.failures)
 
-    def test_manifest_schema_and_case_load(tmp_path):
-        case = self._case(tmp_path)
-        self.assertTrue(case.case_id == "CASE-1"
-    assert case.expected_status == "UNKNOWN"
+    def test_empty_domain_requires_review(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {domain: {} for domain in case.expected_domains}
+            observed["elements"] = ["WALL", "DOOR"]
+            observed["fail_closed_decision"] = "UNKNOWN"
+            report = evaluate_golden_case(case, observed)
+            self.assertEqual(report.decision, "NEEDS_REVIEW")
+            self.assertIn("MISSING_DOMAIN:source_profile", report.failures)
 
+    def test_explicit_unknown_domain_is_covered(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {domain: "UNKNOWN" for domain in case.expected_domains}
+            observed["elements"] = ["WALL", "DOOR"]
+            observed["fail_closed_decision"] = "UNKNOWN"
+            report = evaluate_golden_case(case, observed)
+            self.assertEqual(report.decision, "PASS")
+            self.assertFalse(report.failures)
 
-def test_complete_observation_passes(tmp_path):
-    case = _case(tmp_path)
-    observed = {
-        domain: {"evidence": "present"} for domain in case.expected_domains
-    }
-    observed["elements"] = ["WALL", "DOOR"]
-    observed["fail_closed_decision"] = "UNKNOWN"
-    report = evaluate_golden_case(case, observed)
-    assert report.decision == "PASS"
-    assert not report.failures
+    def test_missing_domain_requires_review(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {
+                domain: {} for domain in case.expected_domains if domain != "topology"
+            }
+            observed["elements"] = ["WALL", "DOOR"]
+            observed["fail_closed_decision"] = "UNKNOWN"
+            report = evaluate_golden_case(case, observed)
+            self.assertEqual(report.decision, "NEEDS_REVIEW")
+            self.assertIn("MISSING_DOMAIN:topology", report.failures)
 
+    def test_unresolved_evidence_cannot_pass(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {domain: {} for domain in case.expected_domains}
+            observed["elements"] = ["WALL", "DOOR"]
+            observed["uncertainties"] = ["LOW_RESOLUTION"]
+            observed["fail_closed_decision"] = "PASS"
+            report = evaluate_golden_case(case, observed)
+            self.assertEqual(report.decision, "BLOCKED")
+            self.assertTrue(report.unsafe_acceptance)
+            self.assertIn("UNSAFE_ACCEPTANCE:UNRESOLVED_TO_PASS", report.failures)
 
-def test_empty_domain_requires_review(tmp_path):
-    case = _case(tmp_path)
-    observed = {domain: {} for domain in case.expected_domains}
-    observed["elements"] = ["WALL", "DOOR"]
-    observed["fail_closed_decision"] = "UNKNOWN"
-    report = evaluate_golden_case(case, observed)
-    assert report.decision == "NEEDS_REVIEW"
-    assert "MISSING_DOMAIN:source_profile" in report.failures
+    def test_invalid_expected_status_is_rejected(self):
+        with TemporaryDirectory() as tmp:
+            payload = {
+                "schema": "golden-understanding-v1",
+                "cases": [{
+                    "case_id": "BAD",
+                    "source_path": "x.dwg",
+                    "expected_domains": ["elements"],
+                    "expected_status": "NOT_A_DECISION",
+                }],
+            }
+            path = Path(tmp) / "bad.json"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises(ValueError):
+                load_manifest(path)
 
-
-def test_explicit_unknown_domain_is_covered(tmp_path):
-    case = _case(tmp_path)
-    observed = {domain: "UNKNOWN" for domain in case.expected_domains}
-    observed["elements"] = ["WALL", "DOOR"]
-    observed["fail_closed_decision"] = "UNKNOWN"
-    report = evaluate_golden_case(case, observed)
-    assert report.decision == "PASS"
-    assert not report.failures
-
-
-def test_missing_domain_requires_review(tmp_path):
-    case = _case(tmp_path)
-    observed = {
-        domain: {} for domain in case.expected_domains
-        if domain != "topology"
-    }
-    observed["elements"] = ["WALL", "DOOR"]
-    observed["fail_closed_decision"] = "UNKNOWN"
-    report = evaluate_golden_case(case, observed)
-    assert report.decision == "NEEDS_REVIEW"
-    assert "MISSING_DOMAIN:topology" in report.failures
-
-
-def test_unresolved_evidence_cannot_pass(tmp_path):
-    case = _case(tmp_path)
-    observed = {domain: {} for domain in case.expected_domains}
-    observed["elements"] = ["WALL", "DOOR"]
-    observed["uncertainties"] = ["LOW_RESOLUTION"]
-    observed["fail_closed_decision"] = "PASS"
-    report = evaluate_golden_case(case, observed)
-    assert report.decision == "BLOCKED"
-    assert report.unsafe_acceptance is True
-    assert "UNSAFE_ACCEPTANCE:UNRESOLVED_TO_PASS" in report.failures
-
-
-def test_invalid_expected_status_is_rejected(tmp_path):
-    payload = {
-        "schema": "golden-understanding-v1",
-        "cases": [{
-            "case_id": "BAD",
-            "source_path": "x.dwg",
-            "expected_domains": ["elements"],
-            "expected_status": "NOT_A_DECISION",
-        }],
-    }
-    p = tmp_path / "bad.json"
-    p.write_text(json.dumps(payload), encoding="utf-8")
-        with self.assertRaises(ValueError):
-            load_manifest(p)
-
-
-def test_domain_metrics_do_not_promote_unknown_to_understood(tmp_path):
-    case = _case(tmp_path)
-    observed = {domain: "UNKNOWN" for domain in case.expected_domains}
-    observed["elements"] = ["WALL", "DOOR"]
-    observed["fail_closed_decision"] = "UNKNOWN"
-    report = evaluate_golden_case(case, observed)
-    metrics = summarize_domain_metrics([report])
-    assert metrics["geometry"]["covered"] == 1
-    assert metrics["geometry"]["unknown"] == 1
-    assert metrics["geometry"]["understood"] == 0
-    assert metrics["geometry"]["understood_rate"] == 0.0
+    def test_domain_metrics_do_not_promote_unknown_to_understood(self):
+        with TemporaryDirectory() as tmp:
+            case = self._case(Path(tmp))
+            observed = {domain: "UNKNOWN" for domain in case.expected_domains}
+            observed["elements"] = ["WALL", "DOOR"]
+            observed["fail_closed_decision"] = "UNKNOWN"
+            report = evaluate_golden_case(case, observed)
+            metrics = summarize_domain_metrics([report])
+            self.assertEqual(metrics["geometry"]["covered"], 1)
+            self.assertEqual(metrics["geometry"]["unknown"], 1)
+            self.assertEqual(metrics["geometry"]["understood"], 0)
+            self.assertEqual(metrics["geometry"]["understood_rate"], 0.0)
 
 
 if __name__ == "__main__":
