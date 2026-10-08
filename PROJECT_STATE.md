@@ -148,3 +148,21 @@ PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f`. Exact-head `3ea24d6
 4. Run exact-head PR CI + Runtime + Bug Hunt + required Golden regression.
 5. Persist only verified state; do not unlock H101 without Green Gate evidence.
 
+
+
+### H100 PR #88 checkpoint — negative evidence hardening
+
+- PR #88 merged at `a6ae2d3273dc97face2fbb3e3190dd7a333f7bdb`.
+- Exact verified PR head `b465b5951c27f1df4164ef02adf854d14f4dd15a`: PR CI #269 SUCCESS, Runtime #556 SUCCESS, Bug Hunt #226 SUCCESS.
+- PR #88 hardens contradiction/required-evidence references to the same source-bound DrawingEvidenceSet and rejects missing/cross-source references plus support/contradiction overlap.
+- PR #88 first exact-head attempt failed because an existing contradiction test used an unbound fixture; the fixture was repaired with independent source-bound evidence and all gates passed.
+- PR #87 checkpoint merged at `e520aaf91063cb45a424b76a1960b804b9b56852`; its final exact head `719ae231390e3cdbbe66de0230cdceb1d058b547` passed PR CI #270, Runtime #557, Bug Hunt #227.
+- Post-merge workflow query for PR #88 merge SHA currently exposes no runs; post-merge Green is NOT claimed.
+- H101 remains locked.
+
+### Next H100 execution
+1. Add conservative level/elevation semantics.
+2. Add section-marker/cut-plane/direction semantics.
+3. Add scale/unit semantics.
+4. Integrate Iranian drawing-language conventions without promoting unsupported raster/vector inference.
+5. Build real-world transformed/defective Golden fixtures and evaluate fail-closed decisions.

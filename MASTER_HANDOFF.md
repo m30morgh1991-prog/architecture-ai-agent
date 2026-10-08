@@ -173,3 +173,14 @@ The initial Bug Hunt #220 failure was governance-format-only (missing `## Bug Hu
 4. Run exact-head REAL CI + Runtime + Bug Hunt + required Golden regression.
 5. Persist verified state; H101 remains locked until H100 Green evidence is complete.
 
+
+
+## H100 PR #88 checkpoint — negative evidence hardening
+
+PR #88 merged at `a6ae2d3273dc97face2fbb3e3190dd7a333f7bdb`. Exact verified head `b465b5951c27f1df4164ef02adf854d14f4dd15a` passed PR CI #269, Runtime #556 and Bug Hunt #226. The implementation fences contradiction and required-evidence references to the same source-bound DrawingEvidenceSet and rejects missing/cross-source/overlap cases.
+
+PR #87 documentation checkpoint also merged at `e520aaf91063cb45a424b76a1960b804b9b56852`, with exact head `719ae231390e3cdbbe66de0230cdceb1d058b547` passing PR CI #270, Runtime #557 and Bug Hunt #227.
+
+No post-merge workflow run is currently exposed for PR #88 merge SHA, so no post-merge Green claim is made.
+
+Next: level/elevation → section marker/cut-plane/direction → scale/unit → Iranian drawing language → real-world adversarial Golden fixtures. H101 stays locked.
