@@ -129,3 +129,22 @@ PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f`. Exact-head `3ea24d6
 - Semantic Golden truth remains unresolved. Real-world adversarial DWG/image fixtures remain pending. H101 remains locked.
 - Post-merge workflow query for merge commit `2038ea392fcaeccafc67f8d5ea695a16ff34a918` returned no exposed runs; therefore post-merge Green is NOT claimed.
 - Next priority: bind reconciled evidence to CandidateFacts/provenance, add contradiction/negative-evidence checks, then build real-world adversarial Golden fixtures before any H101 unlock.
+
+
+### H100 PR #86 checkpoint — CandidateFact provenance
+
+- PR #86 merged to `main` at `117e6f52cbe02bedc59dfbf73810a821d7a70765`.
+- Exact fixed PR head `e9804928523e0f3ed3b6c8a9847fbc400247ab32` passed PR CI #264, Runtime #551, and Bug Hunt #221.
+- PR #86 binds source-bound DWG evidence to deterministic CandidateFacts and validates evidence-reference/source-SHA continuity; contradiction handling is preserved rather than silently discarded.
+- The first Bug Hunt failure was governance-only (`## Bug Hunt` heading missing); it was fixed and re-run successfully at the exact fixed head.
+- Current main post-merge workflow query returns no runs for the merge SHA, so post-merge Green is NOT claimed.
+- Open PRs: none at checkpoint time.
+- H100 remains active; H101 remains locked.
+
+### Immediate next H100 execution
+1. Strengthen contradiction and negative-evidence handling at the DWG evidence boundary.
+2. Add conservative level/elevation, section marker/cut-plane/direction, scale/unit, and Iranian drawing-language semantics.
+3. Expand contract-level adversarial coverage into real-world transformed/defective Golden fixtures.
+4. Run exact-head PR CI + Runtime + Bug Hunt + required Golden regression.
+5. Persist only verified state; do not unlock H101 without Green Gate evidence.
+
