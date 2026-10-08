@@ -158,3 +158,18 @@ PR #84 merged at `2038ea392fcaeccafc67f8d5ea695a16ff34a918` after repaired exact
 4. Build real-world transformed/defective Golden fixtures and expected fail-closed outcomes.
 5. Run exact-head REAL CI + Runtime + Bug Hunt + required Golden regression before each gate transition.
 6. Persist only verified state; keep H101 locked until H100 Green evidence is complete.
+
+
+## H100 PR #86 checkpoint — CandidateFact provenance
+
+PR #86 merged at `117e6f52cbe02bedc59dfbf73810a821d7a70765`. Fixed exact head `e9804928523e0f3ed3b6c8a9847fbc400247ab32` passed PR CI #264, Runtime #551, and Bug Hunt #221. The implementation binds normalized DWG evidence to source-bound CandidateFacts with deterministic fact IDs and validates evidence references/source SHA continuity; contradictions are preserved and routed through the canonical reconciliation path.
+
+The initial Bug Hunt #220 failure was governance-format-only (missing `## Bug Hunt` heading); it was corrected in `e980492...`, then all three gates passed. No open PRs remain at this checkpoint. Workflow runs for merge commit `117e6f...` are not exposed by the current commit workflow-run query, so post-merge Green is not claimed.
+
+### Next execution order
+1. Implement contradiction/negative-evidence hardening at the DWG boundary.
+2. Add conservative level/elevation, section-marker/cut-plane/direction, scale/unit and Iranian drawing-language semantics.
+3. Build real-world transformed/defective Golden fixtures with fail-closed expected decisions.
+4. Run exact-head REAL CI + Runtime + Bug Hunt + required Golden regression.
+5. Persist verified state; H101 remains locked until H100 Green evidence is complete.
+
