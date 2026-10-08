@@ -44,7 +44,7 @@ class BugHuntingGateTests(unittest.TestCase):
         self.assertTrue(any(e == "MISSING_TOKEN:BLOCKED" for e in errors))
 
     def test_missing_exact_head_evidence_blocks(self):
-        text = GOOD.replace("Exact-head PR CI", "Stale-head PR CI")
+        text = GOOD.replace("Exact-head", "Stale-head").replace("exact-head", "stale-head")
         errors = validate_evidence(text)
         self.assertIn("MISSING_TOKEN:exact-head", errors)
 
