@@ -19,6 +19,8 @@ class GoldenSourceHashTests(unittest.TestCase):
             digest = hashlib.sha256(source.read_bytes()).hexdigest()
             self.assertEqual(len(digest), 64)
             self.assertNotEqual(digest, "0" * 64)
+            self.assertRegex(case["source_sha256"], r"^[0-9a-f]{64}$")
+            self.assertEqual(case["source_sha256"], digest, case["case_id"])
 
             # CI log is the machine-readable handoff used to lock manifest hashes.
             print(
