@@ -17,7 +17,7 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H98 checkpoint
+## Current verified state — H100 active checkpoint
 - **H95 — Idempotent Execution Recovery:** merged and verified.
 - **H96 — Evidence-based Release Gate:** merged as PR #56; merge commit `75117399336135f654a99a805977a93251be0946`.
 - **H97 — Runtime Evidence Integration:** PR #57 merged on 2026-10-04.
@@ -114,8 +114,18 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - H94 mainline CI: Runtime Tests #377, Bug Hunt Gate #47, PR CI Gate #90 — all completed/success.
 - H94 DWG polygonization performance root cause was fixed and regression-verified.
 
+## YQArch / AutoCAD execution research — registered
+- YQArch is an execution-adapter candidate, not a Plan Understanding engine and never a Source of Truth.
+- Adopt the concept of a provider-neutral **Architectural Capability Registry** instead of exposing raw YQArch commands to the model.
+- Useful capability families registered for future controlled editing: walls, columns, doors/windows, stairs/elevators, axes/grids, dimensions, section/elevation markers, annotations, layers, area/listing helpers, and controlled move/copy/mirror/repair operations.
+- Runtime success must distinguish REQUESTED / DISPATCHED / STARTED / INTERACTIVE / EXECUTING / COMPLETED / VERIFIED / FAILED / UNKNOWN; only VERIFIED can satisfy execution success.
+- Arbitrary LISP evaluation and arbitrary command strings are explicitly excluded from the model-facing execution boundary.
+- Layer names are evidence only; semantic classification must combine layer + geometry + symbols + text + topology + BIM relations.
+- YQArch findings are persisted in `docs/research/yqarch-autocad-execution.md`.
+- Future VerticalCirculation work should model storey height, riser, tread, flight count, landing, direction, required step count, and plan/section representation.
+
 ## Current continuation
-- Current durable continuation is **H98 complete + PR #60 state synchronization**.
-- Do not redo H95–H98.
-- Once #60 is verified green and merged, inspect current main, active PRs, exact-head CI, and repository contracts/tests.
-- Define H99 from actual repository evidence and dependencies, not from an assumed old roadmap.
+- H100 is active in PR #64 (`feat/h100-drawing-semantics`).
+- H100 establishes evidence-backed architectural drawing annotations and deterministic dimension semantics.
+- YQArch research has been registered as a supporting execution/drawing capability boundary; it does not claim a future stage GREEN.
+- After H100 exact-head CI and required Bug Hunt/Runtime verification succeed, persist state, verify the resulting main commit, then derive H101 from actual repository contracts/tests.
