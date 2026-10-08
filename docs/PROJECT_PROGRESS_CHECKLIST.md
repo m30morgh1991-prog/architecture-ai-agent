@@ -259,3 +259,16 @@ Notion is not a governance or Green-Gate source of truth.
 - Generic geometry is explicitly prevented from becoming architectural truth; semantic authority remains false.
 - Post-merge workflow runs are not exposed for the merge commit, so post-merge Green is not claimed.
 - Next: evidence reconciliation/provenance → real-world adversarial Golden fixtures → remaining H100 gates.
+
+
+## 2026-10-08 — H100 PR #84 checkpoint
+
+- [x] PR #84 merged: `2038ea392fcaeccafc67f8d5ea695a16ff34a918`
+- [x] Repaired exact head `bd86bb20141fba44cc25c1c93aee44b00645125d` — PR CI #258 / Runtime #545 / Bug Hunt #215 = SUCCESS
+- [x] DWG evidence normalization bridge is source-bound and read-only; generic geometry does not become architectural truth
+- [x] Bug Hunt governance-format defect fixed and re-verified at exact head
+- [ ] H100 semantic Golden ground truth / authoritative understanding
+- [ ] H100 real-world adversarial DWG/image fixtures
+- [ ] H100 UG-10 Green and H101 unlock
+- Post-merge workflows for merge commit `2038ea392fcaeccafc67f8d5ea695a16ff34a918` are not exposed by the current workflow-run query, so post-merge Green is NOT claimed.
+- Next: CandidateFacts/provenance binding → contradiction/negative evidence → drawing-language/level/section semantics → real-world adversarial Golden fixtures → exact-head gates.
