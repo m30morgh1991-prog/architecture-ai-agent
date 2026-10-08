@@ -80,3 +80,10 @@ Current active sequence:
 - Notion is excluded from governance.
 - Golden DWG assets remain preserved.
 - “بکاپ بگیر” means additive checkpoint; never destructive reset.
+
+
+### H100 mainline checkpoint — PR #76
+- PR #76 merged at `8880b1890d5094771662464b48a294c9563a3059`.
+- Exact-head PR #76: PR CI #225 SUCCESS, Runtime #512 SUCCESS, Bug Hunt #182 SUCCESS.
+- Added executable mainline checkpoint coverage for Golden source binding, UNKNOWN status, fail-closed state documentation, and read-only CAD boundary.
+- Mainline post-merge workflow Green is still not claimed because the current workflow-run query exposes PR-triggered runs only.
