@@ -5,6 +5,7 @@ import pytest
 from runtime.golden_understanding_regression import (
     evaluate_golden_case,
     load_manifest,
+    summarize_domain_metrics,
 )
 
 
@@ -109,3 +110,14 @@ def test_invalid_expected_status_is_rejected(tmp_path):
     p.write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(ValueError):
         load_manifest(p)
+
+
+def test_domain_metrics_do_not_promote_unknown_to_understood(tmp_path):
+    case = _case(tmp_path)
+    observed = {domain: "UNKNOWN" for domain in case.expected_domains}
+    observed["elements"] = ["WALL", "DOOR"]
+    observed["fail_closed_decision"] = "UNKNOWN"
+    report = evaluate_golden_case(case, observed)
+    metrics = summarize_domain_metrics([report])
+    assert metrics["geometry"]["covered"] == 1
+    assert metrics["geometry"]["coverage"] == 1.0
