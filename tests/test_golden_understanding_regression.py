@@ -1,6 +1,5 @@
 import json
-
-import pytest
+import unittest
 
 from runtime.golden_understanding_regression import (
     evaluate_golden_case,
@@ -9,7 +8,9 @@ from runtime.golden_understanding_regression import (
 )
 
 
-def _case(tmp_path):
+class GoldenUnderstandingRegressionTests(unittest.TestCase):
+
+    def _case(self, tmp_path):
     manifest = {
         "schema": "golden-understanding-v1",
         "version": "2026-10-08",
@@ -30,12 +31,12 @@ def _case(tmp_path):
     }
     p = tmp_path / "manifest.json"
     p.write_text(json.dumps(manifest), encoding="utf-8")
-    return load_manifest(p)[0]
+        return load_manifest(p)[0]
 
 
-def test_manifest_schema_and_case_load(tmp_path):
-    case = _case(tmp_path)
-    assert case.case_id == "CASE-1"
+    def test_manifest_schema_and_case_load(tmp_path):
+        case = self._case(tmp_path)
+        self.assertTrue(case.case_id == "CASE-1"
     assert case.expected_status == "UNKNOWN"
 
 
@@ -108,8 +109,8 @@ def test_invalid_expected_status_is_rejected(tmp_path):
     }
     p = tmp_path / "bad.json"
     p.write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(ValueError):
-        load_manifest(p)
+        with self.assertRaises(ValueError):
+            load_manifest(p)
 
 
 def test_domain_metrics_do_not_promote_unknown_to_understood(tmp_path):
@@ -123,3 +124,7 @@ def test_domain_metrics_do_not_promote_unknown_to_understood(tmp_path):
     assert metrics["geometry"]["unknown"] == 1
     assert metrics["geometry"]["understood"] == 0
     assert metrics["geometry"]["understood_rate"] == 0.0
+
+
+if __name__ == "__main__":
+    unittest.main()
