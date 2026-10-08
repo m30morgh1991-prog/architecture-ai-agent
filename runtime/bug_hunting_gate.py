@@ -1,8 +1,9 @@
 """Mandatory PR Bug Hunting evidence gate.
 
 This gate intentionally fails closed: missing or incomplete evidence is a merge blocker.
-It is deterministic and dependency-free so CI can run it in a clean environment.
+It is deterministic and dependency-free so CI can run in a clean environment.
 """
+
 from __future__ import annotations
 from pathlib import Path
 import argparse
@@ -10,12 +11,26 @@ import re
 import sys
 
 REQUIRED_SECTIONS = (
-    "## Scope", "## Bug Hunt", "## Findings", "## Regression",
-    "## CI Verification", "## Final Decision",
+    "## Scope",
+    "## Bug Hunt",
+    "## Findings",
+    "## Reproduction",
+    "## Root Cause",
+    "## Regression",
+    "## Required fail-closed states",
+    "## CI Verification",
+    "## Final Decision",
 )
 REQUIRED_TOKENS = (
-    "reproduction", "root cause", "regression", "UNKNOWN",
-    "NEEDS_REVIEW", "BLOCKED", "PASS",
+    "reproduction",
+    "root cause",
+    "regression",
+    "UNKNOWN",
+    "NEEDS_REVIEW",
+    "BLOCKED",
+    "PASS",
+    "exact-head",
+    "false pass",
 )
 
 def evidence_path(pr_number: str, root: Path | None = None) -> Path:
@@ -35,6 +50,8 @@ def validate_evidence(text: str) -> list[str]:
             errors.append(f"MISSING_TOKEN:{token}")
     if "unresolved" not in lower:
         errors.append("MISSING_UNRESOLVED_STATE")
+    if "exact-head" not in lower:
+        errors.append("MISSING_EXACT_HEAD_EVIDENCE")
     return errors
 
 def run(pr_number: str, root: Path | None = None) -> int:
