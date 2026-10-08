@@ -120,3 +120,12 @@ PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f`. Exact-head `3ea24d6
 - Semantic authority remains false; unsupported semantic domains remain UNKNOWN/fail-closed.
 - Post-merge workflow query for merge commit returned no exposed runs, so post-merge Green is NOT claimed.
 - Next priority: reconcile extracted CAD evidence into provenance-bound semantic facts and build real-world adversarial Golden fixtures before unlocking H101.
+
+
+### H100 PR #84 checkpoint — DWG evidence reconciliation bridge
+- PR #84 merged to main at `2038ea392fcaeccafc67f8d5ea695a16ff34a918` after repaired exact head `bd86bb20141fba44cc25c1c93aee44b00645125d` passed PR CI #258, Runtime #545, and Bug Hunt #215.
+- The bridge normalizes source-bound read-only DWG candidates, text, and dimensions into the existing `DrawingEvidence` contract; it does not create a second PlanModel and ignores generic geometry as architectural truth.
+- The first Bug Hunt failure was a governance-format defect in `PR-84.md`; the exact required headings were restored and all three REAL CI gates then passed at the repaired exact head.
+- Semantic Golden truth remains unresolved. Real-world adversarial DWG/image fixtures remain pending. H101 remains locked.
+- Post-merge workflow query for merge commit `2038ea392fcaeccafc67f8d5ea695a16ff34a918` returned no exposed runs; therefore post-merge Green is NOT claimed.
+- Next priority: bind reconciled evidence to CandidateFacts/provenance, add contradiction/negative-evidence checks, then build real-world adversarial Golden fixtures before any H101 unlock.
