@@ -21,6 +21,7 @@ class GoldenCase:
     expected_elements: tuple[str, ...]
     expected_domains: tuple[str, ...]
     expected_status: str
+    expected_domain_status: Mapping[str, str] | None = None
     adversarial: bool = False
 
     def __post_init__(self) -> None:
@@ -40,6 +41,11 @@ class GoldenCase:
         unknown = set(self.expected_domains) - set(REQUIRED_DOMAINS)
         if unknown:
             raise ValueError(f"unknown expected domains: {sorted(unknown)}")
+        domain_status = dict(self.expected_domain_status or {})
+        if set(domain_status) != set(self.expected_domains):
+            raise ValueError("expected_domain_status must cover exactly expected_domains")
+        if any(status not in ALLOWED_DECISIONS for status in domain_status.values()):
+            raise ValueError("invalid expected_domain_status value")
 
 
 @dataclass(frozen=True)
@@ -78,6 +84,7 @@ def load_manifest(path: str | Path) -> tuple[GoldenCase, ...]:
             expected_elements=tuple(raw.get("expected_elements", ())),
             expected_domains=tuple(raw["expected_domains"]),
             expected_status=str(raw["expected_status"]),
+            expected_domain_status=dict(raw.get("expected_domain_status", {})),
             adversarial=bool(raw.get("adversarial", False)),
         )
         if case.case_id in seen:
@@ -101,7 +108,17 @@ def evaluate_golden_case(
             isinstance(value, Mapping) and value.get("status") == "UNKNOWN"
         )
         populated = value is not None and value != () and value != [] and value != {}
-        ok = explicit_unknown or populated
+        expected_status = (case.expected_domain_status or {}).get(domain)
+        if expected_status == "UNKNOWN":
+            ok = explicit_unknown
+        elif expected_status == "NEEDS_REVIEW":
+            ok = explicit_unknown or populated
+        elif expected_status == "BLOCKED":
+            ok = explicit_unknown or populated
+        elif expected_status == "PASS":
+            ok = populated and not explicit_unknown
+        else:
+            ok = False
         domain_results[domain] = ok
         if not ok:
             failures.append(f"MISSING_DOMAIN:{domain}")
