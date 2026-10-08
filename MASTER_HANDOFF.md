@@ -87,10 +87,19 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Layer names are evidence, not semantic truth; combine layer, geometry, symbols, text, topology, and BIM relations.
 - YQArch capabilities useful to the roadmap include architectural primitives, dimensions/annotations, axes/grids, vertical circulation, layer operations, measurement/listing helpers, and controlled repair/transform operations.
 
+## External agent / plugin gap analysis
+- Registered at `docs/research/external-agent-gap-analysis.md`.
+- Highest-value references: ConstructDrawingAI, OpenTakeoff, Floor Plan Document Intelligence, HarnessBIM, AutoCAD-MCP, and Bonsai MCP.
+- Confirmed gaps: evidence/source graph, measurement provenance, connectivity/topology, backend capability discovery, runtime transaction/verification, drawing-set graph, deterministic verification, and vertical-circulation semantics.
+- ConstructDrawingAI is reference-only because of its current PolyForm Noncommercial license; no dependency is adopted.
+- OpenTakeoff and AutoCAD-MCP are strong permissive implementation references for provenance, scale gates, capability discovery, rollback and validation.
+- BIM/IFC projects remain future adapter/reference layers; full BIM runtime is not an MVP dependency.
+- No external project replaces PlanModel, ConstraintMap or ApprovedChangePlan.
+
 ## Continuation from H100
 1. Verify PR #64 exact-head CI and required gates; queued/in_progress/missing/unobserved is not GREEN.
 2. Bug Hunt any red gate before proceeding.
 3. Merge H100 only after required evidence succeeds.
 4. Verify the resulting main commit.
-5. Derive H101 from actual repository contracts/tests and the newly registered execution/capability boundary.
+5. Derive H101 from actual repository contracts/tests plus the newly confirmed evidence/provenance/topology/capability-discovery gaps.
 6. Implement H101 → REAL CI → verify → regression → persist → continue.
