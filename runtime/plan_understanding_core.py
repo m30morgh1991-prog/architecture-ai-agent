@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from runtime.drawing_semantic_evidence import DrawingEvidenceSet
 from runtime.locked_element_detection import ConservativeLockedElementDetector
 from runtime.plan_model_contract import ConstraintMap, PlanModel
 from runtime.plan_model_reconstruction import build_plan_model_from_detection
@@ -47,6 +48,7 @@ class PlanUnderstandingCore:
         model_id: str,
         drawing_count: int = 1,
         space_model=None,
+        drawing_evidence: DrawingEvidenceSet | None = None,
     ) -> PlanUnderstandingResult:
         detection = self.detector.detect(source_path, source_sha256)
 
@@ -56,6 +58,7 @@ class PlanUnderstandingCore:
             detection_result=detection,
             drawing_count=drawing_count,
             space_model=space_model,
+            drawing_evidence=drawing_evidence,
         )
         plan_model = reconstruction.plan_model
 
@@ -118,6 +121,7 @@ class PlanUnderstandingCore:
             or detection.get("status") != "ACCESSIBLE"
             or unknown
             or identity_conflicts
+            or (drawing_evidence is not None and drawing_evidence.unresolved)
         )
         status = "UNKNOWN" if has_unresolved else "PASS"
 

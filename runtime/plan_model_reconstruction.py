@@ -1,9 +1,10 @@
-"""Deterministic reconstruction of an evidence-backed PlanModel (H70)."""
+"""Deterministic reconstruction of an evidence-backed PlanModel (H70/H100)."""
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
+from runtime.drawing_semantic_evidence import DrawingEvidenceSet
 from runtime.element_evidence_contract import ALLOWED_ELEMENT_TYPES, ElementEvidenceBundle, build_element_evidence_bundle
 from runtime.plan_model_contract import PlanElement, PlanModel
 from runtime.space_model_contract import SpaceModel
@@ -33,6 +34,7 @@ def build_plan_model_from_detection(
     detection_result: dict[str, Any],
     drawing_count: int = 1,
     space_model: SpaceModel | None = None,
+    drawing_evidence: DrawingEvidenceSet | None = None,
 ) -> PlanModelReconstructionResult:
     if not model_id or len(source_sha256) != 64:
         raise ValueError("PLAN_RECONSTRUCTION_ID_OR_SOURCE_INVALID")
@@ -40,6 +42,8 @@ def build_plan_model_from_detection(
         raise ValueError("PLAN_RECONSTRUCTION_DRAWING_COUNT_INVALID")
     if str(detection_result.get("source_sha256")) != source_sha256:
         raise ValueError("PLAN_RECONSTRUCTION_SOURCE_MISMATCH")
+    if drawing_evidence is not None and drawing_evidence.source_sha256 != source_sha256:
+        raise ValueError("PLAN_RECONSTRUCTION_DRAWING_EVIDENCE_SOURCE_MISMATCH")
 
     elements: list[PlanElement] = []
     evidence_items: list[dict[str, Any]] = []
@@ -102,6 +106,7 @@ def build_plan_model_from_detection(
         unresolved=tuple(sorted(unresolved)),
         space_model=space_model,
         element_evidence=bundle,
+        drawing_evidence=drawing_evidence,
     )
     result = PlanModelReconstructionResult(plan_model=model, evidence_bundle=bundle)
     result.validate()
