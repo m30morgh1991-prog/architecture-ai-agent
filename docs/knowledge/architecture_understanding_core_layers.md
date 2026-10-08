@@ -3,9 +3,9 @@
 **Status:** SPECIFICATION INTEGRATION — implementation/CI status must be verified separately.
 
 ## Canonical pipeline
-RAW SOURCE → NATIVE/EXTERNAL EXTRACTION → DRAWING REPRESENTATION → GEOMETRY → ARCHITECTURAL SEMANTICS → BIM-READY ELEMENT/SPACE MODEL → TOPOLOGY & RELATIONS → CONSTRAINTS → RULES/IMPACT → CONTROLLED EDITING → POST-EDIT DIFF → VALIDATION/AUDIT
+RAW SOURCE → EVIDENCE → ELEMENT IDENTITY → GEOMETRY → TOPOLOGY → SPATIAL/ARCHITECTURAL RELATIONS → ARCHITECTURAL SEMANTICS → BIM-READY ELEMENT/SPACE MODEL → CONSTRAINTS → RULE CONTEXT → IMPACT → CONTROLLED EDITING → POST-EDIT DIFF → VALIDATION/AUDIT
 
-The AI Agent may interpret requests and evidence, but deterministic contracts remain the source of truth for geometry, identity, relationships, constraints, rules and validation.
+The AI Agent may interpret requests and evidence, but deterministic contracts remain the source of truth for geometry, identity, relationships, architectural semantics, constraints, rules and validation. Detection is not understanding: a detector candidate, symbol, layer, text label, or BIM mapping is evidence until its semantic meaning is explicitly supported.
 
 ## 1. Source & Evidence Layer
 - Source identity and immutable source hash.
@@ -118,3 +118,47 @@ Request → Evidence/Understanding → PlanModel → Constraints/Relations → R
 
 ## Integration status
 This document consolidates the BIM-ready H76 direction with the 2026-10-02 Drawing Representation standards boundary. It does not claim CI green until the repository workflow is actually observed as successful.
+
+
+## 12. Research refinement — semantic understanding chain
+
+The current research adds an explicit interpretation chain inside the existing architecture:
+
+**Source Evidence → Element Identity → Geometry → Topology → Spatial Relation → Architectural Semantics → BIM Semantics → Rule Context**
+
+This does not introduce another canonical model. It clarifies how existing contracts compose.
+
+### Drawing-language evidence
+
+The semantic layer must be able to consume, with provenance:
+
+- door/window symbols and opening direction;
+- layer, linetype and lineweight;
+- dimensions and extension lines;
+- level/elevation codes;
+- room/space names and identifiers;
+- section/elevation markers and direction;
+- hatch/pattern evidence;
+- columns and structural symbols;
+- stairs/landings and level relationships;
+- grid/axis symbols;
+- title block, scale and unit evidence.
+
+No single cue is sufficient when corroboration is required.
+
+### BIM/IFC boundary
+
+IFC and ifcJSON are interoperability representations, not the MVP Source of Truth. The existing PlanModel/BIM-ready contracts remain canonical upstream.
+
+Stable identity, level, parent/container, placement, properties and typed relationships should be mappable to IFC-style semantics. Approval-grade relation provenance should remain traceable to the existing ArchitecturalRelation evidence rather than creating a second BIM evidence graph.
+
+### Fail-closed semantic interpretation
+
+- Missing referenced geometry → UNKNOWN.
+- Contradictory explicit evidence → BLOCKED.
+- Incomplete host/opening relation → NEEDS_REVIEW.
+- Unsupported symbol/layer inference → UNKNOWN/NEEDS_REVIEW.
+- Incomplete IFC mapping → unresolved downstream export; never mutate PlanModel truth.
+- Stair-count inference from level codes is permitted only when the relevant level/rise/run evidence is explicit and internally consistent.
+
+See `docs/research/PLAN_UNDERSTANDING_SEMANTIC_CHAIN.md` for the implementation mapping and H sequencing.
