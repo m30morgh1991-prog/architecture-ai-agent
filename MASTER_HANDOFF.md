@@ -133,3 +133,15 @@ PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f` after exact-head `3e
 4. Add real-world adversarial fixtures and corresponding fail-closed expected decisions.
 5. Run exact-head REAL CI + Runtime + Bug Hunt + Golden regression before each gate transition.
 6. Persist verified state; H101 remains locked.
+
+## H100 PR #83 checkpoint
+
+PR #83 merged at `d92eb9d3f63819e744b1c901504d447508cd9cab` after exact head `ce3a2298495f579f37b51c17961d03dbd467f4d8` passed PR CI #252, Runtime #539, and Bug Hunt #209. The merged extractor is read-only and conservative: it captures CAD/source evidence and direct semantic candidates without treating generic geometry as architectural truth. Semantic authority remains false and unresolved domains remain UNKNOWN. Post-merge workflow runs for the merge commit were not exposed, so post-merge Green is not claimed.
+
+### Immediate continuation after PR #83
+1. Reconcile DWG evidence into source-bound CandidateFacts with DIRECT/DERIVED/INFERRED provenance.
+2. Add contradiction/negative-evidence handling at the CAD-evidence boundary.
+3. Build real-world transformed/defective Golden DWG fixtures and expected fail-closed outcomes.
+4. Expand layer/block/text/dimension/level/section semantics without allowing unsupported inference to PASS.
+5. Run exact-head REAL CI + Runtime + Bug Hunt + Golden regression before every gate transition.
+6. Persist only verified state; H101 remains locked.
