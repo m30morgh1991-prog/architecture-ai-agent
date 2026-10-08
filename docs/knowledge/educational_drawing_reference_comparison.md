@@ -204,3 +204,10 @@ A historical bibliography also attributes a title about mechanical/electrical bu
 - **P2:** verify the AutoCAD volume identity/edition; it is contextual for future CAD output but does not change the MVP's current no-DWG-editing boundary.
 
 A dedicated record is maintained in `docs/knowledge/jorjani_drafting_reference_candidates.md`. All Jorjani sources remain CATALOG-VERIFIED or BIBLIOGRAPHIC LEAD / NOT YET STUDIED; no chapter-level rule is promoted without studying the actual text.
+
+
+## 8. Targeted web search checkpoint — 2026-10-09
+
+Searches were run using the exact 1402 title, both authors, publisher, PDF/download terms, and ISBN associated with the 1396 edition. The results reconfirmed catalog listings for the 1402 book, but **no full PDF could be verified as the exact 1402 edition**. A digital-download listing for a 51-page item under a similar title was found, but it does not establish that the item is the full 1402 edition and must not be mislabeled as such. Relevant leads: https://elmnet.ir/keyword/%D8%B3%D8%A7%D8%AE%D8%AA%D9%85%D8%A7%D9%86-%D8%B3%D8%A7%D8%B2%DB%8C-%D9%86%D9%82%D8%B4%D9%87-%D9%87%D8%A7%DB%8C-%D8%AA%D9%81%D8%B5%DB%8C%D9%84%DB%8C and https://sarzaminpdf.net/product/principles-of-architecture/.
+
+**Status remains:** 1402 Volume 1 = CATALOG-VERIFIED / SOURCE_REQUIRED / NOT YET STUDIED. Do not claim the 1402 PDF has been found unless title, authors, year/edition, volume, and completeness can be checked against the actual file.
