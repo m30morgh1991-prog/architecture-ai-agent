@@ -239,3 +239,13 @@ Notion is not a governance or Green-Gate source of truth.
 - Exact-head gates: PR CI #233 / Runtime #520 / Bug Hunt #190 = SUCCESS
 - Contract-level adversarial coverage exists for every current fail-closed category.
 - Real-world DWG/image adversarial fixtures and semantic ground truth remain pending.
+
+
+## 2026-10-08 — H100 PR #82 checkpoint
+
+- PR #82 merged: `a08750765c19aadce02003e6fa221532d073992f`
+- Exact-head `3ea24d659490c7f809bb8579b3ea1e3efbe627fb`: PR CI #244 / Runtime #531 / Bug Hunt #201 = SUCCESS
+- Evaluator now enforces `expected_domain_status`; explicit UNKNOWN truth no longer incorrectly demands element inventory.
+- Current semantic Golden truth remains UNKNOWN; this is contract correctness, not semantic PASS.
+- Post-merge workflow runs for `a08750765c19aadce02003e6fa221532d073992f` are not exposed by the current query; post-merge Green is therefore not claimed.
+- Next: authoritative DWG evidence → reconciliation/provenance → real-world adversarial fixtures → remaining H100 gates.
