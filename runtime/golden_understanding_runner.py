@@ -179,3 +179,13 @@ def write_report(
         json.dumps(report, indent=2, default=str, sort_keys=True),
         encoding="utf-8",
     )
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run the Golden Understanding regression manifest.")
+    parser.add_argument("--manifest", required=True, help="Path to golden-understanding manifest JSON")
+    parser.add_argument("--output", required=True, help="Path for the machine-checkable JSON report")
+    args = parser.parse_args()
+    write_report(args.manifest, args.output)
