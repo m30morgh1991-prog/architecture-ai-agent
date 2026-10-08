@@ -232,3 +232,10 @@ Notion is not a governance or Green-Gate source of truth.
 - Exact-head gates: PR CI #229 / Runtime #516 / Bug Hunt #186 = SUCCESS
 - UG-04 per-domain explicit status contract implemented; all current statuses are UNKNOWN.
 - UG-06 adversarial coverage and semantic ground truth remain pending.
+
+
+## 2026-10-08 — H100 UG-06 checkpoint
+- PR #80 merged: `d0f40f2fac5f1df20c3bbfbd96eaeab966002e03`
+- Exact-head gates: PR CI #233 / Runtime #520 / Bug Hunt #190 = SUCCESS
+- Contract-level adversarial coverage exists for every current fail-closed category.
+- Real-world DWG/image adversarial fixtures and semantic ground truth remain pending.
