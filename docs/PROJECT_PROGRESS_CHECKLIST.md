@@ -272,3 +272,20 @@ Notion is not a governance or Green-Gate source of truth.
 - [ ] H100 UG-10 Green and H101 unlock
 - Post-merge workflows for merge commit `2038ea392fcaeccafc67f8d5ea695a16ff34a918` are not exposed by the current workflow-run query, so post-merge Green is NOT claimed.
 - Next: CandidateFacts/provenance binding → contradiction/negative evidence → drawing-language/level/section semantics → real-world adversarial Golden fixtures → exact-head gates.
+
+
+## 2026-10-08 — H100 PR #86 checkpoint
+
+- [x] PR #86 merged: `117e6f52cbe02bedc59dfbf73810a821d7a70765`
+- [x] Fixed exact head `e9804928523e0f3ed3b6c8a9847fbc400247ab32` — PR CI #264 / Runtime #551 / Bug Hunt #221 = SUCCESS
+- [x] DWG evidence → CandidateFact provenance binding and source-SHA continuity validation merged
+- [x] Contradictions are preserved through reconciliation; they are not silently discarded
+- [x] Bug Hunt governance-only failure fixed and re-verified
+- [ ] H100 contradiction/negative-evidence hardening
+- [ ] H100 level/elevation + section/cut-plane/direction + scale/unit semantics
+- [ ] H100 Iranian drawing-language semantic coverage
+- [ ] H100 real-world transformed/defective Golden fixtures
+- [ ] H100 semantic Golden ground truth / authoritative understanding
+- [ ] H100 UG-10 Green and H101 unlock
+- Post-merge workflows for `117e6f52cbe02bedc59dfbf73810a821d7a70765` are not exposed by the current commit workflow-run query, so post-merge Green is NOT claimed.
+
