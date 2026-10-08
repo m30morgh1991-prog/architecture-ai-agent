@@ -86,52 +86,78 @@ def _blocked_observation(reason: str) -> dict[str, Any]:
     }
 
 
-def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None) -> dict[str, Any]:
-    path = Path(case.source_path)
-    if not path.is_file():
-        observed = _blocked_observation("SOURCE_FILE_MISSING")
-        regression = evaluate_golden_case(case, observed)
-        return {
-            "case_id": case.case_id,
-            "source_sha256": None,
-            "source_exists": False,
-            "observed": observed,
-            "decision": regression.decision,
-            "unsafe_acceptance": regression.unsafe_acceptance,
-            "failures": ("SOURCE_FILE_MISSING",) + regression.failures,
-        }
-
-    source_sha256 = sha256_file(path)
-    if case.source_sha256 is not None and source_sha256 != case.source_sha256:
-        observed = _blocked_observation("SOURCE_SHA256_MISMATCH")
-        regression = evaluate_golden_case(case, observed)
-        return {
-            "case_id": case.case_id,
-            "source_sha256": source_sha256,
-            "source_exists": True,
-            "observed": observed,
-            "decision": "BLOCKED",
-            "unsafe_acceptance": regression.unsafe_acceptance,
-            "failures": ("SOURCE_SHA256_MISMATCH",) + regression.failures,
-        }
-
-    understanding = (core or PlanUnderstandingCore()).understand(
-        source_path=str(path),
-        source_sha256=source_sha256,
-        model_id=f"golden:{case.case_id}",
-    )
-    observed = _domain_observation(understanding, source_sha256, str(path))
+def _case_report(
+    case: GoldenCase,
+    observed: dict[str, Any],
+    *,
+    source_sha256: str | None,
+    source_exists: bool,
+    extra_failures: tuple[str, ...] = (),
+) -> dict[str, Any]:
     regression = evaluate_golden_case(case, observed)
     return {
         "case_id": case.case_id,
         "source_sha256": source_sha256,
-        "source_exists": True,
+        "source_exists": source_exists,
         "observed": observed,
         "decision": regression.decision,
         "unsafe_acceptance": regression.unsafe_acceptance,
-        "failures": regression.failures,
+        "failures": extra_failures + regression.failures,
         "domain_results": dict(regression.domain_results),
     }
+
+
+def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None) -> dict[str, Any]:
+    path = Path(case.source_path)
+    if not path.is_file():
+        observed = _blocked_observation("SOURCE_FILE_MISSING")
+        return _case_report(
+            case,
+            observed,
+            source_sha256=None,
+            source_exists=False,
+            extra_failures=("SOURCE_FILE_MISSING",),
+        )
+
+    source_sha256 = sha256_file(path)
+    if case.source_sha256 is not None and source_sha256 != case.source_sha256:
+        observed = _blocked_observation("SOURCE_SHA256_MISMATCH")
+        return _case_report(
+            case,
+            observed,
+            source_sha256=source_sha256,
+            source_exists=True,
+            extra_failures=("SOURCE_SHA256_MISMATCH",),
+        )
+
+    try:
+        understanding = (core or PlanUnderstandingCore()).understand(
+            source_path=str(path),
+            source_sha256=source_sha256,
+            model_id=f"golden:{case.case_id}",
+        )
+    except Exception as exc:
+        # A Golden runner must never turn an execution/contract exception into
+        # a test-process crash. Preserve the failure as an explicit BLOCKED
+        # observation so the regression report remains machine-checkable and
+        # fail-closed.
+        reason = f"UNDERSTANDING_EXECUTION_BLOCKED:{type(exc).__name__}:{exc}"
+        observed = _blocked_observation(reason)
+        return _case_report(
+            case,
+            observed,
+            source_sha256=source_sha256,
+            source_exists=True,
+            extra_failures=("UNDERSTANDING_EXECUTION_BLOCKED",),
+        )
+
+    observed = _domain_observation(understanding, source_sha256, str(path))
+    return _case_report(
+        case,
+        observed,
+        source_sha256=source_sha256,
+        source_exists=True,
+    )
 
 
 def run_manifest_to_report(
