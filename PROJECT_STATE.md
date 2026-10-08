@@ -24,14 +24,15 @@
 - Raster/image evidence cannot silently become authoritative geometry.
 
 ### H100 continuation
-PR #66 established the source boundary; PR #68 established semantic/drawing evidence; PR #69 locked Golden Understanding research; PR #70 is the active Golden Understanding Regression implementation.
+PR #66 established the source boundary; PR #68 established semantic/drawing evidence; PR #69 locked Golden Understanding research; PR #70 is the active Golden Understanding Regression implementation; PR #72 adds the standalone CLI E2E verification.
 Do not start H101 until UG-01..UG-09 are Green and the verified state is persisted.
 
 Current active sequence:
 1. PR #71 standalone Golden Understanding runner is merged at `671133d4ab8941b2a38c79597769d8df2b18269e`; exact-head pre-merge gates were green.
-2. Post-merge main workflows for `671133d4...` are not yet observed; therefore mainline Green Gate is not claimed.
-3. Complete UG-03 end-to-end runner verification, then complete UG-06 adversarial coverage and UG-07 per-domain metrics.
-2. Execute preserved Golden DWGs and independently verify SHA-256 and evidence snapshots.
+2. PR #72 standalone Golden runner CLI E2E is merged at `b55242becb786fb4f932c671cf98e61c5aa3686d`; exact-head PR CI #204, Bug Hunt #161, and Runtime #491 were green.
+3. Post-merge main workflows for `b55242be...` are not yet observed; therefore mainline Green Gate is not claimed.
+4. UG-03 implementation/evidence is now merged; continue with UG-06 adversarial coverage and UG-07 per-domain metrics.
+5. Execute preserved Golden DWGs and independently verify SHA-256 and evidence snapshots.
 3. Keep dimensions, levels, view markers and vertical circulation UNKNOWN unless source evidence supports them.
 4. Apply reconciliation/provenance/fail-closed checks before authoritative PlanModel promotion.
 5. Run exact-head REAL CI + Runtime + Bug Hunt + required regression.
