@@ -23,7 +23,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown/insufficient evidence fails closed.
 
-## Current verified continuation point — H98 complete
+## Current continuation point — H100 active
 - H97 merged as PR #57; exact-head CI: Bug Hunt #66, PR CI #109, Runtime #396 — completed/success.
 - H97 merge: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
 - H98 — Plan Understanding Core merged as PR #59.
@@ -78,10 +78,19 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Real DWG regression remains a validation boundary.
 - Visual Runtime remains separate from logical/static reconstruction.
 
-## Continuation after #60
-1. Verify #60 exact-head CI after the final state-sync commit.
-2. Merge #60 only after required gates are completed/success.
-3. Verify the resulting main commit; unobserved CI remains explicitly unobserved.
-4. Inspect repository contracts/tests/active PRs.
-5. Define H99 from actual code and dependencies.
-6. Implement H99 → real CI → verify → regression → persist → continue.
+## YQArch / AutoCAD execution research
+- Registered at `docs/research/yqarch-autocad-execution.md`.
+- YQArch is treated as a backend execution adapter candidate, never as Source of Truth or Plan Understanding.
+- A provider-neutral Architectural Capability Registry is the intended abstraction between ApprovedChangePlan and backend-specific commands.
+- Model-facing execution must not expose arbitrary AutoLISP or arbitrary command strings.
+- Runtime states must distinguish dispatch/start/interactivity/completion from VERIFIED success.
+- Layer names are evidence, not semantic truth; combine layer, geometry, symbols, text, topology, and BIM relations.
+- YQArch capabilities useful to the roadmap include architectural primitives, dimensions/annotations, axes/grids, vertical circulation, layer operations, measurement/listing helpers, and controlled repair/transform operations.
+
+## Continuation from H100
+1. Verify PR #64 exact-head CI and required gates; queued/in_progress/missing/unobserved is not GREEN.
+2. Bug Hunt any red gate before proceeding.
+3. Merge H100 only after required evidence succeeds.
+4. Verify the resulting main commit.
+5. Derive H101 from actual repository contracts/tests and the newly registered execution/capability boundary.
+6. Implement H101 → REAL CI → verify → regression → persist → continue.
