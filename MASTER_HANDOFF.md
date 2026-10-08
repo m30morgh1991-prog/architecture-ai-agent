@@ -184,3 +184,10 @@ PR #87 documentation checkpoint also merged at `e520aaf91063cb45a424b76a1960b804
 No post-merge workflow run is currently exposed for PR #88 merge SHA, so no post-merge Green claim is made.
 
 Next: level/elevation → section marker/cut-plane/direction → scale/unit → Iranian drawing language → real-world adversarial Golden fixtures. H101 stays locked.
+
+
+## H100 PR #90 checkpoint — level/elevation evidence
+
+PR #90 merged at `c4011e0a8b67b3da41b755dfb485c1f2b60a71a0`. Exact head `5ab500c72151e64f8a63c80c211c3d5522ed7cb3` passed PR CI #276, Runtime #563 and Bug Hunt #233. Level extraction remains conservative and source-bound; numeric text alone is not promoted, and stair/floor inference remains pending.
+
+Next: section marker/cut-plane/direction → scale/unit → Iranian drawing language → real-world adversarial Golden fixtures.

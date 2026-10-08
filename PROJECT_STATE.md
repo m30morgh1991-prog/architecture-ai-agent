@@ -166,3 +166,15 @@ PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f`. Exact-head `3ea24d6
 3. Add scale/unit semantics.
 4. Integrate Iranian drawing-language conventions without promoting unsupported raster/vector inference.
 5. Build real-world transformed/defective Golden fixtures and evaluate fail-closed decisions.
+
+
+### H100 PR #90 checkpoint — level/elevation evidence
+
+- PR #90 merged at `c4011e0a8b67b3da41b755dfb485c1f2b60a71a0`.
+- Exact head `5ab500c72151e64f8a63c80c211c3d5522ed7cb3`: PR CI #276, Runtime #563, Bug Hunt #233 all SUCCESS.
+- Added conservative direct DWG level/elevation evidence extraction. Explicit level context/unit is supported; arbitrary numeric text remains UNKNOWN.
+- No floor relation or stair-count inference is promoted yet.
+- H101 remains locked.
+- Post-merge workflow runs for `c4011e0...` are not claimed until exposed.
+
+Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
