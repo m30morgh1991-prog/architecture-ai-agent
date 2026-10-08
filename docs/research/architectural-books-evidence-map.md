@@ -54,9 +54,6 @@ Contents include design process/programming; functional zones in a dwelling; hum
 **Mapping:** Spatial relation/circulation semantics for PlanModel; room adjacency/accessibility candidates; site/context constraints; traceable rule-layer candidates for light, stairs, doors/windows and space dimensions.
 **Limit:** Primarily a design-planning reference, not a phase-2 drafting standard. Regulatory content is historical until checked against current official requirements.
 
-## Non-project file excluded
-The file 2204251.pdf was identified from extracted text as a medical laboratory report, not an architecture book. It is excluded from this research and must not be copied into project documentation or used as project data.
-
 ## Cross-source implementation candidates
 1. **Drawing vocabulary:** candidate classes for wall, column, door, window, closet, duct, north arrow, level difference, stairs, section/elevation markers, axes and dimensions.
 2. **View relations:** explicit links among floor plans, sections, elevations, roof/site plans, details and schedules. Missing a view is not proof that the underlying element is absent.
