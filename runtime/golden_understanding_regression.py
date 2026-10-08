@@ -93,7 +93,14 @@ def evaluate_golden_case(
     domain_results: dict[str, bool] = {}
 
     for domain in case.expected_domains:
-        ok = domain in observed and observed[domain] is not None
+        value = observed.get(domain)
+        # A domain is covered only when it is populated or explicitly UNKNOWN.
+        # Empty containers are not evidence of understanding.
+        explicit_unknown = value == "UNKNOWN" or (
+            isinstance(value, Mapping) and value.get("status") == "UNKNOWN"
+        )
+        populated = value is not None and value != () and value != [] and value != {}
+        ok = explicit_unknown or populated
         domain_results[domain] = ok
         if not ok:
             failures.append(f"MISSING_DOMAIN:{domain}")
