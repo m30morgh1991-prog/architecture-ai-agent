@@ -111,3 +111,12 @@ PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f`. Exact-head `3ea24d6
 - Build actual semantic Golden truth from read-only DWG/CAD evidence, not guessed labels or VLM-only interpretation.
 - Expand contract-level adversarial fixtures into real-world transformed/defective drawing fixtures.
 - Keep H101 locked until the remaining Golden Understanding gates have real evidence.
+
+### H100 PR #83 checkpoint — read-only DWG semantic evidence
+- PR #83 merged to main at `d92eb9d3f63819e744b1c901504d447508cd9cab`.
+- Exact PR head `ce3a2298495f579f37b51c17961d03dbd467f4d8`: PR CI #252 SUCCESS, Runtime #539 SUCCESS, Bug Hunt #209 SUCCESS.
+- Added conservative `ezdwg` read-only semantic evidence extraction for the preserved Golden DWGs.
+- Evidence includes source identity, entity/layer/block evidence, text, dimensions, and only explicit direct semantic candidates. Generic geometry is not promoted to architectural truth.
+- Semantic authority remains false; unsupported semantic domains remain UNKNOWN/fail-closed.
+- Post-merge workflow query for merge commit returned no exposed runs, so post-merge Green is NOT claimed.
+- Next priority: reconcile extracted CAD evidence into provenance-bound semantic facts and build real-world adversarial Golden fixtures before unlocking H101.
