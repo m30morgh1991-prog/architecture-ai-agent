@@ -13,6 +13,7 @@ from runtime.golden_understanding_regression import (
     summarize_domain_metrics,
 )
 from runtime.plan_understanding_core import PlanUnderstandingCore
+from runtime.input_source_contract import classify_source
 
 
 def sha256_file(path: str | Path) -> str:
@@ -23,14 +24,19 @@ def sha256_file(path: str | Path) -> str:
     return digest.hexdigest()
 
 
-def _domain_observation(result, source_sha256: str) -> dict[str, Any]:
+def _domain_observation(result, source_sha256: str, source_path: str) -> dict[str, Any]:
     detection = result.detection
     model = result.plan_model
     elements = [element.element_type for element in model.elements]
 
+    source_profile = classify_source(source_path)
     return {
         "source_profile": {
             "sha256": source_sha256,
+            "source_class": source_profile.source_class.value,
+            "input_mode": source_profile.input_mode.value,
+            "geometry_trust_rank": source_profile.geometry_trust_rank,
+            "requires_pdf_inspection": source_profile.requires_pdf_inspection,
             "detector_id": detection.get("detector_id"),
             "status": detection.get("status"),
         },
@@ -114,7 +120,7 @@ def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None)
         source_sha256=source_sha256,
         model_id=f"golden:{case.case_id}",
     )
-    observed = _domain_observation(understanding, source_sha256)
+    observed = _domain_observation(understanding, source_sha256, str(path))
     regression = evaluate_golden_case(case, observed)
     return {
         "case_id": case.case_id,
