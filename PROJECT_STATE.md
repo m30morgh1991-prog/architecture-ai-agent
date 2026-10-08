@@ -17,18 +17,19 @@
 - Do not bypass Green Gate evidence: alternatives may accelerate preparation and verification, but a gated stage still requires real `completed / success` CI evidence before it is declared GREEN/PASS.
 - Stop only when there is a genuine external blocker or an unavoidable human decision; otherwise keep the project moving toward the next verifiable milestone.
 
-## Current verified state — H98 checkpoint
-- **H95 — Idempotent Execution Recovery:** merged and verified.
-- **H96 — Evidence-based Release Gate:** merged as PR #56; merge commit `75117399336135f654a99a805977a93251be0946`.
-- **H97 — Runtime Evidence Integration:** PR #57 merged on 2026-10-04.
-- H97 exact-head CI: Bug Hunt Gate #66, PR CI Gate #109, Runtime Tests #396 — all `completed / success`.
-- H97 merge commit: `ce972970d12f3a93e7bbcfc72c28243a74b7dd0d`.
-- H97 wires audit completeness, idempotency completion, and runtime PASS evidence into the hardened H96 release gate and persists the enriched result for replay.
-- **H98 — Plan Understanding Core:** merged as PR #59; merge commit `e0bf66e46a6963b7561a458c7fcc046d2e5ae24a`.
-- H98 exact-head: `754331041aa67625c5e78b4ac83e16d718dfb149`; Bug Hunt #72, PR CI #115, Runtime Tests #402 — all `completed / success`.
-- H98 composes Detection → PlanModel Reconstruction → ConstraintMap and preserves UNKNOWN/NEEDS_REVIEW/BLOCKED fail-closed.
-- **Post-merge Main CI for H98 is currently unobserved**. This is not GREEN evidence.
-- PR #60 is the active durable-state synchronization checkpoint for H98.
+## Current verified state — H100 input-source boundary checkpoint
+
+- **H99 — Architectural Relations:** merged on main as commit `2344e1083937e5d91857ba24b6a0f077414f06ca`.
+- **PR #65 — Feature-to-File Matrix + semantic-chain research:** merged as commit `176bc2ceb330e2987891ef6edbbaf33b73dc77d3`.
+- PR #65 exact-head gates were GREEN before merge: PR CI #138, Runtime #425, Bug Hunt #96.
+- Post-merge main GREEN evidence is now confirmed on merge commit `176bc2ceb330e2987891ef6edbbaf33b73dc77d3`: Runtime Tests #427 and PR CI Gate #140 completed/success; Bug Hunt Gate #97 completed/success.
+- Repository is currently at **H100 implementation**, with the first H100 boundary implemented on branch `feat/h100-input-source-boundary`.
+- H100 input boundary: Image Input remains supported, but is explicitly separated from Engineering Plan Input.
+- Geometry-evidence trust hierarchy: **DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP**.
+- PDF representation is evidence-classified; unknown PDF representation remains UNKNOWN and requires inspection rather than being guessed.
+- Source classification is carried through execution metadata via `source_profile`.
+- Current H100 branch implementation must pass exact-head REAL CI + Bug Hunt before merge.
+- Do not declare H100 complete yet: drawing semantics, dimensions/annotations, markers, hatch, scale/unit, provenance, contradiction/missing-evidence coverage and Golden DWG regression remain gated work.
 
 ## Integrated project knowledge checkpoint — 2026-10-04
 This section is the consolidated continuation baseline from the recent project conversations and repository state.
@@ -115,7 +116,8 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - H94 DWG polygonization performance root cause was fixed and regression-verified.
 
 ## Current continuation
-- Current durable continuation is **H98 complete + PR #60 state synchronization**.
-- Do not redo H95–H98.
-- Once #60 is verified green and merged, inspect current main, active PRs, exact-head CI, and repository contracts/tests.
-- Define H99 from actual repository evidence and dependencies, not from an assumed old roadmap.
+- Current durable continuation is **H100 — input-source boundary implementation**.
+- Do not redo H95–H99.
+- H99 and PR #65 are already merged and post-merge main CI is GREEN.
+- Finish H100 from actual repository contracts/tests: drawing-language evidence, source provenance, PDF/vector-vs-raster evidence, dimensions/annotations, markers, scale/unit and regression coverage.
+- Required cycle remains: Implement → REAL CI → Verify → Regression → Persist State → Continue.
