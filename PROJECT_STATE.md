@@ -87,3 +87,10 @@ Current active sequence:
 - Exact-head PR #76: PR CI #225 SUCCESS, Runtime #512 SUCCESS, Bug Hunt #182 SUCCESS.
 - Added executable mainline checkpoint coverage for Golden source binding, UNKNOWN status, fail-closed state documentation, and read-only CAD boundary.
 - Mainline post-merge workflow Green is still not claimed because the current workflow-run query exposes PR-triggered runs only.
+
+
+### H100 UG-04 checkpoint — PR #78
+- PR #78 merged at `79790fce10ec89b64dfbe613e5dbb1b321eadb76`.
+- Exact-head PR CI #229, Runtime #516, Bug Hunt #186 = SUCCESS.
+- Every required Golden semantic domain now has explicit machine-readable `expected_domain_status`; current truth is explicitly UNKNOWN.
+- UG-04 is implementation-complete; semantic truth remains unresolved and fail-closed.
