@@ -10,7 +10,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 4. Verify actual status/conclusion; queued/running/failed/unobserved is not green.
 5. Run required regression checks when applicable.
 6. Persist verified state in the repository.
-7. Green Gate requires real CI `completed / success` plus required verification/regression evidence.
+7. Green Gate requires real CI completed / success plus required verification/regression evidence.
 8. Do not start the next gated H until the current gate has real evidence.
 9. **Notion is excluded from governance and execution.**
 10. Never convert Logical/Static PASS or UNKNOWN evidence into Real Runtime/Visual PASS.
@@ -23,25 +23,28 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Pipeline: prompt → understanding → ChangeRequest → PlanModel → ConstraintMap → ImpactAnalysis → Rules → ChangeProposal → Conflict → Validation → ApprovedChangePlan → Controlled Editing → PostEditDiff → Final Validation → Audit.
 - Unknown/insufficient evidence fails closed.
 
-## Current verified continuation point — H100 input-source boundary
+## Current continuation point — H100 input-source boundary
 
 - H99 — Architectural Relations is merged on main: `2344e1083937e5d91857ba24b6a0f077414f06ca`.
 - PR #65 Feature-to-File Matrix + semantic-chain research is merged: `176bc2ceb330e2987891ef6edbbaf33b73dc77d3`.
 - PR #65 pre-merge gates: PR CI #138, Runtime #425, Bug Hunt #96 — completed/success.
 - Post-merge main gates on `176bc2c`: Runtime #427, PR CI #140, Bug Hunt #97 — completed/success.
-- H100 is now active on branch `feat/h100-input-source-boundary`.
+- H100 PR #66 is merged.
+- H100 PR-head gates: Bug Hunt #108, PR CI #151, Runtime #438 — completed/success.
+- H100 merge commit: `4f1363ead6c10378cbf807d29271ae315ae01c36`.
+- The current state-persistence commit is `7474396ca33c09dc3ac50666cb0491e954a567fa`.
+- Post-merge main CI has not yet been observed; H100 mainline Green is therefore not claimed.
 - Implemented boundary: Image Input remains supported but is separate from Engineering Plan Input.
 - Geometry evidence hierarchy: **DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP**.
 - PDF must be classified by evidence as vector or raster; unknown representation remains fail-closed.
-- `runtime/input_source_contract.py` defines the source classes and trust ordering.
+- `runtime/input_source_contract.py` defines source classes/trust ordering.
 - `runtime/request_contract.py` carries optional `source_profile` metadata.
-- H100 is **not complete yet**. Remaining drawing-semantics/evidence work must be implemented, tested, Bug-Hunted, regression-verified and persisted before merge.
 
 ## Consolidated architecture baseline
+
 ### Product
 - Architecture AI Agent MVP; provider-neutral, low-cost/open-source oriented, Iran-friendly, tablet/PWA friendly.
-- MVP supports image/document inputs, but the architecture now distinguishes Engineering Plan Input from Image Input.
-- Source hierarchy for geometry reconstruction: DWG/DXF → Vector PDF → Raster PDF → JPG/PNG/WEBP.
+- MVP supports image/document inputs, but distinguishes Engineering Plan Input from Image Input.
 - Native DWG/DXF editing remains outside the current MVP editing boundary; Golden DWGs remain regression assets.
 - Golden DWGs: `bagheri7.dwg`, `afifiiiii.end.edit3.dwg`.
 
@@ -61,20 +64,41 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - PlanModel remains evidence-backed and source-bound.
 - BIM-ready semantic contracts provide identity and validated relations without making full IFC/BIM a runtime dependency.
 - BIM must remain provider/software neutral and fail-closed.
-- Future H stages must be derived from actual repository contracts, tests, and dependencies.
 
 ### Knowledge / rules
 - Future Rule/Validation layers should incorporate traceable Iran building regulations, Engineering Organization/local rules, relevant نشریه 55/246/256, accessibility/façade/MEP rules, ISO 128/129-1/5457/7200, Neufert, Metric Handbook, Time-Saver, vocational drafting references, and CAD/BIM/Revit conventions.
 - Keep rule sources separate from raw detection and make rules explicit/testable.
 
-### Governance
-- Implement → REAL CI → Verify → Regression → Persist → Continue.
-- Exact-head `completed / success` is required for GREEN.
-- Bug Hunting is mandatory after red tests.
-- No-Wait Rule permits safe parallel preparation but never bypasses a gate.
-- “بکاپ بگیر” is additive from the current point and never resets the project.
-- Repository is durable recovery state; Notion is not governance.
-- Auto-Runner should keep forward motion while respecting all gates.
+## Research-derived decisions — 2026-10-08
+
+The comparative research is consolidated in `docs/research/external-agent-gap-analysis-2026-10-08.md`.
+
+- HarnessBIM: reference for BIM verification/checker architecture, not an MVP multi-agent dependency.
+- IFC_AGENTS: reference for deterministic IFC operations, issue/evidence lifecycle, and human-approved correction.
+- Floor-plan vision systems: reference for Evidence Extraction/Semantic Candidates, not authoritative geometry.
+- CAD/BIM agent bridges: reference for capability discovery and deterministic execution.
+- OpenTakeoff-style patterns: reference for scale gates and measurement provenance.
+- YQArch/AutoCAD: future Execution Adapter behind a Capability Registry, never the semantic authority.
+- No arbitrary LISP path and no direct LLM → AutoCAD geometry authority.
+- Iranian architectural drawing language is first-class semantic evidence.
+- Level/stair/section inference is fail-closed and requires explicit consistent evidence.
+- Core invariant: **understand the plan before generating or editing the plan**.
+
+## H101–H110 roadmap
+
+1. **H101 — Evidence & Provenance:** Evidence IDs, source binding, evidence strength, measurement provenance, contradiction/missing-evidence propagation.
+2. **H102 — Relations & Topology:** canonical Wall/Door/Window/Space relations, adjacency, containment, connectivity, geometry/semantic consistency.
+3. **H103 — Drawing Set Graph:** sheet/floor/plan/section/elevation/detail identity, continuation/reference links, cross-sheet provenance.
+4. **H104 — Vertical Circulation:** levels, storey heights, riser/tread, landings, flights, direction, plan/section consistency.
+5. **H105 — Architectural Capability Registry:** semantic capabilities, backend/provider, evidence requirements, risk, approval, refusal defaults.
+6. **H106 — Controlled Editing:** transaction, rollback, lifecycle, provider-neutral adapters.
+7. **H107 — Post-Edit Verification:** diff, reopen/parity, geometry/semantic validation, before/after evidence.
+8. **H108 — Rule & Compliance:** traceable/testable Iran/local/drafting/accessibility/MEP/structural rules.
+9. **H109 — End-to-End Plan Understanding:** Evidence → Semantic Candidates → PlanModel → Relations/Topology → ConstraintMap → Validation → Understanding Result.
+10. **H110 — Controlled Plan Generation:** only after H109 Green; Design Intent → ChangeRequest → ImpactAnalysis → ApprovedChangePlan → Controlled Generation → Validation.
+
+### Acceptance invariant
+No stage may make generation an alternative Source of Truth. Understanding, provenance, relations, topology and validation precede increased execution power.
 
 ## Golden / regression integrity
 - Golden DWG assets must remain preserved.
@@ -82,29 +106,10 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Real DWG regression remains a validation boundary.
 - Visual Runtime remains separate from logical/static reconstruction.
 
-## Continuation after H99 / PR #65
+## Immediate next sequence
 
-1. H99 is complete and post-merge main CI is GREEN.
-2. Finish H100 from the actual repository contracts and tests.
-3. Keep PDF representation evidence-driven; never guess vector/raster.
-4. Preserve one canonical PlanModel/evidence chain; do not create duplicate semantic graphs.
-5. Run REAL CI + Bug Hunt + required regression on the H100 head.
-6. Persist verified state, then continue to H101 only after Green Gate evidence.
-
-
-## Integrated research checkpoint — 2026-10-08
-
-The project now carries forward the latest research without changing the Source of Truth.
-
-### Research-derived architecture rules
-- Use JMU-style explicit relations, RedrawAI-style staged raster reconstruction/uncertainty, Draftly-style semantic-intent-to-deterministic-geometry separation, CraftBot-style knowledge/feedback loops, and dwg-bim_AI-style CV→CAD/BIM bridging only as implementation patterns.
-- YQArch/AutoCAD belongs behind a future Capability Registry / Execution Adapter. It is not the semantic authority.
-- Do not allow arbitrary LISP or direct LLM-generated AutoCAD geometry to bypass PlanModel, ApprovedChangePlan and validation.
-- Treat Iranian drawing conventions as semantic evidence: symbols, orientation, line weights/layers, dimensions, level codes, floor/stair relations, section/elevation markers and directions, cut planes, hatch, scale/unit and title-block metadata.
-- Section markers/direction are semantic relations; level codes can constrain floor and vertical-circulation reasoning when evidence is complete and consistent.
-
-### Current invariant
-**Understanding the plan comes before generating or editing the plan.**
-
-### Current H100 work
-Finish source provenance/evidence binding, drawing-language semantics, contradiction/missing-evidence handling, fail-closed propagation and Golden DWG regression. H100 is not Green until exact-head REAL CI, Bug Hunt and required regression evidence are completed/successful.
+1. Observe main CI for H100 merge/state commits.
+2. If GREEN, persist the verified H100 mainline checkpoint.
+3. If RED, mandatory Bug Hunt → patch → rerun → verify.
+4. Only after H100 mainline Green, derive the exact implementation/files for H101 from repository contracts and tests.
+5. Run exact-head REAL CI + Bug Hunt + required regression before each Green Gate.
