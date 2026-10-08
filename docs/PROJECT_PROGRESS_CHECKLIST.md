@@ -29,15 +29,19 @@
 - [x] 2026-10-08 — GitHub architecture-agent research consolidated
 - [x] 2026-10-08 — YQArch/AutoCAD execution adapter direction recorded
 - [x] 2026-10-08 — Iranian architectural drawing-language requirements consolidated
-- [ ] H100 — Drawing Semantics + Dimension/Annotation Evidence
-- [ ] H100 — Semantic Chain fully wired and validated
-- [ ] H100 — Evidence IDs/provenance bound to semantic facts
-- [ ] H100 — UNKNOWN / NEEDS_REVIEW / BLOCKED propagation
-- [ ] H100 — Contradiction detection
-- [ ] H100 — Missing-evidence detection
-- [ ] H100 — Golden DWG regression
-- [ ] H100 — REAL CI + Bug Hunt Green
-- [ ] H100 — Persist verified state after Green Gate
+- [x] H100 Golden Understanding research lock merged (PR #69, merge `b27ea1f09b6e20c2ed13931177f740e6db93c6d0`)
+- [x] H100 Golden Understanding Regression contract foundation implemented (PR #70 branch)
+- [x] H100 — Drawing Semantics + Dimension/Annotation Evidence foundation (PR #68)
+- [x] H100 — Semantic Chain foundation wired to canonical PlanModel (PR #68)
+- [x] H100 — Evidence IDs/provenance bound to semantic facts (PR #68)
+- [x] H100 — UNKNOWN / NEEDS_REVIEW / BLOCKED propagation foundation (PR #68)
+- [x] H100 — Contradiction detection foundation (PR #68)
+- [x] H100 — Missing-evidence detection foundation (PR #68)
+- [ ] H100 — Golden Understanding Regression: contract + manifest + fail-closed evaluator
+- [ ] H100 — Golden Understanding: real Golden DWG execution + source hashes + ground truth
+- [ ] H100 — UG-01..UG-08 Golden Understanding Gate checks Green
+- [ ] H100 — UG-09 exact-head REAL CI + Runtime + Bug Hunt Green
+- [ ] H100 — UG-10 Green → persist verified state and unlock H101
 - [ ] H101 — Architectural Intent + Program + Plan Generation + deterministic geometry/layout
 - [ ] H101 — REAL CI + Bug Hunt Green
 - [ ] H102 — Architecture IR + lint/diagnostics
@@ -52,6 +56,19 @@
 - [ ] H111 — Production documentation/release gate
 
 ## H100 — Semantic/Drawing Evidence checklist
+
+### Golden Understanding Gate (UG-01..UG-10)
+
+- [x] UG-01 Golden case manifest exists
+- [x] UG-02 Ground-truth schema is source-bound and versioned
+- [ ] UG-03 End-to-end Understanding Runner emits a machine-checkable report
+- [ ] UG-04 All required semantic domains have expected truth or explicit UNKNOWN
+- [x] UG-05 Public benchmark calibration is separated from project acceptance
+- [ ] UG-06 Adversarial cases exist for every fail-closed category
+- [ ] UG-07 Metrics are computed per domain
+- [x] UG-08 False-PASS / unsafe-acceptance checks are hard blockers
+- [ ] UG-09 Exact-head REAL CI + Runtime + Bug Hunt Green
+- [ ] UG-10 Only after UG-01..UG-09 pass may H101 begin
 
 - [ ] Door/window symbols + opening direction
 - [ ] Line type/thickness/weight
