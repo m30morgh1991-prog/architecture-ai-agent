@@ -38,7 +38,8 @@
 - [x] H100 — Contradiction detection foundation (PR #68)
 - [x] H100 — Missing-evidence detection foundation (PR #68)
 - [x] H100 — Golden Understanding Regression: contract + manifest + fail-closed evaluator implemented; exact-head Green still required
-- [ ] H100 — Golden Understanding: real Golden DWG execution + source hashes + ground truth
+- [x] H100 — Golden DWG source execution/identity + real SHA-256 persistence
+- [ ] H100 — Golden semantic ground truth and authoritative understanding
 - [ ] H100 — UG-01..UG-08 Golden Understanding Gate checks Green
 - [x] H100 — PR #70 exact-head PR CI + Runtime + Bug Hunt Green (pre-merge); post-merge mainline verification remains pending
 - [ ] H100 — UG-10 Green → persist verified state and unlock H101
@@ -61,13 +62,13 @@
 
 - [x] UG-01 Golden case manifest exists
 - [x] UG-02 Ground-truth schema is source-bound and versioned
-- [ ] UG-03 End-to-end Understanding Runner emits a machine-checkable report
+- [x] UG-03 End-to-end Understanding Runner emits a machine-checkable report
 - [ ] UG-04 All required semantic domains have expected truth or explicit UNKNOWN
 - [x] UG-05 Public benchmark calibration is separated from project acceptance
 - [ ] UG-06 Adversarial cases exist for every fail-closed category
 - [x] UG-07 Metrics are computed per domain (implementation); Green evidence still required
 - [x] UG-08 False-PASS / unsafe-acceptance checks are hard blockers
-- [ ] UG-09 Exact-head REAL CI + Runtime + Bug Hunt Green
+- [x] UG-09 PR #75 exact-head REAL CI #219 + Runtime #506 + Bug Hunt #176 Green
 - [ ] UG-10 Only after UG-01..UG-09 pass may H101 begin
 
 - [ ] Door/window symbols + opening direction
@@ -91,7 +92,8 @@
 - [x] UNKNOWN / NEEDS_REVIEW / BLOCKED propagation (foundation; end-to-end Golden Gate still pending)
 - [x] Contradiction detection (foundation; adversarial coverage pending)
 - [x] Missing-evidence detection (foundation; adversarial coverage pending)
-- [ ] Golden DWG regression — real execution/source hashes/ground truth pending
+- [x] Golden DWG regression — real source hashes persisted and byte-verified
+- [ ] Golden DWG regression — semantic ground truth / adversarial acceptance pending
 
 ## Integrated research findings
 
@@ -204,3 +206,15 @@ Rule: Detection is not Understanding. Do not create a second PlanModel or second
 5. Feature-to-file matrix / research docs as supporting planning documents
 
 Notion is not a governance or Green-Gate source of truth.
+
+## 2026-10-08 verified checkpoint — PR #75
+
+- Merge: `c056c31ff97db532381c7466388200ff3cb62aeb`
+- Exact-head PR CI #219: success
+- Exact-head Runtime #506: success
+- Exact-head Bug Hunt #176: success
+- Golden SHA-256: `bagheri7.dwg = 865244d69e260d9ad23abed7b3ecaeb4df8b5f7da562c8d0284b466f3da13e6a`
+- Golden SHA-256: `afifiiiii.end.edit3.dwg = 508673cf44661b8b46fbb7f98992fffc99bd7d87531c1011fc5b8139d65a11a5`
+- AutoCAD-MCP: provider-neutral boundary + read-only source-identity adapter merged; live write remains blocked.
+- Bug Hunt evidence contract now requires affected contracts, risk classification, negative tests, unresolved findings, plus existing fail-closed/exact-head evidence.
+- H101 remains locked until remaining Golden semantic/adversarial gates are Green.
