@@ -1,6 +1,6 @@
 """Read-only DWG evidence extraction for Golden Understanding."""
 from __future__ import annotations
-import hashlib, json
+import hashlib, json, re
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -34,6 +34,45 @@ def _token_hits(name: str) -> set[str]:
     return {semantic for semantic,tokens in SEMANTIC_TOKENS.items()
             if any(token.replace("-","_") in normalized for token in tokens)}
 
+
+_LEVEL_RE = re.compile(
+    r"(?P<marker>±|\+|\-)?\s*(?P<value>\d+(?:[.,]\d+)?)\s*(?P<unit>mm|cm|m)?",
+    re.IGNORECASE,
+)
+_LEVEL_CONTEXT_RE = re.compile(
+    r"(?:\b(?:RL|EL|FFL|T\.?O\.?|LEVEL|LVL)\b|کد\s*ارتفاعی|تراز|کف|ارتفاع)",
+    re.IGNORECASE,
+)
+
+def _level_candidate(text: str, handle: int, source_sha256: str, source_units: Any) -> dict[str, Any] | None:
+    raw = " ".join(str(text).split())
+    if not raw:
+        return None
+    match = _LEVEL_RE.search(raw)
+    if not match:
+        return None
+    marker = match.group("marker") or ""
+    value_text = match.group("value").replace(",", ".")
+    unit = match.group("unit")
+    context = bool(_LEVEL_CONTEXT_RE.search(raw))
+    conventional = marker == "±" and float(value_text) == 0.0
+    status = "SUPPORTED" if (unit or context or conventional) else "UNKNOWN"
+    if status == "SUPPORTED" and not unit:
+        unit = str(source_units or "")
+    if status == "SUPPORTED" and not unit:
+        status = "UNKNOWN"
+    return {
+        "handle": handle,
+        "raw_text": raw,
+        "marker": marker,
+        "elevation": float(value_text) * (-1.0 if marker == "-" else 1.0),
+        "unit": unit or "",
+        "context_explicit": context,
+        "provenance": "DIRECT",
+        "status": status,
+        "source_sha256": source_sha256,
+    }
+
 def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     import ezdwg
     source = Path(path)
@@ -42,7 +81,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     entities = list(doc.modelspace().query())
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
     geometry_counts = Counter()
-    text_evidence, dimension_evidence = [], []
+    text_evidence, dimension_evidence, level_evidence = [], [], []
     candidates = {k: [] for k in SEMANTIC_TOKENS}
 
     for entity in entities:
@@ -64,10 +103,15 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         if dxftype in {"LINE","LWPOLYLINE","ARC","CIRCLE","ELLIPSE","SPLINE","HATCH"}:
             geometry_counts[dxftype] += 1
         if dxftype in {"TEXT","MTEXT","ATTRIB","ATTDEF"}:
-            text_evidence.append({"handle":int(getattr(entity,"handle",0)),"type":dxftype,
-                "text":str(getattr(entity,"text",None) or _value(entity,"text","")),
+            text = str(getattr(entity,"text",None) or _value(entity,"text",""))
+            handle = int(getattr(entity,"handle",0))
+            text_evidence.append({"handle":handle,"type":dxftype,
+                "text":text,
                 "insert":_jsonable(_value(entity,"insert")),
                 "rotation":_jsonable(_value(entity,"rotation")),"provenance":"DIRECT"})
+            level = _level_candidate(text, handle, source_sha256, getattr(doc,"units",None))
+            if level:
+                level_evidence.append(level)
         if dxftype == "DIMENSION":
             dimension_evidence.append({"handle":int(getattr(entity,"handle",0)),"type":dxftype,
                 "text":str(_value(entity,"text","")),
@@ -95,7 +139,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "layer_counts":dict(sorted(layer_counts.items())),
         "block_counts":dict(sorted(block_counts.items())),
         "geometry_counts":dict(sorted(geometry_counts.items())),
-        "text":text_evidence,"dimensions":dimension_evidence,
+        "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
         "semantic_candidates":semantic_support,"header":header,
         "authority":{"read_only":True,"semantic_authority":False,
             "generic_linework_is_not_architectural_truth":True},
