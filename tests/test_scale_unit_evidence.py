@@ -35,3 +35,8 @@ def test_pass_with_unknown_unit_is_rejected_by_contract():
 def test_units_are_normalized_before_pass():
     r=evaluate_scale_evidence(source_id="dwg1",unit="mm",explicit_unit="mm",header_unit="MM",dimension_evidence=False,source_metadata=False,evidence_ids=("text","header"))
     assert r.status=="PASS" and r.unit=="MM"
+
+def test_unsupported_unit_label_cannot_become_pass():
+    r=evaluate_scale_evidence(source_id="dwg1",unit="MM",explicit_unit="MILLIMETERS",header_unit=True,dimension_evidence=False,source_metadata=False,evidence_ids=("text","header"))
+    assert r.status=="NEEDS_REVIEW"
+    assert not r.scale_known
