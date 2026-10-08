@@ -162,3 +162,20 @@ Stable identity, level, parent/container, placement, properties and typed relati
 - Stair-count inference from level codes is permitted only when the relevant level/rise/run evidence is explicit and internally consistent.
 
 See `docs/research/PLAN_UNDERSTANDING_SEMANTIC_CHAIN.md` for the implementation mapping and H sequencing.
+
+
+## 13. Educational reference integration — architectural drawing language
+
+The reference `docs/knowledge/uas1_plan_drawing_reading_reference.md` is now part of the educational knowledge base. It strengthens the existing semantic chain with conventional Iranian architectural/structural drawing vocabulary, especially:
+
+- plan symbols for walls, columns, doors, windows, ducts and level differences;
+- section markers, direction and cross-view interpretation;
+- stair flights, landings, direction, rise/run and level relationships;
+- level/elevation codes as first-class evidence;
+- ramp slope + level + geometric consistency checks;
+- dimension chains, hatching, title/scale evidence;
+- structural grid/axis, column/beam/foundation drawing vocabulary.
+
+These are **educational evidence/interpretation rules**, not current regulatory authority. They must feed the existing fail-closed evidence model and must not override official regulations or project-approved documents.
+
+The full source PDF is intentionally not redistributed in this public repository because the supplied source explicitly reserves copyright. The user-provided PDF remains the source material for study.
