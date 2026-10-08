@@ -120,3 +120,16 @@ PR #78 merged at `79790fce10ec89b64dfbe613e5dbb1b321eadb76`; exact-head PR CI #2
 
 ### H100 UG-06 checkpoint
 PR #80 merged at `d0f40f2fac5f1df20c3bbfbd96eaeab966002e03`; exact-head PR CI #233, Runtime #520, Bug Hunt #190 succeeded. Contract-level adversarial coverage now enumerates all current fail-closed categories. Real-world DWG/image adversarial fixtures and semantic ground truth remain pending.
+
+
+## H100 PR #82 checkpoint
+
+PR #82 merged at `a08750765c19aadce02003e6fa221532d073992f` after exact-head `3ea24d659490c7f809bb8579b3ea1e3efbe627fb` passed PR CI #244, Runtime #531, and Bug Hunt #201. The evaluator now consumes `expected_domain_status` and correctly treats explicit UNKNOWN truth as unresolved rather than requiring populated element inventories. Current Golden semantic truth remains UNKNOWN. Post-merge workflow runs are not exposed by the current query, so no post-merge Green claim is made.
+
+### Immediate continuation
+1. Obtain authoritative/read-only structured evidence from the preserved Golden DWGs.
+2. Reconcile CAD evidence into semantic facts with provenance and source binding.
+3. Populate only verified DIRECT/validated DERIVED Golden truth; leave unsupported domains UNKNOWN.
+4. Add real-world adversarial fixtures and corresponding fail-closed expected decisions.
+5. Run exact-head REAL CI + Runtime + Bug Hunt + Golden regression before each gate transition.
+6. Persist verified state; H101 remains locked.
