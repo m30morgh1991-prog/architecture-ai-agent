@@ -124,8 +124,17 @@ After meaningful milestones, persist exact stage, commit, CI evidence, verificat
 - YQArch findings are persisted in `docs/research/yqarch-autocad-execution.md`.
 - Future VerticalCirculation work should model storey height, riser, tread, flight count, landing, direction, required step count, and plan/section representation.
 
+## External agent / plugin gap analysis — registered
+- Research is persisted in `docs/research/external-agent-gap-analysis.md`.
+- Highest-value references reviewed: ConstructDrawingAI, OpenTakeoff, Floor Plan Document Intelligence, HarnessBIM, AutoCAD-MCP, and Bonsai MCP.
+- Confirmed gaps: stronger evidence/source graph, measurement provenance, connectivity/topology contracts, backend capability discovery, runtime transaction/verification, drawing-set graph, deterministic verification engine, and vertical-circulation semantics.
+- ConstructDrawingAI is design/reference only because its repository is PolyForm Noncommercial; no code dependency is adopted.
+- OpenTakeoff and AutoCAD-MCP are strong permissive implementation references (Apache-2.0 / MIT respectively) for provenance, scale gates, capability discovery, rollback and validation patterns.
+- BIM/IFC projects remain future adapters/reference layers; full BIM runtime is not an MVP dependency.
+- These findings do not make H100 or any later stage GREEN.
+
 ## Current continuation
 - H100 is active in PR #64 (`feat/h100-drawing-semantics`).
 - H100 establishes evidence-backed architectural drawing annotations and deterministic dimension semantics.
-- YQArch research has been registered as a supporting execution/drawing capability boundary; it does not claim a future stage GREEN.
-- After H100 exact-head CI and required Bug Hunt/Runtime verification succeed, persist state, verify the resulting main commit, then derive H101 from actual repository contracts/tests.
+- YQArch and external-agent research are registered as supporting capability boundaries; they do not claim a future stage GREEN.
+- After H100 exact-head CI and required Bug Hunt/Runtime verification succeed, persist state, verify the resulting main commit, then derive H101 from actual repository contracts/tests, including the newly confirmed evidence/provenance/topology/capability-discovery gaps.
