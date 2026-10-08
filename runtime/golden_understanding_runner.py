@@ -5,7 +5,12 @@ import json
 from pathlib import Path
 from typing import Any
 
-from runtime.golden_understanding_regression import REQUIRED_DOMAINS, GoldenCase, load_manifest
+from runtime.golden_understanding_regression import (
+    REQUIRED_DOMAINS,
+    GoldenCase,
+    evaluate_golden_case,
+    load_manifest,
+)
 from runtime.plan_understanding_core import PlanUnderstandingCore
 
 
@@ -62,29 +67,45 @@ def _domain_observation(result, source_sha256: str) -> dict[str, Any]:
     }
 
 
+def _blocked_observation(reason: str) -> dict[str, Any]:
+    return {
+        domain: "UNKNOWN" for domain in REQUIRED_DOMAINS
+    } | {
+        "uncertainties": (reason,),
+        "missing_evidence": (reason,),
+        "contradictions": (),
+        "fail_closed_decision": "BLOCKED",
+        "elements": (),
+    }
+
+
 def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None) -> dict[str, Any]:
     path = Path(case.source_path)
     if not path.is_file():
+        observed = _blocked_observation("SOURCE_FILE_MISSING")
+        regression = evaluate_golden_case(case, observed)
         return {
             "case_id": case.case_id,
             "source_sha256": None,
             "source_exists": False,
-            "observed": {
-                domain: "UNKNOWN" for domain in REQUIRED_DOMAINS
-            },
-            "decision": "NEEDS_REVIEW",
-            "failures": ["SOURCE_FILE_MISSING"],
+            "observed": observed,
+            "decision": regression.decision,
+            "unsafe_acceptance": regression.unsafe_acceptance,
+            "failures": ("SOURCE_FILE_MISSING",) + regression.failures,
         }
 
     source_sha256 = sha256_file(path)
     if case.source_sha256 is not None and source_sha256 != case.source_sha256:
+        observed = _blocked_observation("SOURCE_SHA256_MISMATCH")
+        regression = evaluate_golden_case(case, observed)
         return {
             "case_id": case.case_id,
             "source_sha256": source_sha256,
             "source_exists": True,
-            "observed": {domain: "UNKNOWN" for domain in REQUIRED_DOMAINS},
+            "observed": observed,
             "decision": "BLOCKED",
-            "failures": ["SOURCE_SHA256_MISMATCH"],
+            "unsafe_acceptance": regression.unsafe_acceptance,
+            "failures": ("SOURCE_SHA256_MISMATCH",) + regression.failures,
         }
 
     understanding = (core or PlanUnderstandingCore()).understand(
@@ -93,13 +114,16 @@ def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None)
         model_id=f"golden:{case.case_id}",
     )
     observed = _domain_observation(understanding, source_sha256)
+    regression = evaluate_golden_case(case, observed)
     return {
         "case_id": case.case_id,
         "source_sha256": source_sha256,
         "source_exists": True,
         "observed": observed,
-        "decision": understanding.status,
-        "failures": [],
+        "decision": regression.decision,
+        "unsafe_acceptance": regression.unsafe_acceptance,
+        "failures": regression.failures,
+        "domain_results": dict(regression.domain_results),
     }
 
 
@@ -114,6 +138,17 @@ def run_manifest_to_report(
         "schema": "golden-understanding-report-v1",
         "manifest": str(manifest_path),
         "cases": reports,
+        "summary": {
+            "case_count": len(reports),
+            "pass_count": sum(report["decision"] == "PASS" for report in reports),
+            "blocked_count": sum(report["decision"] == "BLOCKED" for report in reports),
+            "needs_review_count": sum(
+                report["decision"] == "NEEDS_REVIEW" for report in reports
+            ),
+            "unsafe_acceptance_count": sum(
+                report["unsafe_acceptance"] for report in reports
+            ),
+        },
     }
 
 
