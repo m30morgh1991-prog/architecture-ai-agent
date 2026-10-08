@@ -13,7 +13,7 @@ from runtime.golden_understanding_regression import (
     summarize_domain_metrics,
 )
 from runtime.plan_understanding_core import PlanUnderstandingCore
-from runtime.input_source_contract import classify_source
+from runtime.input_source_contract import SourceProfile, classify_source
 
 
 def sha256_file(path: str | Path) -> str:
@@ -24,23 +24,23 @@ def sha256_file(path: str | Path) -> str:
     return digest.hexdigest()
 
 
+def _source_profile_observation(profile: SourceProfile, source_sha256: str) -> dict[str, Any]:
+    return {
+        "sha256": source_sha256,
+        "source_class": profile.source_class.value,
+        "input_mode": profile.input_mode.value,
+        "geometry_trust_rank": profile.geometry_trust_rank,
+        "requires_pdf_inspection": profile.requires_pdf_inspection,
+    }
+
+
 def _domain_observation(result, source_sha256: str, source_path: str) -> dict[str, Any]:
     detection = result.detection
     model = result.plan_model
-    elements = [element.element_type for element in model.elements]
-
     source_profile = classify_source(source_path)
     return {
-        "source_profile": {
-            "sha256": source_sha256,
-            "source_class": source_profile.source_class.value,
-            "input_mode": source_profile.input_mode.value,
-            "geometry_trust_rank": source_profile.geometry_trust_rank,
-            "requires_pdf_inspection": source_profile.requires_pdf_inspection,
-            "detector_id": detection.get("detector_id"),
-            "status": detection.get("status"),
-        },
-        "elements": elements,
+        "source_profile": _source_profile_observation(source_profile, source_sha256),
+        "elements": [element.element_type for element in model.elements],
         "geometry": detection.get("dwg_geometry", {}),
         "topology": {
             "spaces": detection.get("spaces", ()),
@@ -74,15 +74,56 @@ def _domain_observation(result, source_sha256: str, source_path: str) -> dict[st
     }
 
 
-def _blocked_observation(reason: str) -> dict[str, Any]:
+def _blocked_observation(
+    reason: str,
+    *,
+    source_sha256: str | None = None,
+    source_profile: SourceProfile | None = None,
+) -> dict[str, Any]:
+    profile_value: Any
+    if source_profile is not None and source_sha256 is not None:
+        profile_value = _source_profile_observation(source_profile, source_sha256)
+    else:
+        profile_value = "UNKNOWN"
     return {
-        domain: "UNKNOWN" for domain in REQUIRED_DOMAINS
-    } | {
-        "uncertainties": (reason,),
-        "missing_evidence": (reason,),
-        "contradictions": (),
-        "fail_closed_decision": "BLOCKED",
+        "source_profile": profile_value,
         "elements": (),
+        "geometry": "UNKNOWN",
+        "topology": "UNKNOWN",
+        "relations": "UNKNOWN",
+        "drawing_evidence": "UNKNOWN",
+        "text": "UNKNOWN",
+        "dimensions": "UNKNOWN",
+        "levels": "UNKNOWN",
+        "view_markers": "UNKNOWN",
+        "vertical_circulation": "UNKNOWN",
+        "bim_mapping": "UNKNOWN",
+        "provenance": "UNKNOWN",
+        "uncertainties": (reason,),
+        "contradictions": (),
+        "missing_evidence": (reason,),
+        "fail_closed_decision": "BLOCKED",
+    }
+
+
+def _case_report(
+    case: GoldenCase,
+    observed: dict[str, Any],
+    *,
+    source_sha256: str | None,
+    source_exists: bool,
+    extra_failures: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    regression = evaluate_golden_case(case, observed)
+    return {
+        "case_id": case.case_id,
+        "source_sha256": source_sha256,
+        "source_exists": source_exists,
+        "observed": observed,
+        "decision": regression.decision,
+        "unsafe_acceptance": regression.unsafe_acceptance,
+        "failures": extra_failures + regression.failures,
+        "domain_results": dict(regression.domain_results),
     }
 
 
@@ -90,48 +131,58 @@ def run_golden_case(case: GoldenCase, core: PlanUnderstandingCore | None = None)
     path = Path(case.source_path)
     if not path.is_file():
         observed = _blocked_observation("SOURCE_FILE_MISSING")
-        regression = evaluate_golden_case(case, observed)
-        return {
-            "case_id": case.case_id,
-            "source_sha256": None,
-            "source_exists": False,
-            "observed": observed,
-            "decision": regression.decision,
-            "unsafe_acceptance": regression.unsafe_acceptance,
-            "failures": ("SOURCE_FILE_MISSING",) + regression.failures,
-        }
+        return _case_report(
+            case,
+            observed,
+            source_sha256=None,
+            source_exists=False,
+            extra_failures=("SOURCE_FILE_MISSING",),
+        )
 
     source_sha256 = sha256_file(path)
+    source_profile = classify_source(str(path))
     if case.source_sha256 is not None and source_sha256 != case.source_sha256:
-        observed = _blocked_observation("SOURCE_SHA256_MISMATCH")
-        regression = evaluate_golden_case(case, observed)
-        return {
-            "case_id": case.case_id,
-            "source_sha256": source_sha256,
-            "source_exists": True,
-            "observed": observed,
-            "decision": "BLOCKED",
-            "unsafe_acceptance": regression.unsafe_acceptance,
-            "failures": ("SOURCE_SHA256_MISMATCH",) + regression.failures,
-        }
+        observed = _blocked_observation(
+            "SOURCE_SHA256_MISMATCH",
+            source_sha256=source_sha256,
+            source_profile=source_profile,
+        )
+        return _case_report(
+            case,
+            observed,
+            source_sha256=source_sha256,
+            source_exists=True,
+            extra_failures=("SOURCE_SHA256_MISMATCH",),
+        )
 
-    understanding = (core or PlanUnderstandingCore()).understand(
-        source_path=str(path),
-        source_sha256=source_sha256,
-        model_id=f"golden:{case.case_id}",
-    )
+    try:
+        understanding = (core or PlanUnderstandingCore()).understand(
+            source_path=str(path),
+            source_sha256=source_sha256,
+            model_id=f"golden:{case.case_id}",
+        )
+    except Exception as exc:
+        reason = f"UNDERSTANDING_EXECUTION_BLOCKED:{type(exc).__name__}:{exc}"
+        observed = _blocked_observation(
+            reason,
+            source_sha256=source_sha256,
+            source_profile=source_profile,
+        )
+        return _case_report(
+            case,
+            observed,
+            source_sha256=source_sha256,
+            source_exists=True,
+            extra_failures=("UNDERSTANDING_EXECUTION_BLOCKED",),
+        )
+
     observed = _domain_observation(understanding, source_sha256, str(path))
-    regression = evaluate_golden_case(case, observed)
-    return {
-        "case_id": case.case_id,
-        "source_sha256": source_sha256,
-        "source_exists": True,
-        "observed": observed,
-        "decision": regression.decision,
-        "unsafe_acceptance": regression.unsafe_acceptance,
-        "failures": regression.failures,
-        "domain_results": dict(regression.domain_results),
-    }
+    return _case_report(
+        case,
+        observed,
+        source_sha256=source_sha256,
+        source_exists=True,
+    )
 
 
 def run_manifest_to_report(
@@ -157,10 +208,7 @@ def run_manifest_to_report(
             ),
             "domain_metrics": summarize_domain_metrics(
                 tuple(
-                    evaluate_golden_case(
-                        case,
-                        report["observed"],
-                    )
+                    evaluate_golden_case(case, report["observed"])
                     for case, report in zip(cases, reports)
                 )
             ),

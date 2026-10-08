@@ -28,7 +28,7 @@ PR #66 established the source boundary; PR #68 established semantic/drawing evid
 Do not start H101 until UG-01..UG-09 are Green and the verified state is persisted.
 
 Current active sequence:
-1. Complete UG-06 adversarial coverage and UG-07 per-domain metrics.
+1. Complete UG-03 end-to-end runner emission (CLI added; CI verification pending), then complete UG-06 adversarial coverage and UG-07 per-domain metrics.
 2. Execute preserved Golden DWGs and independently verify SHA-256 and evidence snapshots.
 3. Keep dimensions, levels, view markers and vertical circulation UNKNOWN unless source evidence supports them.
 4. Apply reconciliation/provenance/fail-closed checks before authoritative PlanModel promotion.
