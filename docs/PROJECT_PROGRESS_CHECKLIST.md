@@ -249,3 +249,13 @@ Notion is not a governance or Green-Gate source of truth.
 - Current semantic Golden truth remains UNKNOWN; this is contract correctness, not semantic PASS.
 - Post-merge workflow runs for `a08750765c19aadce02003e6fa221532d073992f` are not exposed by the current query; post-merge Green is therefore not claimed.
 - Next: authoritative DWG evidence → reconciliation/provenance → real-world adversarial fixtures → remaining H100 gates.
+
+
+## 2026-10-08 — H100 PR #83 checkpoint
+
+- PR #83 merged: `d92eb9d3f63819e744b1c901504d447508cd9cab`
+- Exact-head `ce3a2298495f579f37b51c17961d03dbd467f4d8`: PR CI #252 / Runtime #539 / Bug Hunt #209 = SUCCESS
+- Read-only `ezdwg` DWG semantic evidence extraction is merged; source identity, entity/layer/block evidence, text and dimensions are captured conservatively.
+- Generic geometry is explicitly prevented from becoming architectural truth; semantic authority remains false.
+- Post-merge workflow runs are not exposed for the merge commit, so post-merge Green is not claimed.
+- Next: evidence reconciliation/provenance → real-world adversarial Golden fixtures → remaining H100 gates.
