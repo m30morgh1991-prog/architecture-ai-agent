@@ -2,6 +2,18 @@
 from dataclasses import dataclass
 
 _ALLOWED_UNITS={"MM","CM","M","IN","FT","UNKNOWN"}
+_VERIFIED_UNITS=_ALLOWED_UNITS-{"UNKNOWN"}
+
+def _normalize_unit(value):
+    if not isinstance(value,str):
+        return None
+    normalized=value.strip().upper()
+    return normalized if normalized in _VERIFIED_UNITS else None
+
+def _signal_present(value):
+    if isinstance(value,str) and value.strip().upper()=="UNKNOWN":
+        return False
+    return bool(value)
 
 @dataclass(frozen=True)
 class ScaleEvidence:
@@ -21,21 +33,34 @@ class ScaleEvidence:
             raise ValueError("SCALE_EVIDENCE_MISSING")
         if self.status not in {"PASS","UNKNOWN","BLOCKED","NEEDS_REVIEW"}:
             raise ValueError("SCALE_STATUS_INVALID")
-        if self.status=="PASS" and (not self.scale_known or self.confidence<0.95):
-            raise ValueError("SCALE_PASS_REQUIRES_VERIFIED_SCALE")
+        if self.status=="PASS" and (
+            not self.scale_known or self.confidence<0.95 or self.unit=="UNKNOWN"
+        ):
+            raise ValueError("SCALE_PASS_REQUIRES_VERIFIED_SCALE_AND_UNIT")
 
 def evaluate_scale_evidence(*,source_id,unit,explicit_unit,header_unit,dimension_evidence,source_metadata,evidence_ids):
     signals=[explicit_unit,header_unit,dimension_evidence,source_metadata]
-    present=sum(bool(x) for x in signals)
-    if explicit_unit and header_unit and explicit_unit != header_unit:
-        r=ScaleEvidence(source_id,"UNKNOWN",False,0.0,evidence_ids,"BLOCKED")
-    elif present>=2:
-        resolved=explicit_unit or header_unit or unit
-        r=ScaleEvidence(source_id,resolved if resolved in _ALLOWED_UNITS else "UNKNOWN",True,0.95,evidence_ids,"PASS")
-    elif present==1:
-        resolved=explicit_unit or header_unit or unit
-        r=ScaleEvidence(source_id,resolved if resolved in _ALLOWED_UNITS else "UNKNOWN",False,0.0,evidence_ids,"NEEDS_REVIEW")
+    present=sum(_signal_present(x) for x in signals)
+    explicit_value=_normalize_unit(explicit_unit)
+    header_value=_normalize_unit(header_unit)
+    base_value=_normalize_unit(unit)
+
+    invalid_unit_signal=any(
+        isinstance(value,str) and value.strip()
+        and value.strip().upper() not in _ALLOWED_UNITS
+        for value in (explicit_unit,header_unit)
+    )
+    if explicit_value and header_value and explicit_value != header_value:
+        result=ScaleEvidence(source_id,"UNKNOWN",False,0.0,evidence_ids,"BLOCKED")
     else:
-        r=ScaleEvidence(source_id,"UNKNOWN",False,0.0,evidence_ids,"UNKNOWN")
-    r.validate()
-    return r
+        resolved=explicit_value or header_value or base_value or "UNKNOWN"
+        if invalid_unit_signal:
+            result=ScaleEvidence(source_id,resolved,False,0.0,evidence_ids,"NEEDS_REVIEW")
+        elif present>=2 and resolved!="UNKNOWN":
+            result=ScaleEvidence(source_id,resolved,True,0.95,evidence_ids,"PASS")
+        elif present>=1:
+            result=ScaleEvidence(source_id,resolved,False,0.0,evidence_ids,"NEEDS_REVIEW")
+        else:
+            result=ScaleEvidence(source_id,"UNKNOWN",False,0.0,evidence_ids,"UNKNOWN")
+    result.validate()
+    return result
