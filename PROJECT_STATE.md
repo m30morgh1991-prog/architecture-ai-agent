@@ -204,3 +204,13 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - Regression tests use Python `unittest`; no new third-party test dependency is required.
 - Exact-head PR CI, Runtime Tests, and Mandatory Bug Hunt must all complete successfully before merge. This checkpoint does not claim tests are green.
 - H100 remains active; H101 remains locked.
+
+
+## H100 DWG scale/unit Golden bridge — implementation checkpoint, 2026-10-09
+
+- Added `runtime/dwg_scale_unit_bridge.py` to translate only recognized DXF `$INSUNITS` codes (inch, foot, millimetre, centimetre, metre) into the existing scale/unit evidence contract.
+- Added `tests/test_dwg_scale_unit_bridge.py` for recognized metadata, unitless/unsupported codes, missing metadata, and fail-closed behavior.
+- Wired the Golden Understanding report to expose a separate `scale_unit` observation; blocked observations retain `UNKNOWN`.
+- A recognized unit declaration alone remains `NEEDS_REVIEW`; it does not prove scale ratio or dimension-to-geometry association and must never promote dimensions to PASS.
+- This branch is stacked on PR #98's exact head. All exact-head PR CI, Runtime Tests, and Mandatory Bug Hunt gates remain pending until GitHub reports completion/success.
+- H100 remains active; H101 remains locked. Golden DWG assets are unchanged.
