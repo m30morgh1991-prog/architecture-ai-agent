@@ -214,3 +214,13 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - A recognized unit declaration alone remains `NEEDS_REVIEW`; it does not prove scale ratio or dimension-to-geometry association and must never promote dimensions to PASS.
 - This branch is stacked on PR #98's exact head. All exact-head PR CI, Runtime Tests, and Mandatory Bug Hunt gates remain pending until GitHub reports completion/success.
 - H100 remains active; H101 remains locked. Golden DWG assets are unchanged.
+
+
+### Master checklist reconciliation — 2026-10-09
+
+- H100 remains the active phase. H101 is still locked because Golden semantic truth, scale/dimension correspondence, and real-world adversarial Golden regression are not complete.
+- The current checklist order is preserved: source-bound evidence → semantic candidates → canonical PlanModel/ConstraintMap → contradiction/negative evidence → scale/unit/dimension verification → adversarial Golden regression → exact-head PR CI + Runtime Tests + Mandatory Bug Hunt → persist verified state.
+- PR #99 is a dependent continuation of PR #98. Its base is temporarily set to `main` to trigger the repository's PR CI and Runtime workflows, whose workflow definitions target PRs into `main`. This combined validation does not authorize merging #99 ahead of #98.
+- After PR #98 merges, retarget/rebase PR #99 to the updated `main` and rerun all required gates at its final exact head. Until then, its Green Gate remains blocked.
+- PR #96 and #97 are documentation/knowledge inputs; they do not substitute for runtime semantic evidence or complete Golden acceptance.
+- Acceptance boundary: a recognized DWG unit declaration can establish only a unit candidate; it cannot establish drawing scale, dimension-to-geometry correspondence, floor/stair semantics, or approval-grade PlanModel truth.
