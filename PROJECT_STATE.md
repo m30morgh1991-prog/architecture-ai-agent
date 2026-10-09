@@ -195,3 +195,12 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - Bare labels such as \`A-A\` remain unpromoted without context.
 - Direction and cut-plane geometry remain UNKNOWN even when marker presence is supported; arrow glyphs do not establish direction.
 - Exact-head PR CI, Runtime Tests, Bug Hunt, and required Golden regression are pending verification. This branch is NOT Green until all required gates are completed/success.
+
+
+## H100 scale/unit evidence checkpoint — clean branch, 2026-10-09
+
+- Ported the scale/unit fail-closed contract and standard-library regression tests onto a fresh branch from current `main`; the older PR #94 branch was one commit behind and divergent.
+- PASS requires a recognized resolved unit as well as adequate confidence and source/evidence identity. Unsupported labels and conflicting unit evidence must remain NEEDS_REVIEW/BLOCKED.
+- Regression tests use Python `unittest`; no new third-party test dependency is required.
+- Exact-head PR CI, Runtime Tests, and Mandatory Bug Hunt must all complete successfully before merge. This checkpoint does not claim tests are green.
+- H100 remains active; H101 remains locked.
