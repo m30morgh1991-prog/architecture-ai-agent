@@ -204,3 +204,13 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - The two 31-page phase-2 references are retained separately until page-image/content comparison proves duplication.
 - This is initial text/index research, not a full visual audit or implementation claim. No runtime code or acceptance criteria changed.
 - H100 remains active; H101 remains locked. Exact-head PR CI, Runtime Tests, and Bug Hunt must all pass before merge.
+
+
+## H100 research checkpoint — educational drawing references (mainline refresh, 2026-10-09)
+
+- Prepared from current main commit `5aa7b31c446a0aacbbc49fdc0b40e08390768f97`, preserving the merged PR #96 architectural-books evidence map.
+- Carries forward the educational drawing-reading reference summary, candidate comparison, Jorjani candidate record, and Architecture Understanding Core documentation integration.
+- Candidate catalog entries remain `CATALOG-VERIFIED / NOT YET STUDIED` until the actual legal edition is inspected. Educational references do not override current official regulations; uncertain claims remain source-required/review-only.
+- Documentation-only scope: no runtime code, PlanModel, ConstraintMap, ApprovedChangePlan, or Golden DWG assets are modified by this checkpoint.
+- Exact-head PR CI, Runtime Tests, Mandatory Bug Hunt, and any applicable regression gates are required before merge. No Green claim is made until those checks complete successfully.
+- H100 remains active; H101 remains locked.
