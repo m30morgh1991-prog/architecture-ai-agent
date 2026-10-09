@@ -77,9 +77,24 @@ Contents include design process/programming; functional zones in a dwelling; hum
 | Site slope, context, climate | Design Architecture textbook | Site/context input layer | Keep distinct from plan-only evidence |
 | Regulations | Design Architecture and phase-2 references | Traceable Rule layer | Re-verify against current official sources |
 
+## Initial feature-to-file-to-test map
+
+This map ties research candidates to existing repository anchors on the main snapshot used by this research branch. It is a routing map, not a claim that every feature is complete or fully validated.
+
+| Candidate feature | Existing canonical file(s) | Existing test anchor(s) | Current limitation / safe interpretation |
+|---|---|---|---|
+| Drawing symbols, text, dimensions, levels, section/elevation markers and hatch | runtime/drawing_semantic_evidence.py | tests/test_h100_semantic_evidence.py | Candidate evidence only; preserve source binding and UNKNOWN/NEEDS_REVIEW where corroboration is missing |
+| DWG-native semantic evidence | runtime/dwg_semantic_evidence.py, runtime/dwg_evidence_bridge.py | tests/test_dwg_semantic_evidence.py, tests/test_dwg_evidence_bridge.py | Native CAD cues do not by themselves prove architectural meaning |
+| Scale and units | runtime/scale_unit_evidence.py | tests/test_scale_unit_evidence.py | PASS requires a verified unit and adequate evidence; do not infer a ratio from scale labels alone |
+| Geometry and space topology | runtime/geometry_topology_validation.py, runtime/spatial_topology.py | tests/test_spatial_topology.py | Bounding-box overlap alone is not adjacency or a valid room boundary |
+| Architectural relations / opening connectivity | runtime/architectural_relations.py, runtime/opening_connectivity.py | Existing relation and opening-connectivity tests | Relation claims must stay evidence-linked; incomplete links remain unresolved |
+| Canonical PlanModel and BIM-to-ConstraintMap boundary | runtime/plan_model_contract.py, runtime/bim_constraintmap_contract.py | tests/test_bim_constraintmap_contract.py | Do not create a second PlanModel or unlock protected elements from book examples |
+| Drawing-standard/rule interpretation | runtime/drawing_standards_validation.py, runtime/rule_context.py, runtime/rule_engine.py | tests/test_drawing_standards_validation.py, tests/test_drawing_standards_rule_pack.py | Historical educational statements are not current regulatory authority |
+| Golden understanding / regression | runtime/golden_understanding_runner.py, runtime/golden_dwg_regression.py | tests/test_golden_understanding_runner.py, tests/test_golden_dwg_regression.py | Golden source assets are preserved; any new fixture must have source provenance and a reproducible expected decision |
+
 ## Next work
 1. Review remaining pages/figures in phase-2 sources and compare the two 31-page files for duplication.
 2. Inspect page images where OCR is unreliable, especially symbols, line conventions and details.
-3. Build a feature-to-file matrix against actual repository contracts/tests before runtime changes.
+3. Verify each matrix row against the current main branch before creating runtime fixtures; some test anchors are broader suites rather than one feature-specific test.
 4. Implement only the smallest evidence-backed fixtures on an isolated branch; run exact-head real CI, Runtime and Bug Hunt.
 5. Update PROJECT_STATE.md only with verified repository/test facts. H100 remains active; this research does not unlock H101.
