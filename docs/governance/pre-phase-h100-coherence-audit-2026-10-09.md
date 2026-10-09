@@ -13,7 +13,8 @@
 2. **Stacked-PR CI trigger mismatch:** PR CI Gate and Runtime Tests only ran for pull requests targeting `main`, while Bug Hunt already ran on all pull requests. Removed the target-branch filter from both PR triggers so stacked/dependency PRs can be tested without retargeting them merely to trigger CI. Push triggers remain main-only.
 3. **Ruleset is not enforcing protections:** GET of `/repos/m30morgh1991-prog/architecture-ai-agent/rulesets/24680937` showed ruleset `Min` has `enforcement=disabled`, empty include/exclude ref targets, and `required_status_checks=[]`. Its configured review/check rules are therefore not active on main. The available GitHub connection permits reading but not writing rulesets; this is an explicit administrative blocker, not something this PR can claim to have fixed.
 4. **Reviews absent:** PR #96, #97, #98, and #99 each have no submitted reviews recorded. Successful CI does not satisfy review approval.
-5. **Scale/unit evidence boundary:** PR #98 is the prerequisite to PR #99. PR #99 must not merge first; after #98 merges, rebase/retarget #99 to updated main and rerun all gates on the final exact head.
+5. **UG-09 checklist drift:** the checklist marked UG-09 green based on historical PR #75 gates even though H100 has continued through PR #93 and scale/unit work. Updated UG-09 to require CI/runtime/Bug Hunt/regression evidence on the final H100 acceptance head.
+6. **Scale/unit evidence boundary:** PR #98 is the prerequisite to PR #99. PR #99 must not merge first; after #98 merges, rebase/retarget #99 to updated main and rerun all gates on the final exact head.
 
 ## Exact-head evidence observed
 
