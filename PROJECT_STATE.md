@@ -187,14 +187,14 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - This is a documentation/state checkpoint only; it does not claim new runtime semantics or post-merge mainline Green.
 - H100 remains active and H101 remains locked.
 
-## H100 PR #93 — section-marker evidence implementation in progress
+## H100 PR #93 — section-marker evidence merged
 
-- Branch: \`feature/h100-section-marker-semantics\`.
-- Adds conservative read-only DWG evidence for explicitly contextualized section/cut-plane/elevation/detail markers and explicitly named marker blocks.
+- The section-marker implementation is included in current \`main\` at merge commit \`2842cf2523fb9140b72f03a2311addf06c468af2\`.
+- The implementation adds conservative read-only DWG evidence for explicitly contextualized section/cut-plane/elevation/detail markers and explicitly named marker blocks.
 - Marker evidence is bound to source SHA-256 and DIRECT provenance.
 - Bare labels such as \`A-A\` remain unpromoted without context.
 - Direction and cut-plane geometry remain UNKNOWN even when marker presence is supported; arrow glyphs do not establish direction.
-- Exact-head PR CI, Runtime Tests, Bug Hunt, and required Golden regression are pending verification. This branch is NOT Green until all required gates are completed/success.
+- This checkpoint confirms repository history only; it does not claim post-merge mainline CI is Green.
 
 
 ## H100 research checkpoint — educational drawing references (clean branch, 2026-10-09)
