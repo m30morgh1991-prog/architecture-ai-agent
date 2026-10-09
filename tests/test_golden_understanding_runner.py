@@ -39,12 +39,12 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                     "expected_elements": [],
                     "expected_domains": [
                         "source_profile", "elements", "geometry", "topology",
-                        "relations", "drawing_evidence", "provenance",
+                        "relations", "drawing_evidence", "scale_unit", "provenance",
                         "fail_closed_decision"
                     ],
                     "expected_status": "UNKNOWN",
                     "expected_domain_status": {d: "UNKNOWN" for d in [
-                        "source_profile", "elements", "geometry", "topology", "relations", "drawing_evidence", "provenance", "fail_closed_decision"
+                        "source_profile", "elements", "geometry", "topology", "relations", "drawing_evidence", "scale_unit", "provenance", "fail_closed_decision"
                     ]}
                 }]
             }), encoding="utf-8")
@@ -77,9 +77,9 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                     "source_path": str(source),
                     "source_sha256": digest,
                     "expected_elements": [],
-                    "expected_domains": ["source_profile", "elements", "fail_closed_decision"],
+                    "expected_domains": ["source_profile", "elements", "scale_unit", "fail_closed_decision"],
                     "expected_status": "UNKNOWN",
-                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
+                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "scale_unit": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
                     "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"}
                 }]
             }), encoding="utf-8")
@@ -114,9 +114,9 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                 source_path=str(source),
                 source_sha256=digest,
                 expected_elements=(),
-                expected_domains=("source_profile", "elements", "fail_closed_decision"),
+                expected_domains=("source_profile", "elements", "scale_unit", "fail_closed_decision"),
                 expected_status="UNKNOWN",
-                expected_domain_status={"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
+                expected_domain_status={"source_profile": "UNKNOWN", "elements": "UNKNOWN", "scale_unit": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
             )
 
             class _FailingCore:
