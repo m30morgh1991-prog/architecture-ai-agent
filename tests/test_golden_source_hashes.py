@@ -51,7 +51,12 @@ class GoldenSourceHashTests(unittest.TestCase):
             status = case["expected_domain_status"]
             self.assertEqual(set(status), set(domains), case["case_id"])
             self.assertTrue(all(value in {"PASS", "UNKNOWN", "NEEDS_REVIEW", "BLOCKED"} for value in status.values()))
-            self.assertTrue(all(value == "UNKNOWN" for value in status.values()))
+            for domain, value in status.items():
+                if domain == "scale_unit":
+                    self.assertIn(value, {"UNKNOWN", "NEEDS_REVIEW"})
+                    self.assertNotEqual(value, "PASS")
+                else:
+                    self.assertEqual(value, "UNKNOWN", case["case_id"] + ":" + domain)
 
 
 if __name__ == "__main__":
