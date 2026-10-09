@@ -326,7 +326,7 @@ Notion is not a governance or Green-Gate source of truth.
 ## 2026-10-09 — H100 section-marker evidence continuation
 
 - [x] PR #91 merged at \`2dfcd893ed97028f69982477dc7d9d6741eff9ca\`; exact-head PR CI #287 / Runtime #574 / Bug Hunt #244 = SUCCESS.
-- [ ] PR #93 — explicit section/cut-plane/elevation/detail marker evidence implementation (branch in progress; gates not yet verified)
+- [x] PR #93 — contextual section-marker evidence merged to main at `2842cf2523fb9140b72f03a2311addf06c468af2`; marker direction and cut-plane geometry remain UNKNOWN
 - [ ] Reject bare section-like labels without contextual evidence
 - [ ] Keep marker direction and cut-plane geometry UNKNOWN until geometric/source evidence supports them
 - [ ] Scale/unit evidence
