@@ -40,7 +40,7 @@
 - [x] H100 — Golden Understanding Regression: contract + manifest + fail-closed evaluator implemented; exact-head Green still required
 - [x] H100 — Golden DWG source execution/identity + real SHA-256 persistence
 - [ ] H100 — Golden semantic ground truth and authoritative understanding
-- [ ] H100 — UG-01..UG-08 Golden Understanding Gate checks Green
+- [ ] H100 — all required UG gates verified on the final acceptance head; historical PR-head Green is not sufficient
 - [x] H100 — PR #70 exact-head PR CI + Runtime + Bug Hunt Green (pre-merge); post-merge mainline verification remains pending
 - [ ] H100 — UG-10 Green → persist verified state and unlock H101
 - [ ] H101 — Architectural Intent + Program + Plan Generation + deterministic geometry/layout
@@ -68,7 +68,7 @@
 - [x] UG-06 Contract-level adversarial cases exist for every current fail-closed category (real-world DWG/image expansion pending)
 - [x] UG-07 Metrics are computed per domain (implementation); Green evidence still required
 - [x] UG-08 False-PASS / unsafe-acceptance checks are hard blockers
-- [x] UG-09 PR #75 exact-head REAL CI #219 + Runtime #506 + Bug Hunt #176 Green
+- [ ] UG-09 Final H100 acceptance head has exact-head REAL CI + Runtime + Mandatory Bug Hunt + applicable Golden regression Green (historical PR #75 gates do not substitute)
 - [ ] UG-10 Only after UG-01..UG-09 pass may H101 begin
 
 - [ ] Door/window symbols + opening direction
