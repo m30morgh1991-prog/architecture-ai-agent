@@ -42,21 +42,14 @@
 - AutoCAD-MCP remains read-only/adapter-only; no live AutoCAD write is enabled.
 - Bug Hunt now requires affected contracts, risk classification, negative tests, and unresolved-findings evidence in addition to reproduction/root-cause/regression/fail-closed/exact-head evidence.
 
-## H100 continuation
-PR #66 established the source boundary; PR #68 established semantic/drawing evidence; PR #69 locked Golden Understanding research; PR #70 is the active Golden Understanding Regression implementation; PR #72 adds the standalone CLI E2E verification.
-Do not start H101 until UG-01..UG-09 are Green and the verified state is persisted.
+## H100 foundation established through PR #75 (historical checkpoint)
 
-Current active sequence:
-1. PR #71 standalone Golden Understanding runner is merged at `671133d4ab8941b2a38c79597769d8df2b18269e`; exact-head pre-merge gates were green.
-2. PR #72 standalone Golden runner CLI E2E is merged at `b55242becb786fb4f932c671cf98e61c5aa3686d`; exact-head PR CI #204, Bug Hunt #161, and Runtime #491 were green.
-3. PR #75 is merged at `c056c31ff97db532381c7466388200ff3cb62aeb`; exact-head gates were green.
-4. Golden source SHA-256 values are now persisted and byte-verified by regression.
-5. Read-only CAD inspection adapter is implemented behind the provider-neutral contract; live AutoCAD remains blocked.
-6. UG-04/UG-06 and full Golden semantic ground truth remain pending; H101 stays locked.
-3. Keep dimensions, levels, view markers and vertical circulation UNKNOWN unless source evidence supports them.
-4. Apply reconciliation/provenance/fail-closed checks before authoritative PlanModel promotion.
-5. Run exact-head REAL CI + Runtime + Bug Hunt + required regression.
-6. Persist only verified state, then unlock H101.
+- PR #66 established the input-source boundary; PR #68 added the semantic/drawing evidence foundation; PR #69 locked the Golden Understanding research direction.
+- PRs #71 and #72 introduced the standalone Golden Understanding runner and CLI E2E; PR #75 persisted Golden source hashes, byte-level mismatch regression, and the read-only CAD inspection adapter.
+- These are historical implementation milestones, not the current acceptance head. Current status, open PRs, and latest exact-head gates are recorded at the top of this file and in the pre-phase audit.
+- H100 remains incomplete: authoritative Golden semantic ground truth, real-world transformed/defective fixtures, remaining drawing-language semantics, and UG-10 are pending. H101 remains locked.
+- Preserve dimensions, levels, view markers, scale, and vertical-circulation claims as UNKNOWN/NEEDS_REVIEW unless independent source evidence supports them.
+- Required cycle remains: implement → exact-head REAL CI → verify → regression → persist state → continue. Persist only verified state.
 
 ## Integrated research checkpoint — 2026-10-08
 
