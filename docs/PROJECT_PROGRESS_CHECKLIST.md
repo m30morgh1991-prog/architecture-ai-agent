@@ -341,7 +341,7 @@ Notion is not a governance or Green-Gate source of truth.
 - [x] Main checkpoint confirmed: `2842cf2523fb9140b72f03a2311addf06c468af2` (PR #93 merged).
 - [x] PR #93 exact-head gates: PR CI #289, Runtime #576, Bug Hunt #246 = SUCCESS; no post-merge mainline Green is claimed.
 - [x] PR #96 exact-head gates: PR CI #300, Runtime #587, Bug Hunt #257 = SUCCESS; review still required.
-- [x] PR #97 exact-head gates: PR CI #305, Runtime #592, Bug Hunt #262 = SUCCESS; review still required.
+- [ ] PR #97 exact-head gates: UNOBSERVED on current head `25d57ef7e6b18f49228f9194b3991a92387cd04b` (workflow-run query and combined status both returned no evidence); prior run numbers are not accepted as current exact-head proof. Re-run/verify PR CI, Runtime Tests, and Bug Hunt; review still required.
 - [x] PR #98 exact-head gates: PR CI #303, Runtime #590, Bug Hunt #260 = SUCCESS; review still required and prerequisite to #99.
 - [x] PR #99 exact-head gates: PR CI #313, Runtime #600, Bug Hunt #272 = SUCCESS at `c472396d5a3a984c8c134bb7f55d068326c4fc14`; review still required; do not merge before #98, then rebase/retarget and rerun all gates.
 - [ ] Activate repository ruleset `Min` (ID `24680937`) and target `refs/heads/main`; current API state is enforcement=disabled, no target refs, and no required status checks.
