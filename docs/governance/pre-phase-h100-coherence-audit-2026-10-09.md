@@ -16,6 +16,19 @@
 5. **UG-09 checklist drift:** the checklist marked UG-09 green based on historical PR #75 gates even though H100 has continued through PR #93 and scale/unit work. Updated UG-09 to require CI/runtime/Bug Hunt/regression evidence on the final H100 acceptance head.
 6. **Scale/unit evidence boundary:** PR #98 is the prerequisite to PR #99. PR #99 must not merge first; after #98 merges, rebase/retarget #99 to updated main and rerun all gates on the final exact head.
 
+## Shared-state and merge-order hazard
+
+PRs #96, #97, #98, and #99 all modify `PROJECT_STATE.md`; PR #99 also modifies `docs/PROJECT_PROGRESS_CHECKLIST.md`; PR #100 modifies both state documents and the checklist. These branches were created from the same main checkpoint. Merging them in arbitrary order can create content conflicts or restore stale state from a branch based on the older checkpoint. This is a state-reconciliation hazard even where Git can auto-merge the text.
+
+Safe integration sequence after independent review is available:
+1. Review and integrate PR #96 and PR #97 sequentially, resolving/rebasing the second and rerunning its exact-head gates after the first changes main.
+2. Integrate PR #98 only after rebasing/updating it to current main and rerunning its exact-head gates.
+3. Only after #98 is merged, rebase/retarget PR #99 to the updated main; ensure the diff no longer duplicates #98, then rerun all exact-head gates.
+4. Finally rebase/refresh PR #100 against the resulting main, update its checkpoint to the actual live PR/main state, and rerun its exact-head gates before review/merge.
+5. After each merge, verify the resulting main SHA and post-merge checks; never copy old PR status into current state without rechecking.
+
+No PR in this sequence has a submitted review at the audit point. Do not bypass independent review to accelerate the sequence.
+
 ## Exact-head evidence observed
 
 | PR | Exact head | PR CI | Runtime | Bug Hunt | Review |
