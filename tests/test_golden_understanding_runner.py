@@ -56,6 +56,7 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
             self.assertEqual(case["observed"]["source_profile"]["sha256"], case["source_sha256"])
             self.assertEqual(case["observed"]["source_profile"]["source_class"], "ENGINEERING_VECTOR")
             self.assertEqual(case["observed"]["source_profile"]["input_mode"], "ENGINEERING_PLAN")
+            self.assertEqual(case["observed"]["scale_unit"], "UNKNOWN")
             self.assertIn(case["decision"], {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
 
 
