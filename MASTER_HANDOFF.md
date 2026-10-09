@@ -87,9 +87,9 @@ Durable repository-backed continuation point for Architecture AI Agent.
 - Real DWG regression remains a validation boundary.
 - Visual Runtime remains separate from logical/static reconstruction.
 
-## Continuation after H99 / PR #65
+## Historical continuation baseline after H99 / PR #65
 
-1. H99 is complete and post-merge main CI is GREEN.
+1. H99 was complete at that historical checkpoint; this does not imply current post-merge Green for later main commits.
 2. Finish H100 from the actual repository contracts and tests.
 3. Keep PDF representation evidence-driven; never guess vector/raster.
 4. Preserve one canonical PlanModel/evidence chain; do not create duplicate semantic graphs.
@@ -111,8 +111,11 @@ The project now carries forward the latest research without changing the Source 
 ### Current invariant
 **Understanding the plan comes before generating or editing the plan.**
 
-### Current H100 work
-Finish source provenance/evidence binding, drawing-language semantics, contradiction/missing-evidence handling, fail-closed propagation, adversarial Golden coverage, and semantic ground truth. The persisted Golden hashes prove source identity only; they do not promote uncertain understanding to PASS. H101 remains locked until UG-01..UG-09 are actually Green.
+### H100 acceptance criteria still open
+- Finish drawing-language semantics, contradiction/missing-evidence adversarial coverage, real-world transformed/defective Golden fixtures, and authoritative semantic Golden ground truth.
+- The persisted Golden hashes prove source identity only; they do not promote uncertain understanding to PASS.
+- Historical PR #75 gates do not substitute for exact-head verification of the final H100 acceptance head.
+- H101 remains locked until UG-10 and all required current-head CI/regression/review/governance evidence are satisfied.
 
 
 ### H100 PR #76 checkpoint
