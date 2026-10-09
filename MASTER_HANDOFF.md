@@ -29,7 +29,7 @@ Durable repository-backed continuation point for Architecture AI Agent.
 
 **Open H100 PRs (all still require review; no submitted reviews are recorded):**
 - PR #96 book evidence map — head `1df773883036525e20c972815ac3a3410c00d7da`; PR CI #300, Runtime #587, Bug Hunt #257 = SUCCESS.
-- PR #97 educational drawing references — head `25d57ef7e6b18f49228f9194b3991a92387cd04b`; PR CI #305, Runtime #592, Bug Hunt #262 = SUCCESS.
+- PR #97 educational drawing references — head `25d57ef7e6b18f49228f9194b3991a92387cd04b`; current exact-head workflow-run query and combined status both returned no evidence. Status = UNOBSERVED, not GREEN. Re-run/verify PR CI, Runtime Tests, and Bug Hunt on this exact head before merge.
 - PR #98 scale/unit fail-closed contract — head `7092f3cba6fc5b3f8747bbe78ff2e2976111ae1b`; PR CI #303, Runtime #590, Bug Hunt #260 = SUCCESS. Required prerequisite for #99.
 - PR #99 scale/unit Golden bridge — head `c472396d5a3a984c8c134bb7f55d068326c4fc14`; PR CI #313, Runtime #600, Bug Hunt #272 = SUCCESS. Do not merge before #98; after #98 merges, rebase/retarget to updated main and rerun every gate on the final exact head.
 
@@ -215,7 +215,7 @@ PR #93 merged into main at `2842cf2523fb9140b72f03a2311addf06c468af2`. Its exact
 
 **Open H100 PRs (all still require review; no submitted reviews are recorded):**
 - PR #96 book evidence map — head `1df773883036525e20c972815ac3a3410c00d7da`; PR CI #300, Runtime #587, Bug Hunt #257 = SUCCESS.
-- PR #97 educational drawing references — head `25d57ef7e6b18f49228f9194b3991a92387cd04b`; PR CI #305, Runtime #592, Bug Hunt #262 = SUCCESS.
+- PR #97 educational drawing references — head `25d57ef7e6b18f49228f9194b3991a92387cd04b`; current exact-head workflow-run query and combined status both returned no evidence. Status = UNOBSERVED, not GREEN. Re-run/verify PR CI, Runtime Tests, and Bug Hunt on this exact head before merge.
 - PR #98 scale/unit fail-closed contract — head `7092f3cba6fc5b3f8747bbe78ff2e2976111ae1b`; PR CI #303, Runtime #590, Bug Hunt #260 = SUCCESS. Required prerequisite for #99.
 - PR #99 scale/unit Golden bridge — head `c472396d5a3a984c8c134bb7f55d068326c4fc14`; PR CI #313, Runtime #600, Bug Hunt #272 = SUCCESS. Do not merge before #98; after #98 merges, rebase/retarget to updated main and rerun every gate on the final exact head.
 
