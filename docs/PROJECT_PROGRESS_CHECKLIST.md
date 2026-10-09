@@ -326,11 +326,28 @@ Notion is not a governance or Green-Gate source of truth.
 ## 2026-10-09 — H100 section-marker evidence continuation
 
 - [x] PR #91 merged at \`2dfcd893ed97028f69982477dc7d9d6741eff9ca\`; exact-head PR CI #287 / Runtime #574 / Bug Hunt #244 = SUCCESS.
-- [ ] PR #93 — explicit section/cut-plane/elevation/detail marker evidence implementation (branch in progress; gates not yet verified)
-- [ ] Reject bare section-like labels without contextual evidence
-- [ ] Keep marker direction and cut-plane geometry UNKNOWN until geometric/source evidence supports them
+- [x] PR #93 — merged at `2842cf2523fb9140b72f03a2311addf06c468af2`; exact-head PR CI #289 / Runtime #576 / Bug Hunt #246 = SUCCESS
+- [x] Reject bare section-like labels without contextual evidence (PR #93 regression-covered)
+- [x] Keep marker direction and cut-plane geometry UNKNOWN until geometric/source evidence supports them (fail-closed contract; semantic proof remains pending)
 - [ ] Scale/unit evidence
 - [ ] Iranian drawing-language semantic coverage
 - [ ] Real-world transformed/defective Golden fixtures
 - [ ] H100 semantic Golden ground truth / authoritative understanding
 - [ ] H100 UG-10 Green and H101 unlock
+
+
+## Pre-phase audit — 2026-10-09 (source: live GitHub state)
+
+- [x] Main checkpoint confirmed: `2842cf2523fb9140b72f03a2311addf06c468af2` (PR #93 merged).
+- [x] PR #93 exact-head gates: PR CI #289, Runtime #576, Bug Hunt #246 = SUCCESS; no post-merge mainline Green is claimed.
+- [x] PR #96 exact-head gates: PR CI #300, Runtime #587, Bug Hunt #257 = SUCCESS; review still required.
+- [x] PR #97 exact-head gates: PR CI #305, Runtime #592, Bug Hunt #262 = SUCCESS; review still required.
+- [x] PR #98 exact-head gates: PR CI #303, Runtime #590, Bug Hunt #260 = SUCCESS; review still required and prerequisite to #99.
+- [x] PR #99 exact-head gates: PR CI #313, Runtime #600, Bug Hunt #272 = SUCCESS at `c472396d5a3a984c8c134bb7f55d068326c4fc14`; review still required; do not merge before #98, then rebase/retarget and rerun all gates.
+- [ ] Activate repository ruleset `Min` (ID `24680937`) and target `refs/heads/main`; current API state is enforcement=disabled, no target refs, and no required status checks.
+- [ ] After activating ruleset, require PR review (at least one independent reviewer), dismiss stale approvals, require latest push approval, require conversation resolution, block deletion/force-push, and select exact check names only after confirming they appear on a recent PR run.
+- [x] PR CI Gate and Runtime Tests workflow triggers are broadened to all PR target branches in this audit branch; Bug Hunt already runs on all PRs. This removes the stacked-PR trigger gap after this change is merged.
+- [ ] H100 semantic Golden ground truth and real-world transformed/defective fixtures.
+- [ ] UG-10 Green Gate; H101 remains LOCKED.
+
+Important: green PR-head checks do not substitute for review approval, enabled branch protection, or post-merge mainline verification.
