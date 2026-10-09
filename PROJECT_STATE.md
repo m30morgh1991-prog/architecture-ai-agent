@@ -195,3 +195,12 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - Bare labels such as \`A-A\` remain unpromoted without context.
 - Direction and cut-plane geometry remain UNKNOWN even when marker presence is supported; arrow glyphs do not establish direction.
 - Exact-head PR CI, Runtime Tests, Bug Hunt, and required Golden regression are pending verification. This branch is NOT Green until all required gates are completed/success.
+
+
+## Research checkpoint — architectural books evidence map (clean branch, 2026-10-09)
+
+- Added `docs/research/architectural-books-evidence-map.md` from the cleaned research content on an isolated branch created directly from `main`.
+- This checkpoint contains architecture-only source mapping: Iranian drawing vocabulary; dimension/scale evidence; plan-section-elevation-roof-detail relations; phase-2 completeness; stair/level evidence; cross-view coordination; traceability; ambiguity and missing-evidence tests.
+- The two 31-page phase-2 references are retained separately until page-image/content comparison proves duplication.
+- This is initial text/index research, not a full visual audit or implementation claim. No runtime code or acceptance criteria changed.
+- H100 remains active; H101 remains locked. Exact-head PR CI, Runtime Tests, and Bug Hunt must all pass before merge.
