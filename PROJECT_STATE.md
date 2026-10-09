@@ -214,3 +214,12 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - Documentation-only scope: no runtime code, PlanModel, ConstraintMap, ApprovedChangePlan, or Golden DWG assets are modified by this checkpoint.
 - Exact-head PR CI, Runtime Tests, Mandatory Bug Hunt, and any applicable regression gates are required before merge. No Green claim is made until those checks complete successfully.
 - H100 remains active; H101 remains locked.
+
+
+## H100 integration checkpoint — scale/unit fail-closed contract queued after PR #101 (2026-10-09)
+
+- PR #101 merged into main at `e6b0283551b75862787376f9a5d8a54d17f80c87`; educational drawing-reference documentation and the PR-specific Bug Hunt record are now on main.
+- PR #98 scale/unit fail-closed changes are being refreshed onto this exact mainline in a clean integration branch. This contract is a prerequisite for PR #99's DWG metadata bridge.
+- Intended safety invariant: unknown, unsupported, malformed, or conflicting unit evidence cannot become PASS. Native unit declaration alone does not prove scale or dimension-to-geometry correspondence.
+- This integration changes runtime code and tests; it is not documentation-only. Exact-head PR CI, Runtime Tests, Mandatory Bug Hunt, and applicable Golden regression must complete successfully before merge.
+- Golden DWG inputs remain immutable. H100 active; H101 locked.
