@@ -334,3 +334,21 @@ Notion is not a governance or Green-Gate source of truth.
 - [ ] Real-world transformed/defective Golden fixtures
 - [ ] H100 semantic Golden ground truth / authoritative understanding
 - [ ] H100 UG-10 Green and H101 unlock
+
+
+## 2026-10-09 — Live H100 reconciliation
+
+- Main observed at `2842cf2523fb9140b72f03a2311addf06c468af2`; PR #93 is merged. Main branch protection is currently disabled, so green checks do not imply enforced review or merge approval.
+- PR #96 and #97 are open documentation/knowledge PRs. Their exact-head PR CI, Runtime Tests and Mandatory Bug Hunt checks are green; they do not establish runtime semantic understanding.
+- PR #98 is open; exact-head PR CI #303, Runtime #590 and Bug Hunt #260 were green at `7092f3cba6fc5b3f8747bbe78ff2e2976111ae1b`. No merge is recorded.
+- PR #99 is a dependent implementation: native DWG unit metadata is surfaced in Golden Understanding, and `scale_unit` is now a machine-checked Golden domain. Its temporary base is `main` to trigger PR CI/Runtime workflows. PR #98 remains a prerequisite; never merge #99 first.
+- The scale/unit work remains PARTIAL, not complete: known unit metadata alone is NEEDS_REVIEW; missing/unsupported values remain UNKNOWN; dimension-to-geometry matching and explicit scale-ratio validation are unresolved.
+- H100 stays active; H101 stays locked. Preserved Golden DWGs remain unchanged.
+
+### Remaining acceptance gates
+- [ ] Final exact-head PR CI + Runtime Tests + Mandatory Bug Hunt for PR #99
+- [ ] Review/merge prerequisite PR #98, then rebase/retarget #99 onto updated main and rerun all gates
+- [ ] Connect scale/dimension evidence to the canonical evidence/PlanModel path without a parallel graph
+- [ ] Real-world transformed/defective Golden fixtures and verified expected outcomes
+- [ ] Golden semantic ground truth / authoritative understanding
+- [ ] UG-10 Green Gate and H101 unlock
