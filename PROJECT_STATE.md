@@ -2,7 +2,15 @@
 
 ## **H100 — Golden Understanding Gate — active on main**
 
-**Current verified point:** PR #75 is merged to main at `c056c31ff97db532381c7466388200ff3cb62aeb`. Exact-head PR CI #219, Runtime #506, and Bug Hunt #176 were completed/success on PR #75. Mainline workflows for the merge commit are not exposed by the current PR-run query, so post-merge Green is not claimed.
+**Current verified point (2026-10-09):** `main` is `2842cf2523fb9140b72f03a2311addf06c468af2` (PR #93 merged). PR #93 exact head `26f1a0c9c0f47b3d8fa5f419f4a659c57b6e9d5e` passed PR CI #289, Runtime #576, and Bug Hunt #246. The merge commit has no exposed post-merge workflow runs/statuses through the available read path, so mainline post-merge Green is NOT claimed.
+
+**Open H100 PRs (all still require review; no submitted reviews are recorded):**
+- PR #96 book evidence map — head `1df773883036525e20c972815ac3a3410c00d7da`; PR CI #300, Runtime #587, Bug Hunt #257 = SUCCESS.
+- PR #97 educational drawing references — head `25d57ef7e6b18f49228f9194b3991a92387cd04b`; PR CI #305, Runtime #592, Bug Hunt #262 = SUCCESS.
+- PR #98 scale/unit fail-closed contract — head `7092f3cba6fc5b3f8747bbe78ff2e2976111ae1b`; PR CI #303, Runtime #590, Bug Hunt #260 = SUCCESS. Required prerequisite for #99.
+- PR #99 scale/unit Golden bridge — head `c472396d5a3a984c8c134bb7f55d068326c4fc14`; PR CI #313, Runtime #600, Bug Hunt #272 = SUCCESS. Do not merge before #98; after #98 merges, rebase/retarget to updated main and rerun every gate on the final exact head.
+
+**Governance blockers:** H100 remains active and H101 remains LOCKED. Golden semantic ground truth and real-world transformed/defective fixtures are incomplete. Repository ruleset `Min` (ID `24680937`) is `disabled`, targets no branches, and has no required status checks configured; the intended protections therefore do not currently enforce review or CI. Enable/configure it for `refs/heads/main` before treating branch protections as active.
 
 ### H100 historical input-source boundary verification
 - PR: #66
@@ -187,11 +195,20 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - This is a documentation/state checkpoint only; it does not claim new runtime semantics or post-merge mainline Green.
 - H100 remains active and H101 remains locked.
 
-## H100 PR #93 — section-marker evidence implementation in progress
+## H100 PR #93 checkpoint — merged
 
-- Branch: \`feature/h100-section-marker-semantics\`.
-- Adds conservative read-only DWG evidence for explicitly contextualized section/cut-plane/elevation/detail markers and explicitly named marker blocks.
-- Marker evidence is bound to source SHA-256 and DIRECT provenance.
-- Bare labels such as \`A-A\` remain unpromoted without context.
-- Direction and cut-plane geometry remain UNKNOWN even when marker presence is supported; arrow glyphs do not establish direction.
-- Exact-head PR CI, Runtime Tests, Bug Hunt, and required Golden regression are pending verification. This branch is NOT Green until all required gates are completed/success.
+- PR #93 merged into main at `2842cf2523fb9140b72f03a2311addf06c468af2`.
+- Exact PR head `26f1a0c9c0f47b3d8fa5f419f4a659c57b6e9d5e`: PR CI #289, Runtime #576, Bug Hunt #246 = SUCCESS.
+- Contextual section/cut-plane/elevation/detail marker candidates are source-bound and read-only; bare labels such as `A-A` are rejected without context.
+- Marker presence does NOT establish direction, cut-plane endpoints, or view geometry; these remain UNKNOWN without independent evidence.
+- No post-merge mainline Green is claimed because no mainline workflow runs/statuses were exposed for the merge commit.
+
+**Current verified point (2026-10-09):** `main` is `2842cf2523fb9140b72f03a2311addf06c468af2` (PR #93 merged). PR #93 exact head `26f1a0c9c0f47b3d8fa5f419f4a659c57b6e9d5e` passed PR CI #289, Runtime #576, and Bug Hunt #246. The merge commit has no exposed post-merge workflow runs/statuses through the available read path, so mainline post-merge Green is NOT claimed.
+
+**Open H100 PRs (all still require review; no submitted reviews are recorded):**
+- PR #96 book evidence map — head `1df773883036525e20c972815ac3a3410c00d7da`; PR CI #300, Runtime #587, Bug Hunt #257 = SUCCESS.
+- PR #97 educational drawing references — head `25d57ef7e6b18f49228f9194b3991a92387cd04b`; PR CI #305, Runtime #592, Bug Hunt #262 = SUCCESS.
+- PR #98 scale/unit fail-closed contract — head `7092f3cba6fc5b3f8747bbe78ff2e2976111ae1b`; PR CI #303, Runtime #590, Bug Hunt #260 = SUCCESS. Required prerequisite for #99.
+- PR #99 scale/unit Golden bridge — head `c472396d5a3a984c8c134bb7f55d068326c4fc14`; PR CI #313, Runtime #600, Bug Hunt #272 = SUCCESS. Do not merge before #98; after #98 merges, rebase/retarget to updated main and rerun every gate on the final exact head.
+
+**Governance blockers:** H100 remains active and H101 remains LOCKED. Golden semantic ground truth and real-world transformed/defective fixtures are incomplete. Repository ruleset `Min` (ID `24680937`) is `disabled`, targets no branches, and has no required status checks configured; the intended protections therefore do not currently enforce review or CI. Enable/configure it for `refs/heads/main` before treating branch protections as active.
