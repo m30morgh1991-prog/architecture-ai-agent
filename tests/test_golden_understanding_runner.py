@@ -57,6 +57,7 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
             self.assertEqual(case["observed"]["source_profile"]["source_class"], "ENGINEERING_VECTOR")
             self.assertEqual(case["observed"]["source_profile"]["input_mode"], "ENGINEERING_PLAN")
             self.assertEqual(case["observed"]["scale_unit"], "UNKNOWN")
+            self.assertIn(case["observed"]["scale_unit"].get("status"), {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
             self.assertIn(case["decision"], {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
 
 
@@ -79,8 +80,7 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
                     "expected_elements": [],
                     "expected_domains": ["source_profile", "elements", "scale_unit", "fail_closed_decision"],
                     "expected_status": "UNKNOWN",
-                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "scale_unit": "UNKNOWN", "fail_closed_decision": "UNKNOWN"},
-                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "fail_closed_decision": "UNKNOWN"}
+                    "expected_domain_status": {"source_profile": "UNKNOWN", "elements": "UNKNOWN", "scale_unit": "UNKNOWN", "fail_closed_decision": "UNKNOWN"}
                 }]
             }), encoding="utf-8")
             completed = subprocess.run(
