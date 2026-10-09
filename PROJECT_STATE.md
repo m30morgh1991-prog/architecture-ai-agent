@@ -195,3 +195,12 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - Bare labels such as \`A-A\` remain unpromoted without context.
 - Direction and cut-plane geometry remain UNKNOWN even when marker presence is supported; arrow glyphs do not establish direction.
 - Exact-head PR CI, Runtime Tests, Bug Hunt, and required Golden regression are pending verification. This branch is NOT Green until all required gates are completed/success.
+
+
+## H100 research checkpoint — educational drawing references (clean branch, 2026-10-09)
+
+- Rebased the educational-reference documentation work onto a fresh branch from current `main`; the older PR #92 branch is divergent and is not the merge target.
+- Added a traceable summary of the user-provided 1396 drawing-reading reference, a comparison of newer catalog-verified candidates, and a separate Jorjani reference-candidate record.
+- Catalog leads remain `CATALOG-VERIFIED / NOT YET STUDIED` until the actual legal edition is inspected. Educational material does not override current official regulations.
+- Updated the Architecture Understanding Core layer documentation only; no runtime code, PlanModel, ConstraintMap, or Golden DWG assets changed.
+- Exact-head PR CI, Runtime Tests, Bug Hunt, and any applicable regression gates must pass before merge. H100 remains active; H101 remains locked.
