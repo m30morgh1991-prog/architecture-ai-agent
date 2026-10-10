@@ -226,3 +226,13 @@ PR #91 was merged at \`2dfcd893ed97028f69982477dc7d9d6741eff9ca\` after exact-he
 - No external code or dataset was imported. No new runtime provider/dependency was added. The research record does not change the Source of Truth or authorize a parallel semantic model.
 - Licensing guardrail: AEC-Geometric-Bench data and FloorPlanCAD material have non-commercial restrictions described by their maintainers; ConstructDrawingAI code is PolyForm Noncommercial. Verify each artifact's terms before reuse.
 - Acceptance remains fail-closed: external scores do not replace source-bound Golden semantic ground truth. Golden DWGs are immutable. H100 remains active and H101 remains locked until actual semantic acceptance evidence and all exact-head gates are green.
+
+
+## Post-merge checkpoint — PR #113 and independent runner (2026-10-10)
+
+- PR #113 merged via squash at `caa8bdf5d74449ba70e52a699036bd5281a1967b`.
+- Exact PR-head `36e73894c43b96ff4454b8367e7c182dd4c40307`: PR CI #363, Runtime Tests #650, Mandatory Bug Hunt #322 completed/success. These are PR-head results, not post-merge mainline checks.
+- Post-merge mainline workflows for the squash SHA have not been observed; mainline Green is not claimed.
+- Runner remains a deterministic policy contract, not an autonomous coding service. No provider/execution backend is configured or verified, and the first successful health-check run remains unobserved.
+- Next: verify a real scheduled/manual health-check run; configure an execution backend securely; then implement a bounded event-driven canary on an isolated branch. No automatic merge or H-stage advancement.
+- H100 active; H101 locked; Golden DWGs immutable.
