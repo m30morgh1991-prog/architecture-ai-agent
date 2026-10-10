@@ -118,12 +118,17 @@ def _case_report(
     extra_failures: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     regression = evaluate_golden_case(case, observed)
+    # Missing sources, source-hash mismatches, and execution exceptions are
+    # hard execution failures. Do not downgrade these BLOCKED states to
+    # NEEDS_REVIEW merely because the generic observation evaluator also finds
+    # domain/decision mismatches.
+    decision = "BLOCKED" if extra_failures else regression.decision
     return {
         "case_id": case.case_id,
         "source_sha256": source_sha256,
         "source_exists": source_exists,
         "observed": observed,
-        "decision": regression.decision,
+        "decision": decision,
         "unsafe_acceptance": regression.unsafe_acceptance,
         "failures": extra_failures + regression.failures,
         "domain_results": dict(regression.domain_results),

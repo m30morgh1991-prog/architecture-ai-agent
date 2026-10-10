@@ -108,6 +108,52 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
             self.assertEqual(report["summary"]["case_count"], 1)
             self.assertIn(report["cases"][0]["decision"], {"UNKNOWN", "NEEDS_REVIEW", "BLOCKED"})
 
+
+    def test_missing_source_is_blocked(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "missing.dwg"
+            case = GoldenCase(
+                case_id="CASE-MISSING-SOURCE",
+                source_path=str(source),
+                source_sha256=None,
+                expected_elements=(),
+                expected_domains=("source_profile", "elements", "fail_closed_decision"),
+                expected_status="UNKNOWN",
+                expected_domain_status={
+                    "source_profile": "UNKNOWN",
+                    "elements": "UNKNOWN",
+                    "fail_closed_decision": "UNKNOWN",
+                },
+            )
+            report = run_golden_case(case)
+            self.assertFalse(report["source_exists"])
+            self.assertEqual(report["observed"]["fail_closed_decision"], "BLOCKED")
+            self.assertEqual(report["decision"], "BLOCKED")
+            self.assertIn("SOURCE_FILE_MISSING", report["failures"])
+
+    def test_source_hash_mismatch_is_blocked(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "sample.dwg"
+            source.write_bytes(b"changed-source")
+            case = GoldenCase(
+                case_id="CASE-HASH-MISMATCH",
+                source_path=str(source),
+                source_sha256="0" * 64,
+                expected_elements=(),
+                expected_domains=("source_profile", "elements", "fail_closed_decision"),
+                expected_status="UNKNOWN",
+                expected_domain_status={
+                    "source_profile": "UNKNOWN",
+                    "elements": "UNKNOWN",
+                    "fail_closed_decision": "UNKNOWN",
+                },
+            )
+            report = run_golden_case(case)
+            self.assertTrue(report["source_exists"])
+            self.assertEqual(report["observed"]["fail_closed_decision"], "BLOCKED")
+            self.assertEqual(report["decision"], "BLOCKED")
+            self.assertIn("SOURCE_SHA256_MISMATCH", report["failures"])
+
     def test_understanding_exception_becomes_blocked_report(self):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "sample.dwg"
@@ -130,7 +176,7 @@ class GoldenUnderstandingRunnerTests(unittest.TestCase):
             report = run_golden_case(case, core=_FailingCore())
             self.assertTrue(report["source_exists"])
             self.assertEqual(report["observed"]["fail_closed_decision"], "BLOCKED")
-            self.assertEqual(report["decision"], "NEEDS_REVIEW")
+            self.assertEqual(report["decision"], "BLOCKED")
             self.assertIn("UNDERSTANDING_EXECUTION_BLOCKED", report["failures"])
 
 
