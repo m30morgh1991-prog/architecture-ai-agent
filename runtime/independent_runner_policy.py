@@ -46,7 +46,7 @@ def evaluate_runner_readiness(snapshot: Mapping[str, Any]) -> dict[str, Any]:
 
     if snapshot.get("agent_pr_open") is True:
         blockers.append("EXISTING_AGENT_PR_REQUIRES_RECONCILIATION")
-    elif snapshot.get("agent_pr_open") not in (False, None):
+    elif snapshot.get("agent_pr_open") is not False:
         blockers.append("AGENT_PR_STATE_UNKNOWN")
 
     ready = not blockers
