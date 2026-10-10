@@ -355,3 +355,15 @@ Notion is not a governance or Green-Gate source of truth.
 - No external code or dataset was imported. No new runtime provider/dependency was added. The research record does not change the Source of Truth or authorize a parallel semantic model.
 - Licensing guardrail: AEC-Geometric-Bench data and FloorPlanCAD material have non-commercial restrictions described by their maintainers; ConstructDrawingAI code is PolyForm Noncommercial. Verify each artifact's terms before reuse.
 - Acceptance remains fail-closed: external scores do not replace source-bound Golden semantic ground truth. Golden DWGs are immutable. H100 remains active and H101 remains locked until actual semantic acceptance evidence and all exact-head gates are green.
+
+
+## Checkpoint — PR #113 research merged; runner rollout still blocked (2026-10-10)
+
+- [x] Merge plan-understanding research and Revit AI comparison: PR #113, squash SHA `caa8bdf5d74449ba70e52a699036bd5281a1967b`.
+- [x] Verify exact PR-head gates: PR CI #363, Runtime Tests #650, Mandatory Bug Hunt #322 completed/success on `36e73894c43b96ff4454b8367e7c182dd4c40307`.
+- [ ] Verify post-merge mainline gates; until observed, mainline Green is not claimed.
+- [ ] Observe a successful scheduled/manual run of `.github/workflows/scheduled-governance-health-check.yml`.
+- [ ] Configure a secure AI execution backend; implement and verify bounded event-driven canary with isolated branch, concurrency lock, budgets, exact-head gates, and failure/recovery tests.
+- [ ] Keep auto-merge and H-stage advancement disabled.
+
+Runner remains a deterministic policy contract, not an autonomous coding service. H100 active; H101 locked; Golden DWGs immutable.
