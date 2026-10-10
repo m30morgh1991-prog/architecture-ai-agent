@@ -61,6 +61,12 @@ class IndependentRunnerPolicyTests(unittest.TestCase):
         result = evaluate_runner_readiness(snapshot)
         self.assertIn("EXISTING_AGENT_PR_REQUIRES_RECONCILIATION", result["blockers"])
 
+    def test_missing_agent_pr_state_blocks(self):
+        snapshot = ready_snapshot()
+        snapshot.pop("agent_pr_open")
+        result = evaluate_runner_readiness(snapshot)
+        self.assertIn("AGENT_PR_STATE_UNKNOWN", result["blockers"])
+
     def test_unknown_agent_pr_state_blocks(self):
         snapshot = ready_snapshot()
         snapshot["agent_pr_open"] = "unknown"
