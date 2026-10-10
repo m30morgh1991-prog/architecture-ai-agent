@@ -23,12 +23,12 @@ class GoldenUnderstandingRegressionTests(unittest.TestCase):
                 "expected_elements": ["WALL", "DOOR"],
                 "expected_domains": [
                     "source_profile", "elements", "geometry",
-                    "topology", "relations", "drawing_evidence",
+                    "topology", "relations", "drawing_evidence", "scale_unit",
                     "provenance", "fail_closed_decision"
                 ],
                 "expected_status": "UNKNOWN",
                 "expected_domain_status": {d: "UNKNOWN" for d in [
-                    "source_profile", "elements", "geometry", "topology", "relations", "drawing_evidence", "provenance", "fail_closed_decision"
+                    "source_profile", "elements", "geometry", "topology", "relations", "drawing_evidence", "scale_unit", "provenance", "fail_closed_decision"
                 ]},
                 "adversarial": False,
             }],
