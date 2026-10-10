@@ -1,5 +1,14 @@
 # Project State
 
+## Live repository checkpoint — 2026-10-10
+
+- Verified `main`: `ccd8c2d8762597bf06b4873c623eb35271994a6a` (PR #103 merged).
+- PR #101 and #102 are merged; PR #103 is merged. PR #99 is closed as superseded. PR #100 remains open but is stale and must not merge without being rebuilt/reconciled against current `main`.
+- Post-merge `Mandatory Bug Hunt` is SUCCESS. Post-merge `test` and `runtime-tests` are still running at last observation; post-merge Green is NOT yet established.
+- Ruleset `Min` (ID `24680937`) is active on the default branch and requires `runtime-tests`, `test`, and `Mandatory Bug Hunt`. It currently requires zero approving reviews; do not describe it as requiring one approval.
+- H100 remains active. H101 remains locked until final H100 acceptance gates and evidence are green. Golden DWGs remain immutable.
+
+
 ## **H100 — Golden Understanding Gate — active on main**
 
 **Current verified point:** PR #75 is merged to main at `c056c31ff97db532381c7466388200ff3cb62aeb`. Exact-head PR CI #219, Runtime #506, and Bug Hunt #176 were completed/success on PR #75. Mainline workflows for the merge commit are not exposed by the current PR-run query, so post-merge Green is not claimed.
