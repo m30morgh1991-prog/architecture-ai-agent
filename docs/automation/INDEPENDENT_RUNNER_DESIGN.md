@@ -10,8 +10,17 @@ Allow Architecture AI Agent implementation work to continue on GitHub-hosted inf
 - Policy tests: tests/test_independent_runner_policy.py.
 - No provider secret, model endpoint, or credential is assumed to exist.
 
+## Execution cadence — event-driven, not once-daily
+- The ChatGPT task-automation scheduler supports only once/daily/weekly/monthly recurrence; it is not the execution engine for continuous project work. The old Architecture Auto-Runner automation remains disabled until a real, governed GitHub runner is implemented and verified.
+- The intended runner must be event-driven: react to approved GitHub events such as PR/check completion and successful workflow completion, then re-read the exact current state before deciding whether any next task is eligible.
+- A successful gate may trigger preparation or the next bounded task automatically, but never merge a PR, bypass human review, or unlock H101.
+- Use a scheduled health-check only as a watchdog/fallback, not as the main progress mechanism. Do not launch duplicate work while a task/PR is active; use concurrency groups and a single-active-task lock.
+- Each invocation handles one bounded task, persists evidence, and exits. A subsequent eligible event starts the next invocation. Failed, cancelled, skipped, missing, stale-SHA, or ambiguous gates stop the chain and require Bug Hunting.
+- Add backoff and loop limits for transient failures; do not create an infinite retry loop. Apply per-run time/spend/diff budgets and stop when a provider is unavailable.
+- Do not enable continuous autonomous implementation until a provider/execution backend is securely configured and a non-destructive canary passes.
+
 ## Intended architecture
-1. **Scheduler / dispatcher**: starts only from approved GitHub events or a bounded schedule; uses concurrency locks and a strict time/token budget.
+1. **Scheduler / dispatcher**: starts from approved GitHub events and a bounded fallback schedule; uses concurrency locks and a strict time/token budget.
 2. **State reader**: reads PROJECT_STATE.md, MASTER_HANDOFF.md, active PRs, exact main SHA, latest completed workflow runs, and required regressions. Missing or conflicting state means BLOCKED.
 3. **Task planner**: selects one small task only from the active H-stage documented next steps. It cannot unlock a stage.
 4. **Provider adapter**: a replaceable, explicitly configured provider integration. Credentials must be stored as GitHub Actions secrets or a least-privilege GitHub App; never in repository files or logs. No provider is mandatory for the product, but unattended AI execution requires one configured execution backend.
@@ -34,12 +43,13 @@ Only then does it authorize isolated branch editing and PR creation. It always r
 ## Rollout sequence
 - [x] Add a read-only scheduled health-check proposal (PR #105; not considered active until merged and verified).
 - [x] Add deterministic fail-closed runner readiness contract and negative tests (this PR).
+- [x] Specify event-driven execution cadence and concurrency/loop safety (this commit).
 - [ ] Verify exact-head CI, Runtime Tests, Bug Hunt, and policy tests for this PR.
 - [ ] Merge PR #105 and this contract only under the repository review policy; no ruleset bypass.
 - [ ] Manually dispatch the scheduled health check after PR #105 is on main.
 - [ ] Choose and configure an AI execution backend securely, or deploy a self-hosted runner with a supported provider adapter.
-- [ ] Implement bounded task execution, branch isolation, evidence generation, and automatic PR creation.
-- [ ] Run a non-destructive canary task and verify failure/recovery behavior before enabling any schedule.
+- [ ] Implement event-driven bounded task execution, branch isolation, evidence generation, and automatic PR creation.
+- [ ] Run a non-destructive canary task and verify failure/recovery behavior before enabling any autonomous implementation triggers.
 - [ ] Keep merge and H-stage advancement human-controlled.
 
 ## Unresolved blockers
