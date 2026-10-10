@@ -11,26 +11,39 @@ from typing import Any
 
 _REQUIRED_GATES = ("pr_ci", "runtime_tests", "bug_hunt", "required_regression")
 _VALID_SHA = re.compile(r"^[0-9a-f]{40}$")
+_VALID_STAGE = re.compile(r"H[0-9]{2,3}")
 
 
 def evaluate_runner_readiness(snapshot: Mapping[str, Any]) -> dict[str, Any]:
     """Return a conservative decision for whether an AI task may start.
 
-    Every required gate must explicitly equal success. Missing, pending,
-    cancelled, skipped, or unknown values fail closed. A configured provider
-    must be asserted explicitly; credentials are never inferred from a name.
-    An existing agent PR blocks duplicate work.
+    The state reader must provide both the proposed main SHA and independently
+    observed current-main SHA, plus proposed and authoritative active-stage
+    identifiers. Matching format alone is not proof of freshness or authority.
+    Every required gate must explicitly equal success. Provider configuration
+    and the absence of an unresolved agent PR must also be explicit.
 
     Even when ready, this contract never authorizes merge or stage advancement.
     """
     blockers: list[str] = []
     sha = snapshot.get("main_sha")
+    current_sha = snapshot.get("current_main_sha")
     stage = snapshot.get("active_stage")
+    authoritative_stage = snapshot.get("authoritative_active_stage")
 
     if not isinstance(sha, str) or not _VALID_SHA.fullmatch(sha):
         blockers.append("MAIN_SHA_MISSING_OR_INVALID")
-    if not isinstance(stage, str) or not re.fullmatch(r"H[0-9]{2,3}", stage):
+    if not isinstance(current_sha, str) or not _VALID_SHA.fullmatch(current_sha):
+        blockers.append("CURRENT_MAIN_SHA_MISSING_OR_INVALID")
+    elif isinstance(sha, str) and _VALID_SHA.fullmatch(sha) and sha != current_sha:
+        blockers.append("MAIN_SHA_STALE")
+
+    if not isinstance(stage, str) or not _VALID_STAGE.fullmatch(stage):
         blockers.append("ACTIVE_STAGE_MISSING_OR_INVALID")
+    if not isinstance(authoritative_stage, str) or not _VALID_STAGE.fullmatch(authoritative_stage):
+        blockers.append("AUTHORITATIVE_ACTIVE_STAGE_MISSING_OR_INVALID")
+    elif isinstance(stage, str) and _VALID_STAGE.fullmatch(stage) and stage != authoritative_stage:
+        blockers.append("ACTIVE_STAGE_NOT_AUTHORITATIVE")
 
     gates = snapshot.get("gates")
     if not isinstance(gates, Mapping):
