@@ -1,12 +1,15 @@
 # Project State
 
-## Live repository checkpoint — 2026-10-10
+## Live repository checkpoint — 2026-10-10 (after PR #109)
 
-- Verified `main`: `ccd8c2d8762597bf06b4873c623eb35271994a6a` (PR #103 merged).
-- PR #101 and #102 are merged; PR #103 is merged. PR #99 is closed as superseded. PR #100 remains open but is stale and must not merge without being rebuilt/reconciled against current `main`.
-- Post-merge `Mandatory Bug Hunt` is SUCCESS. Post-merge `test` and `runtime-tests` are still running at last observation; post-merge Green is NOT yet established.
-- Ruleset `Min` (ID `24680937`) is active on the default branch and requires `runtime-tests`, `test`, and `Mandatory Bug Hunt`. It currently requires zero approving reviews; do not describe it as requiring one approval.
-- H100 remains active. H101 remains locked until final H100 acceptance gates and evidence are green. Golden DWGs remain immutable.
+- Last observed `main` before this checkpoint-doc branch: `cb8f0e663938d44ee965666cc0632764e1696568` (PR #109 merged).
+- PR #107 (scheduled governance health check) and PR #109 (fail-closed independent-runner readiness policy) are merged. PRs #105, #106, and #108 are closed as superseded. PR #100 remains stale and must not merge without reconciliation; its workflow-trigger fix is already covered by merged PR #104.
+- On the PR #109 merge SHA, `test` and `Mandatory Bug Hunt` completed/success; `runtime-tests` was still in progress at the last check. Therefore post-merge Main Green was NOT yet established at checkpoint time. Recheck the live SHA/checks before relying on a later status.
+- Ruleset `Min` (ID `24680937`) is active and requires `runtime-tests`, `test`, and `Mandatory Bug Hunt`. Required approving reviews remain zero by the user's explicit decision; do not change this setting without explicit authorization.
+- The scheduled governance workflow is read-only, scheduled for midnight Asia/Tehran, and has a manual-dispatch trigger. Its first successful scheduled/manual execution still needs to be observed.
+- The independent-runner policy is a deterministic safety contract, not a live AI execution service. No provider/execution backend has been configured or verified; no autonomous implementation, auto-merge, or stage advancement is enabled.
+- H100 remains active. H101 remains LOCKED until final Golden Understanding acceptance evidence is genuinely green. Both Golden DWG files remain immutable.
+
 
 
 ## **H100 — Golden Understanding Gate — active on main**
