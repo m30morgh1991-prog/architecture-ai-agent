@@ -4,9 +4,12 @@ from runtime.independent_runner_policy import evaluate_runner_readiness
 
 
 def ready_snapshot():
+    sha = "a" * 40
     return {
-        "main_sha": "a" * 40,
+        "main_sha": sha,
+        "current_main_sha": sha,
         "active_stage": "H100",
+        "authoritative_active_stage": "H100",
         "gates": {
             "pr_ci": "success",
             "runtime_tests": "success",
@@ -27,6 +30,33 @@ class IndependentRunnerPolicyTests(unittest.TestCase):
         self.assertFalse(result["can_merge"])
         self.assertFalse(result["can_advance_stage"])
         self.assertTrue(result["requires_human_merge_approval"])
+
+    def test_stale_main_sha_blocks(self):
+        snapshot = ready_snapshot()
+        snapshot["main_sha"] = "b" * 40
+        result = evaluate_runner_readiness(snapshot)
+        self.assertEqual(result["decision"], "BLOCKED")
+        self.assertIn("MAIN_SHA_STALE", result["blockers"])
+        self.assertFalse(result["can_edit_in_isolated_branch"])
+
+    def test_missing_current_main_sha_blocks(self):
+        snapshot = ready_snapshot()
+        snapshot.pop("current_main_sha")
+        result = evaluate_runner_readiness(snapshot)
+        self.assertIn("CURRENT_MAIN_SHA_MISSING_OR_INVALID", result["blockers"])
+
+    def test_non_authoritative_stage_blocks(self):
+        snapshot = ready_snapshot()
+        snapshot["active_stage"] = "H999"
+        result = evaluate_runner_readiness(snapshot)
+        self.assertIn("ACTIVE_STAGE_NOT_AUTHORITATIVE", result["blockers"])
+        self.assertFalse(result["can_edit_in_isolated_branch"])
+
+    def test_missing_authoritative_stage_blocks(self):
+        snapshot = ready_snapshot()
+        snapshot.pop("authoritative_active_stage")
+        result = evaluate_runner_readiness(snapshot)
+        self.assertIn("AUTHORITATIVE_ACTIVE_STAGE_MISSING_OR_INVALID", result["blockers"])
 
     def test_pending_gate_is_not_green(self):
         snapshot = ready_snapshot()
