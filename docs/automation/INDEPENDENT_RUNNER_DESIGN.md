@@ -31,14 +31,14 @@ Allow Architecture AI Agent implementation work to continue on GitHub-hosted inf
 9. **State persistence**: after verified completion, update checkpoint docs additively. Never rewrite history or reset progress.
 
 ## Readiness contract
-evaluate_runner_readiness requires:
-- a valid 40-character main SHA;
-- a valid active stage identifier;
-- explicit success for PR CI, Runtime Tests, Bug Hunt, and required regression;
+The state reader must supply authoritative values from a fresh GitHub/repository snapshot:
+- proposed main SHA and independently observed current main SHA; both must be valid 40-character SHAs and must match;
+- proposed active-stage ID and authoritative active-stage ID read from persisted project state; both must be valid and must match;
+- explicit success for PR CI, Runtime Tests, Bug Hunt, and required regression on the exact relevant SHA;
 - an explicitly configured provider;
 - no unresolved prior agent PR.
 
-Only then does it authorize isolated branch editing and PR creation. It always returns can_merge = false and can_advance_stage = false.
+A syntactically valid but stale SHA or non-authoritative stage ID must block execution. Missing or conflicting authoritative state is BLOCKED, not inferred. Only then does the policy authorize isolated branch editing and PR creation. It always returns can_merge = false and can_advance_stage = false.
 
 ## Rollout sequence
 - [x] Add a read-only scheduled health-check proposal (PR #105; not considered active until merged and verified).
