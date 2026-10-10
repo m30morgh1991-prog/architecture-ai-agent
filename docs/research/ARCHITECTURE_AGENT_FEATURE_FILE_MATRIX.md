@@ -184,3 +184,28 @@ It is complete only when:
 - H99 merge commit: `2344e1083937e5d91857ba24b6a0f077414f06ca`.
 - H99 should be treated as the current architectural-relations boundary.
 - This document is a planning artifact and does not declare any future H green.
+
+
+## 12. New plan-understanding research additions — 2026-10-10
+
+Research record: `docs/research/plan-understanding-research-and-revit-ai-review-2026-10-10.md`
+
+| Reference | Adopted lesson | Existing integration boundary | Next evidence before implementation | Priority |
+|---|---|---|---|---|
+| fpvec-lab / ResPlan-FP | Compare graph/junction readout, sequence reconstruction, wall/room/opening metrics, and correction cost | `plan_model_reconstruction.py`, `plan_understanding_core.py`, `geometry_topology_validation.py`, `golden_understanding_regression.py` | Reproducible scorer protocol; source/license audit per artifact; wall/room/opening fixture metrics | P0 research |
+| AEC-Geometric-Bench | Separate object, wall-mask, area-mask, and area-instance scores | Golden runner/evaluator and optional benchmark adapter | Confirm exact public data terms; do not bundle CC BY-NC data; document 15-sheet public GT limitation | P0 validation |
+| ConstructDrawingAI CIR | Vector-first input, canonical representation, connectivity, provenance/confidence, perception/reasoning separation | `drawing_semantic_evidence.py`, `evidence_reconciliation.py`, `plan_model_reconstruction.py`, existing PlanModel | Map concepts to current contracts; no second IR/PlanModel; no code copying under PolyForm Noncommercial | P0 architecture study |
+| Raster-to-Graph | Junction and wall-segment graph as a topology reconstruction candidate | `spatial_topology.py`, `architectural_relations.py`, `geometry_topology_validation.py` | Verify dependency age, data access and licenses; benchmark against existing contract | P1 |
+| FloorPlan2IFC | Segmentation → skeleton/junction graph → walls/openings → IFC pipeline | Existing PlanModel/BIM contracts and future provider-neutral export adapter | Reproduce claims independently; semantic reconciliation must precede export PASS | P1 |
+| FloorPlanCAD / PerDAW | CAD line-grained symbols; door/window representations across plan/elevation | Drawing semantic evidence and Iranian drawing-language fixture suite | Rights/license, label mapping, source drawing provenance and non-commercial restrictions | P1 research |
+| Drafted in Revit | Multi-option native BIM schematic generator for narrow single-storey residential use | Future H101+ generation comparator only; not an understanding core | Compare outputs and input constraints only if test environment exists; not a substitute for Iranian code validation | Comparator |
+| WiseBIM AI | Existing-plan conversion to Revit objects with staged detection and user verification | Raster/vector evidence, reconstruction, opening connectivity, uncertainty handling | Measure on permitted independent plans; check scale assumptions, connection/alignment correction and privacy terms | P1 comparator |
+| Autodesk Assistant / Revit Generative Design | Natural-language model/documentation actions and constrained design alternatives | Future execution adapter / design exploration only | Separate supported actions from plan-understanding claims; region and account availability checks | Context only |
+
+### Added evaluation rules
+
+- Never collapse wall, room, opening, symbols, topology, and Iranian-drafting semantics into a single opaque score.
+- External benchmark results are research evidence only; they do not replace source-bound Golden Understanding ground truth.
+- BIM/Revit/IFC export success does not prove that the source plan was correctly understood.
+- Dataset/code licenses must be reviewed per artifact. Public availability does not grant commercial reuse rights.
+- No H101 unlock, new provider, third-party package, dataset import, or Golden DWG modification is authorized by this research entry.
