@@ -7,7 +7,7 @@ from typing import Any, Mapping
 ALLOWED_DECISIONS = {"PASS", "UNKNOWN", "NEEDS_REVIEW", "BLOCKED"}
 REQUIRED_DOMAINS = (
     "source_profile", "elements", "geometry", "topology", "relations",
-    "drawing_evidence", "text", "dimensions", "levels", "view_markers",
+    "drawing_evidence", "text", "dimensions", "scale_unit", "levels", "view_markers",
     "vertical_circulation", "bim_mapping", "provenance", "uncertainties",
     "contradictions", "missing_evidence", "fail_closed_decision",
 )

@@ -14,6 +14,7 @@ from runtime.golden_understanding_regression import (
 )
 from runtime.plan_understanding_core import PlanUnderstandingCore
 from runtime.input_source_contract import SourceProfile, classify_source
+from runtime.dwg_scale_unit_bridge import observe_dwg_scale_unit
 
 
 def sha256_file(path: str | Path) -> str:
@@ -54,6 +55,7 @@ def _domain_observation(result, source_sha256: str, source_path: str) -> dict[st
         ),
         "text": detection.get("dwg_text_labels", ()),
         "dimensions": "UNKNOWN",
+        "scale_unit": observe_dwg_scale_unit(detection, source_sha256),
         "levels": "UNKNOWN",
         "view_markers": "UNKNOWN",
         "vertical_circulation": "UNKNOWN",
@@ -94,6 +96,7 @@ def _blocked_observation(
         "drawing_evidence": "UNKNOWN",
         "text": "UNKNOWN",
         "dimensions": "UNKNOWN",
+        "scale_unit": "UNKNOWN",
         "levels": "UNKNOWN",
         "view_markers": "UNKNOWN",
         "vertical_circulation": "UNKNOWN",
