@@ -46,15 +46,17 @@ jobs:
         if: always()
         env:
           JOB_STATUS: ${{ job.status }}
-          CHECKED_SHA: ${{ github.sha }}
+          WORKFLOW_EVENT_SHA: ${{ github.sha }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
+          CHECKED_SHA="$(git rev-parse HEAD)"
           {
             echo "## Scheduled Governance Health Check"
             echo
             echo "- Event: \`$EVENT_NAME\`"
             echo "- Workflow checkout target: \`main\`"
-            echo "- Workflow event SHA: \`$CHECKED_SHA\`"
+            echo "- Checked-out main SHA: \`$CHECKED_SHA\`"
+            echo "- Workflow event SHA: \`$WORKFLOW_EVENT_SHA\`"
             echo "- Gate result: **$JOB_STATUS**"
             echo
             if [ "$JOB_STATUS" = "success" ]; then
