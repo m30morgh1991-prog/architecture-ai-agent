@@ -244,3 +244,13 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - No external code or dataset was imported. No new runtime provider/dependency was added. The research record does not change the Source of Truth or authorize a parallel semantic model.
 - Licensing guardrail: AEC-Geometric-Bench data and FloorPlanCAD material have non-commercial restrictions described by their maintainers; ConstructDrawingAI code is PolyForm Noncommercial. Verify each artifact's terms before reuse.
 - Acceptance remains fail-closed: external scores do not replace source-bound Golden semantic ground truth. Golden DWGs are immutable. H100 remains active and H101 remains locked until actual semantic acceptance evidence and all exact-head gates are green.
+
+
+## Post-merge checkpoint — PR #113 and independent runner (2026-10-10)
+
+- PR #113 (plan-understanding research and Revit AI review) was merged using squash at `caa8bdf5d74449ba70e52a699036bd5281a1967b`. Research findings and file mappings are now on main; no external code, packages, or datasets were imported.
+- Exact PR-head `36e73894c43b96ff4454b8367e7c182dd4c40307`: PR CI Gate run #363, Runtime Tests run #650, and Mandatory Bug Hunt run #322 all completed/success. These are PR-head results, not post-merge mainline verification.
+- Post-merge mainline workflow evidence for `caa8bdf5d74449ba70e52a699036bd5281a1967b` has not been observed through the available workflow query. Mainline Green is therefore NOT claimed.
+- Independent runner remains design + deterministic fail-closed policy only. The scheduled read-only health-check workflow exists, but its first successful post-merge manual/scheduled run is not yet verified. No AI execution provider or credentials are configured/verified; autonomous editing remains disabled.
+- Next non-conflicting steps: verify a health-check run from GitHub Actions; research/select an allowed provider/execution backend without committing secrets; then implement a bounded, event-driven canary in an isolated branch with strict concurrency, budgets, exact-SHA checks, and failure recovery.
+- H100 remains active and H101 locked. Golden DWGs remain immutable. Human-controlled merge and stage advancement remain mandatory.
