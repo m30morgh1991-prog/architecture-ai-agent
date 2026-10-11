@@ -213,13 +213,17 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     }
     declared_units = insunits_names.get(raw_insunits) if isinstance(raw_insunits, int) else None
     parser_reported_units = getattr(doc,"units",None)
-    units_status = "UNKNOWN" if raw_insunits is None or raw_insunits == 0 else (
+    metadata_status = "UNKNOWN" if raw_insunits is None or raw_insunits == 0 else (
         "SUPPORTED" if declared_units is not None else "NEEDS_REVIEW"
     )
     if declared_units and parser_reported_units:
         normalized_parser_units = str(parser_reported_units).strip().lower().replace(" ", "_")
         if normalized_parser_units != declared_units:
-            units_status = "NEEDS_REVIEW"
+            metadata_status = "NEEDS_REVIEW"
+    # Header metadata can support what the file declares, but cannot establish
+    # the effective physical scale of model-space geometry without an independent
+    # reference-length / dimension association check. Fail closed until reviewed.
+    effective_units_status = "UNKNOWN" if raw_insunits is None or raw_insunits == 0 else "NEEDS_REVIEW"
     return {
         "schema":"dwg-semantic-evidence-v1",
         "source_profile":{"source_class":"ENGINEERING_PLAN","path":str(source),
@@ -231,8 +235,9 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
             "declared_units":declared_units or ("unitless" if raw_insunits == 0 else None),
             "units_metadata_source":units_metadata_source,
             "parser_reported_units":parser_reported_units,
-            "effective_units_status":units_status,
-            "human_review_required":units_status != "SUPPORTED",
+            "declared_units_metadata_status":metadata_status,
+            "effective_units_status":effective_units_status,
+            "human_review_required":effective_units_status != "SUPPORTED",
             "header_read_error":header_error,
             "plot_scale_status":"UNKNOWN",
         },
