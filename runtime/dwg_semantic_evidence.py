@@ -4,6 +4,7 @@ import hashlib, json, re
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from runtime.dwg_geometry_evidence import extract_entity_geometry
 
 SEMANTIC_TOKENS = {
     "WALLS": ("WALL", "WALLS", "A-WALL"),
@@ -125,7 +126,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     entities = list(doc.modelspace().query())
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
     geometry_counts = Counter()
-    text_evidence, dimension_evidence, level_evidence, section_marker_evidence = [], [], [], []
+    text_evidence, dimension_evidence, level_evidence, section_marker_evidence, geometry_evidence = [], [], [], [], []
     candidates = {k: [] for k in SEMANTIC_TOKENS}
 
     for entity in entities:
@@ -150,6 +151,9 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
                     section_marker_evidence.append(section_marker)
         if dxftype in {"LINE","LWPOLYLINE","ARC","CIRCLE","ELLIPSE","SPLINE","HATCH"}:
             geometry_counts[dxftype] += 1
+            geometry = extract_entity_geometry(entity, dxftype, handle)
+            if geometry is not None:
+                geometry_evidence.append(geometry)
         if dxftype in {"TEXT","MTEXT","ATTRIB","ATTDEF"}:
             text = str(getattr(entity, "text", None) or _value(entity, "text", ""))
             text_evidence.append({"handle":handle,"type":dxftype,
@@ -163,12 +167,18 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
             if section_marker:
                 section_marker_evidence.append(section_marker)
         if dxftype == "DIMENSION":
+            measurement = _value(entity, "actual_measurement")
             dimension_evidence.append({"handle":handle,"type":dxftype,
-                "text":str(_value(entity, "text", "")),
-                "actual_measurement":_jsonable(_value(entity, "actual_measurement")),
+                "dimension_type":_value(entity, "dimtype"),
+                "text":str(_value(entity, "text", "") or ""),
+                "actual_measurement":_jsonable(measurement),
+                "measurement_status":"SUPPORTED" if measurement is not None else "UNKNOWN",
                 "defpoint":_jsonable(_value(entity, "defpoint")),
                 "defpoint2":_jsonable(_value(entity, "defpoint2")),
-                "defpoint3":_jsonable(_value(entity, "defpoint3")),"provenance":"DIRECT"})
+                "defpoint3":_jsonable(_value(entity, "defpoint3")),
+                "text_midpoint":_jsonable(_value(entity, "text_midpoint")),
+                "layer":_value(entity, "layer"),
+                "provenance":"DIRECT","interpretation_status":"NEEDS_REVIEW"})
 
     semantic_support = {semantic:{
         "status":"SUPPORTED" if rows else "UNKNOWN",
@@ -189,7 +199,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "layer_counts":dict(sorted(layer_counts.items())),
         "block_counts":dict(sorted(block_counts.items())),
         "geometry_counts":dict(sorted(geometry_counts.items())),
-        "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
+        "text":text_evidence,"dimensions":dimension_evidence,"geometry":geometry_evidence,"levels":level_evidence,
         "section_markers":section_marker_evidence,
         "semantic_candidates":semantic_support,"header":header,
         "authority":{"read_only":True,"semantic_authority":False,
