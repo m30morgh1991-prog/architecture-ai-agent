@@ -1,12 +1,14 @@
 # Architecture AI Agent — Master Handoff
 
-## Live repository checkpoint — 2026-10-10 (after PR #111; snapshot at commit `477d042`)
+## Live repository checkpoint — 2026-10-11 (after PR #115)
 
-- Verified main snapshot: `477d04232b734bc15d90f2621a6af171bc3bf227`, created by merging PR #111 (fail-closed Golden runner hard-failure correction).
-- PR #107 (scheduled governance health check), PR #109 (independent-runner readiness policy), and PR #111 (preserve `BLOCKED` for missing source, hash mismatch, and execution exceptions) are merged. PR #104's stacked-PR workflow trigger fix remains in place. PR #100 is stale and must not merge directly; its useful historical audit is preserved in the checkpoint-refresh work.
-- At this checkpoint snapshot, post-merge `Mandatory Bug Hunt` is completed/success; `test` and `runtime-tests` were still in progress. Main Green is NOT claimed here; recheck the live SHA and all three required checks before relying on a later status.
-- Ruleset `Min` (ID `24680937`) is active and requires `runtime-tests`, `test`, and `Mandatory Bug Hunt`. Required approving reviews remain zero by the user's explicit decision; do not change this without explicit authorization.
-- The scheduled governance workflow's first successful scheduled/manual execution still needs to be observed. The independent runner remains a deterministic policy contract, not a live AI execution service: no verified provider/execution backend, autonomous implementation, auto-merge, or stage advancement is enabled.
+- Verified latest main commit: `3b584b6459fadece28ed8744ca94ed7b0a01e5cf`, created by squash-merging PR #115.
+- PR #115 (`docs(bug-hunt): correct PR #114 final-head evidence`) is merged. Exact pre-merge head: `642671abab3dafa00c9ccd56037da1efc610aded`; PR CI Gate #372, Runtime Tests #659, and Mandatory Bug Hunt #331 were each completed/success on that exact head.
+- PR #115 corrected the stale PR #114 evidence and added a PR-specific Bug Hunt record. Merge does not convert PR-head success into post-merge mainline success.
+- Post-merge mainline checks on `3b584b6459fadece28ed8744ca94ed7b0a01e5cf` are **UNKNOWN / unverified**. The available commit status query returned no statuses, and the available workflow-run query does not expose mainline-triggered runs. Do not claim Main Green without observed completed/success results for `runtime-tests`, `test`, and `Mandatory Bug Hunt` on the exact main SHA.
+- The scheduled governance health check is present, read-only, and scheduled for midnight Asia/Tehran. A successful scheduled/manual run remains unobserved; no PASS is claimed.
+- Ruleset `Min` (ID `24680937`) requires `runtime-tests`, `test`, and `Mandatory Bug Hunt`. Required approving reviews remain zero by the user's explicit decision; do not change this without explicit authorization.
+- No secure AI execution provider has been configured or verified. The independent runner remains a deterministic policy contract, not a live AI execution service. No auto-merge or autonomous H-stage advancement is enabled.
 - H100 remains active. H101 remains LOCKED until Golden Understanding acceptance evidence is genuinely green. Both Golden DWG files remain immutable.
 
 
