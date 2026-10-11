@@ -66,7 +66,7 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual(result["units_evidence"]["declared_units"],"centimeters")
         self.assertEqual(result["units_evidence"]["units_metadata_source"],"ezdwg.header_variables().insunits")
         self.assertEqual(result["units_evidence"]["parser_reported_units"],"millimeters")
-        self.assertEqual(result["units_evidence"]["effective_units_status"],"SUPPORTED")
+        self.assertEqual(result["units_evidence"]["effective_units_status"],"NEEDS_REVIEW")
         self.assertEqual(result["units_evidence"]["plot_scale_status"],"UNKNOWN")
 
     def test_missing_insunits_remains_unknown_even_if_parser_has_unit_label(self):
