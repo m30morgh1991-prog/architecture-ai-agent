@@ -17,9 +17,12 @@ class _Layout:
 
 class _Doc:
     version="AC1021"; decode_version="AC1021"; units="millimeters"
-    def __init__(self, entities): self.layout=_Layout(entities)
+    def __init__(self, entities, insunits=None):
+        self.layout=_Layout(entities)
+        self.insunits=insunits
     def modelspace(self): return self.layout
-    def header_variables(self): return {"extmin":(0,0,0),"extmax":(100,100,0)}
+    def header_variables(self):
+        return {"extmin":(0,0,0),"extmax":(100,100,0),"insunits":self.insunits}
 
 class _Ezdwg:
     def __init__(self, doc): self.doc=doc
@@ -51,6 +54,31 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertTrue(poly["closed"])
         self.assertEqual(poly["coordinate_status"],"SUPPORTED")
         self.assertEqual(result["semantic_candidates"]["WALLS"]["status"],"UNKNOWN")
+
+
+    def test_raw_insunits_is_separate_from_parser_reported_units(self):
+        doc=_Doc([_Entity("LINE",4,layer="0",start=(0,0,0),end=(10,0,0))],insunits=5)
+        with tempfile.TemporaryDirectory() as td:
+            source=Path(td)/"units.dwg"; source.write_bytes(b"units")
+            with patch.dict("sys.modules",{"ezdwg":_Ezdwg(doc)}):
+                result=extract_dwg_evidence(source)
+        self.assertEqual(result["units_evidence"]["raw_insunits_code"],5)
+        self.assertEqual(result["units_evidence"]["declared_units"],"centimeters")
+        self.assertEqual(result["units_evidence"]["units_metadata_source"],"ezdwg.header_variables().insunits")
+        self.assertEqual(result["units_evidence"]["parser_reported_units"],"millimeters")
+        self.assertEqual(result["units_evidence"]["effective_units_status"],"SUPPORTED")
+        self.assertEqual(result["units_evidence"]["plot_scale_status"],"UNKNOWN")
+
+    def test_missing_insunits_remains_unknown_even_if_parser_has_unit_label(self):
+        doc=_Doc([_Entity("LINE",5,layer="0",start=(0,0,0),end=(1,0,0))])
+        with tempfile.TemporaryDirectory() as td:
+            source=Path(td)/"no-insunits.dwg"; source.write_bytes(b"no-insunits")
+            with patch.dict("sys.modules",{"ezdwg":_Ezdwg(doc)}):
+                result=extract_dwg_evidence(source)
+        self.assertIsNone(result["units_evidence"]["raw_insunits_code"])
+        self.assertIsNone(result["units_evidence"]["declared_units"])
+        self.assertEqual(result["units_evidence"]["effective_units_status"],"UNKNOWN")
+        self.assertTrue(result["units_evidence"]["human_review_required"])
 
     def test_missing_coordinates_stay_unknown(self):
         doc=_Doc([_Entity("LINE",3,layer="A-GENERIC")])
