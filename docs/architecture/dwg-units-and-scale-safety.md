@@ -41,8 +41,8 @@ Read-only evidence was exported successfully from both immutable Golden DWGs. Th
 ### Review finding
 The unit label cannot safely be used as the conversion factor for either drawing. In particular, treating the second plan's 21.14 dimension as inches would yield a very different physical interpretation than treating it as metres; the extracted evidence alone does not establish which interpretation is correct. This is a **unit-provenance / geometry-scale review flag**, not proof that the drawing is wrong or compliant.
 
-### Next required engineering step
-Extend the extractor to expose the raw `$INSUNITS` value and its provenance when the parser actually provides it; otherwise emit `raw_insunits_code: null` and `declared_units: UNKNOWN`. Keep `parser_reported_units` separate. Also report plot scale as UNKNOWN unless the actual plot/layout configuration is extracted. Do not scale, convert, save, or edit either Golden DWG. A human-confirmed reference dimension and its association to a specific plan element are required before selecting effective units.
+### Engineering follow-up completed
+The extractor now exposes the raw `$INSUNITS` code and metadata source when available, keeps `parser_reported_units` separate, and reports plot scale as UNKNOWN unless actual plot/layout configuration is extracted. It does not scale, convert, save, or edit either Golden DWG. A human-confirmed reference dimension and its association to a specific plan element are still required before selecting effective units.
 
 ## Suggested evidence fields
 - raw_insunits_code
@@ -65,3 +65,13 @@ The following files are immutable regression inputs and must not be resaved, con
 
 ## Decision boundary
 This document defines a conservative evidence policy only. It does not assert that either Golden DWG is inch-based or centimetre-based, and it does not establish parking-rule compliance.
+
+
+## Raw header extraction review — 2026-10-11
+The newer artifact reads raw `$INSUNITS` code **1 (inches)** from both Golden DWGs, and the parser-reported label is also `inches` for both. This confirms the header declaration and parser label agree; it does **not** establish that the coordinate geometry is physically inch-scaled. Therefore:
+- `declared_units_metadata_status` may be SUPPORTED when raw metadata is recognized and does not conflict with the parser label.
+- `effective_units_status` remains NEEDS_REVIEW whenever a nonzero known raw unit code exists, until an independent reference length and its geometry/dimension association are reviewed.
+- If the raw code is absent or unitless, effective units remain UNKNOWN.
+- `plot_scale_status` remains UNKNOWN.
+
+This is intentionally conservative. The two drawings have substantially different coordinate extents and dimension patterns; no unit conversion, parking-space classification, or regulatory verdict is authorized by the header code alone.
