@@ -43,13 +43,13 @@ jobs:
         shell: bash
         run: |
           set +e
-          npx --yes ecc-agentshield@1.2.0 scan --path . --format text
+          npx --yes ecc-agentshield@1.6.0 scan --path . --format terminal
           scan_status=$?
           echo "scanner_exit_code=${scan_status}" >> "$GITHUB_OUTPUT"
           if [ "$scan_status" -eq 0 ]; then
-            echo "AgentShield completed with exit code 0."
+            echo "AgentShield scan completed with exit code 0."
           else
-            echo "::warning::AgentShield returned exit code ${scan_status}; this pilot is advisory and does not replace required CI or Bug Hunt gates."
+            echo "::warning::AgentShield scan failed with exit code ${scan_status}; this pilot is advisory and does not replace required CI or Bug Hunt gates."
           fi
 
       - name: Record pilot boundary
@@ -59,6 +59,7 @@ jobs:
             echo "### AgentShield pilot"
             echo "- Advisory-only security scan of repository agent/configuration surfaces."
             echo "- Scanner exit code: ${{ steps.scan.outputs.scanner_exit_code || 'not reported' }}"
+            echo "- A successful workflow is not equivalent to a successful scan; inspect the scanner exit code above."
             echo "- Findings do not auto-edit files, approve PRs, or bypass required gates."
             echo "- Architecture understanding, PlanModel, ConstraintMap, Golden DWG, and runtime validation are out of scope."
           } >> "$GITHUB_STEP_SUMMARY"
