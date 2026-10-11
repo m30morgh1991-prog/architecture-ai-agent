@@ -81,5 +81,11 @@ class BugHuntingGateTests(unittest.TestCase):
         errors = validate_evidence(text)
         self.assertIn("MISSING_SECTION:## Regression", errors)
 
+    def test_required_token_inside_fenced_code_does_not_satisfy_evidence(self):
+        text = GOOD.replace("NEEDS_REVIEW\n", "")
+        text += "\n" + chr(96) * 3 + "text\nNEEDS_REVIEW\n" + chr(96) * 3 + "\n"
+        errors = validate_evidence(text)
+        self.assertIn("MISSING_TOKEN:NEEDS_REVIEW", errors)
+
 if __name__ == "__main__":
     unittest.main()
