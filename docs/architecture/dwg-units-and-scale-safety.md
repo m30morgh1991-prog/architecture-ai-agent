@@ -32,10 +32,23 @@ These are separate evidence sources. A declared unit does not prove that the geo
 
 These codes describe AutoCAD insertion scaling metadata; they are not proof of how a user authored geometry or configured plotting.
 
+## First Golden DWG artifact review — 2026-10-11
+Read-only evidence was exported successfully from both immutable Golden DWGs. The artifact reports the parser's `doc.units` value as `inches` for both plans, but the current extractor does not establish that this value came directly from the raw DWG `$INSUNITS` header variable. Treat it as **parser-reported units, provenance unverified**, not as confirmed declared drawing units.
+
+- `bagheri7.dwg`: 13,205 model-space entities, 9,737 direct geometry rows, 60 dimension entities. The parser reports bounds approximately X=69.94..1974.14, Y=-314.66..363.33, Z=-10.8..1500.872. Dimension actual measurements range approximately 0.305..38.96 coordinate units.
+- `afifiiiii.end.edit3.dwg`: 72,922 model-space entities, 72,520 direct geometry rows, 8 dimension entities. The parser reports bounds approximately X=37.76..126.86, Y=5.86..51.95, Z=0. Dimension actual measurements include 21.14, 3.18, 1.2, and 0.8 coordinate units; text evidence includes `CM` labels and `EXPANSION JOINT=8`.
+
+### Review finding
+The unit label cannot safely be used as the conversion factor for either drawing. In particular, treating the second plan's 21.14 dimension as inches would yield a very different physical interpretation than treating it as metres; the extracted evidence alone does not establish which interpretation is correct. This is a **unit-provenance / geometry-scale review flag**, not proof that the drawing is wrong or compliant.
+
+### Next required engineering step
+Extend the extractor to expose the raw `$INSUNITS` value and its provenance when the parser actually provides it; otherwise emit `raw_insunits_code: null` and `declared_units: UNKNOWN`. Keep `parser_reported_units` separate. Also report plot scale as UNKNOWN unless the actual plot/layout configuration is extracted. Do not scale, convert, save, or edit either Golden DWG. A human-confirmed reference dimension and its association to a specific plan element are required before selecting effective units.
+
 ## Suggested evidence fields
 - raw_insunits_code
 - declared_units
 - units_metadata_source
+- parser_reported_units
 - effective_units_status: SUPPORTED / UNKNOWN / NEEDS_REVIEW
 - raw_geometry_coordinates
 - raw_dimension_text
