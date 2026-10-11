@@ -212,20 +212,25 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         21:"us_survey_feet", 22:"us_survey_inches", 23:"us_survey_yards", 24:"us_survey_miles",
     }
     declared_units = insunits_names.get(raw_insunits) if isinstance(raw_insunits, int) else None
+    parser_reported_units = getattr(doc,"units",None)
     units_status = "UNKNOWN" if raw_insunits is None or raw_insunits == 0 else (
         "SUPPORTED" if declared_units is not None else "NEEDS_REVIEW"
     )
+    if declared_units and parser_reported_units:
+        normalized_parser_units = str(parser_reported_units).strip().lower().replace(" ", "_")
+        if normalized_parser_units != declared_units:
+            units_status = "NEEDS_REVIEW"
     return {
         "schema":"dwg-semantic-evidence-v1",
         "source_profile":{"source_class":"ENGINEERING_PLAN","path":str(source),
             "sha256":source_sha256,"version":str(getattr(doc,"version","UNKNOWN")),
             "decode_version":str(getattr(doc,"decode_version","UNKNOWN")),
-            "parser_reported_units":getattr(doc,"units",None),"provenance":"DIRECT"},
+            "parser_reported_units":parser_reported_units,"provenance":"DIRECT"},
         "units_evidence":{
             "raw_insunits_code":_jsonable(raw_insunits),
             "declared_units":declared_units or ("unitless" if raw_insunits == 0 else None),
             "units_metadata_source":units_metadata_source,
-            "parser_reported_units":getattr(doc,"units",None),
+            "parser_reported_units":parser_reported_units,
             "effective_units_status":units_status,
             "human_review_required":units_status != "SUPPORTED",
             "header_read_error":header_error,
