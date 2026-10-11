@@ -1,12 +1,13 @@
 # Project State
 
-## Live repository checkpoint — 2026-10-10 (after PR #111; snapshot at commit `477d042`)
+## Live repository checkpoint — 2026-10-11 (after PR #115)
 
-- Verified main snapshot: `477d04232b734bc15d90f2621a6af171bc3bf227`, created by merging PR #111 (fail-closed Golden runner hard-failure correction).
-- PR #107 (scheduled governance health check), PR #109 (independent-runner readiness policy), and PR #111 (preserve `BLOCKED` for missing source, hash mismatch, and execution exceptions) are merged. PR #104's stacked-PR workflow trigger fix remains in place. PR #100 is stale and must not merge directly; its useful historical audit is preserved in the checkpoint-refresh work.
-- At this checkpoint snapshot, post-merge `Mandatory Bug Hunt` is completed/success; `test` and `runtime-tests` were still in progress. Main Green is NOT claimed here; recheck the live SHA and all three required checks before relying on a later status.
-- Ruleset `Min` (ID `24680937`) is active and requires `runtime-tests`, `test`, and `Mandatory Bug Hunt`. Required approving reviews remain zero by the user's explicit decision; do not change this without explicit authorization.
-- The scheduled governance workflow's first successful scheduled/manual execution still needs to be observed. The independent runner remains a deterministic policy contract, not a live AI execution service: no verified provider/execution backend, autonomous implementation, auto-merge, or stage advancement is enabled.
+- Verified latest main commit: `3b584b6459fadece28ed8744ca94ed7b0a01e5cf`, created by squash-merging PR #115.
+- PR #115 exact pre-merge head `642671abab3dafa00c9ccd56037da1efc610aded` passed PR CI Gate #372, Runtime Tests #659, and Mandatory Bug Hunt #331 (completed/success) before merge.
+- **Post-merge mainline Green is verified for `3b584b6459fadece28ed8744ca94ed7b0a01e5cf`:** PR CI Gate run #373, Runtime Tests run #660, and Bug Hunt Gate run #332 were all completed/success on this exact SHA. See [PR CI Gate #373](https://github.com/m30morgh1991-prog/architecture-ai-agent/actions/runs/38123425938), [Runtime Tests #660](https://github.com/m30morgh1991-prog/architecture-ai-agent/actions/runs/38123426028), and [Bug Hunt Gate #332](https://github.com/m30morgh1991-prog/architecture-ai-agent/actions/runs/38123426003).
+- Scheduled Governance Health Check run #1 completed/success at [run #38095937202](https://github.com/m30morgh1991-prog/architecture-ai-agent/actions/runs/38095937202), running runtime smoke tests, the complete unittest suite, and Bug Hunt governance contract tests. It occurred before PR #115 merged (event SHA `caa8bdf5d74449ba70e52a699036bd5281a1967b`), so it confirms the scheduled workflow works but does not replace exact-SHA mainline gates.
+- Ruleset `Min` (ID `24680937`) requires `runtime-tests`, `test`, and `Mandatory Bug Hunt`. Required approving reviews remain zero by the user's explicit decision; do not change this without explicit authorization.
+- No secure AI execution provider has been configured or verified. The independent runner remains a deterministic policy contract, not a live AI execution service. No auto-merge or autonomous H-stage advancement is enabled.
 - H100 remains active. H101 remains LOCKED until Golden Understanding acceptance evidence is genuinely green. Both Golden DWG files remain immutable.
 
 
