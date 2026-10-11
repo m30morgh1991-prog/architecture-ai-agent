@@ -184,17 +184,53 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "status":"SUPPORTED" if rows else "UNKNOWN",
         "provenance":"DIRECT" if rows else "UNKNOWN",
         "evidence":rows} for semantic,rows in candidates.items()}
+    header_error = None
     try:
         hv = doc.header_variables()
-        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax"))}
-    except Exception:
-        header = {}
+        raw_insunits = hv.get("insunits")
+        header = {
+            "extmin":_jsonable(hv.get("extmin")),
+            "extmax":_jsonable(hv.get("extmax")),
+            "raw_insunits_code":_jsonable(raw_insunits),
+            "lunits":_jsonable(hv.get("lunits")),
+            "luprec":_jsonable(hv.get("luprec")),
+            "ltscale":_jsonable(hv.get("ltscale")),
+        }
+        units_metadata_source = "ezdwg.header_variables().insunits" if raw_insunits is not None else "UNAVAILABLE"
+    except Exception as exc:
+        hv = {}
+        raw_insunits = None
+        header_error = type(exc).__name__
+        header = {"raw_insunits_code":None}
+        units_metadata_source = "UNAVAILABLE"
+    insunits_names = {
+        0:"unitless", 1:"inches", 2:"feet", 3:"miles", 4:"millimeters",
+        5:"centimeters", 6:"meters", 7:"kilometers", 8:"microinches",
+        9:"mils", 10:"yards", 11:"angstroms", 12:"nanometers", 13:"microns",
+        14:"decimeters", 15:"dekameters", 16:"hectometers", 17:"gigameters",
+        18:"astronomical_units", 19:"light_years", 20:"parsecs",
+        21:"us_survey_feet", 22:"us_survey_inches", 23:"us_survey_yards", 24:"us_survey_miles",
+    }
+    declared_units = insunits_names.get(raw_insunits) if isinstance(raw_insunits, int) else None
+    units_status = "UNKNOWN" if raw_insunits is None or raw_insunits == 0 else (
+        "SUPPORTED" if declared_units is not None else "NEEDS_REVIEW"
+    )
     return {
         "schema":"dwg-semantic-evidence-v1",
         "source_profile":{"source_class":"ENGINEERING_PLAN","path":str(source),
             "sha256":source_sha256,"version":str(getattr(doc,"version","UNKNOWN")),
             "decode_version":str(getattr(doc,"decode_version","UNKNOWN")),
-            "units":getattr(doc,"units",None),"provenance":"DIRECT"},
+            "parser_reported_units":getattr(doc,"units",None),"provenance":"DIRECT"},
+        "units_evidence":{
+            "raw_insunits_code":_jsonable(raw_insunits),
+            "declared_units":declared_units or ("unitless" if raw_insunits == 0 else None),
+            "units_metadata_source":units_metadata_source,
+            "parser_reported_units":getattr(doc,"units",None),
+            "effective_units_status":units_status,
+            "human_review_required":units_status != "SUPPORTED",
+            "header_read_error":header_error,
+            "plot_scale_status":"UNKNOWN",
+        },
         "entity_counts":dict(sorted(type_counts.items())),
         "layer_counts":dict(sorted(layer_counts.items())),
         "block_counts":dict(sorted(block_counts.items())),
