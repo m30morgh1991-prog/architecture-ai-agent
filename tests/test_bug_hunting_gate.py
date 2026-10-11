@@ -77,7 +77,7 @@ class BugHuntingGateTests(unittest.TestCase):
 
     def test_heading_inside_fenced_code_does_not_satisfy_section(self):
         text = GOOD.replace("## Regression\n", "")
-        text += "\n\`\`\`markdown\n## Regression\n\`\`\`\n"
+        text += "\n" + chr(96) * 3 + "markdown\n## Regression\n" + chr(96) * 3 + "\n"
         errors = validate_evidence(text)
         self.assertIn("MISSING_SECTION:## Regression", errors)
 
