@@ -1,0 +1,65 @@
+name: AgentShield Security Audit (Pilot)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.claude/**'
+      - '.codex/**'
+      - '.agents/**'
+      - 'agents/**'
+      - 'hooks/**'
+      - '.mcp.json'
+      - 'mcp-configs/**'
+      - '.github/workflows/**'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'CODEX.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agentshield-pilot-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan-agent-configuration:
+    name: AgentShield (non-blocking pilot)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Scan agent configuration
+        id: scan
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          npx --yes ecc-agentshield@1.6.0 scan --path . --format terminal
+          scan_status=$?
+          echo "scanner_exit_code=${scan_status}" >> "$GITHUB_OUTPUT"
+          if [ "$scan_status" -eq 0 ]; then
+            echo "AgentShield scan completed with exit code 0."
+          else
+            echo "::warning::AgentShield scan failed with exit code ${scan_status}; this pilot is advisory and does not replace required CI or Bug Hunt gates."
+          fi
+
+      - name: Record pilot boundary
+        if: always()
+        run: |
+          {
+            echo "### AgentShield pilot"
+            echo "- Advisory-only security scan of repository agent/configuration surfaces."
+            echo "- Scanner exit code: ${{ steps.scan.outputs.scanner_exit_code || 'not reported' }}"
+            echo "- A successful workflow is not equivalent to a successful scan; inspect the scanner exit code above."
+            echo "- Findings do not auto-edit files, approve PRs, or bypass required gates."
+            echo "- Architecture understanding, PlanModel, ConstraintMap, Golden DWG, and runtime validation are out of scope."
+          } >> "$GITHUB_STEP_SUMMARY"
