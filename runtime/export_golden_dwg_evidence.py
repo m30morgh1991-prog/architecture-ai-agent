@@ -51,7 +51,19 @@ def main() -> int:
             writer=csv.DictWriter(stream,fieldnames=list(rows[0].keys())); writer.writeheader(); writer.writerows(rows)
     write_csv('summary.csv',summary); write_csv('dimensions.csv',dimensions); write_csv('text-labels.csv',texts)
     (OUT/'index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2,sort_keys=True),encoding='utf-8')
-    print(json.dumps({'status':'EXTRACTION_COMPLETE_NOT_COMPLIANCE_APPROVAL','output_dir':'artifacts/golden-dwg-evidence','plans':summary,'dimension_rows':len(dimensions),'text_rows':len(texts),'golden_sources_mutated':False},ensure_ascii=False,indent=2))
+    keywords = ('پارک','رمپ','خودرو','ماشین','ورودی','خروجی','شیب','تراز','ارتفاع','عرض','طول','ستون','PARK','GARAGE','RAMP','SLOPE','LEVEL','HEIGHT','ENTRANCE','EXIT','WIDTH','LENGTH','RADIUS','RAD.')
+    review_text = [row for row in texts if any(key.lower() in str(row.get('text') or '').lower() for key in keywords)]
+    review = {
+        'status': 'EXTRACTION_COMPLETE_NOT_COMPLIANCE_APPROVAL',
+        'output_dir': 'artifacts/golden-dwg-evidence',
+        'plans': summary,
+        'dimension_rows': dimensions,
+        'parking_related_text_candidates': review_text,
+        'all_text_row_count': len(texts),
+        'golden_sources_mutated': False,
+        'warning': 'Candidate text is not automatically interpreted as a rule or assigned to a parking element.'
+    }
+    print(json.dumps(review, ensure_ascii=False, indent=2))
     return 0
 
 if __name__ == '__main__':
