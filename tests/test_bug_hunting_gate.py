@@ -75,5 +75,11 @@ class BugHuntingGateTests(unittest.TestCase):
         self.assertEqual(len(REQUIRED_SECTIONS), 13)
         self.assertEqual(len(REQUIRED_TOKENS), 13)
 
+    def test_heading_inside_fenced_code_does_not_satisfy_section(self):
+        text = GOOD.replace("## Regression\n", "")
+        text += "\n\`\`\`markdown\n## Regression\n\`\`\`\n"
+        errors = validate_evidence(text)
+        self.assertIn("MISSING_SECTION:## Regression", errors)
+
 if __name__ == "__main__":
     unittest.main()
