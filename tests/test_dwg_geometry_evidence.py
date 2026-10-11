@@ -66,6 +66,7 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual(result["units_evidence"]["declared_units"],"centimeters")
         self.assertEqual(result["units_evidence"]["units_metadata_source"],"ezdwg.header_variables().insunits")
         self.assertEqual(result["units_evidence"]["parser_reported_units"],"millimeters")
+        self.assertEqual(result["units_evidence"]["declared_units_metadata_status"],"NEEDS_REVIEW")
         self.assertEqual(result["units_evidence"]["effective_units_status"],"NEEDS_REVIEW")
         self.assertEqual(result["units_evidence"]["plot_scale_status"],"UNKNOWN")
 
@@ -77,8 +78,22 @@ class TestDwgGeometryEvidence(unittest.TestCase):
                 result=extract_dwg_evidence(source)
         self.assertIsNone(result["units_evidence"]["raw_insunits_code"])
         self.assertIsNone(result["units_evidence"]["declared_units"])
+        self.assertEqual(result["units_evidence"]["declared_units_metadata_status"],"UNKNOWN")
         self.assertEqual(result["units_evidence"]["effective_units_status"],"UNKNOWN")
         self.assertTrue(result["units_evidence"]["human_review_required"])
+
+
+    def test_matching_header_and_parser_label_still_needs_geometry_scale_review(self):
+        doc=_Doc([_Entity("LINE",6,layer="0",start=(0,0,0),end=(10,0,0))],insunits=4)
+        doc.units="millimeters"
+        with tempfile.TemporaryDirectory() as td:
+            source=Path(td)/"matching-units.dwg"; source.write_bytes(b"matching-units")
+            with patch.dict("sys.modules",{"ezdwg":_Ezdwg(doc)}):
+                result=extract_dwg_evidence(source)
+        units=result["units_evidence"]
+        self.assertEqual(units["declared_units_metadata_status"],"SUPPORTED")
+        self.assertEqual(units["effective_units_status"],"NEEDS_REVIEW")
+        self.assertTrue(units["human_review_required"])
 
     def test_missing_coordinates_stay_unknown(self):
         doc=_Doc([_Entity("LINE",3,layer="A-GENERIC")])
