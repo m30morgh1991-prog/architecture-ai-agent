@@ -75,3 +75,8 @@ The newer artifact reads raw `$INSUNITS` code **1 (inches)** from both Golden DW
 - `plot_scale_status` remains UNKNOWN.
 
 This is intentionally conservative. The two drawings have substantially different coordinate extents and dimension patterns; no unit conversion, parking-space classification, or regulatory verdict is authorized by the header code alone.
+
+
+## Coordinate-frame safety — geometry evidence remains parser-native
+
+A geometry row with `coordinate_status=SUPPORTED` means only that the expected finite coordinate fields were extracted. It does **not** mean all entity coordinates have been normalized into one common WCS/model-space frame. DXF entity types can use entity-specific coordinate systems (including OCS), and nested `INSERT` transforms are not fully reconciled by this exporter. Every geometry row therefore reports `coordinate_frame_status=UNKNOWN` until the parser's coordinate-frame semantics and all required transforms are independently validated. Consumers must not compare or cluster coordinates across entity types as if they shared a normalized frame.
