@@ -1,6 +1,7 @@
 """Read-only, defensive geometry evidence helpers for DWG entities."""
 from __future__ import annotations
 from typing import Any
+import math
 
 def _dxf(entity: Any, key: str, default: Any = None) -> Any:
     data = getattr(entity, "dxf", None)
@@ -22,7 +23,7 @@ def _point(value: Any) -> dict[str, float] | None:
             result = {"x": float(value[0]), "y": float(value[1])}
             if len(value) >= 3:
                 result["z"] = float(value[2])
-            return result
+            return result if all(math.isfinite(v) for v in result.values()) else None
         except (TypeError, ValueError):
             return None
     if all(hasattr(value, k) for k in ("x", "y")):
@@ -30,14 +31,15 @@ def _point(value: Any) -> dict[str, float] | None:
             result = {"x": float(value.x), "y": float(value.y)}
             if hasattr(value, "z"):
                 result["z"] = float(value.z)
-            return result
+            return result if all(math.isfinite(v) for v in result.values()) else None
         except (TypeError, ValueError):
             return None
     return None
 
 def _safe_float(value: Any) -> float | None:
     try:
-        return float(value) if value is not None else None
+        number = float(value) if value is not None else None
+        return number if number is not None and math.isfinite(number) else None
     except (TypeError, ValueError):
         return None
 
