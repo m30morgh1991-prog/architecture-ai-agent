@@ -87,14 +87,17 @@ def extract_entity_geometry(entity: Any, entity_type: str, handle: int) -> dict[
         row["closed"] = _dxf(entity, "closed")
         row["elevation"] = _safe_float(_dxf(entity, "elevation"))
     elif entity_type in {"ARC", "CIRCLE"}:
-        row.update(center=_point(_dxf(entity, "center")), radius=_safe_float(_dxf(entity, "radius")))
+        radius = _safe_float(_dxf(entity, "radius"))
+        row.update(center=_point(_dxf(entity, "center")),
+                   radius=radius if radius is not None and radius > 0 else None)
         if entity_type == "ARC":
             row.update(start_angle=_safe_float(_dxf(entity, "start_angle")),
                        end_angle=_safe_float(_dxf(entity, "end_angle")))
     elif entity_type == "ELLIPSE":
+        ratio = _safe_float(_dxf(entity, "ratio"))
         row.update(center=_point(_dxf(entity, "center")),
                    major_axis=_point(_dxf(entity, "major_axis")),
-                   ratio=_safe_float(_dxf(entity, "ratio")),
+                   ratio=ratio if ratio is not None and 0 < ratio <= 1 else None,
                    start_param=_safe_float(_dxf(entity, "start_param")),
                    end_param=_safe_float(_dxf(entity, "end_param")))
     elif entity_type == "SPLINE":
