@@ -117,7 +117,7 @@ class TestDwgGeometryEvidence(unittest.TestCase):
             with patch.dict("sys.modules", {"ezdwg": _Ezdwg(doc)}):
                 result = extract_dwg_evidence(source)
         self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
-                         ["UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN"])
+                         ["UNKNOWN", "UNKNOWN"])
 
     def test_invalid_positive_geometry_invariants_remain_unknown(self):
         entities = [
@@ -155,7 +155,7 @@ class TestDwgGeometryEvidence(unittest.TestCase):
             with patch.dict("sys.modules", {"ezdwg": _Ezdwg(doc)}):
                 result = extract_dwg_evidence(source)
         self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
-                         ["UNKNOWN", "UNKNOWN"])
+                         ["UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN"])
         self.assertIsNone(result["geometry"][0]["start"])
         self.assertIsNone(result["geometry"][1]["radius"])
         self.assertEqual(result["geometry"][2]["coordinate_status"], "UNKNOWN")
