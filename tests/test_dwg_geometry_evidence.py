@@ -117,7 +117,7 @@ class TestDwgGeometryEvidence(unittest.TestCase):
             with patch.dict("sys.modules", {"ezdwg": _Ezdwg(doc)}):
                 result = extract_dwg_evidence(source)
         self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
-                         ["UNKNOWN", "UNKNOWN"])
+                         ["UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN"])
 
     def test_non_finite_geometry_values_remain_unknown(self):
         entities = [
