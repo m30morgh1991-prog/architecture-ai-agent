@@ -119,6 +119,26 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
                          ["UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN"])
 
+    def test_invalid_positive_geometry_invariants_remain_unknown(self):
+        entities = [
+            _Entity("CIRCLE", 13, layer="0", center=(1, 2, 0), radius=0),
+            _Entity("ARC", 14, layer="0", center=(1, 2, 0), radius=-2,
+                    start_angle=0, end_angle=90),
+            _Entity("ELLIPSE", 15, layer="0", center=(1, 2, 0),
+                    major_axis=(4, 0, 0), ratio=1.2, start_param=0, end_param=6.28),
+        ]
+        doc = _Doc(entities)
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "invalid-invariants.dwg"
+            source.write_bytes(b"invalid-invariants")
+            with patch.dict("sys.modules", {"ezdwg": _Ezdwg(doc)}):
+                result = extract_dwg_evidence(source)
+        self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
+                         ["UNKNOWN", "UNKNOWN", "UNKNOWN"])
+        self.assertIsNone(result["geometry"][0]["radius"])
+        self.assertIsNone(result["geometry"][1]["radius"])
+        self.assertIsNone(result["geometry"][2]["ratio"])
+
     def test_non_finite_geometry_values_remain_unknown(self):
         entities = [
             _Entity("LINE", 9, layer="0", start=(float("nan"), 2, 0), end=(8, 2, 0)),
