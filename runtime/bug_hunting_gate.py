@@ -47,12 +47,48 @@ def evidence_path(pr_number: str, root: Path | None = None) -> Path:
         raise ValueError("PR_NUMBER_INVALID")
     return base / "docs" / "bug-hunting" / f"PR-{pr_number}.md"
 
+def _outside_fenced_code_lines(text: str) -> list[str]:
+    """Return Markdown lines outside fenced code blocks (backticks or tildes)."""
+    visible: list[str] = []
+    fence_char: str | None = None
+    fence_length = 0
+
+    for line in text.splitlines():
+        opener = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+        if fence_char is None:
+            if opener:
+                marker, info = opener.groups()
+                # CommonMark disallows backticks in the info string of a backtick fence.
+                if marker[0] == "`" and "`" in info:
+                    visible.append(line)
+                    continue
+                fence_char = marker[0]
+                fence_length = len(marker)
+                continue
+            visible.append(line)
+            continue
+
+        closing = re.match(r"^ {0,3}(" + re.escape(fence_char) + r"{" + str(fence_length) + r",})[ \t]*$", line)
+        if closing:
+            fence_char = None
+            fence_length = 0
+        # All lines inside a fence are intentionally excluded, including the closing fence.
+    return visible
+
 def validate_evidence(text: str) -> list[str]:
     errors: list[str] = []
+    visible_lines = _outside_fenced_code_lines(text)
+    visible_text = "\n".join(visible_lines)
     for section in REQUIRED_SECTIONS:
-        if section not in text:
+        found = any(
+            line.strip() == section
+            and len(line) - len(line.lstrip(" ")) <= 3
+            and not line.startswith("\t")
+            for line in visible_lines
+        )
+        if not found:
             errors.append(f"MISSING_SECTION:{section}")
-    lower = text.lower()
+    lower = visible_text.lower()
     for token in REQUIRED_TOKENS:
         if token.lower() not in lower:
             errors.append(f"MISSING_TOKEN:{token}")
