@@ -100,9 +100,29 @@ def extract_entity_geometry(entity: Any, entity_type: str, handle: int) -> dict[
         row["closed"] = _dxf(entity, "closed")
     else:
         return None
-    row["coordinate_status"] = (
-        "SUPPORTED" if any(v is not None and v != [] for k, v in row.items()
-                           if k not in {"handle", "type", "layer", "provenance", "semantic_authority"})
-        else "UNKNOWN"
-    )
+    # A single present field is not enough to claim usable coordinates.
+    # Require the complete direct-coordinate field set for each entity type.
+    required_fields = {
+        "LINE": ("start", "end"),
+        "LWPOLYLINE": ("vertices",),
+        "ARC": ("center", "radius", "start_angle", "end_angle"),
+        "CIRCLE": ("center", "radius"),
+        "ELLIPSE": ("center", "major_axis", "ratio", "start_param", "end_param"),
+        "SPLINE": ("control_points", "degree"),
+    }
+    required = required_fields.get(entity_type, ())
+    complete = bool(required) and all(row.get(key) is not None for key in required)
+    if entity_type in {"LWPOLYLINE", "SPLINE"}:
+        collection_key = "vertices" if entity_type == "LWPOLYLINE" else "control_points"
+        complete = complete and bool(row.get(collection_key))
+    if entity_type == "LINE":
+        complete = complete and all(isinstance(row.get(key), dict) and
+                                     "x" in row[key] and "y" in row[key]
+                                     for key in ("start", "end"))
+    elif entity_type in {"ARC", "CIRCLE", "ELLIPSE"}:
+        point_keys = ("center", "major_axis") if entity_type == "ELLIPSE" else ("center",)
+        complete = complete and all(isinstance(row.get(key), dict) and
+                                     "x" in row[key] and "y" in row[key]
+                                     for key in point_keys)
+    row["coordinate_status"] = "SUPPORTED" if complete else "UNKNOWN"
     return row
