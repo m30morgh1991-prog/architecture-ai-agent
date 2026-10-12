@@ -119,4 +119,20 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
                          ["UNKNOWN", "UNKNOWN"])
 
+    def test_non_finite_geometry_values_remain_unknown(self):
+        entities = [
+            _Entity("LINE", 9, layer="0", start=(float("nan"), 2, 0), end=(8, 2, 0)),
+            _Entity("CIRCLE", 10, layer="0", center=(3, 4, 0), radius=float("inf")),
+        ]
+        doc = _Doc(entities)
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "non-finite.dwg"
+            source.write_bytes(b"non-finite")
+            with patch.dict("sys.modules", {"ezdwg": _Ezdwg(doc)}):
+                result = extract_dwg_evidence(source)
+        self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
+                         ["UNKNOWN", "UNKNOWN"])
+        self.assertIsNone(result["geometry"][0]["start"])
+        self.assertIsNone(result["geometry"][1]["radius"])
+
 if __name__=="__main__": unittest.main()
