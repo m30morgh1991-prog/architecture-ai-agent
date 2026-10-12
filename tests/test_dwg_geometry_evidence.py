@@ -125,6 +125,8 @@ class TestDwgGeometryEvidence(unittest.TestCase):
             _Entity("CIRCLE", 10, layer="0", center=(3, 4, 0), radius=float("inf")),
             _Entity("LWPOLYLINE", 11, layer="0",
                     vertices=[(0, 0), (float("nan"), 3), (5, 5)], closed=True),
+            _Entity("SPLINE", 12, layer="0",
+                    control_points=[(0, 0, 0), (float("inf"), 2, 0)], degree=2, closed=False),
         ]
         doc = _Doc(entities)
         with tempfile.TemporaryDirectory() as td:
@@ -138,5 +140,7 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertIsNone(result["geometry"][1]["radius"])
         self.assertEqual(result["geometry"][2]["coordinate_status"], "UNKNOWN")
         self.assertEqual(result["geometry"][2]["vertices"], [])
+        self.assertEqual(result["geometry"][3]["coordinate_status"], "UNKNOWN")
+        self.assertEqual(result["geometry"][3]["control_points"], [])
 
 if __name__=="__main__": unittest.main()
