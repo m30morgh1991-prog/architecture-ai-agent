@@ -68,14 +68,22 @@ def extract_entity_geometry(entity: Any, entity_type: str, handle: int) -> dict[
         if points is None:
             points = _dxf(entity, "points")
         normalized = []
+        vertices_valid = points is not None
         if points is not None:
             try:
                 for p in points:
-                    if isinstance(p, (tuple, list)) and len(p) >= 2:
-                        normalized.append({"x": float(p[0]), "y": float(p[1])})
+                    point = _point(p)
+                    if point is None or "x" not in point or "y" not in point:
+                        vertices_valid = False
+                        normalized = []
+                        break
+                    # LWPOLYLINE vertices are planar; retain XY only.
+                    normalized.append({"x": point["x"], "y": point["y"]})
             except (TypeError, ValueError):
+                vertices_valid = False
                 normalized = []
-        row["vertices"] = normalized
+        row["vertices"] = normalized if vertices_valid else []
+
         row["closed"] = _dxf(entity, "closed")
         row["elevation"] = _safe_float(_dxf(entity, "elevation"))
     elif entity_type in {"ARC", "CIRCLE"}:
