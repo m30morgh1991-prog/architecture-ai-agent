@@ -104,4 +104,19 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual(result["geometry"][0]["coordinate_status"],"UNKNOWN")
         self.assertFalse(result["authority"]["semantic_authority"])
 
+
+    def test_partial_geometry_does_not_claim_supported_coordinates(self):
+        entities = [
+            _Entity("LINE", 7, layer="0", start=(1, 2, 0)),
+            _Entity("CIRCLE", 8, layer="0", center=(3, 4, 0)),
+        ]
+        doc = _Doc(entities)
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "partial.dwg"
+            source.write_bytes(b"partial")
+            with patch.dict("sys.modules", {"ezdwg": _Ezdwg(doc)}):
+                result = extract_dwg_evidence(source)
+        self.assertEqual([row["coordinate_status"] for row in result["geometry"]],
+                         ["UNKNOWN", "UNKNOWN"])
+
 if __name__=="__main__": unittest.main()
