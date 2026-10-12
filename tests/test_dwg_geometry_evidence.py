@@ -39,6 +39,8 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual(line["start"],{"x":1.0,"y":2.0,"z":0.0})
         self.assertEqual(line["end"],{"x":8.0,"y":2.0,"z":0.0})
         self.assertEqual(line["coordinate_status"],"SUPPORTED")
+        self.assertEqual(line["coordinate_frame_status"],"UNKNOWN")
+        self.assertIn("OCS/WCS", line["coordinate_frame_note"])
         self.assertFalse(line["semantic_authority"])
         self.assertEqual(result["semantic_candidates"]["WALLS"]["status"],"UNKNOWN")
         self.assertEqual(result["source_profile"]["sha256"],hashlib.sha256(b"fixture").hexdigest())
