@@ -100,12 +100,20 @@ def extract_entity_geometry(entity: Any, entity_type: str, handle: int) -> dict[
     elif entity_type == "SPLINE":
         controls = _dxf(entity, "control_points")
         normalized = []
+        controls_valid = controls is not None
         if controls is not None:
             try:
-                normalized = [p for p in (_point(v) for v in controls) if p is not None]
-            except TypeError:
+                for value in controls:
+                    point = _point(value)
+                    if point is None:
+                        controls_valid = False
+                        normalized = []
+                        break
+                    normalized.append(point)
+            except (TypeError, ValueError):
+                controls_valid = False
                 normalized = []
-        row["control_points"] = normalized
+        row["control_points"] = normalized if controls_valid else []
         row["degree"] = _dxf(entity, "degree")
         row["closed"] = _dxf(entity, "closed")
     else:
