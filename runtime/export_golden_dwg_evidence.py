@@ -19,7 +19,7 @@ def sha256_file(path: Path) -> str:
 def main() -> int:
     manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
     OUT.mkdir(parents=True, exist_ok=True)
-    summary, dimensions, texts, index = [], [], [], []
+    summary, dimensions, texts, geometry_rows, index = [], [], [], [], []
     for case in manifest['cases']:
         source = ROOT / case['source_path']
         if not source.is_file():
@@ -38,18 +38,35 @@ def main() -> int:
         json_name = f"{case['case_id'].lower()}-evidence.json"
         (OUT / json_name).write_text(json.dumps(evidence, ensure_ascii=False, indent=2, sort_keys=True), encoding='utf-8')
         profile = evidence['source_profile']
-        summary.append({'case_id':case['case_id'],'source_path':case['source_path'],'sha256':before,'drawing_version':profile.get('version','UNKNOWN'),'decode_version':profile.get('decode_version','UNKNOWN'),'units_metadata':profile.get('units','UNKNOWN'),'entity_total':sum(evidence['entity_counts'].values()),'dimension_entity_count':len(evidence.get('dimensions',[])),'text_entity_count':len(evidence.get('text',[])),'layer_count':len(evidence.get('layer_counts',{})),'block_name_count':len(evidence.get('block_counts',{})),'extmin':json.dumps(evidence.get('header',{}).get('extmin'),ensure_ascii=False),'extmax':json.dumps(evidence.get('header',{}).get('extmax'),ensure_ascii=False),'source_mutated':False,'compliance_verdict':'NOT_ASSESSED','evidence_json':json_name})
+        units = evidence.get('units_evidence', {})
+        summary.append({'case_id':case['case_id'],'source_path':case['source_path'],'sha256':before,'drawing_version':profile.get('version','UNKNOWN'),'decode_version':profile.get('decode_version','UNKNOWN'),'parser_reported_units':units.get('parser_reported_units','UNKNOWN'),'raw_insunits_code':units.get('raw_insunits_code'),'declared_units':units.get('declared_units'),'units_metadata_source':units.get('units_metadata_source','UNAVAILABLE'),'declared_units_metadata_status':units.get('declared_units_metadata_status','UNKNOWN'),'effective_units_status':units.get('effective_units_status','UNKNOWN'),'plot_scale_status':units.get('plot_scale_status','UNKNOWN'),'entity_total':sum(evidence['entity_counts'].values()),'dimension_entity_count':len(evidence.get('dimensions',[])),'text_entity_count':len(evidence.get('text',[])),'layer_count':len(evidence.get('layer_counts',{})),'block_name_count':len(evidence.get('block_counts',{})),'geometry_evidence_count':len(evidence.get('geometry',[])),'extmin':json.dumps(evidence.get('header',{}).get('extmin'),ensure_ascii=False),'extmax':json.dumps(evidence.get('header',{}).get('extmax'),ensure_ascii=False),'source_mutated':False,'compliance_verdict':'NOT_ASSESSED','evidence_json':json_name})
         for row in evidence.get('dimensions',[]):
             dimensions.append({'case_id':case['case_id'],'source_sha256':before,'handle':row.get('handle'),'dimension_type':row.get('type'),'dimension_text':row.get('text'),'actual_measurement':json.dumps(row.get('actual_measurement'),ensure_ascii=False),'defpoint':json.dumps(row.get('defpoint'),ensure_ascii=False),'defpoint2':json.dumps(row.get('defpoint2'),ensure_ascii=False),'defpoint3':json.dumps(row.get('defpoint3'),ensure_ascii=False),'interpretation_status':'NEEDS_REVIEW'})
         for row in evidence.get('text',[]):
             texts.append({'case_id':case['case_id'],'source_sha256':before,'handle':row.get('handle'),'entity_type':row.get('type'),'text':row.get('text'),'insert':json.dumps(row.get('insert'),ensure_ascii=False),'rotation':row.get('rotation')})
+        for row in evidence.get('geometry',[]):
+            geometry_rows.append({
+                'case_id':case['case_id'],'source_sha256':before,'handle':row.get('handle'),
+                'entity_type':row.get('type'),'layer':row.get('layer'),
+                'coordinate_status':row.get('coordinate_status'),
+                'coordinate_frame_status':row.get('coordinate_frame_status','UNKNOWN'),
+                'coordinate_frame_note':row.get('coordinate_frame_note','Frame not reconciled.'),
+                'start':json.dumps(row.get('start'),ensure_ascii=False),
+                'end':json.dumps(row.get('end'),ensure_ascii=False),
+                'center':json.dumps(row.get('center'),ensure_ascii=False),
+                'radius':row.get('radius'),
+                'vertices':json.dumps(row.get('vertices'),ensure_ascii=False),
+                'closed':row.get('closed'),
+                'provenance':row.get('provenance'),
+                'semantic_authority':row.get('semantic_authority'),
+            })
         index.append({'case_id':case['case_id'],'source_path':case['source_path'],'source_sha256':before,'evidence_json':json_name,'entity_counts':evidence['entity_counts'],'layer_counts':evidence['layer_counts'],'block_counts':evidence['block_counts']})
     def write_csv(name, rows):
         if not rows:
             (OUT/name).write_text('no_rows_extracted\n',encoding='utf-8'); return
         with (OUT/name).open('w',newline='',encoding='utf-8-sig') as stream:
             writer=csv.DictWriter(stream,fieldnames=list(rows[0].keys())); writer.writeheader(); writer.writerows(rows)
-    write_csv('summary.csv',summary); write_csv('dimensions.csv',dimensions); write_csv('text-labels.csv',texts)
+    write_csv('summary.csv',summary); write_csv('dimensions.csv',dimensions); write_csv('text-labels.csv',texts); write_csv('geometry.csv',geometry_rows)
     (OUT/'index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2,sort_keys=True),encoding='utf-8')
     keywords = ('پارک','رمپ','خودرو','ماشین','ورودی','خروجی','شیب','تراز','ارتفاع','عرض','طول','ستون','PARK','GARAGE','RAMP','SLOPE','LEVEL','HEIGHT','ENTRANCE','EXIT','WIDTH','LENGTH','RADIUS','RAD.')
     review_text = [row for row in texts if any(key.lower() in str(row.get('text') or '').lower() for key in keywords)]
@@ -60,6 +77,7 @@ def main() -> int:
         'dimension_rows': dimensions,
         'parking_related_text_candidates': review_text,
         'all_text_row_count': len(texts),
+        'geometry_evidence_row_count': len(geometry_rows),
         'golden_sources_mutated': False,
         'warning': 'Candidate text is not automatically interpreted as a rule or assigned to a parking element.'
     }
