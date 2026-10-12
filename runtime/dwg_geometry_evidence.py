@@ -51,6 +51,8 @@ def extract_entity_geometry(entity: Any, entity_type: str, handle: int) -> dict[
         "layer": _dxf(entity, "layer"),
         "provenance": "DIRECT",
         "semantic_authority": False,
+        "coordinate_frame_status": "UNKNOWN",
+        "coordinate_frame_note": "Parser-native coordinates are not normalized; OCS/WCS semantics and INSERT transforms are not reconciled.",
     }
     if entity_type == "LINE":
         row.update(start=_point(_dxf(entity, "start")), end=_point(_dxf(entity, "end")))
