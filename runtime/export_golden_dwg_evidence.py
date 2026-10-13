@@ -16,6 +16,36 @@ def sha256_file(path: Path) -> str:
             digest.update(chunk)
     return digest.hexdigest()
 
+def geometry_csv_row(case_id: str, source_sha256: str, row: dict) -> dict:
+    """Serialize all extracted entity-specific geometry fields into the CSV evidence row."""
+    json_fields = (
+        'start', 'end', 'center', 'major_axis', 'vertices', 'control_points',
+    )
+    result = {
+        'case_id': case_id,
+        'source_sha256': source_sha256,
+        'handle': row.get('handle'),
+        'entity_type': row.get('type'),
+        'layer': row.get('layer'),
+        'coordinate_status': row.get('coordinate_status'),
+        'coordinate_frame_status': row.get('coordinate_frame_status', 'UNKNOWN'),
+        'coordinate_frame_note': row.get('coordinate_frame_note', 'Frame not reconciled.'),
+        'radius': row.get('radius'),
+        'ratio': row.get('ratio'),
+        'start_angle': row.get('start_angle'),
+        'end_angle': row.get('end_angle'),
+        'start_param': row.get('start_param'),
+        'end_param': row.get('end_param'),
+        'elevation': row.get('elevation'),
+        'degree': row.get('degree'),
+        'closed': row.get('closed'),
+        'provenance': row.get('provenance'),
+        'semantic_authority': row.get('semantic_authority'),
+    }
+    for key in json_fields:
+        result[key] = json.dumps(row.get(key), ensure_ascii=False)
+    return result
+
 def main() -> int:
     manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
     OUT.mkdir(parents=True, exist_ok=True)
@@ -45,21 +75,7 @@ def main() -> int:
         for row in evidence.get('text',[]):
             texts.append({'case_id':case['case_id'],'source_sha256':before,'handle':row.get('handle'),'entity_type':row.get('type'),'text':row.get('text'),'insert':json.dumps(row.get('insert'),ensure_ascii=False),'rotation':row.get('rotation')})
         for row in evidence.get('geometry',[]):
-            geometry_rows.append({
-                'case_id':case['case_id'],'source_sha256':before,'handle':row.get('handle'),
-                'entity_type':row.get('type'),'layer':row.get('layer'),
-                'coordinate_status':row.get('coordinate_status'),
-                'coordinate_frame_status':row.get('coordinate_frame_status','UNKNOWN'),
-                'coordinate_frame_note':row.get('coordinate_frame_note','Frame not reconciled.'),
-                'start':json.dumps(row.get('start'),ensure_ascii=False),
-                'end':json.dumps(row.get('end'),ensure_ascii=False),
-                'center':json.dumps(row.get('center'),ensure_ascii=False),
-                'radius':row.get('radius'),
-                'vertices':json.dumps(row.get('vertices'),ensure_ascii=False),
-                'closed':row.get('closed'),
-                'provenance':row.get('provenance'),
-                'semantic_authority':row.get('semantic_authority'),
-            })
+            geometry_rows.append(geometry_csv_row(case['case_id'], before, row))
         index.append({'case_id':case['case_id'],'source_path':case['source_path'],'source_sha256':before,'evidence_json':json_name,'entity_counts':evidence['entity_counts'],'layer_counts':evidence['layer_counts'],'block_counts':evidence['block_counts']})
     def write_csv(name, rows):
         if not rows:
