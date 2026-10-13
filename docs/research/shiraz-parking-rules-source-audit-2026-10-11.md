@@ -59,6 +59,22 @@ Archive observed in the current work context: `کتاب.zip` (123 images: 97 in 
 Contact-sheet review identified parking layouts, vehicle bays, circulation, ramp/stair drawings, dimensions, grids/columns, levels/sections, and drafting symbols.
 Status: visually categorized at contact-sheet level; this is not a complete OCR/page-by-page transcription. Exact printed page numbers and text must be read from the original image before quoting a rule.
 
+### S7 — 2022 report of a Shiraz parking-rule revision process (secondary report of council proceedings)
+URL: https://pegahekhabar.ir/33977/بحران-کمبود-پارکینگ-در-شهر-شیراز/
+Publication date shown: 27 Mehr 1401 (19 October 2022).
+Source class: local news report attributing statements to the chair of the Shiraz City Council's urban planning/architecture commission.
+Observed claim: the report says revised parking-demand rules for building groups across Shiraz were to be sent to the Article 5 Commission for final approval after council approval.
+Use: important version-history lead. It establishes that a revision process was reported in 2022, so the 1383 guideline transcription must not be assumed to be the sole or current baseline.
+Limit: this is not the adopted resolution itself and does not prove whether/when final approval occurred, which clauses changed, or what is currently in force. Obtain the council resolution, Article 5 approval, and any subsequent amendments before encoding thresholds.
+
+### S8 — 2025 report referencing letter 176814/99 (secondary report; scope distinction required)
+URL: https://purson.ir/fa/content/965442/گزارش-یکصد-و-نود-و-پنجمین-جلسه-صحن-علنی-شورای-شهر-شیراز
+Publication date shown: 28 Ordibehesht 1404 (18 May 2025).
+Source class: news report of a Shiraz City Council plenary session.
+Observed claim: within a 2025 resolution about adjustment factors for municipal charges, Article 5 lists the “parking rules implementation directive” (letter 176814/99 dated 5 Mordad 1399) among exclusions from that particular adjustment resolution.
+Use: a concrete document identifier/date for a primary-source request to the municipality/council archive.
+Limit: the clause is about exclusions from a municipal-fee adjustment resolution; it is **not proof** that letter 176814/99 is the current parking-design code, nor that it remains wholly in force. Do not infer parking bay, aisle, ramp, slope, or clearance dimensions from this reference alone.
+
 ## Authority and evidence policy
 
 Use source classes separately:
