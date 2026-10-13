@@ -1,8 +1,9 @@
 from __future__ import annotations
-import hashlib, tempfile, unittest
+import hashlib, json, tempfile, unittest
 from pathlib import Path
 from unittest.mock import patch
 from runtime.dwg_semantic_evidence import extract_dwg_evidence
+from runtime.export_golden_dwg_evidence import geometry_csv_row
 
 class _Dxf(dict): pass
 class _Entity:
@@ -164,5 +165,26 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual(result["geometry"][2]["vertices"], [])
         self.assertEqual(result["geometry"][3]["coordinate_status"], "UNKNOWN")
         self.assertEqual(result["geometry"][3]["control_points"], [])
+
+
+    def test_geometry_csv_preserves_entity_specific_fields(self):
+        row = {
+            "handle": "A1", "type": "SPLINE", "layer": "A-GENERIC",
+            "coordinate_status": "SUPPORTED", "coordinate_frame_status": "UNKNOWN",
+            "start_angle": 15.0, "end_angle": 120.0, "major_axis": {"x": 4.0, "y": 0.0, "z": 0.0},
+            "ratio": 0.5, "start_param": 0.1, "end_param": 3.2,
+            "control_points": [{"x": 0.0, "y": 1.0, "z": 0.0}],
+            "degree": 3, "elevation": 2.5, "provenance": "DIRECT",
+            "semantic_authority": False,
+        }
+        exported = geometry_csv_row("case-a", "sha256", row)
+        self.assertEqual(exported["start_angle"], 15.0)
+        self.assertEqual(exported["end_angle"], 120.0)
+        self.assertEqual(exported["ratio"], 0.5)
+        self.assertEqual(exported["degree"], 3)
+        self.assertEqual(exported["elevation"], 2.5)
+        self.assertEqual(json.loads(exported["major_axis"]), row["major_axis"])
+        self.assertEqual(json.loads(exported["control_points"]), row["control_points"])
+        self.assertEqual(exported["semantic_authority"], False)
 
 if __name__=="__main__": unittest.main()
