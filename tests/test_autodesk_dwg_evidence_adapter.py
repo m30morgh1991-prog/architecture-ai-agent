@@ -39,7 +39,16 @@ class AutodeskDwgEvidenceAdapterTests(unittest.TestCase):
         self.assertEqual(result.status, "NEEDS_REVIEW")
         self.assertEqual(result.source_sha256, self.sha)
         self.assertEqual(result.payload["semantic_promotion"], "NOT_PERMITTED")
+        self.assertEqual(result.payload["snapshot_binding_assessment"], "UNVERIFIED_EXPORTER_CLAIM_IGNORED")
         result.validate(self.sha)
+
+    def test_exporter_verified_claim_cannot_promote_snapshot_to_ready(self):
+        data = self.envelope()
+        data["source_integrity"]["snapshot_binding_status"] = "VERIFIED"
+        self.write_export(data)
+        result = inspect_autodesk_export(self.export, self.source)
+        self.assertEqual(result.status, "NEEDS_REVIEW")
+        self.assertEqual(result.payload["snapshot_binding_assessment"], "UNVERIFIED_EXPORTER_CLAIM_IGNORED")
 
     def test_changed_source_blocks(self):
         data = self.envelope()
@@ -70,7 +79,6 @@ class AutodeskDwgEvidenceAdapterTests(unittest.TestCase):
     def test_unitless_source_stays_needs_review(self):
         data = self.envelope()
         data["source_profile"]["insunits"] = "Unitless"
-        data["source_integrity"]["snapshot_binding_status"] = "VERIFIED"
         self.write_export(data)
         self.assertEqual(inspect_autodesk_export(self.export, self.source).status, "NEEDS_REVIEW")
 
