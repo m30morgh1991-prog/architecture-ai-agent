@@ -207,6 +207,17 @@ def inspect_plan(
             )
         )
 
+    # ConstraintMap carries evidence IDs but has no source-bound evidence
+    # bundle field of its own. Do not assume those IDs were reconciled merely
+    # because PlanModel has an element evidence bundle.
+    findings.append(
+        _finding(
+            "CONSTRAINT_EVIDENCE_NOT_RECONCILED",
+            "REVIEW",
+            "ConstraintMap evidence IDs are not yet linked to a source-bound constraint evidence contract.",
+        )
+    )
+
     if model.unresolved:
         findings.append(
             _finding(
