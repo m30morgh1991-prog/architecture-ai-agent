@@ -20,6 +20,40 @@ def _value(entity: Any, key: str, default: Any = None) -> Any:
         try: return dxf[key]
         except (KeyError, TypeError): return default
 
+def _read_layer_table(doc: Any) -> tuple[dict[str, dict[str, Any]], dict[Any, str]]:
+    """Read ezdwg's layer table and build the documented handle -> name map."""
+    try:
+        table = doc.layers()
+    except TypeError:
+        table = getattr(doc, "layers", None)
+    except Exception:
+        table = None
+
+    records: dict[str, dict[str, Any]] = {}
+    names_by_handle: dict[Any, str] = {}
+    if not hasattr(table, "items"):
+        return records, names_by_handle
+
+    for name, raw in table.items():
+        if not isinstance(raw, dict):
+            continue
+        layer_name = str(name)
+        records[layer_name] = {
+            key: _jsonable(raw.get(key))
+            for key in (
+                "handle", "color_index", "true_color", "linetype", "off",
+                "frozen", "locked", "plot", "lineweight", "lineweight_index",
+                "transparency",
+            )
+            if key in raw
+        }
+        handle = raw.get("handle")
+        if handle is not None:
+            names_by_handle[handle] = layer_name
+            names_by_handle[str(handle)] = layer_name
+    return records, names_by_handle
+
+
 def _jsonable(value: Any) -> Any:
     if value is None or isinstance(value, (str, int, float, bool)): return value
     if isinstance(value, (list, tuple)): return [_jsonable(v) for v in value]
@@ -123,6 +157,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
     doc = ezdwg.read(str(source))
     entities = list(doc.modelspace().query())
+    layer_table, layer_names_by_handle = _read_layer_table(doc)
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
     geometry_counts = Counter()
     text_evidence, dimension_evidence, level_evidence, section_marker_evidence = [], [], [], []
@@ -132,12 +167,21 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         dxftype = str(getattr(entity, "dxftype", "UNKNOWN"))
         type_counts[dxftype] += 1
         handle = int(getattr(entity, "handle", 0))
-        layer = _value(entity, "layer")
-        if layer:
-            layer_name = str(layer); layer_counts[layer_name] += 1
+        layer_handle = _value(entity, "layer_handle")
+        layer = layer_names_by_handle.get(layer_handle)
+        if layer is None and layer_handle is not None:
+            layer = layer_names_by_handle.get(str(layer_handle))
+        if layer is None:
+            layer = _value(entity, "layer")
+        if layer is not None:
+            layer_name = str(layer)
+            layer_counts[layer_name] += 1
             for semantic in _token_hits(layer_name):
-                candidates[semantic].append({"kind":"LAYER_NAME","value":layer_name,
-                    "handle":handle,"provenance":"DIRECT"})
+                candidates[semantic].append({
+                    "kind": "LAYER_NAME", "value": layer_name,
+                    "layer_handle": _jsonable(layer_handle), "handle": handle,
+                    "provenance": "DIRECT", "source_sha256": source_sha256,
+                })
         if dxftype in {"INSERT","MINSERT"}:
             name = _value(entity, "name")
             if name:
@@ -153,6 +197,8 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         if dxftype in {"TEXT","MTEXT","ATTRIB","ATTDEF"}:
             text = str(getattr(entity, "text", None) or _value(entity, "text", ""))
             text_evidence.append({"handle":handle,"type":dxftype,
+                "layer":str(layer) if layer is not None else None,
+                "layer_handle":_jsonable(layer_handle),
                 "text":text,
                 "insert":_jsonable(_value(entity, "insert")),
                 "rotation":_jsonable(_value(entity, "rotation")),"provenance":"DIRECT"})
@@ -164,6 +210,8 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
                 section_marker_evidence.append(section_marker)
         if dxftype == "DIMENSION":
             dimension_evidence.append({"handle":handle,"type":dxftype,
+                "layer":str(layer) if layer is not None else None,
+                "layer_handle":_jsonable(layer_handle),
                 "text":str(_value(entity, "text", "")),
                 "actual_measurement":_jsonable(_value(entity, "actual_measurement")),
                 "defpoint":_jsonable(_value(entity, "defpoint")),
@@ -176,7 +224,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "evidence":rows} for semantic,rows in candidates.items()}
     try:
         hv = doc.header_variables()
-        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax"))}
+        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax")),\n                  "insunits":_jsonable(hv.get("insunits")),"lunits":_jsonable(hv.get("lunits"))}
     except Exception:
         header = {}
     return {
@@ -184,9 +232,11 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "source_profile":{"source_class":"ENGINEERING_PLAN","path":str(source),
             "sha256":source_sha256,"version":str(getattr(doc,"version","UNKNOWN")),
             "decode_version":str(getattr(doc,"decode_version","UNKNOWN")),
-            "units":getattr(doc,"units",None),"provenance":"DIRECT"},
+            "units":getattr(doc,"units",None),"insunits":getattr(doc,"insunits",None),\n            "provenance":"DIRECT"},
         "entity_counts":dict(sorted(type_counts.items())),
         "layer_counts":dict(sorted(layer_counts.items())),
+        "layer_table":layer_table,
+        "layer_table_status":"SUPPORTED" if layer_table else "UNKNOWN",
         "block_counts":dict(sorted(block_counts.items())),
         "geometry_counts":dict(sorted(geometry_counts.items())),
         "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
