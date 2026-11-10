@@ -4,7 +4,7 @@ This is a host-side AutoCAD .NET plug-in plus a provider-neutral Python evidence
 
 ## Build and run
 
-The first host target is AutoCAD 2025+ / .NET 8. Install AutoCAD and its managed API assemblies, then build on Windows:
+The first host target is AutoCAD 2025/2026 / .NET 8. Install AutoCAD and its managed API assemblies, then build on Windows:
 
     dotnet build AIE.Autodesk.ReadOnlyExtractor.csproj -p:AutoCADManagedDir="C:\Program Files\Autodesk\AutoCAD 2025"
 
@@ -20,4 +20,4 @@ Load the DLL with NETLOAD and run AIEEXPORTREADONLY. Enter a JSON output path ou
 - Paper Space, recursive block definitions, xrefs, proxy/custom objects, hatch topology, and full associative-dimension resolution are out of scope.
 - INSUNITS is a unit declaration, not proof of drawing scale.
 - Disk hash continuity is verified, but equality between AutoCAD's in-memory database and on-disk bytes is not cryptographically proven. The Python adapter therefore keeps the result NEEDS_REVIEW.
-- Generic CI cannot compile or execute the host plug-in without AutoCAD's managed assemblies. A real host build and smoke test are required before operational acceptance.
+- Generic CI cannot compile or execute the host plug-in without AutoCAD's managed assemblies. AutoCAD 2027 uses .NET 10 and needs a separately retargeted build. A real host build and smoke test are required before operational acceptance.

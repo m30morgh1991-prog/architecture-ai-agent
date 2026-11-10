@@ -145,7 +145,7 @@ public sealed class Commands
         return new Dictionary<string, object?>
         {
             ["schema"] = Schema,
-            ["adapter"] = new { adapter_id = "autodesk-autocad-dotnet-readonly-v1", host_product = "AutoCAD", host_version = Application.Version.ToString(), read_only = true },
+            ["adapter"] = new { adapter_id = "autodesk-autocad-dotnet-readonly-v1", host_product = "AutoCAD", host_version = Convert.ToString(Application.GetSystemVariable("ACADVER")), read_only = true },
             ["source_profile"] = new { path = source, sha256 = sha, drawing_version = db.OriginalFileVersion.ToString(), insunits = db.Insunits.ToString(), coordinate_frame = "WCS_WITH_POLYLINE_OCS_DECLARED", source_class = "ENGINEERING_PLAN" },
             ["scope"] = new { space = "MODEL", entity_count = entities.Count, entity_type_counts = counts, paper_space_included = false, nested_block_definitions_expanded = false, xref_contents_expanded = false },
             ["layers"] = layers, ["entities"] = entities,

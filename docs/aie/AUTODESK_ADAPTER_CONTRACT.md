@@ -6,7 +6,7 @@ Autodesk is an evidence adapter only. AIE owns the canonical PlanModel, Constrai
 
 ## Host implementation
 
-The initial plug-in targets AutoCAD 2025+ / .NET 8 and runs inside the AutoCAD process using the matching managed assemblies. AIEEXPORTREADONLY requires a named, unmodified active drawing; reads Model Space entities and layer records with OpenMode.ForRead; exports entity handles/types/layers, extents, supported primitive geometry, text, dimensions, block-reference identity/transforms, drawing version, and INSUNITS; hashes the source before and after; and writes a separate JSON evidence file. It never saves the DWG.
+The initial plug-in targets AutoCAD 2025/2026 / .NET 8 and runs inside the AutoCAD process using the matching managed assemblies. AIEEXPORTREADONLY requires a named, unmodified active drawing; reads Model Space entities and layer records with OpenMode.ForRead; exports entity handles/types/layers, extents, supported primitive geometry, text, dimensions, block-reference identity/transforms, drawing version, and INSUNITS; hashes the source before and after; and writes a separate JSON evidence file. It never saves the DWG.
 
 ## Python validation boundary
 
@@ -20,4 +20,4 @@ Paper Space, recursive block expansion, xrefs, proxy/custom objects, full associ
 
 ## Verification
 
-Generic CI tests the Python contract only. The C# plug-in must be built against an installed AutoCAD 2025+ managed API and smoke-tested on a disposable DWG copy. Golden DWGs remain immutable; no host test may save or overwrite them.
+AutoCAD 2027 uses .NET 10 and requires a separately retargeted build. Generic CI tests the Python contract only. The C# plug-in must be built against an installed AutoCAD 2025+ managed API and smoke-tested on a disposable DWG copy. Golden DWGs remain immutable; no host test may save or overwrite them.
