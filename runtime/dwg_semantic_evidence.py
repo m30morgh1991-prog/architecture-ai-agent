@@ -4,12 +4,13 @@ import hashlib, json, re
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from runtime.dwg_scale_unit_bridge import observe_dwg_scale_unit
 
 SEMANTIC_TOKENS = {
     "WALLS": ("WALL", "WALLS", "A-WALL"),
     "DOORS": ("DOOR", "DOORS", "A-DOOR"),
     "WINDOWS": ("WINDOW", "WINDOWS", "A-WIND", "A-WINDOW"),
-    "COLUMNS": ("COLUMN", "COLUMNS", "COL", "A-COLS", "A-COLUMN"),
+    "COLUMNS": ("COLUMN", "COLUMNS", "COL", "A-COLS", "A-COLUMN", "COULMN"),
 }
 
 def _value(entity: Any, key: str, default: Any = None) -> Any:
@@ -156,6 +157,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     source = Path(path)
     source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
     doc = ezdwg.read(str(source))
+    scale_unit_evidence = observe_dwg_scale_unit({"dwg_units": getattr(doc, "insunits", None)}, source_sha256)
     entities = list(doc.modelspace().query())
     layer_table, layer_names_by_handle = _read_layer_table(doc)
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
@@ -244,6 +246,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
         "section_markers":section_marker_evidence,
         "semantic_candidates":semantic_support,"header":header,
+        "scale_unit_evidence":scale_unit_evidence,
         "authority":{"read_only":True,"semantic_authority":False,
             "generic_linework_is_not_architectural_truth":True},
     }

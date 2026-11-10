@@ -24,6 +24,12 @@ class TestGoldenDwgSemanticExtraction(unittest.TestCase):
             self.assertTrue(evidence["layer_table"],case["case_id"])
             self.assertTrue(evidence["layer_counts"],case["case_id"])
             self.assertEqual(evidence["layer_table_status"],"SUPPORTED",case["case_id"])
+            self.assertEqual(evidence["semantic_candidates"]["WALLS"]["status"],"SUPPORTED",case["case_id"])
+            self.assertEqual(evidence["semantic_candidates"]["COLUMNS"]["status"],"SUPPORTED",case["case_id"])
+            self.assertEqual(evidence["semantic_candidates"]["DOORS"]["status"],"UNKNOWN",case["case_id"])
+            self.assertEqual(evidence["semantic_candidates"]["WINDOWS"]["status"],"UNKNOWN",case["case_id"])
+            self.assertEqual(evidence["scale_unit_evidence"]["status"],"NEEDS_REVIEW",case["case_id"])
+            self.assertFalse(evidence["scale_unit_evidence"]["scale_known"],case["case_id"])
             self.assertIn("text",evidence)
             self.assertIn("dimensions",evidence)
 
