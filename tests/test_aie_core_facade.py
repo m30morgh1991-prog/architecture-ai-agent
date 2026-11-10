@@ -66,6 +66,10 @@ class AIECoreFacadeTests(unittest.TestCase):
         self.assertFalse(result.is_blocked)
         self.assertEqual(result.element_count, 1)
         self.assertIn(
+            "CONSTRAINT_EVIDENCE_NOT_RECONCILED",
+            {finding.code for finding in result.findings},
+        )
+        self.assertIn(
             "ELEMENT_EVIDENCE_BUNDLE_NOT_ATTACHED",
             {finding.code for finding in result.findings},
         )
