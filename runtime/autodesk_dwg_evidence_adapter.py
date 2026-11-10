@@ -29,7 +29,8 @@ def inspect_autodesk_export(export_path: str | Path, source_path: str | Path) ->
         data: dict[str, Any] = json.loads(export_file.read_text(encoding="utf-8"))
     except (UnicodeError, json.JSONDecodeError):
         return CADInspectionEvidence(ADAPTER_ID, "", {"error": "AUTODESK_EXPORT_INVALID_JSON"}, "BLOCKED")
-    if not isinstance(data, dict):\n        return CADInspectionEvidence(ADAPTER_ID, "", {"error": "AUTODESK_EXPORT_ROOT_INVALID"}, "BLOCKED")\n    if data.get("schema") != SCHEMA:
+    if not isinstance(data, dict):
+        return CADInspectionEvidence(ADAPTER_ID, "", {"error": "AUTODESK_EXPORT_ROOT_INVALID"}, "BLOCKED")\n    if data.get("schema") != SCHEMA:
         return CADInspectionEvidence(ADAPTER_ID, "", {"error": "AUTODESK_EXPORT_SCHEMA_UNSUPPORTED"}, "BLOCKED")
 
     profile, integrity = data.get("source_profile"), data.get("source_integrity")
