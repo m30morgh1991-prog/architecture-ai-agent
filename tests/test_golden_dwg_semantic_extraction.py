@@ -20,7 +20,10 @@ class TestGoldenDwgSemanticExtraction(unittest.TestCase):
             self.assertEqual(evidence["source_profile"]["source_class"],"ENGINEERING_PLAN")
             self.assertTrue(evidence["authority"]["read_only"])
             self.assertFalse(evidence["authority"]["semantic_authority"])
-            self.assertTrue(evidence["entity_counts"],case["case_id"])\n            self.assertTrue(evidence["layer_table"],case["case_id"])\n            self.assertTrue(evidence["layer_counts"],case["case_id"])\n            self.assertEqual(evidence["layer_table_status"],"SUPPORTED",case["case_id"])
+            self.assertTrue(evidence["entity_counts"],case["case_id"])
+            self.assertTrue(evidence["layer_table"],case["case_id"])
+            self.assertTrue(evidence["layer_counts"],case["case_id"])
+            self.assertEqual(evidence["layer_table_status"],"SUPPORTED",case["case_id"])
             self.assertIn("text",evidence)
             self.assertIn("dimensions",evidence)
 

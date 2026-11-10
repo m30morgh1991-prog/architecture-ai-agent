@@ -224,7 +224,8 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "evidence":rows} for semantic,rows in candidates.items()}
     try:
         hv = doc.header_variables()
-        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax")),\n                  "insunits":_jsonable(hv.get("insunits")),"lunits":_jsonable(hv.get("lunits"))}
+        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax")),
+                  "insunits":_jsonable(hv.get("insunits")),"lunits":_jsonable(hv.get("lunits"))}
     except Exception:
         header = {}
     return {
@@ -232,7 +233,8 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "source_profile":{"source_class":"ENGINEERING_PLAN","path":str(source),
             "sha256":source_sha256,"version":str(getattr(doc,"version","UNKNOWN")),
             "decode_version":str(getattr(doc,"decode_version","UNKNOWN")),
-            "units":getattr(doc,"units",None),"insunits":getattr(doc,"insunits",None),\n            "provenance":"DIRECT"},
+            "units":getattr(doc,"units",None),"insunits":getattr(doc,"insunits",None),
+            "provenance":"DIRECT"},
         "entity_counts":dict(sorted(type_counts.items())),
         "layer_counts":dict(sorted(layer_counts.items())),
         "layer_table":layer_table,
