@@ -14,6 +14,7 @@ Limits (stated, not hidden):
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass
 from typing import Any, Iterable
 
@@ -95,7 +96,12 @@ def compute_revision_diff(
 ) -> RevisionDiff:
     if same_coordinate_frame is not True:
         raise ValueError("COORDINATE_FRAME_NOT_ESTABLISHED")
-    if tolerance < 0:
+    if (
+        isinstance(tolerance, bool)
+        or not isinstance(tolerance, (int, float))
+        or not math.isfinite(tolerance)
+        or tolerance < 0
+    ):
         raise ValueError("TOLERANCE_INVALID")
     base.validate()
     revised.validate()
