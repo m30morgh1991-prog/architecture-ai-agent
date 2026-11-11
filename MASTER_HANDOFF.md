@@ -1,3 +1,40 @@
+## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
+
+- Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
+- Mainline CI evidence for `30e141bfb644d120e53c57070cd200df8fdbeeae`: the available workflow-run and combined-status queries returned no records. **Post-merge mainline Green is not claimed.**
+- Live open PR inventory checked 2026-11-11: #119, #126, #127, #128, #129, #130. No PR was merged, approved, or closed as part of this checkpoint.
+- PR #127 (read-only Golden DWG geometry coordinates) is based on current main, exact head `4a3642bc88314af58c56a628ce40c058fd8dd2a6`; PR CI #38382657911, Runtime #38382657906, Bug Hunt #38382657885, Golden export #38382658040 all completed/success. Coordinate-frame reconciliation remains UNKNOWN for unresolved OCS/WCS and INSERT transforms. Review comment requested entity-specific CSV fields; the PR body reports these fields and a regression test were added and the thread resolved. PR remains open.
+- PR #128 (review findings, input completeness, PlanModel revision diff) is based on current main, exact head `3af9328a90909191ce494287f59f95f8a48d2650`; PR CI #40281675282, Runtime #40281675235, Bug Hunt #40281675279 all completed/success. Its 46 tests cover additive deterministic contracts; these helpers are not yet wired into the runtime pipeline. PR remains open.
+- PR #129 (AIE v0.1 + Autodesk read-only evidence extractor) is based on current main, exact head `4924622886aa00d7f1c039e010269b7d47f7c359`; PR CI #42915700762, Runtime #42915700788, Bug Hunt #42915700846, Golden export #42915700723, AgentShield #42915700735 all completed/success. Review state is COMMENTED, not APPROVED. AIE remains read-only; no semantic or compliance authority is granted.
+- PR #130 (fail-closed snapshot-binding correction) is stacked on PR #129, exact head `925fdbf843b6bb9ab3cd82e93be5b09f6d340eab`; PR CI #42918732550, Runtime #42918732442, Bug Hunt #42918732385, Golden export #42918732429 all completed/success. It ignores an exporter-supplied `snapshot_binding_status=VERIFIED` claim and keeps unproven in-memory-to-disk binding at NEEDS_REVIEW. It must not be merged ahead of its parent PR #129.
+- PR #126 (this durable-state repair) was previously green on head `5980ced03478e5164a3ff1b0eb56838445cd260c`: PR CI #38393586659, Runtime #38393586450, Bug Hunt #38393586341 all completed/success. This new checkpoint changes its exact head; rerun all required gates before claiming Green. Its base is the older `711c085...` and is one commit behind current main.
+- PR #119 (Shiraz parking-rule/source audit) is research-only and based on old `4c167caace10afe2806439f0f260bb544f95b7d0`; its branch is diverged from current main (4 commits ahead, 5 behind). Its old-head PR CI #38393757098, Runtime #38393756952, Bug Hunt #38393757050 succeeded, but these do not replace rebase/refresh and exact-head checks. Secondary-source values remain unverified; no current regulatory threshold is asserted.
+- Autodesk/G​​olden findings: both preserved Golden DWGs previously exported successfully with source hashes matching the manifest and `source_mutated=false`. Both report `INSUNITS=1` (inches), but scale remains NEEDS_REVIEW. Layer-name evidence supports WALLS and COLUMNS candidates only; the misspelled source layer `COULMN` is not geometric column recognition. DOORS/WINDOWS remain UNKNOWN. Persian text/font recovery is not verified.
+- Dimension boundary: the current C# exporter emits dimension type/text/measurement but not typed definition points. The earlier 67/68 result is annotation-point self-consistency only, not dimension-to-entity geometric association. Full reconciliation remains pending.
+- Real AutoCAD 2025/2026 build and in-host smoke test remain NOT_RUN. They require a Windows host with matching AutoCAD managed assemblies and a disposable DWG; Golden sources must not be used for this test.
+- No unit conversion, geometric association, semantic promotion, compliance PASS, H-stage advancement, approval bypass, or merge is authorized by this checkpoint. H100 remains active; H101 remains LOCKED. Golden DWGs remain immutable.
+
+### Immediate continuation order
+1. Verify this refreshed durable-state PR on its new exact head (PR CI, Runtime Tests, Mandatory Bug Hunt).
+2. Complete human review of PR #127/#128 and review PR #129; keep PR #130 dependent on acceptance of #129.
+3. Run the AutoCAD host build/smoke test on a disposable drawing when a compatible Windows/AutoCAD host is available.
+4. Add typed dimension definition-point evidence and a conservative dimension-to-geometry reconciliation contract; keep ambiguous matches NEEDS_REVIEW.
+5. Continue Persian font/encoding provenance and block/geometry-based door/window evidence; unsupported cases stay UNKNOWN.
+6. Refresh stale PR #119 against current main before any merge decision. Keep H101 locked until H100 semantic acceptance evidence is genuinely complete.
+
+---
+
+## Historical checkpoint — 2026-10-12 (superseded by the live checkpoint above)
+
+- Latest verified main checkpoint is PR #125 merge commit `711c085508ab563d347c5c3918263317b08325f2` (PR #125 is merged). PR #121 merge commit `30e141bfb644d120e53c57070cd200df8fdbeeae` is a prior historical milestone, not the latest main checkpoint.
+- PR #124 fixed a real Bug Hunt false-pass: headings/tokens inside fenced Markdown code previously could satisfy required evidence. The validator now ignores fenced blocks and fails closed on an unclosed fence. Regression coverage was added; post-merge checks on PR #124 merge commit `8cb2fe258f5dad3984f91492502630f4a6e28da6` were completed/success (PR CI #38164505118, Runtime #38164505129, Bug Hunt #38164505253).
+- PR #125 is merged at `711c085508ab563d347c5c3918263317b08325f2`, persisting PR #124's verified state. This new checkpoint refresh corrects the stale top-level live checkpoint, which still pointed at PR #115 while later PR #124/#125 evidence had been appended lower in the files.
+- Live PR checkpoint checked on 2026-10-13: PR #119 (Shiraz parking-rule/source audit), PR #126 (durable-state checkpoint repair), and PR #127 (clean mainline geometry-evidence replacement) are open. PR #121 was merged at `30e141bfb644d120e53c57070cd200df8fdbeeae`; PR #125 merge `711c085508ab563d347c5c3918263317b08325f2` remains the latest verified main checkpoint. PR #123 was re-opened by repository activity, then explicitly closed unmerged again on 2026-10-13 as superseded by PR #127. PR #127 current head `4a3642bc88314af58c56a628ce40c058fd8dd2a6` is based directly on main and all four exact-head workflows are completed/success: PR CI #38382657911, Runtime Tests #38382657906, Bug Hunt #38382657885, and read-only Golden DWG Evidence Export #38382658040. ECC found incomplete entity-specific geometry fields in `geometry.csv`; those fields are now exported, a regression test was added, and the review thread is resolved after all gates passed. `coordinate_frame_status=UNKNOWN` remains fail-closed until OCS/WCS semantics and INSERT transforms are reconciled. PR #127 remains unmerged pending required human approval. PR #126 exact-head gates all passed at `62d37e0a2fbf95c9ad7ad5db4c021ad54ec86f08`, but any new state-doc commit requires fresh exact-head checks. PR #119 remains research-only; verify the current official rule edition and applicability before any compliance claim.
+- Durable-state rule: the top-level live checkpoint must name the latest verified main SHA, while historical H-stage notes must be explicitly labeled historical. Never infer latest state from appended sections alone.
+- H100 remains active; H101 remains LOCKED until Golden Understanding acceptance evidence is green. Golden DWG fixtures remain immutable. No auto-merge, no bypass, no stage advancement from documentation work.
+
+---
+
 ## Post-merge checkpoint — PR #124 / ECC-inspired TDD Bug Hunt validator hardening (2026-10-11)
 
 - PR #124 was squash-merged into `main` as `8cb2fe258f5dad3984f91492502630f4a6e28da6`.
