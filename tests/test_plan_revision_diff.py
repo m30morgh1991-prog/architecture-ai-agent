@@ -40,6 +40,12 @@ class RevisionDiffTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "TOLERANCE_INVALID"):
             diff(self.base, self.base, tolerance=-1)
 
+    def test_non_finite_and_boolean_tolerances_are_rejected(self):
+        for tolerance in (float("inf"), float("-inf"), float("nan"), True, False):
+            with self.subTest(tolerance=tolerance):
+                with self.assertRaisesRegex(ValueError, "TOLERANCE_INVALID"):
+                    diff(self.base, self.base, tolerance=tolerance)
+
     def test_moved_locked_column_is_blocked(self):
         rev = model("B", SHA_B, el("C01", geom={"x": 0.5, "y": 0.0}), *self.base.elements[1:])
         d = diff(self.base, rev)
