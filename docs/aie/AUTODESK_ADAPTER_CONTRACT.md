@@ -11,7 +11,7 @@ The same read-only C# source supports two separately compiled host targets:
 - AutoCAD 2020: AutoCAD Managed .NET SDK 23.1, .NET Framework 4.7 (net47).
 - AutoCAD 2025/2026: .NET 8 Windows (net8.0-windows).
 
-Each target must compile against the matching host installation's AcCoreMgd.dll, AcDbMgd.dll, and AcMgd.dll. Do not copy Autodesk managed assemblies into the plugin output or ship them as private dependencies. The build must use the installed AutoCAD version's SDK assemblies; API compatibility is release-specific.
+Each target must compile against the matching host installation's AcCoreMgd.dll, AcDbMgd.dll, and AcMgd.dll. Do not copy Autodesk managed assemblies into the plugin output or ship them as private dependencies. The net47 target uses the framework-provided System.Web.Extensions JSON serializer; the net8 target uses System.Text.Json. The build must use the installed AutoCAD version's SDK assemblies; API compatibility is release-specific.
 
 The command AIEEXPORTREADONLY requires a named, unmodified active drawing; reads Model Space entities and layer records with OpenMode.ForRead; exports entity handles/types/layers, extents, supported primitive geometry, text, dimensions, block-reference identity/transforms, drawing version, and INSUNITS; hashes the source before and after; and writes a separate JSON evidence file. It never saves the DWG.
 
