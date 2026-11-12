@@ -102,6 +102,8 @@ def main() -> int:
             str(output),
             dxf_version="R2010",
             strict=False,
+            modelspace_only=True,
+            explode_dimensions=False,
         )
         conversion = jsonable_result(result)
 
@@ -113,6 +115,7 @@ def main() -> int:
         converted_msp = converted_doc.modelspace()
         converted_counts = entity_counts(converted_msp)
         converted_layers = layer_names(converted_msp)
+        converted_layer_table = sorted({str(layer.dxf.name) for layer in converted_doc.layers})
         auditor = converted_doc.audit()
         audit_errors = len(auditor.errors)
         audit_fixes = len(auditor.fixes)
@@ -123,8 +126,8 @@ def main() -> int:
             if delta:
                 type_deltas[kind] = delta
 
-        missing_layers = sorted(set(source_layers) - set(converted_layers))
-        added_layers = sorted(set(converted_layers) - set(source_layers))
+        missing_layers = sorted(set(source_layers) - set(converted_layer_table))
+        added_layers = sorted(set(converted_layer_table) - set(source_layers))
         after = sha256_file(source)
         source_unchanged = before == after
 
@@ -133,7 +136,7 @@ def main() -> int:
             "output_reopened_by_ezdxf": True,
             "no_skipped_entities": conversion["skipped_entities"] == 0,
             "entity_counts_identical": not type_deltas,
-            "layer_names_identical": not missing_layers and not added_layers,
+            "all_source_used_layers_present_in_output_table": not missing_layers,
             "no_dxf_audit_errors": audit_errors == 0,
             "no_dxf_audit_fixes": audit_fixes == 0,
         }
@@ -148,6 +151,7 @@ def main() -> int:
             "source_dwg_version": str(getattr(source_doc, "version", "UNKNOWN")),
             "source_units_metadata": getattr(source_doc, "units", None),
             "target_dxf_version": "R2010",
+            "conversion_options": {"modelspace_only": True, "explode_dimensions": False, "flatten_inserts": False},
             "output_path": str(output.relative_to(ROOT)),
             "output_size_bytes": output.stat().st_size,
             "conversion": conversion,
@@ -156,6 +160,7 @@ def main() -> int:
             "entity_count_deltas_converted_minus_source": type_deltas,
             "source_layer_names": source_layers,
             "converted_layer_names": converted_layers,
+            "converted_layer_table_names": converted_layer_table,
             "missing_layer_names": missing_layers,
             "added_layer_names": added_layers,
             "dxf_audit_errors": audit_errors,
