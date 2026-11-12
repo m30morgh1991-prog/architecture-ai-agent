@@ -27,12 +27,41 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def iter_entities(layout: Any) -> list[Any]:
+    # ezdwg Layout exposes query(); ezdxf layouts are directly iterable.
+    query = getattr(layout, "query", None)
+    if callable(query):
+        try:
+            return list(query())
+        except TypeError:
+            pass
+    return list(layout)
+
+
+def entity_type(entity: Any) -> str:
+    value = getattr(entity, "dxftype", "UNKNOWN")
+    return str(value() if callable(value) else value)
+
+
+def entity_layer(entity: Any) -> str:
+    dxf = getattr(entity, "dxf", None)
+    if dxf is None:
+        return "0"
+    try:
+        return str(dxf.get("layer", "0"))
+    except (AttributeError, TypeError):
+        try:
+            return str(dxf["layer"])
+        except (KeyError, TypeError):
+            return "0"
+
+
 def entity_counts(layout: Any) -> dict[str, int]:
-    return dict(sorted(Counter(entity.dxftype() for entity in layout).items()))
+    return dict(sorted(Counter(entity_type(entity) for entity in iter_entities(layout)).items()))
 
 
 def layer_names(layout: Any) -> list[str]:
-    return sorted({str(entity.dxf.get("layer", "0")) for entity in layout})
+    return sorted({entity_layer(entity) for entity in iter_entities(layout)})
 
 
 def jsonable_result(result: Any) -> dict[str, Any]:
