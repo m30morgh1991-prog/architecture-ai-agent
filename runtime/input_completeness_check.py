@@ -30,7 +30,7 @@ _REQUIRED = (
 _INCH_UNITS = {"in", "inch", "inches"}
 _PLACEHOLDERS = {"", "?", "-", "unknown", "tbd", "n/a", "na", "none", "null",
                  "not known", "not provided", "unspecified"}
-_SCALE_RE = re.compile(r"^(?:1\s*[:/]\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?\s*[:/]\s*\d+(?:[.,]\d+)?)$")
+_SCALE_RE = re.compile(r"^(?P<numerator>\d+(?:[.,]\d+)?)\s*[:/]\s*(?P<denominator>\d+(?:[.,]\d+)?)$")
 _UNIT_ALIASES = {
     "mm", "millimeter", "millimeters", "millimetre", "millimetres",
     "cm", "centimeter", "centimeters", "centimetre", "centimetres",
@@ -38,6 +38,15 @@ _UNIT_ALIASES = {
     "in", "inch", "inches", "ft", "foot", "feet",
 }
 _UNITLESS = {"unitless", "unitless/unspecified", "no units"}
+
+
+def _valid_scale(value: str) -> bool:
+    match = _SCALE_RE.fullmatch(value)
+    if not match:
+        return False
+    numerator = float(match.group("numerator").replace(",", "."))
+    denominator = float(match.group("denominator").replace(",", "."))
+    return numerator > 0 and denominator > 0
 
 
 def check_input_completeness(
@@ -61,7 +70,7 @@ def check_input_completeness(
                 status, severity, text = (
                     "SOURCE_REQUIRED", "WARNING", f"{label} not supplied or marked unknown; it is not inferred.",
                 )
-            elif key == "scale" and not _SCALE_RE.fullmatch(normalized):
+            elif key == "scale" and not _valid_scale(normalized):
                 status, severity, text = (
                     "NEEDS_REVIEW", "WARNING", f"{label} has an unrecognized format and requires inspection.",
                 )
