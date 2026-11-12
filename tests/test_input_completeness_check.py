@@ -42,6 +42,10 @@ class InputCompletenessTests(unittest.TestCase):
         f = by_check(run(metadata=dict(FULL, scale="one hundred")))
         self.assertEqual(f["INPUT-SCALE-001"].status, "NEEDS_REVIEW")
 
+    def test_zero_scale_ratio_requires_review(self):
+        f = by_check(run(metadata=dict(FULL, scale="1:0")))
+        self.assertEqual(f["INPUT-SCALE-001"].status, "NEEDS_REVIEW")
+
     def test_unitless_metadata_requires_review(self):
         f = by_check(run(metadata=dict(FULL, units="unitless")))
         self.assertEqual(f["INPUT-UNITS-001"].status, "NEEDS_REVIEW")
