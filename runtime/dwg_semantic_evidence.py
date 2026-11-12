@@ -70,8 +70,20 @@ def _token_hits(name: str) -> set[str]:
             if any(token.replace("-","_") in normalized for token in tokens)}
 
 
-_LEVEL_RE = re.compile(
-    r"(?P<marker>±|\+|\-)?\s*(?P<value>\d+(?:[.,]\d+)?)\s*(?P<unit>mm|cm|m)?",
+_LEVEL_NUMBER = r"\d+(?:[.,]\d+)?"
+_LEVEL_UNIT = r"(?:mm|cm|m)"
+_ELEVATION_CONTEXT_VALUE_RE = re.compile(
+    rf"(?:\b(?:RL|EL|FFL|T\.?O\.? )\b|کد\s*ارتفاعی|تراز|کف|ارتفاع)"
+    rf"\s*(?:[:=]\s*)?(?P<marker>±|[+-])?\s*"
+    rf"(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})?",
+    re.IGNORECASE,
+)
+_SIGNED_LEVEL_VALUE_RE = re.compile(
+    rf"(?P<marker>±|[+-])\s*(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})?",
+    re.IGNORECASE,
+)
+_UNIT_LEVEL_VALUE_RE = re.compile(
+    rf"(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})",
     re.IGNORECASE,
 )
 _LEVEL_CONTEXT_RE = re.compile(
@@ -80,34 +92,41 @@ _LEVEL_CONTEXT_RE = re.compile(
 )
 
 def _level_candidate(text: str, handle: int, source_sha256: str, source_units: Any) -> dict[str, Any] | None:
+    """Extract elevation only when the numeric value is tied to elevation evidence."""
     raw = " ".join(str(text).split())
     if not raw:
         return None
-    match = _LEVEL_RE.search(raw)
-    if not match:
+
+    matches = list(_ELEVATION_CONTEXT_VALUE_RE.finditer(raw))
+    if not matches:
+        matches = list(_SIGNED_LEVEL_VALUE_RE.finditer(raw))
+    if not matches:
+        matches = list(_UNIT_LEVEL_VALUE_RE.finditer(raw))
+    if not matches:
+        # A floor index such as LEVEL 2 is not an elevation.
         return None
-    marker = match.group("marker") or ""
-    value_text = match.group("value").replace(",", ".")
-    unit = match.group("unit")
+
     context = bool(_LEVEL_CONTEXT_RE.search(raw))
-    conventional = marker == "±" and float(value_text) == 0.0
-    status = "SUPPORTED" if (unit or context or conventional) else "UNKNOWN"
-    if status == "SUPPORTED" and not unit:
+    ambiguous = len(matches) != 1
+    match = matches[0]
+    marker = match.groupdict().get("marker") or ""
+    unit = match.groupdict().get("unit")
+    value = None if ambiguous else float(match.group("value").replace(",", "."))
+    if not ambiguous and not unit:
         unit = str(source_units or "")
-    if status == "SUPPORTED" and not unit:
-        status = "UNKNOWN"
+    status = "SUPPORTED" if (not ambiguous and unit) else "UNKNOWN"
     return {
         "handle": handle,
         "raw_text": raw,
         "marker": marker,
-        "elevation": float(value_text) * (-1.0 if marker == "-" else 1.0),
+        "elevation": (value * (-1.0 if marker == "-" else 1.0)) if value is not None else None,
         "unit": unit or "",
         "context_explicit": context,
         "provenance": "DIRECT",
         "status": status,
+        "reason": "AMBIGUOUS_ELEVATION_VALUES" if ambiguous else ("UNIT_UNKNOWN" if not unit else ""),
         "source_sha256": source_sha256,
     }
-
 
 _SECTION_CONTEXT_RE = re.compile(
     r"(?:\b(?:SECTION|SECT\.?|CUT[\s_-]*PLANE|ELEVATION|ELEV\.?|DETAIL)\b|مقطع|برش|جزئیات)",
