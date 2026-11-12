@@ -1,5 +1,5 @@
 using System.Security.Cryptography;
-using System.Text.Json;
+using Newtonsoft.Json;
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
@@ -57,7 +57,7 @@ public sealed class Commands
                 ["source_mutated"] = false, ["snapshot_binding_status"] = "NEEDS_REVIEW",
                 ["snapshot_binding_note"] = "Disk hash continuity is verified; in-memory database identity is not cryptographically proven."
             };
-            File.WriteAllText(output, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }), new System.Text.UTF8Encoding(false));
+            File.WriteAllText(output, JsonConvert.SerializeObject(result, Formatting.Indented), new System.Text.UTF8Encoding(false));
             ed.WriteMessage($"\nAIE: exported read-only evidence to {output}; source DWG was not saved or modified.");
         }
         catch (System.Exception ex)
@@ -157,7 +157,7 @@ public sealed class Commands
     {
         using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
         using var sha = SHA256.Create();
-        return Convert.ToHexString(sha.ComputeHash(stream)).ToLowerInvariant();
+        return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
     }
 
     private static Dictionary<string, double> Point(Point3d p) => new() { ["x"] = p.X, ["y"] = p.Y, ["z"] = p.Z };
