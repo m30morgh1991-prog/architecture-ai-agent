@@ -1,0 +1,35 @@
+name: AutoCAD 2020 Host Compatibility Contract
+
+on:
+  push:
+    branches:
+      - feat/autocad-2020-host-compat
+    paths:
+      - 'adapters/autodesk/**'
+      - 'docs/aie/AUTODESK_ADAPTER_CONTRACT.md'
+      - 'tests/test_autodesk_host_compatibility_contract.py'
+      - '.github/workflows/autocad-2020-compatibility.yml'
+  pull_request:
+    branches:
+      - fix/autodesk-snapshot-binding-fail-closed
+    paths:
+      - 'adapters/autodesk/**'
+      - 'docs/aie/AUTODESK_ADAPTER_CONTRACT.md'
+      - 'tests/test_autodesk_host_compatibility_contract.py'
+      - '.github/workflows/autocad-2020-compatibility.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  static-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify AutoCAD host compatibility contract
+        run: python -m unittest discover -s tests -p 'test_autodesk_host_compatibility_contract.py' -v

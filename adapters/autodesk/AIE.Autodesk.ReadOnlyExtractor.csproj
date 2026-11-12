@@ -1,15 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFrameworks>net47;net8.0-windows</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AssemblyName>AIE.Autodesk.ReadOnlyExtractor</AssemblyName>
   </PropertyGroup>
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net47'">
+    <AutoCADManagedDir Condition="'$(AutoCADManagedDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2020</AutoCADManagedDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
     <AutoCADManagedDir Condition="'$(AutoCADManagedDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025</AutoCADManagedDir>
   </PropertyGroup>
+  <ItemGroup Condition='"$(TargetFramework)" == "net47"'>
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="AcCoreMgd"><HintPath>$(AutoCADManagedDir)\AcCoreMgd.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="AcDbMgd"><HintPath>$(AutoCADManagedDir)\AcDbMgd.dll</HintPath><Private>false</Private></Reference>
