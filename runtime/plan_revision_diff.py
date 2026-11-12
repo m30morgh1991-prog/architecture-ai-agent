@@ -7,9 +7,9 @@ plan) and checks that protected elements were not touched.
 Limits (stated, not hidden):
 * Element identity is the ``element_id`` only. A renamed or renumbered element is
   reported as REMOVED + ADDED; the module never guesses a match.
-* Geometry is compared as given. The caller must attest that both models share
-  one coordinate frame and unit (``same_coordinate_frame=True``); otherwise the
-  comparison is refused instead of producing a misleading result.
+* Geometry is compared as given. The caller must provide traceable coordinate
+  evidence proving the same frame and recognized units for both models; otherwise
+  the comparison is refused instead of producing a misleading result.
 """
 from __future__ import annotations
 
@@ -23,6 +23,39 @@ from runtime.post_edit_diff import Delta, PostEditDiff
 from runtime.review_report_contract import Finding
 
 CHANGE_TYPES = ("ADDED", "REMOVED", "STATE_CHANGED", "TYPE_CHANGED", "GEOMETRY_CHANGED")
+
+
+_UNIT_CANONICAL = {
+    "mm": "mm", "millimeter": "mm", "millimeters": "mm", "millimetre": "mm", "millimetres": "mm",
+    "cm": "cm", "centimeter": "cm", "centimeters": "cm", "centimetre": "cm", "centimetres": "cm",
+    "m": "m", "meter": "m", "meters": "m", "metre": "m", "metres": "m",
+    "in": "in", "inch": "in", "inches": "in",
+    "ft": "ft", "foot": "ft", "feet": "ft",
+}
+
+
+@dataclass(frozen=True)
+class CoordinateSystemEvidence:
+    base_frame_id: str
+    revised_frame_id: str
+    base_units: str
+    revised_units: str
+    evidence_ids: tuple[str, ...]
+
+    def validate(self) -> tuple[str, str]:
+        if not all((self.base_frame_id, self.revised_frame_id, self.base_units, self.revised_units)):
+            raise ValueError("COORDINATE_SYSTEM_EVIDENCE_MISSING")
+        if not self.evidence_ids or not all(self.evidence_ids):
+            raise ValueError("COORDINATE_SYSTEM_PROVENANCE_MISSING")
+        if self.base_frame_id != self.revised_frame_id:
+            raise ValueError("COORDINATE_FRAME_NOT_ESTABLISHED")
+        base_unit = _UNIT_CANONICAL.get(self.base_units.strip().lower())
+        revised_unit = _UNIT_CANONICAL.get(self.revised_units.strip().lower())
+        if not base_unit or not revised_unit:
+            raise ValueError("COORDINATE_UNITS_NOT_ESTABLISHED")
+        if base_unit != revised_unit:
+            raise ValueError("UNIT_MISMATCH_NOT_ESTABLISHED")
+        return self.base_frame_id, base_unit
 
 
 @dataclass(frozen=True)
@@ -48,11 +81,16 @@ class RevisionDiff:
     revised_model_id: str
     base_sha256: str
     revised_sha256: str
+    coordinate_frame_id: str
+    units: str
+    coordinate_evidence_ids: tuple[str, ...]
     changes: tuple[ElementChange, ...]
 
     def validate(self) -> None:
         if not self.diff_id or not self.base_model_id or not self.revised_model_id:
             raise ValueError("REVISION_DIFF_TRACEABILITY_MISSING")
+        if not self.coordinate_frame_id or not self.units or not self.coordinate_evidence_ids:
+            raise ValueError("REVISION_DIFF_COORDINATE_PROVENANCE_MISSING")
         for change in self.changes:
             if not change.element_id or change.change_type not in CHANGE_TYPES:
                 raise ValueError("REVISION_CHANGE_INVALID")
@@ -89,13 +127,14 @@ def compute_revision_diff(
     base: PlanModel,
     revised: PlanModel,
     *,
-    same_coordinate_frame: bool,
+    coordinate_system_evidence: CoordinateSystemEvidence,
     protected_element_ids: Iterable[str] = (),
     tolerance: float = 0.0,
     diff_id: str | None = None,
 ) -> RevisionDiff:
-    if same_coordinate_frame is not True:
-        raise ValueError("COORDINATE_FRAME_NOT_ESTABLISHED")
+    if not isinstance(coordinate_system_evidence, CoordinateSystemEvidence):
+        raise ValueError("COORDINATE_SYSTEM_EVIDENCE_MISSING")
+    coordinate_frame_id, units = coordinate_system_evidence.validate()
     if (
         isinstance(tolerance, bool)
         or not isinstance(tolerance, (int, float))
@@ -140,6 +179,9 @@ def compute_revision_diff(
         revised.model_id,
         base.source_sha256,
         revised.source_sha256,
+        coordinate_frame_id,
+        units,
+        tuple(coordinate_system_evidence.evidence_ids),
         tuple(changes),
     )
     diff.validate()
