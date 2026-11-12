@@ -12,6 +12,8 @@ class TestGoldenDwgSemanticExtraction(unittest.TestCase):
             ("LEVEL 2 FFL +3.20 m", "m", 3.20),
             ("طبقه دوم تراز +3.20", "m", 3.20),
             ("FFL +3.20 m", "m", 3.20),
+            ("T.O. +3.20 m", "m", 3.20),
+            ("LEVEL 2 FFL 3.20m", "m", 3.20),
         ]
         for raw, units, expected in cases:
             with self.subTest(raw=raw):
@@ -23,6 +25,13 @@ class TestGoldenDwgSemanticExtraction(unittest.TestCase):
 
     def test_floor_index_alone_is_not_elevation(self):
         self.assertIsNone(_level_candidate("LEVEL 2", 18, "fixture-sha", "m"))
+
+    def test_missing_units_remain_unknown(self):
+        evidence = _level_candidate("FFL +3.20", 20, "fixture-sha", None)
+        self.assertIsNotNone(evidence)
+        self.assertEqual(evidence["status"], "UNKNOWN")
+        self.assertEqual(evidence["unit"], "")
+        self.assertAlmostEqual(evidence["elevation"], 3.20)
 
     def test_multiple_elevation_values_fail_closed(self):
         evidence = _level_candidate("FFL +3.20 m / RL +4.10 m", 19, "fixture-sha", "m")
