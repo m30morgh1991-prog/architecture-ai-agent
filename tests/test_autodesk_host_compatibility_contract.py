@@ -10,6 +10,7 @@ PROJECT = ROOT / "adapters" / "autodesk" / "AIE.Autodesk.ReadOnlyExtractor.cspro
 SOURCE = ROOT / "adapters" / "autodesk" / "AIEReadOnlyExtractor.cs"
 README = ROOT / "adapters" / "autodesk" / "README.md"
 CONTRACT = ROOT / "docs" / "aie" / "AUTODESK_ADAPTER_CONTRACT.md"
+BUILD_SCRIPT = ROOT / "adapters" / "autodesk" / "build-autocad-2020.ps1"
 
 
 class AutodeskHostCompatibilityContractTests(unittest.TestCase):
@@ -48,6 +49,10 @@ class AutodeskHostCompatibilityContractTests(unittest.TestCase):
         self.assertIn("AutoCAD 2020", readme)
         self.assertIn("AutoCAD 2020", contract)
         self.assertIn("smoke test", contract.lower())
+        build_script = BUILD_SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("dotnet build", build_script)
+        self.assertIn("net47", build_script)
+        self.assertIn("AIEEXPORTREADONLY", build_script)
 
 
 if __name__ == "__main__":
