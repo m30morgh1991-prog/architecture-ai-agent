@@ -12,8 +12,10 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
     <AutoCADManagedDir Condition="'$(AutoCADManagedDir)' == ''">C:\Program Files\Autodesk\AutoCAD 2025</AutoCADManagedDir>
   </PropertyGroup>
+  <ItemGroup Condition='"$(TargetFramework)" == "net47"'>
+    <Reference Include="System.Web.Extensions" />
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Reference Include="AcCoreMgd"><HintPath>$(AutoCADManagedDir)\AcCoreMgd.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="AcDbMgd"><HintPath>$(AutoCADManagedDir)\AcDbMgd.dll</HintPath><Private>false</Private></Reference>
     <Reference Include="AcMgd"><HintPath>$(AutoCADManagedDir)\AcMgd.dll</HintPath><Private>false</Private></Reference>
