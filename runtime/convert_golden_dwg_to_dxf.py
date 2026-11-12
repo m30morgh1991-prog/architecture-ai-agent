@@ -234,10 +234,9 @@ def main() -> int:
         encoding="utf-8",
     )
     print(json.dumps(overall, ensure_ascii=False, indent=2, sort_keys=True))
-    # CI validates that conversion and independent reopening work. Fidelity is
-    # reported separately and remains fail-closed as NEEDS_REVIEW when any
-    # unsupported entity, count delta, layer delta, or audit issue is detected.
-    return 0
+    # A diagnostic artifact is uploaded even on failure; CI itself must stay red
+    # unless both conversion fidelity and strict native DWG write probes pass.
+    return 0 if overall["overall_status"] == "PASS" else 1
 
 
 if __name__ == "__main__":
