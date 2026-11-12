@@ -142,7 +142,7 @@ def _level_candidate(text: str, handle: int, source_sha256: str, source_units: A
         "raw_text": raw,
         "marker": marker,
         "candidate_value": match.group("value"),
-        "elevation": (value * (-1.0 if marker == "-" else 1.0)) if value is not None and supported else None,
+        "elevation": (value * (-1.0 if marker == "-" else 1.0)) if value is not None and (has_explicit_elevation_context or has_explicit_sign) and not ambiguous else None,
         "unit": unit or "",
         "context_explicit": context,
         "provenance": "DIRECT",
