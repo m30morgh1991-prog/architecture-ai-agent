@@ -37,7 +37,7 @@ class AutodeskHostCompatibilityContractTests(unittest.TestCase):
         self.assertIn("OpenMode.ForRead", source)
         self.assertIn("doc.IsModified", source)
         self.assertIn('snapshot_binding_status"] = "NEEDS_REVIEW"', source)
-        self.assertIn("source_mutated"] = false", source)
+        self.assertIn('["source_mutated"] = false', source)
         self.assertNotIn("doc.Save(", source)
         self.assertNotIn("db.SaveAs(", source)
 
