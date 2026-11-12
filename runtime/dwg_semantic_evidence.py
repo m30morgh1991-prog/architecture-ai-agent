@@ -73,7 +73,7 @@ def _token_hits(name: str) -> set[str]:
 _LEVEL_NUMBER = r"\d+(?:[.,]\d+)?"
 _LEVEL_UNIT = r"(?:mm|cm|m)"
 _ELEVATION_CONTEXT_VALUE_RE = re.compile(
-    rf"(?:\b(?:RL|EL|FFL|T\.?O\.? )\b|کد\s*ارتفاعی|تراز|کف|ارتفاع)"
+    rf"(?:\b(?:RL|EL|FFL|T\.?O\.?\b|کد\s*ارتفاعی|تراز|کف|ارتفاع)"
     rf"\s*(?:[:=]\s*)?(?P<marker>±|[+-])?\s*"
     rf"(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})?",
     re.IGNORECASE,
