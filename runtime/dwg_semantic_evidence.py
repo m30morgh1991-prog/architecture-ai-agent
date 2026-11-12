@@ -86,6 +86,8 @@ _UNIT_LEVEL_VALUE_RE = re.compile(
     rf"(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})",
     re.IGNORECASE,
 )
+_ANY_LEVEL_NUMBER_RE = re.compile(rf"(?P<value>{_LEVEL_NUMBER})", re.IGNORECASE)
+
 _LEVEL_CONTEXT_RE = re.compile(
     r"(?:\b(?:RL|EL|FFL|T\.?O\.?|LEVEL|LVL)\b|کد\s*ارتفاعی|تراز|کف|ارتفاع)",
     re.IGNORECASE,
@@ -102,11 +104,27 @@ def _level_candidate(text: str, handle: int, source_sha256: str, source_units: A
         matches = list(_SIGNED_LEVEL_VALUE_RE.finditer(raw))
     if not matches:
         matches = list(_UNIT_LEVEL_VALUE_RE.finditer(raw))
-    if not matches:
-        # A floor index such as LEVEL 2 is not an elevation.
-        return None
-
     context = bool(_LEVEL_CONTEXT_RE.search(raw))
+    if not matches:
+        # Preserve numeric annotation as UNKNOWN evidence, but never promote it
+        # to an elevation without an elevation marker or explicit sign.
+        number = _ANY_LEVEL_NUMBER_RE.search(raw)
+        if not number:
+            return None
+        return {
+            "handle": handle,
+            "raw_text": raw,
+            "marker": "",
+            "candidate_value": number.group("value"),
+            "elevation": None,
+            "unit": "",
+            "context_explicit": context,
+            "provenance": "DIRECT",
+            "status": "UNKNOWN",
+            "reason": "NO_EXPLICIT_ELEVATION_CONTEXT",
+            "source_sha256": source_sha256,
+        }
+
     ambiguous = len(matches) != 1
     match = matches[0]
     marker = match.groupdict().get("marker") or ""
@@ -114,17 +132,25 @@ def _level_candidate(text: str, handle: int, source_sha256: str, source_units: A
     value = None if ambiguous else float(match.group("value").replace(",", "."))
     if not ambiguous and not unit:
         unit = str(source_units or "")
-    status = "SUPPORTED" if (not ambiguous and unit) else "UNKNOWN"
+    # An unsigned unit-bearing number without an elevation label is not enough.
+    has_explicit_elevation_context = bool(_ELEVATION_CONTEXT_VALUE_RE.search(raw))
+    has_explicit_sign = bool(marker)
+    supported = not ambiguous and bool(unit) and (has_explicit_elevation_context or has_explicit_sign)
+    status = "SUPPORTED" if supported else "UNKNOWN"
     return {
         "handle": handle,
         "raw_text": raw,
         "marker": marker,
-        "elevation": (value * (-1.0 if marker == "-" else 1.0)) if value is not None else None,
+        "candidate_value": match.group("value"),
+        "elevation": (value * (-1.0 if marker == "-" else 1.0)) if value is not None and supported else None,
         "unit": unit or "",
         "context_explicit": context,
         "provenance": "DIRECT",
         "status": status,
-        "reason": "AMBIGUOUS_ELEVATION_VALUES" if ambiguous else ("UNIT_UNKNOWN" if not unit else ""),
+        "reason": "AMBIGUOUS_ELEVATION_VALUES" if ambiguous else (
+            "NO_EXPLICIT_ELEVATION_CONTEXT" if not (has_explicit_elevation_context or has_explicit_sign)
+            else ("UNIT_UNKNOWN" if not unit else "")
+        ),
         "source_sha256": source_sha256,
     }
 
