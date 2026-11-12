@@ -55,8 +55,23 @@ def inspect_autodesk_export(export_path: str | Path, source_path: str | Path) ->
     if authority.get("semantic_authority") is not False or authority.get("compliance_assessed") is not False:
         return CADInspectionEvidence(ADAPTER_ID, actual, {"error": "AUTODESK_AUTHORITY_BOUNDARY_VIOLATION"}, "BLOCKED")
 
-    payload = {"schema": SCHEMA, "source_profile": profile, "source_integrity": integrity, "scope": scope, "layers": layers, "entities": entities, "authority": authority, "semantic_promotion": "NOT_PERMITTED"}
-    status = "NEEDS_REVIEW" if integrity.get("snapshot_binding_status") != "VERIFIED" or str(profile.get("insunits", "")).upper() in {"", "UNITLESS", "UNKNOWN"} else "READY"
-    result = CADInspectionEvidence(ADAPTER_ID, actual, payload, status)
+    # The exporter controls this JSON field. A self-asserted VERIFIED value is
+    # not independent proof that the in-memory AutoCAD Database matches disk bytes.
+    snapshot_assessment = "UNVERIFIED_EXPORTER_CLAIM_IGNORED"
+    payload = {
+        "schema": SCHEMA,
+        "source_profile": profile,
+        "source_integrity": integrity,
+        "snapshot_binding_assessment": snapshot_assessment,
+        "scope": scope,
+        "layers": layers,
+        "entities": entities,
+        "authority": authority,
+        "semantic_promotion": "NOT_PERMITTED",
+        "dimension_geometry_reconciliation": "NOT_PERFORMED",
+    }
+    # Disk hash continuity is useful evidence, but cannot independently bind the
+    # active in-memory database snapshot to the on-disk file. Never return READY.
+    result = CADInspectionEvidence(ADAPTER_ID, actual, payload, "NEEDS_REVIEW")
     result.validate(actual)
     return result
