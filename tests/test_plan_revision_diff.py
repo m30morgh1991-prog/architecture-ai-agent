@@ -1,7 +1,8 @@
 import unittest
 
 from runtime.plan_model_contract import PlanElement, PlanModel
-from runtime.plan_revision_diff import compute_revision_diff, revision_findings, to_post_edit_diff
+from runtime.plan_revision_diff import (CoordinateSystemEvidence, compute_revision_diff,
+                                        revision_findings, to_post_edit_diff)
 from runtime.review_report_contract import build_report
 
 SHA_A, SHA_B = "c" * 64, "d" * 64
@@ -16,8 +17,15 @@ def model(mid, sha, *elements):
     return PlanModel(mid, sha, 1, tuple(elements))
 
 
+def coordinate_evidence(**kw):
+    values = dict(base_frame_id="model-space-xy", revised_frame_id="model-space-xy",
+                  base_units="mm", revised_units="mm", evidence_ids=("coord:base", "coord:revision"))
+    values.update(kw)
+    return CoordinateSystemEvidence(**values)
+
+
 def diff(base, revised, **kw):
-    kw.setdefault("same_coordinate_frame", True)
+    kw.setdefault("coordinate_system_evidence", coordinate_evidence())
     return compute_revision_diff(base, revised, **kw)
 
 
@@ -33,8 +41,23 @@ class RevisionDiffTests(unittest.TestCase):
         self.assertEqual(revision_findings(d)[0].status, "PASS")
 
     def test_coordinate_frame_must_be_attested(self):
+        evidence = coordinate_evidence(revised_frame_id="different-frame")
         with self.assertRaisesRegex(ValueError, "COORDINATE_FRAME_NOT_ESTABLISHED"):
-            compute_revision_diff(self.base, self.base, same_coordinate_frame=False)
+            compute_revision_diff(self.base, self.base, coordinate_system_evidence=evidence)
+
+    def test_unit_mismatch_blocks_even_when_numeric_coordinates_match(self):
+        evidence = coordinate_evidence(base_units="mm", revised_units="in")
+        with self.assertRaisesRegex(ValueError, "UNIT_MISMATCH_NOT_ESTABLISHED"):
+            compute_revision_diff(self.base, self.base, coordinate_system_evidence=evidence)
+
+    def test_unknown_units_or_missing_provenance_block(self):
+        for evidence in (
+            coordinate_evidence(base_units="unitless"),
+            coordinate_evidence(evidence_ids=()),
+        ):
+            with self.subTest(evidence=evidence):
+                with self.assertRaises(ValueError):
+                    compute_revision_diff(self.base, self.base, coordinate_system_evidence=evidence)
 
     def test_negative_tolerance_rejected(self):
         with self.assertRaisesRegex(ValueError, "TOLERANCE_INVALID"):
