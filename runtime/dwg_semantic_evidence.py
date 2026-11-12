@@ -5,6 +5,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 from runtime.dwg_scale_unit_bridge import observe_dwg_scale_unit
+from runtime.dwg_geometry_evidence import extract_entity_geometry
 
 SEMANTIC_TOKENS = {
     "WALLS": ("WALL", "WALLS", "A-WALL"),
@@ -207,7 +208,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     layer_table, layer_names_by_handle = _read_layer_table(doc)
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
     geometry_counts = Counter()
-    text_evidence, dimension_evidence, level_evidence, section_marker_evidence = [], [], [], []
+    text_evidence, dimension_evidence, level_evidence, section_marker_evidence, geometry_evidence = [], [], [], [], []
     candidates = {k: [] for k in SEMANTIC_TOKENS}
 
     for entity in entities:
@@ -241,6 +242,9 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
                     section_marker_evidence.append(section_marker)
         if dxftype in {"LINE","LWPOLYLINE","ARC","CIRCLE","ELLIPSE","SPLINE","HATCH"}:
             geometry_counts[dxftype] += 1
+            geometry = extract_entity_geometry(entity, dxftype, handle)
+            if geometry is not None:
+                geometry_evidence.append(geometry)
         if dxftype in {"TEXT","MTEXT","ATTRIB","ATTDEF"}:
             text = str(getattr(entity, "text", None) or _value(entity, "text", ""))
             text_evidence.append({"handle":handle,"type":dxftype,
@@ -288,7 +292,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "layer_table_status":"SUPPORTED" if layer_table else "UNKNOWN",
         "block_counts":dict(sorted(block_counts.items())),
         "geometry_counts":dict(sorted(geometry_counts.items())),
-        "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
+        "text":text_evidence,"dimensions":dimension_evidence,"geometry":geometry_evidence,"levels":level_evidence,
         "section_markers":section_marker_evidence,
         "semantic_candidates":semantic_support,"header":header,
         "scale_unit_evidence":scale_unit_evidence,
