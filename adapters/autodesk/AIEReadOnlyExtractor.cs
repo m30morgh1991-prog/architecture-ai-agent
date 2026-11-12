@@ -1,5 +1,9 @@
 using System.Security.Cryptography;
-using Newtonsoft.Json;
+#if NETFRAMEWORK
+using System.Web.Script.Serialization;
+#else
+using System.Text.Json;
+#endif
 using Autodesk.AutoCAD.ApplicationServices;
 using Autodesk.AutoCAD.DatabaseServices;
 using Autodesk.AutoCAD.EditorInput;
@@ -57,7 +61,7 @@ public sealed class Commands
                 ["source_mutated"] = false, ["snapshot_binding_status"] = "NEEDS_REVIEW",
                 ["snapshot_binding_note"] = "Disk hash continuity is verified; in-memory database identity is not cryptographically proven."
             };
-            File.WriteAllText(output, JsonConvert.SerializeObject(result, Formatting.Indented), new System.Text.UTF8Encoding(false));
+            File.WriteAllText(output, SerializeJson(result), new System.Text.UTF8Encoding(false));
             ed.WriteMessage($"\nAIE: exported read-only evidence to {output}; source DWG was not saved or modified.");
         }
         catch (System.Exception ex)
@@ -151,6 +155,16 @@ public sealed class Commands
             ["layers"] = layers, ["entities"] = entities,
             ["authority"] = new { read_only = true, semantic_authority = false, compliance_assessed = false, generic_geometry_is_not_architectural_truth = true }
         };
+    }
+
+    private static string SerializeJson(Dictionary<string, object?> result)
+    {
+#if NETFRAMEWORK
+        var serializer = new JavaScriptSerializer { MaxJsonLength = int.MaxValue, RecursionLimit = 256 };
+        return serializer.Serialize(result);
+#else
+        return JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true });
+#endif
     }
 
     private static string HashFile(string path)
