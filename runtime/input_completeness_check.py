@@ -13,6 +13,7 @@ infers a missing value:
 from __future__ import annotations
 
 from typing import Any, Mapping
+import re
 
 from runtime.input_source_contract import SourceProfile
 from runtime.review_report_contract import Finding
@@ -27,6 +28,16 @@ _REQUIRED = (
     ("INPUT-TITLE-001", "title_block_fields_valid", "flag", "Title block fields"),
 )
 _INCH_UNITS = {"in", "inch", "inches"}
+_PLACEHOLDERS = {"", "?", "-", "unknown", "tbd", "n/a", "na", "none", "null",
+                 "not known", "not provided", "unspecified"}
+_SCALE_RE = re.compile(r"^(?:1\s*[:/]\s*\d+(?:[.,]\d+)?|\d+(?:[.,]\d+)?\s*[:/]\s*\d+(?:[.,]\d+)?)$")
+_UNIT_ALIASES = {
+    "mm", "millimeter", "millimeters", "millimetre", "millimetres",
+    "cm", "centimeter", "centimeters", "centimetre", "centimetres",
+    "m", "meter", "meters", "metre", "metres",
+    "in", "inch", "inches", "ft", "foot", "feet",
+}
+_UNITLESS = {"unitless", "unitless/unspecified", "no units"}
 
 
 def check_input_completeness(
@@ -45,13 +56,25 @@ def check_input_completeness(
     for check_id, key, kind, label in _REQUIRED:
         value = metadata.get(key)
         if kind == "text":
-            present = isinstance(value, str) and bool(value.strip())
-            if present:
-                status, severity, text = "PASS", "INFO", f"{label} supplied: {value.strip()}."
-            else:
+            normalized = value.strip().lower() if isinstance(value, str) else ""
+            if normalized in _PLACEHOLDERS:
                 status, severity, text = (
-                    "SOURCE_REQUIRED", "WARNING", f"{label} not supplied; it is not inferred.",
+                    "SOURCE_REQUIRED", "WARNING", f"{label} not supplied or marked unknown; it is not inferred.",
                 )
+            elif key == "scale" and not _SCALE_RE.fullmatch(normalized):
+                status, severity, text = (
+                    "NEEDS_REVIEW", "WARNING", f"{label} has an unrecognized format and requires inspection.",
+                )
+            elif key == "units" and normalized in _UNITLESS:
+                status, severity, text = (
+                    "NEEDS_REVIEW", "WARNING", f"{label} is explicitly unitless; effective units require review.",
+                )
+            elif key == "units" and normalized not in _UNIT_ALIASES:
+                status, severity, text = (
+                    "NEEDS_REVIEW", "WARNING", f"{label} is not a recognized unit token and requires inspection.",
+                )
+            else:
+                status, severity, text = "PASS", "INFO", f"{label} supplied: {value.strip()}."
         else:
             if value is True:
                 status, severity, text = "PASS", "INFO", f"{label} confirmed by evidence."
