@@ -9,7 +9,7 @@ This is a host-side AutoCAD .NET plug-in plus a provider-neutral Python evidence
 | AutoCAD 2020 | .NET Framework 4.7 (net47) | C:\Program Files\Autodesk\AutoCAD 2020 |
 | AutoCAD 2025/2026 | .NET 8 Windows (net8.0-windows) | C:\Program Files\Autodesk\AutoCAD 2025 |
 
-The two targets compile the same read-only extractor source against the host's own managed API assemblies. AutoCAD 2020 requires the .NET Framework 4.7 Developer/Targeting Pack on the build machine. The matching AutoCAD installation must provide AcCoreMgd.dll, AcDbMgd.dll, and AcMgd.dll.
+The two targets compile the same read-only extractor source against the host's own managed API assemblies. AutoCAD 2020 requires the .NET Framework 4.7 Developer/Targeting Pack on the build machine. Its JSON output uses the framework-provided System.Web.Extensions serializer, so no third-party JSON DLL is added to AutoCAD's process. The matching AutoCAD installation must provide AcCoreMgd.dll, AcDbMgd.dll, and AcMgd.dll.
 
 ## Build and run on Windows
 
