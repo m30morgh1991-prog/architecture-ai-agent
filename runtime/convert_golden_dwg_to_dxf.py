@@ -14,6 +14,8 @@ from typing import Any
 import ezdxf
 import ezdwg
 
+from runtime.dwg_layer_inventory import resolve_source_layer_names
+
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "test-assets/golden-understanding/golden_manifest.json"
 OUT = ROOT / "artifacts/golden-dwg-dxf-conversion"
@@ -54,37 +56,6 @@ def entity_layer(entity: Any) -> str:
             return str(dxf["layer"])
         except (KeyError, TypeError):
             return "0"
-
-
-def resolve_source_layer_names(
-    modelspace_handles: set[int],
-    entity_style_rows: Any,
-    layer_rows: Any,
-) -> tuple[list[str], list[int]]:
-    """Resolve modelspace layer names through DWG layer handles.
-
-    ezdwg's raw common-entity style rows expose layer handles; the layer table
-    maps those handles to names. Missing links are returned explicitly rather
-    than silently inventing layer "0".
-    """
-    layer_by_handle = {int(handle): str(name) for handle, name in layer_rows}
-    layer_handle_by_entity = {
-        int(handle): layer_handle
-        for handle, _color, _true_color, layer_handle in entity_style_rows
-    }
-    names: set[str] = set()
-    unresolved: list[int] = []
-    for handle in sorted(modelspace_handles):
-        layer_handle = layer_handle_by_entity.get(handle)
-        if layer_handle is None:
-            unresolved.append(handle)
-            continue
-        name = layer_by_handle.get(int(layer_handle))
-        if name is None:
-            unresolved.append(handle)
-            continue
-        names.add(name)
-    return sorted(names), unresolved
 
 
 def source_layer_inventory(source_path: Path, layout: Any) -> tuple[list[str], list[int]]:
