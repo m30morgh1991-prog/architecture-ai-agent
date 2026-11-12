@@ -16,10 +16,31 @@ def sha256_file(path: Path) -> str:
             digest.update(chunk)
     return digest.hexdigest()
 
+
+def geometry_csv_row(case_id: str, source_sha256: str, row: dict) -> dict:
+    """Serialize entity-specific geometry without implying coordinate-frame validation."""
+    json_fields = ("start", "end", "center", "major_axis", "vertices", "control_points")
+    result = {
+        "case_id": case_id, "source_sha256": source_sha256,
+        "handle": row.get("handle"), "entity_type": row.get("type"),
+        "layer": row.get("layer"), "coordinate_status": row.get("coordinate_status"),
+        "coordinate_frame_status": row.get("coordinate_frame_status", "UNKNOWN"),
+        "coordinate_frame_note": row.get("coordinate_frame_note", "Frame not reconciled."),
+        "radius": row.get("radius"), "ratio": row.get("ratio"),
+        "start_angle": row.get("start_angle"), "end_angle": row.get("end_angle"),
+        "start_param": row.get("start_param"), "end_param": row.get("end_param"),
+        "elevation": row.get("elevation"), "degree": row.get("degree"),
+        "closed": row.get("closed"), "provenance": row.get("provenance"),
+        "semantic_authority": row.get("semantic_authority"),
+    }
+    for key in json_fields:
+        result[key] = json.dumps(row.get(key), ensure_ascii=False)
+    return result
+
 def main() -> int:
     manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
     OUT.mkdir(parents=True, exist_ok=True)
-    summary, dimensions, texts, index = [], [], [], []
+    summary, dimensions, texts, geometry_rows, index = [], [], [], [], []
     for case in manifest['cases']:
         source = ROOT / case['source_path']
         if not source.is_file():
@@ -41,6 +62,8 @@ def main() -> int:
         summary.append({'case_id':case['case_id'],'source_path':case['source_path'],'sha256':before,'drawing_version':profile.get('version','UNKNOWN'),'decode_version':profile.get('decode_version','UNKNOWN'),'units_metadata':profile.get('units','UNKNOWN'),'insunits_code':profile.get('insunits'),'scale_unit':evidence.get('scale_unit_evidence',{}).get('unit','UNKNOWN'),'scale_unit_status':evidence.get('scale_unit_evidence',{}).get('status','UNKNOWN'),'scale_known':evidence.get('scale_unit_evidence',{}).get('scale_known',False),'entity_total':sum(evidence['entity_counts'].values()),'dimension_entity_count':len(evidence.get('dimensions',[])),'text_entity_count':len(evidence.get('text',[])),'layer_count':len(evidence.get('layer_counts',{})),'layer_table_count':len(evidence.get('layer_table',{})),'walls_candidate_status':evidence.get('semantic_candidates',{}).get('WALLS',{}).get('status','UNKNOWN'),'columns_candidate_status':evidence.get('semantic_candidates',{}).get('COLUMNS',{}).get('status','UNKNOWN'),'doors_candidate_status':evidence.get('semantic_candidates',{}).get('DOORS',{}).get('status','UNKNOWN'),'windows_candidate_status':evidence.get('semantic_candidates',{}).get('WINDOWS',{}).get('status','UNKNOWN'),'block_name_count':len(evidence.get('block_counts',{})),'extmin':json.dumps(evidence.get('header',{}).get('extmin'),ensure_ascii=False),'extmax':json.dumps(evidence.get('header',{}).get('extmax'),ensure_ascii=False),'source_mutated':False,'compliance_verdict':'NOT_ASSESSED','evidence_json':json_name})
         for row in evidence.get('dimensions',[]):
             dimensions.append({'case_id':case['case_id'],'source_sha256':before,'handle':row.get('handle'),'dimension_type':row.get('type'),'layer':row.get('layer'),'layer_handle':row.get('layer_handle'),'dimension_text':row.get('text'),'actual_measurement':json.dumps(row.get('actual_measurement'),ensure_ascii=False),'defpoint':json.dumps(row.get('defpoint'),ensure_ascii=False),'defpoint2':json.dumps(row.get('defpoint2'),ensure_ascii=False),'defpoint3':json.dumps(row.get('defpoint3'),ensure_ascii=False),'interpretation_status':'NEEDS_REVIEW'})
+        for row in evidence.get('geometry',[]):
+            geometry_rows.append(geometry_csv_row(case['case_id'], before, row))
         for row in evidence.get('text',[]):
             texts.append({'case_id':case['case_id'],'source_sha256':before,'handle':row.get('handle'),'entity_type':row.get('type'),'layer':row.get('layer'),'layer_handle':row.get('layer_handle'),'text':row.get('text'),'insert':json.dumps(row.get('insert'),ensure_ascii=False),'rotation':row.get('rotation')})
         index.append({'case_id':case['case_id'],'source_path':case['source_path'],'source_sha256':before,'evidence_json':json_name,'entity_counts':evidence['entity_counts'],'layer_counts':evidence['layer_counts'],'layer_table':evidence.get('layer_table',{}),'semantic_candidates':{k:v.get('status') for k,v in evidence.get('semantic_candidates',{}).items()},'block_counts':evidence['block_counts']})
@@ -49,7 +72,7 @@ def main() -> int:
             (OUT/name).write_text('no_rows_extracted\n',encoding='utf-8'); return
         with (OUT/name).open('w',newline='',encoding='utf-8-sig') as stream:
             writer=csv.DictWriter(stream,fieldnames=list(rows[0].keys())); writer.writeheader(); writer.writerows(rows)
-    write_csv('summary.csv',summary); write_csv('dimensions.csv',dimensions); write_csv('text-labels.csv',texts)
+    write_csv('summary.csv',summary); write_csv('dimensions.csv',dimensions); write_csv('text-labels.csv',texts); write_csv('geometry.csv',geometry_rows)
     (OUT/'index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2,sort_keys=True),encoding='utf-8')
     keywords = ('پارک','رمپ','خودرو','ماشین','ورودی','خروجی','شیب','تراز','ارتفاع','عرض','طول','ستون','PARK','GARAGE','RAMP','SLOPE','LEVEL','HEIGHT','ENTRANCE','EXIT','WIDTH','LENGTH','RADIUS','RAD.')
     review_text = [row for row in texts if any(key.lower() in str(row.get('text') or '').lower() for key in keywords)]
@@ -60,6 +83,7 @@ def main() -> int:
         'dimension_rows': dimensions,
         'parking_related_text_candidates': review_text,
         'all_text_row_count': len(texts),
+        'geometry_evidence_row_count': len(geometry_rows),
         'scale_unit_review': [{'case_id': row['case_id'], 'unit': row.get('scale_unit'), 'status': row.get('scale_unit_status'), 'scale_known': row.get('scale_known')} for row in summary],
         'golden_sources_mutated': False,
         'warning': 'Candidate text is not automatically interpreted as a rule or assigned to a parking element.'
