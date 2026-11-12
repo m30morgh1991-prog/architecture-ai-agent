@@ -33,6 +33,23 @@ class InputCompletenessTests(unittest.TestCase):
             self.assertEqual(f[cid].status, "SOURCE_REQUIRED", cid)
         self.assertEqual(build_report("r", "m", SHA, f.values()).overall_status, "SOURCE_REQUIRED")
 
+    def test_placeholder_scale_and_units_are_not_pass(self):
+        f = by_check(run(metadata=dict(FULL, scale="unknown", units="?")))
+        self.assertEqual(f["INPUT-SCALE-001"].status, "SOURCE_REQUIRED")
+        self.assertEqual(f["INPUT-UNITS-001"].status, "SOURCE_REQUIRED")
+
+    def test_malformed_scale_requires_review(self):
+        f = by_check(run(metadata=dict(FULL, scale="one hundred")))
+        self.assertEqual(f["INPUT-SCALE-001"].status, "NEEDS_REVIEW")
+
+    def test_unitless_metadata_requires_review(self):
+        f = by_check(run(metadata=dict(FULL, units="unitless")))
+        self.assertEqual(f["INPUT-UNITS-001"].status, "NEEDS_REVIEW")
+
+    def test_unknown_unit_token_requires_review(self):
+        f = by_check(run(metadata=dict(FULL, units="mystery-units")))
+        self.assertEqual(f["INPUT-UNITS-001"].status, "NEEDS_REVIEW")
+
     def test_none_metadata_behaves_like_empty(self):
         self.assertEqual(by_check(run(metadata=None))["INPUT-SCALE-001"].status, "SOURCE_REQUIRED")
 
