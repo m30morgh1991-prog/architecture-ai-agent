@@ -1,3 +1,19 @@
+## Continuation checkpoint — 2026-11-12 (blocker remediation)
+
+- PR #128 remains at exact head `d3b563f9741852bea4bef5a8a2708c8599218d9f`; PR CI, Runtime Tests, and Bug Hunt are completed/success. Its non-finite/boolean tolerance review finding is addressed in code and covered by negative tests. Human approval remains separate.
+- PR #129 remediation head is `f07d0ab589aeb2830236e248dba45cec8b1d231a`. The validator ignores exporter-supplied `snapshot_binding_status=VERIFIED` and always remains NEEDS_REVIEW; regression covers a forged claim. AlignedDimension exports XLine1Point, XLine2Point, and DimLinePoint in WCS; other dimension subtypes remain unsupported/NEEDS_REVIEW, and dimension-to-geometry reconciliation remains NOT_PERFORMED.
+- PR #127's parser-native geometry evidence helper and geometry CSV export have been ported into PR #129 to resolve the shared-file overlap. Geometry coordinate frame remains UNKNOWN; OCS/WCS and INSERT transforms are not reconciled; semantic authority remains false. PR #127 is not to be merged as a competing edit. It can be closed as superseded after #129 acceptance.
+- PR #130's snapshot-binding fix is also integrated into PR #129. Do not merge the stale stacked #130 branch separately. PR #132 remains based on #130 and must be refreshed/rebased onto the accepted parent chain before merge consideration.
+- PR #129 exact-head `f07d0ab...`: Bug Hunt, AgentShield, and read-only Golden export completed/success; PR CI and Runtime Tests are still in progress at checkpoint time. The prior Bug Hunt failure was only the missing required literal token `false pass`; the report now contains it and the exact-head Bug Hunt rerun passed.
+- PR #133 prior head `9faf9bb...` had all three required gates completed/success. This continuation checkpoint changes its head; fresh exact-head PR CI, Runtime Tests, and Bug Hunt are required.
+- Main SHA remains `4e7ede9bd3267ac2440ab55e1cdd4cba2fcd04f5`; mainline Green remains UNKNOWN until exact-main evidence exists.
+- PR #131 remains BLOCKED as a lossless DWG-to-DXF path after the 72,447 LINE-entity loss in its Golden fidelity test. Preserve Golden originals. AutoCAD-host `Database.DxfOut` remains a future disposable-copy experiment only.
+- PR #119 remains research-only until primary official Shiraz parking-rule text and effective amendments are verified.
+- Real Windows/AutoCAD build, NETLOAD, and disposable-host tests remain deliberately NOT_RUN until the user reinstalls Windows and required software. Do not treat this as failure or PASS.
+- No PR was merged or approved during this remediation. Do not bypass human approval or branch protections.
+
+---
+
 ## Live repository checkpoint — 2026-11-12 (refreshed after exact-head regression verification)
 
 - Current `main` SHA: `4e7ede9bd3267ac2440ab55e1cdd4cba2fcd04f5`. Exact-main combined-status and workflow-run queries returned no records. **Mainline Green remains UNKNOWN.**
