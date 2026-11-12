@@ -220,7 +220,8 @@ def main() -> int:
 
     overall = {
         "schema": "golden-dwg-dxf-conversion-report-v1",
-        "overall_status": "PASS" if all(row["status"] == "PASS" for row in reports) else "NEEDS_REVIEW",
+        "overall_status": "PASS" if all(row["status"] == "PASS" and row["native_dwg_write_probe"]["status"] == "PASS" for row in reports) else "NEEDS_REVIEW",
+        "native_writer_overall_status": "PASS" if all(row["native_dwg_write_probe"]["status"] == "PASS" for row in reports) else "BLOCKED",
         "source_files_modified": any(not row["source_unchanged"] for row in reports),
         "cases": reports,
         "safety_note": (
