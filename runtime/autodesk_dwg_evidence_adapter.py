@@ -21,7 +21,7 @@ def _sha256(path: Path) -> str:
 
 
 def inspect_autodesk_export(export_path: str | Path, source_path: str | Path) -> CADInspectionEvidence:
-    """Validate export identity/invariants; never promote CAD data to semantics."""
+    """Validate source identity/invariants without trusting exporter status claims."""
     export_file, source_file = Path(export_path), Path(source_path)
     if not export_file.is_file() or not source_file.is_file():
         return CADInspectionEvidence(ADAPTER_ID, "", {"error": "SOURCE_OR_EXPORT_MISSING"}, "BLOCKED")
@@ -55,8 +55,22 @@ def inspect_autodesk_export(export_path: str | Path, source_path: str | Path) ->
     if authority.get("semantic_authority") is not False or authority.get("compliance_assessed") is not False:
         return CADInspectionEvidence(ADAPTER_ID, actual, {"error": "AUTODESK_AUTHORITY_BOUNDARY_VIOLATION"}, "BLOCKED")
 
-    payload = {"schema": SCHEMA, "source_profile": profile, "source_integrity": integrity, "scope": scope, "layers": layers, "entities": entities, "authority": authority, "semantic_promotion": "NOT_PERMITTED"}
-    status = "NEEDS_REVIEW" if integrity.get("snapshot_binding_status") != "VERIFIED" or str(profile.get("insunits", "")).upper() in {"", "UNITLESS", "UNKNOWN"} else "READY"
-    result = CADInspectionEvidence(ADAPTER_ID, actual, payload, status)
+    # The exporter currently proves disk-hash continuity only. Its JSON status
+    # field is part of the untrusted payload and cannot independently prove that
+    # AutoCAD's in-memory Database snapshot is byte-identical to the disk file.
+    # Therefore even a claimed VERIFIED value must never promote this evidence.
+    payload = {
+        "schema": SCHEMA,
+        "source_profile": profile,
+        "source_integrity": integrity,
+        "scope": scope,
+        "layers": layers,
+        "entities": entities,
+        "authority": authority,
+        "semantic_promotion": "NOT_PERMITTED",
+        "snapshot_binding_assessment": "UNVERIFIED_EXPORTER_CLAIM_IGNORED",
+        "acceptance_note": "Disk SHA-256 continuity is checked; in-memory AutoCAD Database to disk-byte binding is not independently proven.",
+    }
+    result = CADInspectionEvidence(ADAPTER_ID, actual, payload, "NEEDS_REVIEW")
     result.validate(actual)
     return result
