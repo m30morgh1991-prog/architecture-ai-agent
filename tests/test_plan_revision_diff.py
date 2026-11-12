@@ -39,6 +39,7 @@ class RevisionDiffTests(unittest.TestCase):
         self.assertEqual(d.changes, ())
         self.assertTrue(d.clean)
         self.assertEqual(revision_findings(d)[0].status, "PASS")
+        self.assertIn("coord:base", revision_findings(d)[0].evidence_ids)
 
     def test_coordinate_frame_must_be_attested(self):
         evidence = coordinate_evidence(revised_frame_id="different-frame")
