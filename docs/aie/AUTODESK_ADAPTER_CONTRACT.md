@@ -1,12 +1,19 @@
-# Autodesk AutoCAD Read-only Extractor Contract — v0.1
+# Autodesk AutoCAD Read-only Extractor Contract — v0.2
 
 ## Ownership
 
 Autodesk is an evidence adapter only. AIE owns the canonical PlanModel, ConstraintMap, approval lifecycle, validation policy, and audit. The adapter must not create a parallel semantic graph or mutate canonical state. This is a local AutoCAD .NET integration, not the Autodesk Product Help connector and not a mandatory APS cloud dependency.
 
-## Host implementation
+## Host implementation and compatibility
 
-The initial plug-in targets AutoCAD 2025/2026 / .NET 8 and runs inside the AutoCAD process using the matching managed assemblies. AIEEXPORTREADONLY requires a named, unmodified active drawing; reads Model Space entities and layer records with OpenMode.ForRead; exports entity handles/types/layers, extents, supported primitive geometry, text, dimensions, block-reference identity/transforms, drawing version, and INSUNITS; hashes the source before and after; and writes a separate JSON evidence file. It never saves the DWG.
+The same read-only C# source supports two separately compiled host targets:
+
+- AutoCAD 2020: AutoCAD Managed .NET SDK 23.1, .NET Framework 4.7 (net47).
+- AutoCAD 2025/2026: .NET 8 Windows (net8.0-windows).
+
+Each target must compile against the matching host installation's AcCoreMgd.dll, AcDbMgd.dll, and AcMgd.dll. Do not copy Autodesk managed assemblies into the plugin output or ship them as private dependencies. The build must use the installed AutoCAD version's SDK assemblies; API compatibility is release-specific.
+
+The command AIEEXPORTREADONLY requires a named, unmodified active drawing; reads Model Space entities and layer records with OpenMode.ForRead; exports entity handles/types/layers, extents, supported primitive geometry, text, dimensions, block-reference identity/transforms, drawing version, and INSUNITS; hashes the source before and after; and writes a separate JSON evidence file. It never saves the DWG.
 
 ## Python validation boundary
 
@@ -20,4 +27,4 @@ Paper Space, recursive block expansion, xrefs, proxy/custom objects, full associ
 
 ## Verification
 
-AutoCAD 2027 uses .NET 10 and requires a separately retargeted build. Generic CI tests the Python contract only. The C# plug-in must be built against an installed AutoCAD 2025+ managed API and smoke-tested on a disposable DWG copy. Golden DWGs remain immutable; no host test may save or overwrite them.
+Generic CI can validate Python contracts and source-level policy, but cannot prove that either C# target compiles against an installed AutoCAD host. AutoCAD 2020 needs the .NET Framework 4.7 Developer/Targeting Pack and its own managed assemblies. Each target must pass a real host build and smoke test on a disposable DWG copy. Golden DWGs remain immutable; no host test may save or overwrite them.
