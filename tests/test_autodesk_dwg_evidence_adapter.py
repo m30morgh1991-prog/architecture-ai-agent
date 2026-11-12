@@ -33,13 +33,22 @@ class AutodeskDwgEvidenceAdapterTests(unittest.TestCase):
     def write_export(self, data=None):
         self.export.write_text(json.dumps(data or self.envelope()), encoding="utf-8")
 
-    def test_valid_export_is_bound_but_snapshot_stays_needs_review(self):
+    def test_valid_export_remains_needs_review(self):
         self.write_export()
         result = inspect_autodesk_export(self.export, self.source)
         self.assertEqual(result.status, "NEEDS_REVIEW")
         self.assertEqual(result.source_sha256, self.sha)
         self.assertEqual(result.payload["semantic_promotion"], "NOT_PERMITTED")
+        self.assertEqual(result.payload["snapshot_binding_assessment"], "UNVERIFIED_EXPORTER_CLAIM_IGNORED")
         result.validate(self.sha)
+
+    def test_forged_verified_snapshot_claim_cannot_produce_ready(self):
+        data = self.envelope()
+        data["source_integrity"]["snapshot_binding_status"] = "VERIFIED"
+        self.write_export(data)
+        result = inspect_autodesk_export(self.export, self.source)
+        self.assertEqual(result.status, "NEEDS_REVIEW")
+        self.assertEqual(result.payload["snapshot_binding_assessment"], "UNVERIFIED_EXPORTER_CLAIM_IGNORED")
 
     def test_changed_source_blocks(self):
         data = self.envelope()
