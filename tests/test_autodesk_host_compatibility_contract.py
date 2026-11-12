@@ -27,9 +27,9 @@ class AutodeskHostCompatibilityContractTests(unittest.TestCase):
 
     def test_framework_compatible_json_and_sha256_apis_are_used(self):
         source = SOURCE.read_text(encoding="utf-8")
-        self.assertIn("Newtonsoft.Json", source)
-        self.assertIn("JsonConvert.SerializeObject", source)
-        self.assertNotIn("System.Text.Json", source)
+        self.assertIn("#if NETFRAMEWORK", source)
+        self.assertIn("JavaScriptSerializer", source)
+        self.assertIn("JsonSerializer.Serialize", source)
         self.assertNotIn("Convert.ToHexString", source)
 
     def test_extractor_remains_read_only_and_fail_closed(self):
