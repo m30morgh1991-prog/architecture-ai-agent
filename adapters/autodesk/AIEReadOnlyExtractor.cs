@@ -129,8 +129,20 @@ public sealed class Commands
                     case MText x:
                         row["text"] = x.Contents; row["position_wcs"] = Point(x.Location); row["rotation_radians"] = x.Rotation;
                         break;
+                    case AlignedDimension x:
+                        row["dimension"] = new { dimension_text_override = x.DimensionText, measurement = Measurement(x), dimension_type = x.GetType().Name };
+                        row["dimension_definition_points_wcs"] = new
+                        {
+                            xline1_point = Point(x.XLine1Point),
+                            xline2_point = Point(x.XLine2Point),
+                            dimension_line_point = Point(x.DimLinePoint)
+                        };
+                        row["dimension_geometry_reconciliation"] = "NOT_PERFORMED";
+                        break;
                     case Dimension x:
                         row["dimension"] = new { dimension_text_override = x.DimensionText, measurement = Measurement(x), dimension_type = x.GetType().Name };
+                        row["dimension_definition_points_status"] = "UNSUPPORTED_SUBTYPE_NEEDS_REVIEW";
+                        row["dimension_geometry_reconciliation"] = "NOT_PERFORMED";
                         break;
                     case BlockReference x:
                         string name = "";
