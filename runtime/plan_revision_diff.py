@@ -89,7 +89,7 @@ class RevisionDiff:
     def validate(self) -> None:
         if not self.diff_id or not self.base_model_id or not self.revised_model_id:
             raise ValueError("REVISION_DIFF_TRACEABILITY_MISSING")
-        if not self.coordinate_frame_id or not self.units or not self.coordinate_evidence_ids:
+        if not self.coordinate_frame_id or not self.units or not self.coordinate_evidence_ids or not all(self.coordinate_evidence_ids):
             raise ValueError("REVISION_DIFF_COORDINATE_PROVENANCE_MISSING")
         for change in self.changes:
             if not change.element_id or change.change_type not in CHANGE_TYPES:
@@ -190,7 +190,7 @@ def compute_revision_diff(
 
 def revision_findings(diff: RevisionDiff) -> tuple[Finding, ...]:
     diff.validate()
-    evidence = (f"diff:{diff.diff_id}",)
+    evidence = (f"diff:{diff.diff_id}", *diff.coordinate_evidence_ids)
     if not diff.changes:
         return (
             Finding(
