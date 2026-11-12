@@ -1,0 +1,40 @@
+name: Golden DWG to DXF Fidelity Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'runtime/convert_golden_dwg_to_dxf.py'
+      - 'test-assets/golden-projects/**'
+      - 'test-assets/golden-understanding/golden_manifest.json'
+      - '.github/workflows/golden-dwg-dxf-conversion.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  convert-and-compare:
+    name: Convert Golden DWGs and independently reopen DXF
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install project dependencies and DXF export extra
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt "ezdwg[dxf]>=0.19.2,<0.20"
+      - name: Convert Golden DWGs and compare source against DXF
+        run: python -m runtime.convert_golden_dwg_to_dxf
+      - name: Upload conversion outputs and fidelity reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-dwg-dxf-conversion-${{ github.sha }}
+          path: artifacts/golden-dwg-dxf-conversion/
+          if-no-files-found: error
+          retention-days: 14
