@@ -1,3 +1,29 @@
+## Live repository checkpoint — 2026-11-12 (refreshed from live GitHub)
+
+- Current `main` SHA: `4e7ede9bd3267ac2440ab55e1cdd4cba2fcd04f5`. This is the PR #126 merge commit, which repairs the durable checkpoint and Bug Hunt handoff.
+- Mainline combined-status query for this exact SHA returned no status records. **Post-merge mainline Green is UNKNOWN; do not claim it.**
+- Current open PR inventory checked 2026-11-12: #119, #127, #128, #129, #130, #131, #132. PR #126 is merged. No PR was approved, merged, or closed during this checkpoint refresh.
+- PR #119 (Shiraz parking-rule/source audit) remains research-only. Its branch is 4 commits ahead and 6 behind current main (diverged; merge base `4c167caace10afe2806439f0f260bb544f95b7d0`). Refresh/rebase and re-verify every source before considering it; secondary-source values are not current regulatory authority.
+- PR #127 (read-only Golden DWG geometry coordinates) remains open. Its branch is 19 commits ahead and 1 behind current main (diverged; merge base `30e141bfb644d120e53c57070cd200df8fdbeeae`). Previously reported exact-head checks passed on `4a3642bc88314af58c56a628ce40c058fd8dd2a6`, but that evidence does not validate the current branch after main advanced. OCS/WCS and INSERT transform reconciliation remain UNKNOWN.
+- PR #128 (review reporting, input completeness, PlanModel revision diff) remains open. Its branch is 3 commits ahead and 1 behind current main (diverged; same merge base `30e141bfb644d120e53c57070cd200df8fdbeeae`). Previously reported checks passed on `3af9328a90909191ce494287f59f95f8a48d2650`; helpers are additive and not yet wired into the runtime pipeline. Refresh and rerun exact-head gates before merge consideration.
+- PR #129 (AIE v0.1 + Autodesk read-only evidence extractor) remains open on branch `docs/aie-architecture-v0.1`, 22 commits ahead and 1 behind main (diverged). Previously reported checks passed on `4924622886aa00d7f1c039e010269b7d47f7c359`; review state was COMMENTED, not APPROVED. The adapter remains read-only evidence only and has no semantic or compliance authority.
+- PR #130 (fail-closed AutoCAD snapshot binding) remains open and stacked on PR #129. Its branch is 25 commits ahead and 1 behind main (diverged). Previously reported checks passed on `925fdbf843b6bb9ab3cd82e93be5b09f6d340eab`; those checks do not replace current exact-head verification. Do not merge it before PR #129 is accepted.
+- PR #131 (Golden DWG-to-DXF fidelity experiment) remains open and is based directly on current main. Its branch is 18 commits ahead and 0 behind main. Latest branch commit: `614282d80bcd75ece12ace71b7f7bfd208a69a4a`. On this head, Golden DXF workflow #43269669100, Runtime Tests #43269669184, and Bug Hunt #43269669177 were queued at the time of this checkpoint; no result is claimed. The preceding exact-head conversion run #43263620475 failed the fidelity gate, while PR CI #43263620467, Runtime #43263620839, Bug Hunt #43263620282, and AgentShield #43263620502 succeeded. The conversion report found major entity losses and blocked native DWG writing. A separate source-layer inventory defect (defaulting unresolved source layer names to `0`) was corrected using raw entity-style and layer-table handle mapping, with three focused regression tests. The new run must confirm that correction. The original Golden DWGs remained unchanged by the observed run; SHA-256 before/after matched.
+- PR #132 (AutoCAD 2020 host target) remains open and stacked on PR #130, which itself depends on PR #129. Its source branch is 42 commits ahead and 1 behind main because it inherits that stack; this is not a direct-main PR. It adds a .NET Framework 4.7 target alongside .NET 8. Generic/static tests cannot prove compatibility with a real AutoCAD 2020 host. Actual Windows build, NETLOAD, and disposable-DWG smoke test remain NOT_RUN. Do not merge out of dependency order.
+- Golden DWGs `bagheri7.dwg` and `afifiiiii.end.edit3.dwg` remain immutable regression inputs. No conversion output is accepted as a replacement source unless all fidelity checks pass. INSUNITS is metadata, not proof of drawing scale.
+- Autodesk extraction remains evidence-only. Snapshot binding remains NEEDS_REVIEW until in-memory database identity is proven against disk bytes. No semantic promotion, geometry association, unit conversion, regulatory PASS, approval bypass, or H-stage advancement is authorized by this checkpoint.
+- H100 remains active; H101 remains LOCKED until H100 Golden Understanding acceptance evidence is complete and verified.
+
+### Immediate continuation order
+1. Verify the three queued PR #131 workflows on exact head `614282d80bcd75ece12ace71b7f7bfd208a69a4a`. Inspect the uploaded fidelity report; keep PR #131 blocked if any entity/layer discrepancy or native-writer BLOCKED state remains.
+2. Review the source-layer handle mapping test results and compare exact source/output entity inventories. Do not treat DXF parse success as fidelity PASS.
+3. Refresh PRs #127 and #128 against current main before any merge decision; preserve UNKNOWN coordinate-frame states.
+4. Review PR #129 first, then PR #130; keep PR #132 stacked until both parents are accepted. Require a real AutoCAD 2020 Windows host build and disposable-drawing smoke test before operational acceptance.
+5. Refresh PR #119 only when authoritative current Shiraz/Iran sources can be verified. Do not promote research notes to live rule thresholds.
+6. Recheck mainline CI status after any merge; empty/unavailable status evidence is UNKNOWN, not Green.
+
+---
+
 ## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
 
 - Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
