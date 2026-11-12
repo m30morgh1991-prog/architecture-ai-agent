@@ -23,8 +23,12 @@ class TestGoldenDwgSemanticExtraction(unittest.TestCase):
                 self.assertAlmostEqual(evidence["elevation"], expected)
                 self.assertEqual(evidence["unit"], "m")
 
-    def test_floor_index_alone_is_not_elevation(self):
-        self.assertIsNone(_level_candidate("LEVEL 2", 18, "fixture-sha", "m"))
+    def test_floor_index_alone_is_unknown_not_elevation(self):
+        evidence = _level_candidate("LEVEL 2", 18, "fixture-sha", "m")
+        self.assertIsNotNone(evidence)
+        self.assertEqual(evidence["status"], "UNKNOWN")
+        self.assertIsNone(evidence["elevation"])
+        self.assertEqual(evidence["reason"], "NO_EXPLICIT_ELEVATION_CONTEXT")
 
     def test_missing_units_remain_unknown(self):
         evidence = _level_candidate("FFL +3.20", 20, "fixture-sha", None)
