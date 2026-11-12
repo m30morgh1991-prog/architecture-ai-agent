@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import unittest
 
-from runtime.convert_golden_dwg_to_dxf import resolve_source_layer_names
+from runtime.dwg_layer_inventory import resolve_source_layer_names
 
 
 class TestGoldenDwgDxfLayerInventory(unittest.TestCase):
