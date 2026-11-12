@@ -143,6 +143,42 @@ def main() -> int:
         }
         status = "PASS" if all(checks.values()) else "NEEDS_REVIEW"
 
+        # Probe the native DWG writer separately. Strict mode must refuse
+        # unsupported/lossy imports instead of silently producing a partial copy.
+        native_output = OUT / f"{case['case_id'].lower()}-strict-writer-probe.dwg"
+        native_write: dict[str, Any] = {
+            "status": "BLOCKED",
+            "target_version": "AC1015",
+            "output_created": False,
+        }
+        try:
+            editable = source_doc.edit(strict=True, version="AC1015")
+            write_result = editable.save(str(native_output), strict=True)
+            native_output_doc = ezdwg.read(str(native_output))
+            native_output_counts = entity_counts(native_output_doc.modelspace())
+            native_write = {
+                "status": "PASS" if native_output_counts == source_counts else "NEEDS_REVIEW",
+                "target_version": "AC1015",
+                "output_created": native_output.is_file(),
+                "output_size_bytes": native_output.stat().st_size if native_output.is_file() else 0,
+                "written_entities": int(getattr(write_result, "written_entities", 0)),
+                "total_entities": int(getattr(write_result, "total_entities", 0)),
+                "skipped_entities": int(getattr(write_result, "skipped_entities", 0)),
+                "skipped_by_type": dict(getattr(write_result, "skipped_by_type", {}) or {}),
+                "output_entity_counts": native_output_counts,
+                "entity_counts_identical": native_output_counts == source_counts,
+                "output_reopened_by_ezdwg": True,
+            }
+        except Exception as exc:
+            native_write = {
+                "status": "BLOCKED",
+                "target_version": "AC1015",
+                "output_created": native_output.is_file(),
+                "error_type": type(exc).__name__,
+                "error": str(exc)[:2000],
+                "strict_mode": True,
+            }
+
         report = {
             "case_id": case["case_id"],
             "source_path": case["source_path"],
@@ -156,6 +192,7 @@ def main() -> int:
             "output_path": str(output.relative_to(ROOT)),
             "output_size_bytes": output.stat().st_size,
             "conversion": conversion,
+            "native_dwg_write_probe": native_write,
             "source_entity_counts": source_counts,
             "converted_entity_counts": converted_counts,
             "entity_count_deltas_converted_minus_source": type_deltas,
