@@ -56,6 +56,50 @@ def entity_layer(entity: Any) -> str:
             return "0"
 
 
+def resolve_source_layer_names(
+    modelspace_handles: set[int],
+    entity_style_rows: Any,
+    layer_rows: Any,
+) -> tuple[list[str], list[int]]:
+    """Resolve modelspace layer names through DWG layer handles.
+
+    ezdwg's raw common-entity style rows expose layer handles; the layer table
+    maps those handles to names. Missing links are returned explicitly rather
+    than silently inventing layer "0".
+    """
+    layer_by_handle = {int(handle): str(name) for handle, name in layer_rows}
+    layer_handle_by_entity = {
+        int(handle): layer_handle
+        for handle, _color, _true_color, layer_handle in entity_style_rows
+    }
+    names: set[str] = set()
+    unresolved: list[int] = []
+    for handle in sorted(modelspace_handles):
+        layer_handle = layer_handle_by_entity.get(handle)
+        if layer_handle is None:
+            unresolved.append(handle)
+            continue
+        name = layer_by_handle.get(int(layer_handle))
+        if name is None:
+            unresolved.append(handle)
+            continue
+        names.add(name)
+    return sorted(names), unresolved
+
+
+def source_layer_inventory(source_path: Path, layout: Any) -> tuple[list[str], list[int]]:
+    handles = {
+        int(entity.handle)
+        for entity in iter_entities(layout)
+        if getattr(entity, "handle", None) is not None
+    }
+    if not handles:
+        return [], []
+    style_rows = ezdwg.raw.decode_entity_styles(str(source_path))
+    layer_rows = ezdwg.raw.decode_layer_names(str(source_path))
+    return resolve_source_layer_names(handles, style_rows, layer_rows)
+
+
 def entity_counts(layout: Any) -> dict[str, int]:
     return dict(sorted(Counter(entity_type(entity) for entity in iter_entities(layout)).items()))
 
@@ -94,7 +138,17 @@ def main() -> int:
         source_doc = ezdwg.read(str(source))
         source_msp = source_doc.modelspace()
         source_counts = entity_counts(source_msp)
-        source_layers = layer_names(source_msp)
+        source_layer_inventory_error = None
+        try:
+            source_layers, source_layer_unresolved_handles = source_layer_inventory(source, source_msp)
+        except Exception as exc:
+            source_layers = []
+            source_layer_unresolved_handles = sorted(
+                int(entity.handle)
+                for entity in iter_entities(source_msp)
+                if getattr(entity, "handle", None) is not None
+            )
+            source_layer_inventory_error = f"{type(exc).__name__}: {exc}"[:2000]
 
         output = OUT / f"{case['case_id'].lower()}.dxf"
         result = ezdwg.to_dxf(
@@ -137,7 +191,10 @@ def main() -> int:
             "output_reopened_by_ezdxf": True,
             "no_skipped_entities": conversion["skipped_entities"] == 0,
             "entity_counts_identical": not type_deltas,
-            "all_source_used_layers_present_in_output_table": not missing_layers,
+            "source_layer_inventory_complete": not source_layer_unresolved_handles and bool(source_layers),
+            "all_source_used_layers_present_in_output_table": (
+                not source_layer_unresolved_handles and not missing_layers
+            ),
             "no_dxf_audit_errors": audit_errors == 0,
             "no_dxf_audit_fixes": audit_fixes == 0,
         }
@@ -197,6 +254,9 @@ def main() -> int:
             "converted_entity_counts": converted_counts,
             "entity_count_deltas_converted_minus_source": type_deltas,
             "source_layer_names": source_layers,
+            "source_layer_inventory_unresolved_count": len(source_layer_unresolved_handles),
+            "source_layer_inventory_unresolved_handles_sample": source_layer_unresolved_handles[:50],
+            "source_layer_inventory_error": source_layer_inventory_error,
             "converted_layer_names": converted_layers,
             "converted_layer_table_names": converted_layer_table,
             "missing_layer_names": missing_layers,
