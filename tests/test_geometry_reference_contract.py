@@ -106,6 +106,15 @@ class GeometryReferenceContractTests(unittest.TestCase):
                 transform_evidence_ids=["calibration-01"],
             )
 
+    def test_pixel_transform_rejects_projective_matrix(self):
+        with self.assertRaisesRegex(
+            ValueError, "GEOMETRY_REFERENCE_PIXEL_TRANSFORM_NOT_AFFINE"
+        ):
+            self.base(
+                pixel_to_world_transform=[1, 0, 0, 0, 1, 0, 0.1, 0, 1],
+                transform_evidence_ids=["calibration-01"],
+            )
+
     def test_pixel_transform_rejects_non_finite_and_boolean_values(self):
         for invalid in (float("nan"), float("inf"), True):
             matrix = [1, 0, 0, 0, 1, 0, 0, 0, 1]
