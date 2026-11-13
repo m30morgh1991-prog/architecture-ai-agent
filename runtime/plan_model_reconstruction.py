@@ -92,6 +92,28 @@ def build_plan_model_from_detection(
         unique.append(item)
 
     unresolved.update(ALLOWED_ELEMENT_TYPES - {e.element_type for e in elements if e.state == "LOCKED"})
+
+    # Record detector gaps explicitly. A missing candidate is not evidence that
+    # an element is absent, but every unresolved required type still needs a
+    # source-bound UNKNOWN evidence reference for downstream ConstraintMap use.
+    evidence_types = {item["element_type"] for item in unique}
+    for element_type in sorted(unresolved):
+        if element_type in evidence_types:
+            continue
+        unique.append({
+            "evidence_id": f"unknown-detection:{source_sha256[:16]}:{element_type}",
+            "source_sha256": source_sha256,
+            "kind": "UNKNOWN",
+            "element_type": element_type,
+            "status": "UNKNOWN",
+            "description": (
+                "No candidate evidence was emitted for this required element type; "
+                "absence of detection is not evidence of absence."
+            ),
+            "native_id": None,
+            "confidence": 0.0,
+        })
+
     bundle = build_element_evidence_bundle(
         bundle_id=f"{model_id}:evidence",
         source_sha256=source_sha256,
