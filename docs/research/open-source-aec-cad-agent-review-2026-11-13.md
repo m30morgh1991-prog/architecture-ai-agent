@@ -82,3 +82,17 @@ Agent-CAD demonstrates useful ideas around typed intermediate representations, i
 ## Evidence limits
 
 This is source/README/license-surface research, not a runtime integration test. Upstream feature counts, test counts, performance claims, and compatibility claims have not been reproduced by this repository. License notes are preliminary engineering triage, not legal advice. No external code or dataset has been copied and no runtime dependency has been added.
+
+## Upstream CI and maintenance audit — 2026-11-13
+
+### U-C4N/Autocad-MCP snapshot
+
+- Exact upstream main commit reviewed: `6f6a538255ca9f885232e845ac32f10b4433fe3e`.
+- Repository metadata declares MIT; pyproject declares Python >=3.11 and direct dependencies FastMCP 3.x, ezdxf 1.x and Pydantic 2.x. COM is an optional Windows extra; headless DXF is the default alternative.
+- Locked CI from 2026-11-06 passed on Linux (Python 3.11/3.12) and Windows (Python 3.11), along with lint/package checks.
+- Scheduled floating-dependency CI from 2026-11-09 failed on both Python 3.11 and 3.12: 7,261 passed, 319 skipped, 1 xfailed, 2 failed in each lane.
+- Failures: benchmark report pinned expectation mismatch (ezdxf 1.4.5 expected vs 1.4.4 resolved) and nested `pytest.approx` usage in entity property tests.
+
+**Decision update:** retain AutoCAD-MCP as a promising adapter candidate, but downgrade from "pilot-ready without caveat" to **conditional pilot candidate**. Pin upstream commit and all dependencies; do not copy its floating dependency ranges into our core. Our own disposable-DXF compatibility tests are mandatory before adoption. A red floating-dependency lane is a maintenance risk and must remain visible in future reviews.
+
+This audit only observes upstream CI evidence; it does not mean we ran the upstream suite or server ourselves.
