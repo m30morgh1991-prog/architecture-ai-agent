@@ -24,6 +24,38 @@ class H70PlanModelReconstructionTests(unittest.TestCase):
         self.assertIn("WALLS", result.plan_model.unresolved)
         result.plan_model.validate()
 
+
+    def test_empty_detection_records_unknown_evidence_for_every_unresolved_type(self):
+        result = build_plan_model_from_detection(
+            model_id="PM-EMPTY",
+            source_sha256=self.SHA,
+            detection_result={
+                "source_sha256": self.SHA,
+                "candidates": [],
+                "unresolved_fixed_element_types": [
+                    "COLUMNS", "OUTER_BOUNDARY", "WALLS",
+                    "DOORS", "WINDOWS", "OVERALL_PLAN_FORM",
+                ],
+            },
+        )
+
+        self.assertEqual(result.plan_model.elements, ())
+        self.assertEqual(len(result.evidence_bundle.evidences), 6)
+        self.assertEqual(
+            {item.status for item in result.evidence_bundle.evidences},
+            {"UNKNOWN"},
+        )
+        self.assertEqual(
+            {item.kind for item in result.evidence_bundle.evidences},
+            {"UNKNOWN"},
+        )
+        self.assertTrue(all(item.source_sha256 == self.SHA
+                            for item in result.evidence_bundle.evidences))
+        self.assertTrue(all("absence of detection is not evidence of absence"
+                            in item.description
+                            for item in result.evidence_bundle.evidences))
+        result.validate()
+
     def test_source_mismatch_rejected(self):
         with self.assertRaisesRegex(ValueError, "PLAN_RECONSTRUCTION_SOURCE_MISMATCH"):
             build_plan_model_from_detection(model_id="PM01", source_sha256=self.SHA, detection_result={**self.detection(), "source_sha256": "b" * 64})
