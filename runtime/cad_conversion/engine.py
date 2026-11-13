@@ -83,6 +83,8 @@ class CadConversionEngine:
 
         if source_hash_before != source_hash_after or not result.source_unchanged:
             raise ConversionError("SOURCE_MUTATED", "Provider changed the source DWG; result is rejected.")
+        if result.source_sha256 != source_hash_before:
+            raise ConversionError("PROVIDER_SOURCE_HASH_MISMATCH", "Provider source hash does not match the original snapshot.")
         if result.source_path.resolve() != source or result.output_path.resolve() != destination:
             raise ConversionError("PROVIDER_PATH_MISMATCH", "Provider result paths do not match the requested files.")
         if not destination.is_file() or destination.stat().st_size == 0:
