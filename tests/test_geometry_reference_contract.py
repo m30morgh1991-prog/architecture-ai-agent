@@ -51,6 +51,18 @@ class GeometryReferenceContractTests(unittest.TestCase):
         self.assertAlmostEqual(ref.square_metre_factor, 1e-6)
         self.assertTrue(ref.can_report_area_m2)
 
+    def test_supported_unit_rejects_uncertain_evidence_record(self):
+        with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_UNIT_EVIDENCE_NOT_SUPPORTED"):
+            self.base(
+                linear_unit="MM", unit_status="SUPPORTED",
+                unit_evidence_ids=["unit-uncertain"],
+                evidence_records=[{
+                    "evidence_id": "unit-uncertain", "source_sha256": "a" * 64,
+                    "domain": "UNIT", "status": "UNCERTAIN",
+                    "source_ref": "ambiguous-header", "value": "MM",
+                }],
+            )
+
     def test_insunits_or_unit_label_without_supported_status_does_not_convert(self):
         ref = self.base(linear_unit="IN", unit_status="UNKNOWN")
         self.assertIsNone(ref.square_metre_factor)
