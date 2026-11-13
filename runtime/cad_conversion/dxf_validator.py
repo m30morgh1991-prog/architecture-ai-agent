@@ -139,7 +139,8 @@ class DxfValidator:
                 if kind == "DIMENSION":
                     dimension_count += 1
 
-        for block in document.blocks:
+        user_blocks = [block for block in document.blocks if not getattr(block, "is_any_layout", False)]
+        for block in user_blocks:
             for entity in block:
                 block_counts[entity.dxftype()] += 1
 
@@ -166,7 +167,7 @@ class DxfValidator:
             entity_count=sum(layout_counts.values()),
             entity_types=dict(sorted(layout_counts.items())),
             layers=sorted(layer.dxf.name for layer in document.layers),
-            blocks=sorted(block.name for block in document.blocks),
+            blocks=sorted(block.name for block in user_blocks),
             layouts=sorted(layout.name for layout in document.layouts),
             dimension_count=dimension_count,
             text_entity_count=text_entities,
