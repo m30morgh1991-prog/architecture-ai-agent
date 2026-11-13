@@ -56,6 +56,43 @@ class H70PlanModelReconstructionTests(unittest.TestCase):
                             for item in result.evidence_bundle.evidences))
         result.validate()
 
+    def test_boolean_or_non_finite_confidence_is_rejected(self):
+        for confidence in (True, float("nan"), float("inf"), -0.1, 1.1):
+            with self.subTest(confidence=confidence):
+                data = self.detection()
+                data["candidates"][0]["confidence"] = confidence
+                with self.assertRaisesRegex(
+                    ValueError, "PLAN_RECONSTRUCTION_CONFIDENCE_INVALID"
+                ):
+                    build_plan_model_from_detection(
+                        model_id="PM-INVALID", source_sha256=self.SHA,
+                        detection_result=data,
+                    )
+
+    def test_boolean_or_non_finite_bbox_coordinates_are_rejected(self):
+        for value in (True, float("nan"), float("inf")):
+            with self.subTest(value=value):
+                data = self.detection()
+                data["candidates"][0]["bbox"] = [0, 0, value, 20]
+                with self.assertRaisesRegex(
+                    ValueError, "PLAN_RECONSTRUCTION_BBOX_INVALID"
+                ):
+                    build_plan_model_from_detection(
+                        model_id="PM-INVALID", source_sha256=self.SHA,
+                        detection_result=data,
+                    )
+
+    def test_malformed_bbox_shape_is_rejected(self):
+        data = self.detection()
+        data["candidates"][0]["bbox"] = [0, 0, 10]
+        with self.assertRaisesRegex(
+            ValueError, "PLAN_RECONSTRUCTION_BBOX_INVALID"
+        ):
+            build_plan_model_from_detection(
+                model_id="PM-INVALID", source_sha256=self.SHA,
+                detection_result=data,
+            )
+
     def test_source_mismatch_rejected(self):
         with self.assertRaisesRegex(ValueError, "PLAN_RECONSTRUCTION_SOURCE_MISMATCH"):
             build_plan_model_from_detection(model_id="PM01", source_sha256=self.SHA, detection_result={**self.detection(), "source_sha256": "b" * 64})
