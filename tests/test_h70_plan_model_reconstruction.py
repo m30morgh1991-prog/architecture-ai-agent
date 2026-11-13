@@ -71,7 +71,16 @@ class H70PlanModelReconstructionTests(unittest.TestCase):
         data = self.detection()
         data["candidates"][0]["evidence_ids"] = ["E-SAME", "E-SAME"]
         result = build_plan_model_from_detection(model_id="PM01", source_sha256=self.SHA, detection_result=data)
-        self.assertEqual(len(result.plan_model.element_evidence.evidences), 2)
+        bundle = result.plan_model.element_evidence
+        self.assertEqual(len(bundle.evidences), 6)
+        self.assertEqual(len(bundle.evidence_for("WALLS")), 1)
+        self.assertEqual(len(bundle.evidence_for("COLUMNS")), 1)
+        detector_gaps = [item for item in bundle.evidences if item.kind == "UNKNOWN"]
+        self.assertEqual(len(detector_gaps), 4)
+        self.assertEqual(
+            {item.element_type for item in detector_gaps},
+            {"OUTER_BOUNDARY", "DOORS", "WINDOWS", "OVERALL_PLAN_FORM"},
+        )
         self.assertEqual(result.plan_model.elements[0].evidence_ids, ("E-SAME", "E-SAME"))
 
 
