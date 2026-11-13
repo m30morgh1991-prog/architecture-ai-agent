@@ -14,7 +14,7 @@ from typing import Any
 import ezdxf
 from ezdxf import DXFError
 
-from .dxf_advanced import advanced_entity_signature, insert_attributes_signature
+from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
 @dataclass(frozen=True)
@@ -183,7 +183,11 @@ class DxfComparator:
                 if signature is None:
                     unsupported.add(kind)
                 else:
-                    layout_signatures[(container, kind, signature)] += 1
+                    presentation = presentation_signature(entity, tolerance)
+                    if presentation is None:
+                        unsupported.add(kind)
+                    else:
+                        layout_signatures[(container, kind, (signature, presentation))] += 1
 
         for block in document.blocks:
             if getattr(block, "is_any_layout", False):
@@ -207,7 +211,11 @@ class DxfComparator:
                 if signature is None:
                     unsupported.add(kind)
                 else:
-                    block_signatures[(container, kind, signature)] += 1
+                    presentation = presentation_signature(entity, tolerance)
+                    if presentation is None:
+                        unsupported.add(kind)
+                    else:
+                        block_signatures[(container, kind, (signature, presentation))] += 1
         return layout_signatures, block_signatures, block_inventory, unsupported
 
     @classmethod
