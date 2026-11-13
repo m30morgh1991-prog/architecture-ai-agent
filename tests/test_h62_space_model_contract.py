@@ -96,6 +96,62 @@ class H62SpaceModelContractTests(unittest.TestCase):
         self.assertEqual(model.relations[0].to_space_id, None)
         self.assertEqual(model.unresolved, ("OPENING-D01__UNRESOLVED",))
 
+
+    def test_non_finite_bbox_coordinate_is_rejected(self):
+        spaces, relations = self.base()
+        spaces[0]["bbox"] = [0, 0, float("nan"), 10]
+        with self.assertRaisesRegex(ValueError, "SPACE_GEOMETRY_NON_FINITE"):
+            build_space_model(
+                model_id="space-model-01",
+                source_sha256="src-01",
+                spaces=spaces,
+                relations=relations,
+            )
+
+    def test_infinite_centroid_coordinate_is_rejected(self):
+        spaces, relations = self.base()
+        spaces[0]["centroid"] = [5, float("inf")]
+        with self.assertRaisesRegex(ValueError, "SPACE_GEOMETRY_NON_FINITE"):
+            build_space_model(
+                model_id="space-model-01",
+                source_sha256="src-01",
+                spaces=spaces,
+                relations=relations,
+            )
+
+    def test_non_finite_area_is_rejected(self):
+        spaces, relations = self.base()
+        spaces[0]["area"] = float("nan")
+        with self.assertRaisesRegex(ValueError, "SPACE_GEOMETRY_NON_FINITE"):
+            build_space_model(
+                model_id="space-model-01",
+                source_sha256="src-01",
+                spaces=spaces,
+                relations=relations,
+            )
+
+    def test_boolean_coordinate_is_not_coerced_to_one(self):
+        spaces, relations = self.base()
+        spaces[0]["bbox"] = [0, 0, True, 10]
+        with self.assertRaisesRegex(ValueError, "SPACE_GEOMETRY_INVALID"):
+            build_space_model(
+                model_id="space-model-01",
+                source_sha256="src-01",
+                spaces=spaces,
+                relations=relations,
+            )
+
+    def test_boolean_area_is_not_coerced_to_one(self):
+        spaces, relations = self.base()
+        spaces[0]["area"] = True
+        with self.assertRaisesRegex(ValueError, "SPACE_GEOMETRY_INVALID"):
+            build_space_model(
+                model_id="space-model-01",
+                source_sha256="src-01",
+                spaces=spaces,
+                relations=relations,
+            )
+
     def test_duplicate_space_id_blocks(self):
         spaces, relations = self.base()
         spaces[1]["space_id"] = "S01"
