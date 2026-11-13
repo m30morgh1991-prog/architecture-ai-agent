@@ -1,4 +1,4 @@
-"""Safe isolated adapter for the ODA File Converter command-line interface.
+""""Safe isolated adapter for the ODA File Converter command-line interface.
 
 This adapter orchestrates an installed external codec. It does not claim
 conversion is lossless or that output is architecturally valid.
@@ -144,13 +144,20 @@ class ODAFileConverter:
             if source_hash_before != source_hash_after:
                 raise ConversionError("SOURCE_MUTATED", "Source DWG changed during conversion; output is rejected.")
 
+            destination_created = False
             try:
-                with destination.open("xb") as target, candidates[0].open("rb") as generated:
-                    shutil.copyfileobj(generated, target)
+                with destination.open("xb") as target:
+                    destination_created = True
+                    with candidates[0].open("rb") as generated:
+                        shutil.copyfileobj(generated, target)
             except FileExistsError as exc:
                 raise ConversionError("OUTPUT_ALREADY_EXISTS", "Output appeared during conversion; refusing to overwrite it.") from exc
             except OSError as exc:
-                destination.unlink(missing_ok=True)
+                # Only remove a partial output if this process successfully
+                # created it. Never unlink a path another process created
+                # after our initial existence check.
+                if destination_created:
+                    destination.unlink(missing_ok=True)
                 raise ConversionError("OUTPUT_WRITE_FAILED", "Converted DXF could not be safely written.") from exc
 
         if destination.stat().st_size == 0:
