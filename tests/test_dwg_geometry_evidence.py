@@ -162,6 +162,28 @@ class TestDwgGeometryEvidence(unittest.TestCase):
         self.assertEqual(result["geometry"][3]["control_points"], [])
 
 
+
+    def test_boolean_numeric_values_are_not_geometry(self):
+        entities = [
+            _Entity("LINE", 16, layer="0", start=(True, 2, 0), end=(8, 2, 0)),
+            _Entity("CIRCLE", 17, layer="0", center=(3, 4, 0), radius=True),
+            _Entity("ARC", 18, layer="0", center=(1, 2, 0), radius=5,
+                    start_angle=False, end_angle=90),
+        ]
+        doc = _Doc(entities)
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "boolean-numeric.dwg"
+            source.write_bytes(b"boolean-numeric")
+            with patch.dict("sys.modules", {"ezdwg": _Ezdwg(doc)}):
+                result = extract_dwg_evidence(source)
+        self.assertEqual(
+            [row["coordinate_status"] for row in result["geometry"]],
+            ["UNKNOWN", "UNKNOWN", "UNKNOWN"],
+        )
+        self.assertIsNone(result["geometry"][0]["start"])
+        self.assertIsNone(result["geometry"][1]["radius"])
+        self.assertIsNone(result["geometry"][2]["start_angle"])
+
     def test_geometry_csv_preserves_entity_specific_fields(self):
         row = {
             "handle": "A1", "type": "SPLINE", "layer": "A-GENERIC",
