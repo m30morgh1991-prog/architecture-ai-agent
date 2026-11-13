@@ -138,6 +138,33 @@ class AIECoreFacadeTests(unittest.TestCase):
             {finding.code for finding in result.findings},
         )
 
+
+    def test_malformed_model_collections_block_without_result_crash(self):
+        malformed_models = (
+            PlanModel(
+                model_id="PM-001",
+                source_sha256=SOURCE_SHA,
+                drawing_count=1,
+                elements=None,
+            ),
+            PlanModel(
+                model_id="PM-001",
+                source_sha256=SOURCE_SHA,
+                drawing_count=1,
+                elements=(None,),
+            ),
+        )
+
+        for model in malformed_models:
+            with self.subTest(elements=model.elements):
+                result = inspect_plan(model, make_constraints())
+                self.assertEqual(result.status, "BLOCKED")
+                self.assertIn(
+                    "PLAN_MODEL_INVALID",
+                    {finding.code for finding in result.findings},
+                )
+                self.assertEqual(result.space_count, 0)
+
     def test_invalid_model_is_blocked(self):
         model = PlanModel(
             model_id="PM-001",
