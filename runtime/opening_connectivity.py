@@ -6,7 +6,7 @@ wall verified against the supplied wall inventory, and source evidence IDs.
 """
 from __future__ import annotations
 
-from math import hypot
+from math import hypot, isfinite
 
 
 def _segments(points):
@@ -28,12 +28,15 @@ def _distance_to_segment(p, a, b):
 def _span_touches_boundary(span, points, tolerance):
     if not span or len(span) < 2 or not points:
         return False
+    segments = _segments(points)
+    if not segments:
+        return False
     a, b = span[0], span[1]
     # Endpoint proximity is deliberately conservative and avoids treating a
     # nearby insertion point as an architectural opening by itself.
     return (
-        min(_distance_to_segment(a, c, d) for c, d in _segments(points)) <= tolerance
-        and min(_distance_to_segment(b, c, d) for c, d in _segments(points)) <= tolerance
+        min(_distance_to_segment(a, c, d) for c, d in segments) <= tolerance
+        and min(_distance_to_segment(b, c, d) for c, d in segments) <= tolerance
     )
 
 
@@ -51,6 +54,15 @@ def classify_opening_connectivity(
     supplied wall inventory, and all three opening evidence references exist.
     Even then, the relation status remains UNKNOWN pending downstream review.
     """
+    if isinstance(tolerance, bool):
+        raise ValueError("OPENING_CONNECTIVITY_TOLERANCE_INVALID")
+    try:
+        tolerance = float(tolerance)
+    except (TypeError, ValueError, OverflowError):
+        raise ValueError("OPENING_CONNECTIVITY_TOLERANCE_INVALID") from None
+    if not isfinite(tolerance) or tolerance < 0:
+        raise ValueError("OPENING_CONNECTIVITY_TOLERANCE_INVALID")
+
     verified_host_wall_ids = {
         value for value in (host_wall_ids or ()) if _valid_evidence_id(value)
     }
@@ -63,12 +75,13 @@ def classify_opening_connectivity(
         touched = []
         for space in spaces:
             pts = boundary_points.get(space["boundary_handle"], [])
-            if not pts:
+            segments = _segments(pts)
+            if not segments:
                 continue
             if span and _span_touches_boundary(span, pts, tolerance):
                 touched.append(space)
             elif not span and point and min(
-                _distance_to_segment(point, a, b) for a, b in _segments(pts)
+                _distance_to_segment(point, a, b) for a, b in segments
             ) <= tolerance:
                 touched.append(space)
 
