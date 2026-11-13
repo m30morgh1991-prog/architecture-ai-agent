@@ -24,6 +24,7 @@ class TestDxfValidator(unittest.TestCase):
         modelspace.add_line((0, 0), (10, 5))
         modelspace.add_text("Room 101")
         modelspace.add_mtext("سلام")
+        modelspace.add_linear_dim(base=(0, 2), p1=(0, 0), p2=(5, 0)).render()
         document.header["$INSUNITS"] = 4
         document.header["$MEASUREMENT"] = 1
         block = document.blocks.new("TEST_BLOCK")
@@ -44,6 +45,7 @@ class TestDxfValidator(unittest.TestCase):
         self.assertGreaterEqual(report.entity_count, 3)
         self.assertEqual(report.entity_types["LINE"], 1)
         self.assertEqual(report.text_entity_count, 2)
+        self.assertEqual(report.dimension_count, 1)
         self.assertEqual(report.persian_text_entity_count, 1)
         self.assertEqual(report.insunits_code, 4)
         self.assertEqual(report.insunits_name, "millimeters")
