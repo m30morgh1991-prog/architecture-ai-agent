@@ -41,6 +41,23 @@ class TestODAFileConverter(unittest.TestCase):
         self.assertEqual(command[7], "*.dwg")
         self.assertEqual(run.call_args.kwargs["timeout"], 300)
 
+
+    @patch("runtime.cad_conversion.oda_file_converter.shutil.which", return_value="/mock/ODAFileConverter")
+    @patch("runtime.cad_conversion.oda_file_converter.shutil.copy2")
+    @patch("runtime.cad_conversion.oda_file_converter.subprocess.run")
+    def test_staged_source_mismatch_is_rejected_before_converter(self, run, copy, _which):
+        def write_corrupt_copy(source, destination):
+            Path(destination).write_bytes(b"CORRUPTED-STAGED-DWG")
+
+        copy.side_effect = write_corrupt_copy
+        with self.assertRaises(ConversionError) as caught:
+            ODAFileConverter().convert_dwg_to_dxf(self.source, self.output)
+
+        self.assertEqual(caught.exception.code, "STAGED_SOURCE_MISMATCH")
+        run.assert_not_called()
+        self.assertFalse(self.output.exists())
+        self.assertEqual(self.source.read_bytes(), b"DWG-TEST-SOURCE")
+
     @patch("runtime.cad_conversion.oda_file_converter.shutil.which", return_value=None)
     def test_missing_executable_fails_closed(self, _which):
         with self.assertRaises(ConversionError) as caught:
