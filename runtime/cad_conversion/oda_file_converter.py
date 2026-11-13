@@ -105,6 +105,15 @@ class ODAFileConverter:
             staged_output.mkdir()
             staged_source = staged_input / f"source{source.suffix.lower()}"
             shutil.copy2(source, staged_source)
+            # Bind the exact staged bytes to the source snapshot hashed above.
+            # Hashing only the original before/after conversion leaves a race
+            # where a file can change during copy and be restored afterwards.
+            staged_hash = sha256_file(staged_source)
+            if staged_hash != source_hash_before:
+                raise ConversionError(
+                    "STAGED_SOURCE_MISMATCH",
+                    "Staged DWG bytes do not match the original source snapshot; conversion is rejected.",
+                )
 
             command = [
                 executable, str(staged_input), str(staged_output),
