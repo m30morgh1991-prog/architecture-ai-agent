@@ -82,3 +82,13 @@ Official sources:
 - No semantic promotion into PlanModel or ConstraintMap.
 - No compliance verdict or visual equivalence claim.
 - No mandatory cloud dependency.
+
+
+## Independent DXF validator implementation
+
+- `ezdxf>=1.4,<2` is declared as a runtime dependency for independent DXF parsing; it does not provide DWG conversion.
+- `runtime/cad_conversion/dxf_validator.py` reads a DXF without saving or modifying it and returns a JSON-serializable structural report.
+- The report includes parser/audit status, entity type counts across layouts, layer/block/layout names, dimension count, TEXT/MTEXT/attribute counts, non-ASCII and Persian-script text presence counts, block-definition entity counts, and INSUNITS/MEASUREMENT metadata.
+- A clean parser/audit result is reported only as `PARSE_PASS`; `fidelity_status` remains `UNKNOWN` and `requires_review` remains true. Audit findings are surfaced rather than silently promoted to a fidelity pass.
+- This first validator does not yet compare a source DWG against its DXF, prove geometric equivalence, inspect visual output, resolve fonts/Xrefs/proxies, or certify scale. Those remain explicit follow-up work.
+- The validator is deliberately read-only: it never writes a repaired/audited DXF back to disk.
