@@ -196,6 +196,14 @@ class GeometryReference:
                 evidence_by_id[x].status != "SUPPORTED" for x in self.transform_evidence_ids
             ):
                 raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_UNPROVEN")
+            # A 3x3 affine transform uses homogeneous coordinates [0, 0, 1]
+            # in its final row. A projective matrix must not be accepted here.
+            if (
+                abs(pixel_transform[6]) > 1e-12
+                or abs(pixel_transform[7]) > 1e-12
+                or abs(pixel_transform[8] - 1.0) > 1e-12
+            ):
+                raise ValueError("GEOMETRY_REFERENCE_PIXEL_TRANSFORM_NOT_AFFINE")
             a, b, _, c, d, _, _, _, _ = pixel_transform
             if abs(a * d - b * c) <= 1e-12:
                 raise ValueError("GEOMETRY_REFERENCE_PIXEL_TRANSFORM_SINGULAR")
