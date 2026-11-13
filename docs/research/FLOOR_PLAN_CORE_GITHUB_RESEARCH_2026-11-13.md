@@ -79,7 +79,7 @@ This is compatible with our existing PlanModel + ConstraintMap + SpaceModel dire
 2. Door/window semantics are still UNKNOWN in the Golden DWG evidence export.
 3. Dimension-to-geometry reconciliation and full associative dimension resolution remain pending.
 4. The existing SpaceModel records raw numeric geometry but does not explicitly carry a validated coordinate-frame/unit/scale contract. Area and length must not be presented as metric or compliance-grade until this is addressed.
-5. The BIM contracts represent identity/relations and constraint bindings, but an IFC ingestion adapter is not yet implemented.
+5. The BIM contracts represent identity and constraint bindings, but BIMElementRelation currently carries only relation type and endpoints: it has no evidence IDs or source hash. Those edges are not source-bound proof. An IFC ingestion adapter and an evidence-backed BIM relationship contract are not yet implemented.
 6. Raster recognition lacks a licence-clean, project-owned training corpus and a benchmark covering Iranian drafting styles.
 7. Empty detector output currently exposes a core contract gap: PlanModel reconstruction can have unresolved required element types but no evidence records; PlanUnderstandingCore then has no evidence IDs to place in ConstraintMap. This PR adds explicit source-bound UNKNOWN detector-gap records without claiming that the element is absent.
 8. Opening connectivity previously treated a non-empty host_wall_id as verified when the wall inventory was absent; PR #135 adds the missing inventory/evidence guard.
