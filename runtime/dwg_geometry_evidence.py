@@ -20,6 +20,8 @@ def _point(value: Any) -> dict[str, float] | None:
         return None
     if isinstance(value, (tuple, list)) and len(value) >= 2:
         try:
+            if any(isinstance(component, bool) for component in value[:3]):
+                return None
             result = {"x": float(value[0]), "y": float(value[1])}
             if len(value) >= 3:
                 result["z"] = float(value[2])
@@ -28,6 +30,8 @@ def _point(value: Any) -> dict[str, float] | None:
             return None
     if all(hasattr(value, k) for k in ("x", "y")):
         try:
+            if any(isinstance(getattr(value, key), bool) for key in ("x", "y", "z") if hasattr(value, key)):
+                return None
             result = {"x": float(value.x), "y": float(value.y)}
             if hasattr(value, "z"):
                 result["z"] = float(value.z)
@@ -37,6 +41,8 @@ def _point(value: Any) -> dict[str, float] | None:
     return None
 
 def _safe_float(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
     try:
         number = float(value) if value is not None else None
         return number if number is not None and math.isfinite(number) else None
