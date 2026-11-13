@@ -192,6 +192,10 @@ class GeometryReference:
             self.pixel_to_world_transform, 9, "GEOMETRY_REFERENCE_PIXEL_TRANSFORM_INVALID"
         )
         if pixel_transform is not None:
+            if not self.transform_evidence_ids or any(
+                evidence_by_id[x].status != "SUPPORTED" for x in self.transform_evidence_ids
+            ):
+                raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_UNPROVEN")
             a, b, _, c, d, _, _, _, _ = pixel_transform
             if abs(a * d - b * c) <= 1e-12:
                 raise ValueError("GEOMETRY_REFERENCE_PIXEL_TRANSFORM_SINGULAR")
@@ -201,8 +205,11 @@ class GeometryReference:
             self.coordinate_transform_4x4, 16,
             "GEOMETRY_REFERENCE_COORDINATE_TRANSFORM_INVALID",
         )
-        if self.coordinate_transform_4x4 is not None and not self.transform_evidence_ids:
-            raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_MISSING")
+        if self.coordinate_transform_4x4 is not None:
+            if not self.transform_evidence_ids:
+                raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_MISSING")
+            if any(evidence_by_id[x].status != "SUPPORTED" for x in self.transform_evidence_ids):
+                raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_UNPROVEN")
         if (
             self.scale_basis == "RASTER_CALIBRATION"
             and self.scale_status == "SUPPORTED"
