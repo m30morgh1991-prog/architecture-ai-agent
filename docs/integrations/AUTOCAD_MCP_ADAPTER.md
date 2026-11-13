@@ -54,3 +54,36 @@ AutoCAD-MCP evidence must never bypass the existing evidence/reconciliation cont
 ## Current scope
 
 This change introduces the provider-neutral boundary and acceptance contract only. It does not claim that live AutoCAD is connected, that AutoCAD-MCP is installed in ChatGPT, or that DWG mutation is currently production-ready.
+
+## Evaluated upstream implementation — U-C4N/Autocad-MCP
+
+Research reference: https://github.com/U-C4N/Autocad-MCP (README and repository LICENSE reviewed 2026-11-13; upstream declares MIT).
+
+This is a candidate implementation/reference for the existing adapter boundary, not a new core dependency. Its README describes two execution paths: live AutoCAD automation through Windows COM, and headless DXF processing through ezdxf. DWG conversion depends on external tooling. It also describes typed MCP tools, drawing/entity/layer inspection, guarded operations, dry-run/checkpoint patterns and QA workflows. These are upstream-described capabilities, not independently reproduced compatibility evidence for our project.
+
+### Adopt as design requirements (not wholesale code)
+
+- Capability discovery reports host, backend, version, read/write scope and unsupported operations before tools are exposed.
+- Read-only inspection tools are separately allow-listed from mutation tools.
+- Mutations require a source-bound ApprovedChangePlan, explicit target identity, preconditions and bounded scope.
+- Dry-run returns a machine-readable proposed diff and is never reported as execution success.
+- Every write is followed by independent readback, deterministic requested-vs-actual diff, source/output hashes and audit record.
+- Checkpoint/rollback is adopted only after recovery guarantees are tested on disposable copies.
+- MCP tool descriptions and model-generated arguments are untrusted input and must be validated against our own typed contracts.
+
+### Staged evaluation
+
+**CAD-MCP-PILOT-01 — read-only DXF (host-independent):**
+1. Pin an exact upstream commit and archive its license/dependency manifest.
+2. Use only a generated disposable DXF fixture (never Golden DWGs).
+3. Compare entity, layer, block, dimension and unit observations against ezdxf and our current read-only adapter.
+4. Record source hash, backend/version, tool name, raw response hash and normalized evidence.
+5. Missing or ambiguous fields remain UNKNOWN or NEEDS_REVIEW.
+
+**CAD-MCP-PILOT-02 — live AutoCAD (Windows, deferred):**
+1. Run only when a Windows host with the exact target AutoCAD version is available.
+2. Use a disposable drawing copy and verify document identity before and after every operation.
+3. Keep all mutation tools disabled until ApprovedChangePlan, readback, diff and recovery gates pass.
+4. Record AutoCAD version, COM/backend details, input/output hashes and unsupported capabilities.
+
+No upstream implementation is considered integrated until a separate implementation PR passes exact-head CI and adapter tests.
