@@ -111,3 +111,12 @@ Official sources:
 - Entity types without a qualified geometry signature (including dimensions, hatches, splines, proxies, and other unsupported types) are reported and keep the comparison `INCOMPLETE`; they are never silently ignored as a fidelity pass.
 - Even `MATCHED_SUPPORTED_CONTENT` is only a match for the explicitly supported comparison surface. `fidelity_status` remains `UNKNOWN` and `requires_review=true` for every report.
 - This comparator accepts DXF on both sides. It does not parse DWG directly and cannot replace the future source-DWG-to-output-DXF Golden qualification workflow.
+
+
+## Complex DXF comparison regression extension
+
+- Added semantic fingerprints for DIMENSION, HATCH, SPLINE, ATTRIB, ATTDEF and LEADER using ezdxf-exposed DXF attributes and entity-specific boundary/control data.
+- MLEADER and complex structures that cannot be inspected safely remain unsupported and force INCOMPLETE.
+- Xref block references remain unresolved dependencies and must not be treated as a complete comparison. The comparator does not load arbitrary external paths.
+- Added synthetic tests for dimensions, hatch boundaries, spline control data, insert attributes, and unresolved Xrefs.
+- Synthetic DXF comparator tests do not establish DWG conversion fidelity, rendering equivalence, external-reference resolution, or AutoCAD compatibility.
