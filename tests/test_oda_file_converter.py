@@ -37,8 +37,7 @@ class TestODAFileConverter(unittest.TestCase):
         self.assertEqual(result.fidelity_status, "UNKNOWN")
         self.assertTrue(result.requires_review)
         command = run.call_args.args[0]
-        self.assertEqual(command[3:7], ["ACAD2018", "DXF", "0", "0"])
-        self.assertEqual(command[7], "*.dwg")
+        self.assertEqual(command[3:8], ["*.dwg", "ACAD2018", "DXF", "0", "0"])
         self.assertEqual(run.call_args.kwargs["timeout"], 300)
 
     @patch("runtime.cad_conversion.oda_file_converter.shutil.which", return_value="/mock/ODAFileConverter")
