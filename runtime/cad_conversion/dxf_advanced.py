@@ -88,3 +88,20 @@ def insert_attributes_signature(entity: Any, tolerance: float) -> Any:
         )
     except (AttributeError, TypeError, ValueError, OverflowError):
         return None
+
+
+_PRESENTATION_KEYS = (
+    "color", "true_color", "color_name", "linetype", "lineweight",
+    "transparency", "ltscale", "invisible", "thickness", "extrusion",
+    "material", "plotstyle",
+)
+
+
+def presentation_signature(entity: Any, tolerance: float) -> Any:
+    """Compare common display and OCS properties for supported entities."""
+    try:
+        attrs = entity.dxfattribs()
+        selected = {key: attrs[key] for key in _PRESENTATION_KEYS if key in attrs}
+        return _normalise(selected, tolerance)
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return None
