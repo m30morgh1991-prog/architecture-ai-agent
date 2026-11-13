@@ -24,6 +24,75 @@ class H70PlanModelReconstructionTests(unittest.TestCase):
         self.assertIn("WALLS", result.plan_model.unresolved)
         result.plan_model.validate()
 
+
+    def test_empty_detection_records_unknown_evidence_for_every_unresolved_type(self):
+        result = build_plan_model_from_detection(
+            model_id="PM-EMPTY",
+            source_sha256=self.SHA,
+            detection_result={
+                "source_sha256": self.SHA,
+                "candidates": [],
+                "unresolved_fixed_element_types": [
+                    "COLUMNS", "OUTER_BOUNDARY", "WALLS",
+                    "DOORS", "WINDOWS", "OVERALL_PLAN_FORM",
+                ],
+            },
+        )
+
+        self.assertEqual(result.plan_model.elements, ())
+        self.assertEqual(len(result.evidence_bundle.evidences), 6)
+        self.assertEqual(
+            {item.status for item in result.evidence_bundle.evidences},
+            {"UNKNOWN"},
+        )
+        self.assertEqual(
+            {item.kind for item in result.evidence_bundle.evidences},
+            {"UNKNOWN"},
+        )
+        self.assertTrue(all(item.source_sha256 == self.SHA
+                            for item in result.evidence_bundle.evidences))
+        self.assertTrue(all("absence of detection is not evidence of absence"
+                            in item.description
+                            for item in result.evidence_bundle.evidences))
+        result.validate()
+
+    def test_boolean_or_non_finite_confidence_is_rejected(self):
+        for confidence in (True, float("nan"), float("inf"), -0.1, 1.1):
+            with self.subTest(confidence=confidence):
+                data = self.detection()
+                data["candidates"][0]["confidence"] = confidence
+                with self.assertRaisesRegex(
+                    ValueError, "PLAN_RECONSTRUCTION_CONFIDENCE_INVALID"
+                ):
+                    build_plan_model_from_detection(
+                        model_id="PM-INVALID", source_sha256=self.SHA,
+                        detection_result=data,
+                    )
+
+    def test_boolean_or_non_finite_bbox_coordinates_are_rejected(self):
+        for value in (True, float("nan"), float("inf")):
+            with self.subTest(value=value):
+                data = self.detection()
+                data["candidates"][0]["bbox"] = [0, 0, value, 20]
+                with self.assertRaisesRegex(
+                    ValueError, "PLAN_RECONSTRUCTION_BBOX_INVALID"
+                ):
+                    build_plan_model_from_detection(
+                        model_id="PM-INVALID", source_sha256=self.SHA,
+                        detection_result=data,
+                    )
+
+    def test_malformed_bbox_shape_is_rejected(self):
+        data = self.detection()
+        data["candidates"][0]["bbox"] = [0, 0, 10]
+        with self.assertRaisesRegex(
+            ValueError, "PLAN_RECONSTRUCTION_BBOX_INVALID"
+        ):
+            build_plan_model_from_detection(
+                model_id="PM-INVALID", source_sha256=self.SHA,
+                detection_result=data,
+            )
+
     def test_source_mismatch_rejected(self):
         with self.assertRaisesRegex(ValueError, "PLAN_RECONSTRUCTION_SOURCE_MISMATCH"):
             build_plan_model_from_detection(model_id="PM01", source_sha256=self.SHA, detection_result={**self.detection(), "source_sha256": "b" * 64})
@@ -39,7 +108,16 @@ class H70PlanModelReconstructionTests(unittest.TestCase):
         data = self.detection()
         data["candidates"][0]["evidence_ids"] = ["E-SAME", "E-SAME"]
         result = build_plan_model_from_detection(model_id="PM01", source_sha256=self.SHA, detection_result=data)
-        self.assertEqual(len(result.plan_model.element_evidence.evidences), 2)
+        bundle = result.plan_model.element_evidence
+        self.assertEqual(len(bundle.evidences), 6)
+        self.assertEqual(len(bundle.evidence_for("WALLS")), 1)
+        self.assertEqual(len(bundle.evidence_for("COLUMNS")), 1)
+        detector_gaps = [item for item in bundle.evidences if item.kind == "UNKNOWN"]
+        self.assertEqual(len(detector_gaps), 4)
+        self.assertEqual(
+            {item.element_type for item in detector_gaps},
+            {"OUTER_BOUNDARY", "DOORS", "WINDOWS", "OVERALL_PLAN_FORM"},
+        )
         self.assertEqual(result.plan_model.elements[0].evidence_ids, ("E-SAME", "E-SAME"))
 
 

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any
 
 from runtime.drawing_semantic_evidence import DrawingEvidenceSet
@@ -25,6 +26,15 @@ class PlanModelReconstructionResult:
 def _state(candidate: dict[str, Any]) -> str:
     status = str(candidate.get("status", "UNKNOWN"))
     return status if status in {"LOCKED", "EDITABLE", "CONDITIONAL"} else "UNKNOWN"
+
+
+def _candidate_number(value: Any, code: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(code)
+    number = float(value)
+    if not isfinite(number):
+        raise ValueError(code)
+    return number
 
 
 def build_plan_model_from_detection(
@@ -57,7 +67,19 @@ def build_plan_model_from_detection(
         evidence_ids = tuple(str(x) for x in candidate.get("evidence_ids", ()))
         if not candidate_id or not evidence_ids:
             raise ValueError("PLAN_RECONSTRUCTION_ELEMENT_EVIDENCE_MISSING")
-        confidence = float(candidate.get("confidence", 0.0))
+        confidence = _candidate_number(
+            candidate.get("confidence", 0.0),
+            "PLAN_RECONSTRUCTION_CONFIDENCE_INVALID",
+        )
+        if not 0.0 <= confidence <= 1.0:
+            raise ValueError("PLAN_RECONSTRUCTION_CONFIDENCE_INVALID")
+        raw_bbox = candidate.get("bbox")
+        if not isinstance(raw_bbox, (list, tuple)) or len(raw_bbox) != 4:
+            raise ValueError("PLAN_RECONSTRUCTION_BBOX_INVALID")
+        bbox = [
+            _candidate_number(value, "PLAN_RECONSTRUCTION_BBOX_INVALID")
+            for value in raw_bbox
+        ]
         state = _state(candidate)
         evidence_status = "SUPPORTED" if state != "UNKNOWN" else "UNKNOWN"
         rationale = str(candidate.get("rationale", "Detection evidence."))
@@ -76,7 +98,7 @@ def build_plan_model_from_detection(
             element_id=candidate_id,
             element_type=element_type,
             state=state,
-            geometry={"bbox": [float(x) for x in candidate.get("bbox", ())], "candidate_id": candidate_id},
+            geometry={"bbox": bbox, "candidate_id": candidate_id},
             evidence_ids=evidence_ids,
             confidence=confidence,
         ))
@@ -92,6 +114,28 @@ def build_plan_model_from_detection(
         unique.append(item)
 
     unresolved.update(ALLOWED_ELEMENT_TYPES - {e.element_type for e in elements if e.state == "LOCKED"})
+
+    # Record detector gaps explicitly. A missing candidate is not evidence that
+    # an element is absent, but every unresolved required type still needs a
+    # source-bound UNKNOWN evidence reference for downstream ConstraintMap use.
+    evidence_types = {item["element_type"] for item in unique}
+    for element_type in sorted(unresolved):
+        if element_type in evidence_types:
+            continue
+        unique.append({
+            "evidence_id": f"unknown-detection:{source_sha256[:16]}:{element_type}",
+            "source_sha256": source_sha256,
+            "kind": "UNKNOWN",
+            "element_type": element_type,
+            "status": "UNKNOWN",
+            "description": (
+                "No candidate evidence was emitted for this required element type; "
+                "absence of detection is not evidence of absence."
+            ),
+            "native_id": None,
+            "confidence": 0.0,
+        })
+
     bundle = build_element_evidence_bundle(
         bundle_id=f"{model_id}:evidence",
         source_sha256=source_sha256,
