@@ -66,6 +66,10 @@ class ODAFileConverter:
     never overwritten.
     """
 
+    @property
+    def provider_id(self) -> str:
+        return "oda_file_converter"
+
     def __init__(self, config: ODAFileConverterConfig | None = None):
         self.config = config or ODAFileConverterConfig()
 
