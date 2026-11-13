@@ -92,3 +92,12 @@ Official sources:
 - A clean parser/audit result is reported only as `PARSE_PASS`; `fidelity_status` remains `UNKNOWN` and `requires_review` remains true. Audit findings are surfaced rather than silently promoted to a fidelity pass.
 - This first validator does not yet compare a source DWG against its DXF, prove geometric equivalence, inspect visual output, resolve fonts/Xrefs/proxies, or certify scale. Those remain explicit follow-up work.
 - The validator is deliberately read-only: it never writes a repaired/audited DXF back to disk.
+
+
+## Explicit provider orchestration
+
+- `CadConversionProvider` defines the provider contract; the existing ODA adapter implements it as `oda_file_converter`.
+- `CadConversionEngine` and `ProviderRegistry` require explicit provider registration and explicit provider ID selection. There is no automatic fallback or silent engine switching.
+- The facade independently checks source immutability, requested source/output paths, output existence/non-empty state, output SHA-256, and execution completion.
+- v0.1 rejects provider results that claim fidelity PASS or omit mandatory review. Every provider result must retain `fidelity_status=UNKNOWN` and `requires_review=true`.
+- AutoCAD Core Console is not registered or available until its version-qualified Windows adapter is implemented and tested. ODA remains optional and its licensing restrictions continue to apply.
