@@ -4,7 +4,7 @@ Status: Research inventory; no external model or dataset is adopted by this docu
 
 ## Executive decision
 
-Keep the product core vector-first, evidence-backed, graph-based, and provider-neutral. Do not import a monolithic floor-plan model or any non-commercial pretrained weights. Use external repositories as bounded components or research references only after reproducible tests on our own licensed drawings.
+Keep the product core vector-first, evidence-backed, graph-based, and provider-neutral. For DWG understanding, vector-primitive models such as VecFormer and CADTransformer are more directly aligned than raster-only models, but their public benchmark data is non-commercial and their training stacks are GPU-heavy. Do not import a monolithic floor-plan model or any non-commercial pretrained weights. Use external repositories as bounded components or research references only after reproducible tests on our own licensed drawings.
 
 The strongest near-term candidates are:
 1. HAWP and DeepLSD for image-derived line/junction proposals only.
@@ -31,6 +31,10 @@ Its methodology explicitly says the cataloguer did not download, clone, or run t
 | Floor Plan Document Intelligence — https://github.com/alifarzadjamali/floor-plan-document-intelligence | MIT code; raster + SVG annotations | Reproducible segmentation/OCR/polygon pipeline and review-aware JSON output | Its documented experiments use CubiCasa5K. Do not use CubiCasa-derived data or weights commercially; inspect code-only reuse separately. |
 | Raster-to-Vector — https://github.com/art-programmer/FloorplanTransformation | MIT code; raster-to-vector structural graph | Junction/segment constraints and integer-programming formulation for closed room loops and openings on walls | Original implementation is Torch7-era and low-resolution/Manhattan-oriented; its PyTorch port is described as not well-tested. Reuse the formulation as a design reference, not the old runtime or weights. |
 | RoomFormer — https://github.com/ywyue/RoomFormer | MIT code; top-down density maps from 3D scans to room polygons | Structured polygon prediction and multi-room reasoning | Its primary input is density maps from 3D scans, not ordinary 2D DWG/PDF plan sheets. Not selected for the MVP recognition pipeline. |
+| VecFormer — https://github.com/WesKwong/VecFormer | Apache-2.0 code; line-based panoptic symbol spotting on vector CAD primitives | Most directly relevant research candidate for classifying native line/curve primitives while preserving their geometry | README training path uses Python 3.9, PyTorch 2.5.1 + CUDA 11.8, torch-scatter and FlashAttention. Its documented dataset path downloads FloorPlanCAD, which is non-commercial; no commercially usable pretrained weights are established. Research-only until trained/evaluated on our own authorized drawings and resource needs are measured. |
+| CADTransformer — https://github.com/VITA-Group/CADTransformer | MIT code; primitive-level panoptic symbol spotting | Useful vector-primitive and instance-segmentation reference | Python 3.7/PyTorch 1.9/CUDA 11.1 stack; README notes 24 GB GPU for 12,000 primitives. Training data path is FloorPlanCAD (non-commercial). Too old/heavy for default runtime; code reference only. |
+| SymPoint-V2 — https://github.com/nicehuster/SymPointV2 | No LICENSE file found in repository; FloorPlanCAD-based CAD symbol spotting | Layer-aware point/primitive feature design | No licence file means no code reuse permission is granted. Also requires an older CUDA/PyTorch/Detectron2 stack and FloorPlanCAD data. Do not copy or integrate. |
+| VectorFloorSeg — https://github.com/DrZiji/VecFloorSeg | No LICENSE file found; graph-attention segmentation of vectorized roughcast plans | Graph-based vector floor-plan segmentation concept | README's data pipeline is CubiCasa5K-derived; no repository licence file was found. Research reading only; no code, weights or dataset reuse. |
 | ResPlan — https://github.com/m-agour/ResPlan | MIT code; graph utilities; dataset separately CC BY 4.0 | Room graph vocabulary and graph QA ideas, including via-door, adjacency, via-window and direct relations | Residential listing-derived data is not representative of Iranian engineering drawings. Use code/reference only after reviewing individual functions; never use heuristic graph edges as approval-grade connectivity. |
 | IfcOpenShell — https://github.com/IfcOpenShell/IfcOpenShell | LGPL-3.0-or-later core library; IFC parsing and geometry support | Read IFC entities, spatial decomposition, containment, properties, placements and relationships | Large optional dependency; not a 2D raster/CAD recognition engine. Future isolated read-only IFC adapter only; keep BIM evidence separate from geometric truth until reconciled. |
 | FloorPlanMaster — https://github.com/TheGingeros/floorplanmaster | Blender plugin | Structural graph / room graph concepts | Blender authoring plugin, not a suitable dependency for our read-only plan-understanding core. |
@@ -40,6 +44,8 @@ Its methodology explicitly says the cataloguer did not download, clone, or run t
 - CubiCasa5K repository/data: CC BY-NC 4.0. Treat it as non-commercial; do not train, ship, or validate a commercial product using its weights/data without separate permission.
 - FloorPlanCAD and ArchCAD sources listed in the research catalogue are also non-commercial or research-restricted. Do not assume a permissive code licence makes the dataset or trained weights commercially usable.
 - Floor Plan Document Intelligence's MIT licence covers its code, not CubiCasa5K source annotations or derivatives.
+- VecFormer is Apache-2.0 code, but its README's documented training path uses FloorPlanCAD; this dataset is non-commercial. The code licence does not make FloorPlanCAD or derived weights commercial.
+- CADTransformer's MIT code similarly does not change FloorPlanCAD's dataset terms. SymPoint-V2 and VectorFloorSeg have no LICENSE file in the inspected repositories; do not reuse their code.
 - CubiCasa5k-Next's Apache-2.0 code licence does not license third-party training data or guarantee that its model weights exist.
 - ResPlan explicitly separates MIT code from CC BY 4.0 dataset terms. The dataset's underlying source drawings are not included; do not treat its data licence as a blanket licence over original plans.
 - IfcOpenShell is LGPL-3.0-or-later; any distribution/integration needs the usual LGPL compliance review. Bonsai is GPL-3.0-or-later and is not required by our product.
@@ -58,7 +64,7 @@ This is compatible with our existing PlanModel + ConstraintMap + SpaceModel dire
 
 ### Source lanes
 
-1. Vector engineering input: preserve native entity identity, geometry, layer/block/text/dimension evidence, drawing units, OCS/WCS, INSERT transforms, source hash, and view/sheet context.
+1. Vector engineering input: preserve native entity identity, geometry, layer/block/text/dimension evidence, drawing units, OCS/WCS, INSERT transforms, source hash, and view/sheet context. For a later learned vector lane, represent LINE/ARC/LWPOLYLINE/SPLINE/BLOCK/INSERT primitives as typed tokens with exact geometric attributes; keep the original entities as the source of truth.
 2. Raster/vector-PDF input: crop the actual plan view first; detect line/junction proposals; extract OCR and dimensions; vectorize only as candidate geometry. Keep image-model outputs as evidence, never direct edit permissions.
 3. BIM input: read IFC semantic entities and relationships into source-bound evidence; do not generate or edit a 3D model. Reconcile IFC identities against the 2D drawing rather than assuming they match.
 4. Reconciliation: combine independent signals (native CAD entity, layer/block name, geometry/topology, OCR label, dimensions, schedule, BIM relationship). Contradictions remain explicit.
@@ -103,7 +109,7 @@ Keep Golden DWGs immutable. Add a separately versioned, source-hash-bound annota
 ## Adoption decisions
 
 - Adopt now: evidence-first typed geometry and dual-graph architecture; retain the existing canonical contracts.
-- Prototype next: optional HAWP/DeepLSD line proposals and CubiCasa5k-Next segmentation using only our own commercially usable synthetic or authorized drawings.
+- Prototype next: optional HAWP/DeepLSD line proposals and CubiCasa5k-Next segmentation using only our own commercially usable synthetic or authorized drawings. Evaluate VecFormer as a separate vector-CAD research baseline only if a suitable GPU and a licensed training set become available; do not deploy its FloorPlanCAD-trained artifacts.
 - Reuse selectively: ResPlan graph QA concepts and Raster-to-Vector constraint formulation after independent tests and code review.
 - Defer: RoomFormer as its native input is 3D scan density; full IfcOpenShell adapter until the 2D evidence contracts are stable.
 - Reject for commercial training: CubiCasa5K, FloorPlanCAD and other non-commercial/research-only datasets unless separate written commercial permission is obtained.
