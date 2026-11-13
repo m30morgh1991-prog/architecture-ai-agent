@@ -125,7 +125,13 @@ def extract_entity_geometry(entity: Any, entity_type: str, handle: int) -> dict[
                 controls_valid = False
                 normalized = []
         row["control_points"] = normalized if controls_valid else []
-        row["degree"] = _dxf(entity, "degree")
+        raw_degree = _dxf(entity, "degree")
+        degree = _safe_float(raw_degree)
+        row["degree"] = (
+            int(degree)
+            if degree is not None and degree >= 1 and degree.is_integer()
+            else None
+        )
         row["closed"] = _dxf(entity, "closed")
     else:
         return None
