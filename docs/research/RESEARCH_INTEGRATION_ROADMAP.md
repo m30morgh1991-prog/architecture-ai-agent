@@ -46,3 +46,29 @@ Then implement only the subset appropriate to that stage and prove it with:
 Implement -> REAL CI -> Verify -> Regression -> Persist -> Continue.
 
 No external research source can override fail-closed governance or authorize regulatory compliance claims without authoritative evidence.
+
+## Open-source AEC/CAD agent integration — 2026-11-13
+
+Research record: `docs/research/open-source-aec-cad-agent-review-2026-11-13.md`.
+
+### Adopted patterns and stage placement
+
+| Upstream project | Adopted subset | Existing boundary / stage | Explicit non-adoption |
+|---|---|---|---|
+| U-C4N/Autocad-MCP (MIT) | capability discovery, read/write separation, dry-run, source fencing, checked execution, readback, diff and recovery test patterns | Existing `docs/integrations/AUTOCAD_MCP_ADAPTER.md`; H81–H84 controlled CAD editing and post-edit validation | No wholesale server import, arbitrary command execution or live writes before Windows evidence |
+| IfcOpenShell / IfcTester / IDS | optional read-only IFC parsing, spatial hierarchy/property extraction, schema and IDS checks, IFC diff | New `docs/integrations/IFC_BIM_ADAPTER.md`; future BIM/IFC adapter work after core semantics are stable | IFC/IDS validity is not geometry, plan-understanding or regulatory compliance PASS |
+| bbl-dres/plan-extract (MIT code; demo/data caveats) | staged extraction/evaluation concepts for rooms, walls, openings, stairs and graph reconstruction | Existing DrawingEvidence, CandidateFact, PlanModel reconstruction and topology validation | No second canonical graph, no demo dependency stack, no dataset import without artifact-level rights audit |
+| Agent-CAD (MIT) | typed intermediate representation, immutable revisions, measured geometry checks | Existing ApprovedChangePlan, PostEditDiff and Audit design | No mechanical/3D stack or Linux-only worker in architecture MVP |
+| awesome-cad-agent | discovery index only | Research process | Not an engine or trusted compatibility source |
+
+### Implementation sequence
+
+1. **Now:** research and integration contracts only; keep H101 and geometry PR gates unchanged.
+2. **CAD-MCP-PILOT-01:** read-only, synthetic DXF comparison; no Golden files and no mutation.
+3. **BIM-IFC-PILOT-01:** optional isolated IfcOpenShell read-only inspection of a synthetic IFC fixture; report schema, units, spatial containment, element/property counts and IDS results separately.
+4. **PLAN-EXTRACT-EVAL-01:** benchmark candidate extraction concepts against our own synthetic/adversarial fixtures, with per-class precision/recall, topology validity, uncertainty and human correction cost.
+5. **Adoption gate:** require reproducibility, license/dependency audit, offline/local viability, resource measurements, no semantic regression and green exact-head CI. Only then propose narrowly scoped code integration.
+
+### Non-negotiable interpretation
+
+PlanModel remains canonical. External CAD/IFC/vision outputs are source-bound evidence or optional interchange representations. They cannot directly mutate PlanModel, ConstraintMap or ApprovedChangePlan. Preserve UNKNOWN / SOURCE_REQUIRED / NEEDS_REVIEW / ABSTAIN / BLOCKED. No H-stage becomes PASS from an external benchmark or an upstream README claim.
