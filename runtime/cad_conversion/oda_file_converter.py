@@ -116,9 +116,9 @@ class ODAFileConverter:
                 )
 
             command = [
-                executable, str(staged_input), str(staged_output),
+                executable, str(staged_input), str(staged_output), "*.dwg",
                 self.config.output_version, "DXF", "0",
-                "1" if self.config.audit else "0", "*.dwg",
+                "1" if self.config.audit else "0",
             ]
             try:
                 completed = subprocess.run(
