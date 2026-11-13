@@ -209,3 +209,15 @@ Research record: `docs/research/plan-understanding-research-and-revit-ai-review-
 - BIM/Revit/IFC export success does not prove that the source plan was correctly understood.
 - Dataset/code licenses must be reviewed per artifact. Public availability does not grant commercial reuse rights.
 - No H101 unlock, new provider, third-party package, dataset import, or Golden DWG modification is authorized by this research entry.
+
+## Open-source agent and BIM implementation candidates — 2026-11-13
+
+| Candidate | Useful feature to evaluate | Target project area | Status |
+|---|---|---|---|
+| U-C4N/Autocad-MCP | read-only MCP tool discovery, CAD inspection, source fencing, dry-run/readback/diff patterns | `docs/integrations/AUTOCAD_MCP_ADAPTER.md`; H81–H84 | Contract-level adoption; runtime pilot pending |
+| IfcOpenShell + IfcTester / buildingSMART IDS | IFC parsing, spatial containment, typed properties, schema/IDS checks and model diffs | `docs/integrations/IFC_BIM_ADAPTER.md`; future BIM adapter | Optional read-only pilot pending |
+| bbl-dres/plan-extract | staged room/wall/opening/stair extraction and graph-oriented evaluation | Plan understanding / reconstruction / topology | Research benchmark only |
+| Agent-CAD | typed IR, immutable revision and geometry-check patterns | ApprovedChangePlan / PostEditDiff / Audit | Design reference only |
+| awesome-cad-agent | discover additional candidate tools and benchmarks | Research workflow | Index only |
+
+Integration is limited to the existing architecture boundaries. No third-party model, dataset, package or new canonical IR is approved by this matrix entry. See `docs/research/open-source-aec-cad-agent-review-2026-11-13.md`.
