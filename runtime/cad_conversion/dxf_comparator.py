@@ -250,6 +250,7 @@ class DxfComparator:
                 cls._quantize(dxf.rotation, tolerance),
                 dxf.get("style", "Standard"),
                 int(dxf.get("halign", 0)), int(dxf.get("valign", 0)),
+                cls._vector(dxf.get("align_point", dxf.insert), tolerance),
             )
         if kind == "MTEXT":
             return (
@@ -270,6 +271,10 @@ class DxfComparator:
                 cls._quantize(dxf.get("yscale", 1), tolerance),
                 cls._quantize(dxf.get("zscale", 1), tolerance),
                 cls._quantize(dxf.get("rotation", 0), tolerance),
+                int(dxf.get("row_count", 1)),
+                int(dxf.get("column_count", 1)),
+                cls._quantize(dxf.get("row_spacing", 0), tolerance),
+                cls._quantize(dxf.get("column_spacing", 0), tolerance),
                 attributes,
             )
         if kind == "ELLIPSE":
