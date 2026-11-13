@@ -77,3 +77,14 @@ def advanced_entity_signature(entity: Any, tolerance: float) -> tuple | None:
         return (kind, payload, extra)
     except (AttributeError, TypeError, ValueError, OverflowError):
         return None
+
+
+def insert_attributes_signature(entity: Any, tolerance: float) -> Any:
+    """Fingerprint attached ATTRIB values; unresolved values stay unsupported."""
+    try:
+        return tuple(
+            _normalise(attribute.dxfattribs(), tolerance)
+            for attribute in getattr(entity, "attribs", ())
+        )
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return None
