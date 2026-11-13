@@ -102,6 +102,7 @@ def classify_opening_connectivity(
 
         if (
             distinct_spaces
+            and _valid_evidence_id(opening_id)
             and span
             and host_wall_evidenced
             and opening_evidence_complete
