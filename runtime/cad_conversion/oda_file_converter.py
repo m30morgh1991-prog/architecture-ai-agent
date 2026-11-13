@@ -1,4 +1,4 @@
-""""Safe isolated adapter for the ODA File Converter command-line interface.
+"""Safe isolated adapter for the ODA File Converter command-line interface.
 
 This adapter orchestrates an installed external codec. It does not claim
 conversion is lossless or that output is architecturally valid.
