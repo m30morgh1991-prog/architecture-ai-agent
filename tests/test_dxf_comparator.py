@@ -70,12 +70,11 @@ class TestDxfComparator(unittest.TestCase):
         report = compare_dxf_files(self.source, self.candidate, tolerance=1e-5)
         self.assertEqual(report.comparison_status, "MATCHED_SUPPORTED_CONTENT")
 
-    def test_unsupported_dimension_keeps_result_incomplete(self):
+    def test_dimension_is_compared_and_fidelity_stays_unknown(self):
         self._write_dxf(self.source, include_dimension=True)
         self._write_dxf(self.candidate, include_dimension=True)
         report = compare_dxf_files(self.source, self.candidate)
-        self.assertEqual(report.comparison_status, "INCOMPLETE")
-        self.assertIn("DIMENSION", report.unsupported_entity_types)
+        self.assertNotIn("DIMENSION", report.unsupported_entity_types)
         self.assertEqual(report.fidelity_status, "UNKNOWN")
 
     def test_malformed_candidate_fails_closed(self):
@@ -170,6 +169,17 @@ class TestDxfComparator(unittest.TestCase):
         report = compare_dxf_files(self.source, self.candidate)
         self.assertEqual(report.comparison_status, "INCOMPLETE")
         self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+
+    def test_entity_presentation_change_is_detected(self):
+        def write(path, color):
+            doc = ezdxf.new("R2010")
+            doc.modelspace().add_line((0, 0), (10, 0), dxfattribs={"color": color, "lineweight": 25})
+            doc.saveas(path)
+        write(self.source, 1)
+        write(self.candidate, 3)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
 
 
 if __name__ == "__main__":
