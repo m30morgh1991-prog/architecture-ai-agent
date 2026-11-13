@@ -182,5 +182,20 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
 
 
+    def test_minsert_array_spacing_change_is_detected(self):
+        def write(path, spacing):
+            doc = ezdxf.new("R2010")
+            doc.blocks.new("COLUMN")
+            doc.modelspace().add_blockref(
+                "COLUMN", (0, 0),
+                dxfattribs={"row_count": 2, "column_count": 3, "row_spacing": spacing, "column_spacing": 4}
+            )
+            doc.saveas(path)
+        write(self.source, 2.0)
+        write(self.candidate, 3.0)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+
+
 if __name__ == "__main__":
     unittest.main()
