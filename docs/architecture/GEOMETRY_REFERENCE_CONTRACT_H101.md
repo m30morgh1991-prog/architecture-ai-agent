@@ -18,10 +18,11 @@ GeometryReference records how coordinate values may be interpreted. It is eviden
 
 ## Fail-closed rules
 
-- Every SUPPORTED state requires one or more source-bound evidence IDs.
+- Every referenced evidence ID resolves to a typed evidence record with the same source SHA-256 and expected evidence domain.
+- Every SUPPORTED state requires one or more matching evidence records whose own status is SUPPORTED.
 - UNKNOWN, UNCERTAIN, and CONTRADICTED never authorize conversion.
 - A paper scale ratio never changes model-space coordinates or establishes model units.
-- A unit label or INSUNITS value without independent supporting evidence cannot authorize metric area reporting.
+- A unit label or INSUNITS value without a matching source-hash-bound UNIT evidence record in SUPPORTED state cannot authorize metric area reporting.
 - Area remains in raw coordinate-units-squared until a recognized linear unit is SUPPORTED.
 - Raster calibration requires a finite, non-singular affine transform and transform evidence.
 - Coordinate transforms are recorded only with evidence; this contract does not yet implement OCS/WCS or nested INSERT transform resolution.
