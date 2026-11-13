@@ -136,7 +136,7 @@ class TestDxfComparator(unittest.TestCase):
         def write(path, offset):
             doc = ezdxf.new("R2010")
             doc.modelspace().add_spline(
-                fit_points=[(0, 0), (5, 5 + offset), (10, 0)],
+                fit_points=[(0, 0), (3, 4 + offset), (7, 4), (10, 0)],
                 degree=3
             )
             doc.saveas(path)
