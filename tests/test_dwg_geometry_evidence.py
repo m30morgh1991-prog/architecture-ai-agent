@@ -169,6 +169,8 @@ class TestDwgGeometryEvidence(unittest.TestCase):
             _Entity("CIRCLE", 17, layer="0", center=(3, 4, 0), radius=True),
             _Entity("ARC", 18, layer="0", center=(1, 2, 0), radius=5,
                     start_angle=False, end_angle=90),
+            _Entity("SPLINE", 19, layer="0",
+                    control_points=[(0, 0, 0), (1, 1, 0)], degree=True, closed=False),
         ]
         doc = _Doc(entities)
         with tempfile.TemporaryDirectory() as td:
@@ -178,11 +180,12 @@ class TestDwgGeometryEvidence(unittest.TestCase):
                 result = extract_dwg_evidence(source)
         self.assertEqual(
             [row["coordinate_status"] for row in result["geometry"]],
-            ["UNKNOWN", "UNKNOWN", "UNKNOWN"],
+            ["UNKNOWN", "UNKNOWN", "UNKNOWN", "UNKNOWN"],
         )
         self.assertIsNone(result["geometry"][0]["start"])
         self.assertIsNone(result["geometry"][1]["radius"])
         self.assertIsNone(result["geometry"][2]["start_angle"])
+        self.assertIsNone(result["geometry"][3]["degree"])
 
     def test_geometry_csv_preserves_entity_specific_fields(self):
         row = {
