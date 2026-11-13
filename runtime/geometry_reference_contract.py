@@ -58,6 +58,26 @@ def _ids(values: tuple[str, ...], code: str) -> None:
 
 
 @dataclass(frozen=True)
+class GeometryReferenceEvidence:
+    evidence_id: str
+    source_sha256: str
+    domain: str
+    status: EvidenceStatus
+    source_ref: str
+    value: str
+
+    def validate(self, expected_source_sha256: str) -> None:
+        if not self.evidence_id or not self.source_ref or not self.value:
+            raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_INCOMPLETE")
+        if self.source_sha256 != expected_source_sha256:
+            raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_SOURCE_MISMATCH")
+        if self.domain not in {"COORDINATE_FRAME", "UNIT", "SCALE", "TRANSFORM", "DIMENSION"}:
+            raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_DOMAIN_INVALID")
+        if self.status not in _ALLOWED_STATUSES:
+            raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_STATUS_INVALID")
+
+
+@dataclass(frozen=True)
 class GeometryReference:
     """Verified provenance for interpreting geometry coordinates and areas.
 
@@ -83,6 +103,7 @@ class GeometryReference:
     transform_evidence_ids: tuple[str, ...] = ()
     dimension_evidence_ids: tuple[str, ...] = ()
     dimension_reconciliation_status: EvidenceStatus = "UNKNOWN"
+    evidence_records: tuple[GeometryReferenceEvidence, ...] = ()
 
     def validate(self) -> None:
         if not self.reference_id:
@@ -114,18 +135,44 @@ class GeometryReference:
         ):
             _ids(values, code)
 
+        evidence_by_id = {}
+        for record in self.evidence_records:
+            record.validate(self.source_sha256)
+            if record.evidence_id in evidence_by_id:
+                raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_ID_DUPLICATE")
+            evidence_by_id[record.evidence_id] = record
+        for ids, domain in (
+            (self.coordinate_evidence_ids, "COORDINATE_FRAME"),
+            (self.unit_evidence_ids, "UNIT"),
+            (self.scale_evidence_ids, "SCALE"),
+            (self.transform_evidence_ids, "TRANSFORM"),
+            (self.dimension_evidence_ids, "DIMENSION"),
+        ):
+            for evidence_id in ids:
+                record = evidence_by_id.get(evidence_id)
+                if record is None or record.domain != domain:
+                    raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_REFERENCE_INVALID")
+
         if self.coordinate_frame_status == "SUPPORTED":
             if self.coordinate_frame == "UNKNOWN" or not self.coordinate_evidence_ids:
                 raise ValueError("GEOMETRY_REFERENCE_FRAME_SUPPORT_UNPROVEN")
+            if any(evidence_by_id[x].status != "SUPPORTED" for x in self.coordinate_evidence_ids):
+                raise ValueError("GEOMETRY_REFERENCE_FRAME_EVIDENCE_NOT_SUPPORTED")
         if self.unit_status == "SUPPORTED":
             if self.linear_unit == "UNKNOWN" or not self.unit_evidence_ids:
                 raise ValueError("GEOMETRY_REFERENCE_UNIT_SUPPORT_UNPROVEN")
+            if any(evidence_by_id[x].status != "SUPPORTED" for x in self.unit_evidence_ids):
+                raise ValueError("GEOMETRY_REFERENCE_UNIT_EVIDENCE_NOT_SUPPORTED")
         if self.scale_status == "SUPPORTED":
             if self.scale_basis == "UNKNOWN" or not self.scale_evidence_ids:
                 raise ValueError("GEOMETRY_REFERENCE_SCALE_SUPPORT_UNPROVEN")
+            if any(evidence_by_id[x].status != "SUPPORTED" for x in self.scale_evidence_ids):
+                raise ValueError("GEOMETRY_REFERENCE_SCALE_EVIDENCE_NOT_SUPPORTED")
         if self.dimension_reconciliation_status == "SUPPORTED":
             if not self.dimension_evidence_ids:
                 raise ValueError("GEOMETRY_REFERENCE_DIMENSION_SUPPORT_UNPROVEN")
+            if any(evidence_by_id[x].status != "SUPPORTED" for x in self.dimension_evidence_ids):
+                raise ValueError("GEOMETRY_REFERENCE_DIMENSION_EVIDENCE_NOT_SUPPORTED")
 
         if self.paper_scale_ratio is not None:
             if len(self.paper_scale_ratio) != 2:
@@ -183,10 +230,16 @@ def build_geometry_reference(**data) -> GeometryReference:
     for key in (
         "paper_scale_ratio", "pixel_to_world_transform", "coordinate_transform_4x4",
         "coordinate_evidence_ids", "unit_evidence_ids", "scale_evidence_ids",
-        "transform_evidence_ids", "dimension_evidence_ids",
+        "transform_evidence_ids", "dimension_evidence_ids", "evidence_records",
     ):
         if data.get(key) is not None:
             data[key] = tuple(data[key])
+    if data.get("evidence_records") is not None:
+        data["evidence_records"] = tuple(
+            item if isinstance(item, GeometryReferenceEvidence)
+            else GeometryReferenceEvidence(**item)
+            for item in data["evidence_records"]
+        )
     reference = GeometryReference(**data)
     reference.validate()
     return reference
