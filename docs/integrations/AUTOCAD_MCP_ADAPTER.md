@@ -87,3 +87,12 @@ This is a candidate implementation/reference for the existing adapter boundary, 
 4. Record AutoCAD version, COM/backend details, input/output hashes and unsupported capabilities.
 
 No upstream implementation is considered integrated until a separate implementation PR passes exact-head CI and adapter tests.
+
+### Upstream CI audit — 2026-11-13
+
+Audited upstream main at commit `6f6a538255ca9f885232e845ac32f10b4433fe3e`:
+- Locked CI on 2026-11-06: Linux 3.11/3.12 and Windows 3.11 test jobs passed; lint, package and build-related jobs passed.
+- Floating-dependency scheduled CI on 2026-11-09: failed on both Python 3.11 and 3.12. Each lane reported 7,261 passed, 319 skipped, 1 xfailed, and 2 failed.
+- The two failures were `tests/test_benchmark_v8.py::test_the_published_reference_report_covers_the_whole_current_matrix` (expected ezdxf 1.4.5, resolved 1.4.4) and `tests/test_entity_properties.py::test_a_polylines_vertices_are_in_the_dump` (nested `pytest.approx` unsupported).
+
+This is a material maintenance/reproducibility warning, not proof that the core adapter is unusable. It reinforces the decision to pin an exact commit, run our own compatibility suite, and avoid adopting its floating dependency graph. The upstream's locked CI success does not cancel the floating-dependency failure.
