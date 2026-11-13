@@ -7,7 +7,26 @@ relations traceable and fail-closed.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Literal
+
+
+def _finite_float(value: object) -> float:
+    """Convert a numeric coordinate without accepting bool, NaN or infinity."""
+    if isinstance(value, bool):
+        raise ValueError("SPACE_GEOMETRY_INVALID")
+    try:
+        number = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("SPACE_GEOMETRY_INVALID") from exc
+    if not isfinite(number):
+        raise ValueError("SPACE_GEOMETRY_NON_FINITE")
+    return number
+
+
+def _validate_finite_geometry(values: tuple[object, ...]) -> None:
+    for value in values:
+        _finite_float(value)
 
 SpaceStatus = Literal["UNKNOWN", "ACCESSIBLE", "BLOCKED"]
 SpaceIdentityStatus = Literal["EXPLICIT", "SCHEDULE_MAPPED", "INFERRED", "CONFLICT", "UNKNOWN"]
@@ -51,6 +70,7 @@ class SpaceRecord:
             raise ValueError("SPACE_ID_OR_BOUNDARY_MISSING")
         if len(self.bbox) != 4 or len(self.centroid) != 2:
             raise ValueError("SPACE_GEOMETRY_INVALID")
+        _validate_finite_geometry((*self.bbox, *self.centroid, self.area))
         x0, y0, x1, y1 = self.bbox
         if x1 <= x0 or y1 <= y0:
             raise ValueError("SPACE_BBOX_INVALID")
@@ -132,9 +152,9 @@ def build_space_model(
         SpaceRecord(
             space_id=str(item["space_id"]),
             boundary_handle=str(item["boundary_handle"]),
-            bbox=tuple(float(x) for x in item["bbox"]),
-            centroid=tuple(float(x) for x in item["centroid"]),
-            area=float(item["area"]),
+            bbox=tuple(_finite_float(x) for x in item["bbox"]),
+            centroid=tuple(_finite_float(x) for x in item["centroid"]),
+            area=_finite_float(item["area"]),
             label=item.get("label"),
             evidence_ids=tuple(str(x) for x in item.get("evidence_ids", [])),
             status=str(item.get("status", "UNKNOWN")),
