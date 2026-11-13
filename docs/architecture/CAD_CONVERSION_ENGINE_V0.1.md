@@ -27,7 +27,11 @@ A converted DXF must not silently replace the original DWG. The original remains
 
 ODA File Converter is the first external local codec adapter because the Open Design Alliance documents a command-line interface with source directory, target directory, output version/type, recursion, and audit options. The executable must be installed separately by the deploying office; this repository does not redistribute it.
 
-The codec's license and terms must be checked for the specific deployment and commercial use. This adapter does not grant redistribution rights.
+**License gate (verified against ODA's official terms):** ODA states that ODA Viewer and ODA File Converter are example/community applications; non-members may use them for non-commercial applications only. The Community User Agreement likewise limits Community Applications to their intended scope and prohibits reselling or distributing them as part of a commercial application. Therefore this adapter is evaluation-only for a non-member and MUST NOT be enabled for commercial architecture-office workflows or shipped as part of a commercial product unless ODA provides a separate written authorization or the deployment obtains an appropriate commercial license. This adapter does not grant redistribution rights.
+
+Official sources:
+- https://www.opendesign.com/faq/question/what-are-oda-viewer-and-oda-file-converter
+- https://www.opendesign.com/files/2025-09/ODA%20Community%20User%20Agreement%2009-2025.pdf
 
 ## Deferred work
 
