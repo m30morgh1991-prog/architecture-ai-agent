@@ -120,3 +120,6 @@ Official sources:
 - Xref block references remain unresolved dependencies and must not be treated as a complete comparison. The comparator does not load arbitrary external paths.
 - Added synthetic tests for dimensions, hatch boundaries, spline control data, insert attributes, and unresolved Xrefs.
 - Synthetic DXF comparator tests do not establish DWG conversion fidelity, rendering equivalence, external-reference resolution, or AutoCAD compatibility.
+
+
+- Additional comparison coverage includes MINSERT row/column counts and spacing, TEXT alignment points, HATCH associative source-boundary references, and fail-closed handling when a DIMENSION lacks its anonymous geometry block.
