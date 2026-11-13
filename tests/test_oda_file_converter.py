@@ -41,6 +41,25 @@ class TestODAFileConverter(unittest.TestCase):
         self.assertEqual(command[7], "*.dwg")
         self.assertEqual(run.call_args.kwargs["timeout"], 300)
 
+    @patch("runtime.cad_conversion.oda_file_converter.shutil.which", return_value="/mock/ODAFileConverter")
+    @patch("runtime.cad_conversion.oda_file_converter.subprocess.run")
+    def test_failed_exclusive_create_does_not_remove_concurrent_output(self, run, _which):
+        run.side_effect = self._mock_success
+        original_open = Path.open
+
+        def simulate_concurrent_output(path, mode="r", *args, **kwargs):
+            if path == self.output and mode == "xb":
+                with original_open(path, "wb") as stream:
+                    stream.write(b"created-by-another-process")
+                raise PermissionError("simulated exclusive-create failure")
+            return original_open(path, mode, *args, **kwargs)
+
+        with patch.object(Path, "open", new=simulate_concurrent_output):
+            with self.assertRaises(ConversionError) as caught:
+                ODAFileConverter().convert_dwg_to_dxf(self.source, self.output)
+
+        self.assertEqual(caught.exception.code, "OUTPUT_WRITE_FAILED")
+        self.assertEqual(self.output.read_bytes(), b"created-by-another-process")
 
     @patch("runtime.cad_conversion.oda_file_converter.shutil.which", return_value="/mock/ODAFileConverter")
     @patch("runtime.cad_conversion.oda_file_converter.shutil.copy2")
