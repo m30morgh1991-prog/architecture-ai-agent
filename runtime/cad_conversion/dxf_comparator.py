@@ -29,6 +29,8 @@ class DxfComparisonReport:
     candidate_layers: list[str] = field(default_factory=list)
     source_blocks: list[str] = field(default_factory=list)
     candidate_blocks: list[str] = field(default_factory=list)
+    source_block_entity_counts: dict[str, int] = field(default_factory=dict)
+    candidate_block_entity_counts: dict[str, int] = field(default_factory=dict)
     source_layouts: list[str] = field(default_factory=list)
     candidate_layouts: list[str] = field(default_factory=list)
     source_insunits: int | None = None
@@ -83,10 +85,11 @@ class DxfComparator:
                 f"At least one DXF could not be parsed ({type(exc).__name__}).",
             )
 
-        source_entities, source_blocks, source_unsupported = self._collect(source_doc, tolerance)
-        candidate_entities, candidate_blocks, candidate_unsupported = self._collect(candidate_doc, tolerance)
+        source_entities, source_blocks, source_block_inventory, source_unsupported = self._collect(source_doc, tolerance)
+        candidate_entities, candidate_blocks, candidate_block_inventory, candidate_unsupported = self._collect(candidate_doc, tolerance)
         geometry_mismatches = self._counter_delta(source_entities, candidate_entities)
         block_mismatches = self._counter_delta(source_blocks, candidate_blocks)
+        block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory)
 
         source_counts = self._layout_counts(source_doc)
         candidate_counts = self._layout_counts(candidate_doc)
@@ -106,6 +109,7 @@ class DxfComparator:
             ("entity_counts", source_counts, candidate_counts),
             ("layers", source_layers, candidate_layers),
             ("blocks", source_block_names, candidate_block_names),
+            ("block_entity_counts", dict(sorted(source_block_inventory.items())), dict(sorted(candidate_block_inventory.items()))),
             ("layouts", source_layouts, candidate_layouts),
             ("INSUNITS", source_insunits, candidate_insunits),
             ("MEASUREMENT", source_measurement, candidate_measurement),
@@ -117,6 +121,8 @@ class DxfComparator:
             differences.append("supported_geometry_signatures")
         if block_mismatches:
             differences.append("block_definition_geometry")
+        if block_inventory_mismatches and "block_entity_counts" not in differences:
+            differences.append("block_entity_counts")
 
         unsupported = sorted(source_unsupported | candidate_unsupported)
         if differences:
@@ -150,22 +156,28 @@ class DxfComparator:
             candidate_insunits=candidate_insunits,
             source_measurement=source_measurement,
             candidate_measurement=candidate_measurement,
-            geometry_mismatch_count=geometry_mismatches + block_mismatches,
+            source_block_entity_counts=dict(sorted(source_block_inventory.items())),
+            candidate_block_entity_counts=dict(sorted(candidate_block_inventory.items())),
+            geometry_mismatch_count=geometry_mismatches + block_mismatches + block_inventory_mismatches,
             unsupported_entity_types=unsupported,
             structural_differences=differences,
         )
 
     @classmethod
-    def _collect(cls, document: Any, tolerance: float) -> tuple[Counter, Counter, set[str]]:
+    def _collect(cls, document: Any, tolerance: float) -> tuple[Counter, Counter, Counter, set[str]]:
         layout_signatures: Counter = Counter()
         block_signatures: Counter = Counter()
+        block_inventory: Counter = Counter()
         unsupported: set[str] = set()
 
         for layout in document.layouts:
             container = ("layout", layout.name)
             for entity in layout:
                 kind = entity.dxftype()
-                signature = cls._signature(entity, tolerance)
+                try:
+                    signature = cls._signature(entity, tolerance)
+                except (AttributeError, TypeError, ValueError):
+                    signature = None
                 if signature is None:
                     unsupported.add(kind)
                 else:
@@ -177,12 +189,16 @@ class DxfComparator:
             container = ("block", block.name)
             for entity in block:
                 kind = entity.dxftype()
-                signature = cls._signature(entity, tolerance)
+                block_inventory[(block.name, kind)] += 1
+                try:
+                    signature = cls._signature(entity, tolerance)
+                except (AttributeError, TypeError, ValueError):
+                    signature = None
                 if signature is None:
                     unsupported.add(kind)
                 else:
                     block_signatures[(container, kind, signature)] += 1
-        return layout_signatures, block_signatures, unsupported
+        return layout_signatures, block_signatures, block_inventory, unsupported
 
     @classmethod
     def _signature(cls, entity: Any, tolerance: float) -> tuple | None:
