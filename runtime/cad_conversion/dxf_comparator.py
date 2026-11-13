@@ -14,6 +14,8 @@ from typing import Any
 import ezdxf
 from ezdxf import DXFError
 
+from .dxf_advanced import advanced_entity_signature
+
 
 @dataclass(frozen=True)
 class DxfComparisonReport:
@@ -258,7 +260,7 @@ class DxfComparator:
                 cls._quantize(dxf.start_param, tolerance),
                 cls._quantize(dxf.end_param, tolerance),
             )
-        return None
+        return advanced_entity_signature(entity, tolerance)
 
     @staticmethod
     def _vector(value: Any, tolerance: float) -> tuple[int, ...]:
