@@ -91,5 +91,86 @@ class TestDxfComparator(unittest.TestCase):
             compare_dxf_files(self.source, self.candidate, tolerance=0)
 
 
+    def test_dimension_semantics_are_compared(self):
+        def write(path, measurement=5.0):
+            doc = ezdxf.new("R2010")
+            doc.modelspace().add_linear_dim(
+                base=(0, 2), p1=(0, 0), p2=(measurement, 0),
+                dimstyle="Standard"
+            ).render()
+            doc.saveas(path)
+        write(self.source)
+        write(self.candidate)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertNotIn("DIMENSION", report.unsupported_entity_types)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_dimension_geometry_change_is_detected(self):
+        def write(path, measurement):
+            doc = ezdxf.new("R2010")
+            doc.modelspace().add_linear_dim(
+                base=(0, 2), p1=(0, 0), p2=(measurement, 0)
+            ).render()
+            doc.saveas(path)
+        write(self.source, 5.0)
+        write(self.candidate, 6.0)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+
+    def test_hatch_boundary_change_is_detected(self):
+        def write(path, x):
+            doc = ezdxf.new("R2010")
+            hatch = doc.modelspace().add_hatch(color=1)
+            hatch.set_solid_fill(color=1)
+            hatch.paths.add_polyline_path(
+                [(0, 0), (x, 0), (x, 10), (0, 10)],
+                is_closed=True
+            )
+            doc.saveas(path)
+        write(self.source, 10.0)
+        write(self.candidate, 11.0)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertNotIn("HATCH", report.unsupported_entity_types)
+
+    def test_spline_control_data_change_is_detected(self):
+        def write(path, offset):
+            doc = ezdxf.new("R2010")
+            doc.modelspace().add_spline(
+                fit_points=[(0, 0), (5, 5 + offset), (10, 0)],
+                degree=3
+            )
+            doc.saveas(path)
+        write(self.source, 0.0)
+        write(self.candidate, 1.0)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertNotIn("SPLINE", report.unsupported_entity_types)
+
+    def test_insert_attribute_value_change_is_detected(self):
+        def write(path, value):
+            doc = ezdxf.new("R2010")
+            block = doc.blocks.new("ROOM_TAG")
+            block.add_attdef("ROOM", insert=(0, 0), text="A")
+            insert = doc.modelspace().add_blockref("ROOM_TAG", (10, 10))
+            insert.add_auto_attribs({"ROOM": value})
+            doc.saveas(path)
+        write(self.source, "101")
+        write(self.candidate, "102")
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+
+    def test_xref_dependency_is_never_claimed_complete(self):
+        def write(path):
+            doc = ezdxf.new("R2010")
+            doc.blocks.new("SITE_XREF", dxfattribs={"flags": 4, "xref_path": "site.dwg"})
+            doc.saveas(path)
+        write(self.source)
+        write(self.candidate)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "INCOMPLETE")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+
 if __name__ == "__main__":
     unittest.main()
