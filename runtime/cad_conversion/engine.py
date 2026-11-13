@@ -85,7 +85,7 @@ class CadConversionEngine:
             raise ConversionError("SOURCE_MUTATED", "Provider changed the source DWG; result is rejected.")
         if result.source_sha256 != source_hash_before:
             raise ConversionError("PROVIDER_SOURCE_HASH_MISMATCH", "Provider source hash does not match the original snapshot.")
-        if result.source_path.resolve() != source or result.output_path.resolve() != destination:
+        if Path(result.source_path).resolve() != source or Path(result.output_path).resolve() != destination:
             raise ConversionError("PROVIDER_PATH_MISMATCH", "Provider result paths do not match the requested files.")
         if not destination.is_file() or destination.stat().st_size == 0:
             raise ConversionError("PROVIDER_OUTPUT_INVALID", "Provider did not produce one non-empty DXF.")
