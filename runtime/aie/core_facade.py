@@ -261,19 +261,34 @@ def _result(
     element_ids: tuple[str, ...],
     findings: list[AIEFinding] | tuple[AIEFinding, ...],
 ) -> AIEInspectionResult:
+    # Inspection must remain fail-closed even when the model object itself
+    # is malformed. Do not let result formatting raise a second exception
+    # after validation has already identified an invalid contract.
+    try:
+        raw_elements = getattr(model, "elements", ())
+        elements = tuple(raw_elements) if raw_elements is not None else ()
+    except (AttributeError, TypeError):
+        elements = ()
+
     state_counts = tuple(
         (
             state,
-            sum(1 for element in model.elements if element.state == state),
+            sum(1 for element in elements if getattr(element, "state", None) == state),
         )
         for state in _STATE_BUCKETS
     )
+    try:
+        spaces = getattr(model, "spaces", ())
+        space_count = len(spaces)
+    except (AttributeError, TypeError, ValueError):
+        space_count = 0
+
     return AIEInspectionResult(
         status=status,
         model_id=getattr(model, "model_id", None),
         source_sha256=getattr(model, "source_sha256", None),
-        element_count=len(getattr(model, "elements", ())),
-        space_count=len(getattr(model, "spaces", ())),
+        element_count=len(elements),
+        space_count=space_count,
         state_counts=state_counts,
         findings=tuple(findings),
     )
