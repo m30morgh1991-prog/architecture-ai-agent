@@ -99,6 +99,26 @@ class OpeningConnectivityTests(unittest.TestCase):
         )
         self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
 
+    def test_degenerate_boundaries_remain_unresolved_without_crashing(self):
+        boundaries = {"A": [(0, 0), (10, 0)], "B": [(10, 0), (20, 0)]}
+        result = classify_opening_connectivity(
+            [self.opening], self.spaces, boundaries,
+            tolerance=0.01, host_wall_ids={"W1"},
+        )
+        self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
+        self.assertEqual(result[0]["touched_space_count"], 0)
+
+    def test_invalid_tolerance_is_rejected(self):
+        for tolerance in (float("nan"), float("inf"), -0.1, True, "bad"):
+            with self.subTest(tolerance=tolerance):
+                with self.assertRaisesRegex(
+                    ValueError, "OPENING_CONNECTIVITY_TOLERANCE_INVALID"
+                ):
+                    classify_opening_connectivity(
+                        [self.opening], self.spaces, self.boundaries,
+                        tolerance=tolerance, host_wall_ids={"W1"},
+                    )
+
     def test_missing_opening_id_is_handled_as_unresolved(self):
         opening = {**self.opening}
         opening.pop("opening_id")
