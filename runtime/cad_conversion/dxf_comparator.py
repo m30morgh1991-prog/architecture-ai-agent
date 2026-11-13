@@ -14,7 +14,7 @@ from typing import Any
 import ezdxf
 from ezdxf import DXFError
 
-from .dxf_advanced import advanced_entity_signature
+from .dxf_advanced import advanced_entity_signature, insert_attributes_signature
 
 
 @dataclass(frozen=True)
@@ -189,6 +189,14 @@ class DxfComparator:
             if getattr(block, "is_any_layout", False):
                 continue
             container = ("block", block.name)
+            block_record = getattr(block, "block", None)
+            block_dxf = getattr(block_record, "dxf", None)
+            if block_dxf is not None:
+                xref_path = block_dxf.get("xref_path")
+                flags = int(block_dxf.get("flags", 0) or 0)
+                if xref_path or flags & (4 | 8):
+                    block_inventory[(block.name, f"XREF:{xref_path or 'UNRESOLVED'}")] += 1
+                    unsupported.add("XREF_DEPENDENCY")
             for entity in block:
                 kind = entity.dxftype()
                 block_inventory[(block.name, kind)] += 1
@@ -245,12 +253,16 @@ class DxfComparator:
                 int(dxf.get("attachment_point", 1)),
             )
         if kind == "INSERT":
+            attributes = insert_attributes_signature(entity, tolerance)
+            if attributes is None:
+                return None
             return (
                 layer, dxf.name, cls._vector(dxf.insert, tolerance),
                 cls._quantize(dxf.get("xscale", 1), tolerance),
                 cls._quantize(dxf.get("yscale", 1), tolerance),
                 cls._quantize(dxf.get("zscale", 1), tolerance),
                 cls._quantize(dxf.get("rotation", 0), tolerance),
+                attributes,
             )
         if kind == "ELLIPSE":
             return (
