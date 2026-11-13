@@ -10,6 +10,26 @@ class GeometryReferenceContractTests(unittest.TestCase):
             "source_sha256": "a" * 64,
         }
         data.update(overrides)
+        if "evidence_records" not in data:
+            domains = {
+                "coordinate_evidence_ids": "COORDINATE_FRAME",
+                "unit_evidence_ids": "UNIT",
+                "scale_evidence_ids": "SCALE",
+                "transform_evidence_ids": "TRANSFORM",
+                "dimension_evidence_ids": "DIMENSION",
+            }
+            records = []
+            for field, domain in domains.items():
+                for evidence_id in data.get(field, ()):
+                    records.append({
+                        "evidence_id": evidence_id,
+                        "source_sha256": data["source_sha256"],
+                        "domain": domain,
+                        "status": "SUPPORTED",
+                        "source_ref": "test-fixture",
+                        "value": "test-value",
+                    })
+            data["evidence_records"] = records
         return build_geometry_reference(**data)
 
     def test_default_reference_is_unknown_and_cannot_report_metric_area(self):
@@ -94,6 +114,18 @@ class GeometryReferenceContractTests(unittest.TestCase):
             self.base(
                 linear_unit="CM", unit_status="SUPPORTED",
                 unit_evidence_ids=["dim-1", "dim-1"],
+            )
+
+    def test_evidence_must_match_source_hash(self):
+        with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_EVIDENCE_SOURCE_MISMATCH"):
+            self.base(
+                linear_unit="MM", unit_status="SUPPORTED",
+                unit_evidence_ids=["unit-01"],
+                evidence_records=[{
+                    "evidence_id": "unit-01", "source_sha256": "b" * 64,
+                    "domain": "UNIT", "status": "SUPPORTED",
+                    "source_ref": "drawing-header", "value": "MM",
+                }],
             )
 
     def test_bad_source_hash_is_rejected(self):
