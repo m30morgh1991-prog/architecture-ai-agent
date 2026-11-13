@@ -57,6 +57,7 @@ def advanced_entity_signature(entity: Any, tolerance: float) -> tuple | None:
                     "is_closed": getattr(path, "is_closed", None),
                     "vertices": getattr(path, "vertices", None),
                     "edges": getattr(path, "edges", None),
+                    "source_boundary_objects": getattr(path, "source_boundary_objects", None),
                 }
                 paths.append(_normalise(path_data, tolerance))
             extra = (
@@ -69,7 +70,9 @@ def advanced_entity_signature(entity: Any, tolerance: float) -> tuple | None:
             )
         elif kind == "DIMENSION":
             geometry = entity.dxf.get("geometry")
-            extra = ("geometry_block", str(geometry)) if geometry else ("geometry_block_missing",)
+            if not geometry:
+                return None
+            extra = ("geometry_block", str(geometry))
         elif kind == "LEADER":
             extra = _normalise(getattr(entity, "vertices", ()), tolerance)
         elif kind == "MLEADER":
