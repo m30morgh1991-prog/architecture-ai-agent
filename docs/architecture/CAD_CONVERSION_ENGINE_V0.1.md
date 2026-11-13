@@ -101,3 +101,13 @@ Official sources:
 - The facade independently checks source immutability, requested source/output paths, output existence/non-empty state, output SHA-256, and execution completion.
 - v0.1 rejects provider results that claim fidelity PASS or omit mandatory review. Every provider result must retain `fidelity_status=UNKNOWN` and `requires_review=true`.
 - AutoCAD Core Console is not registered or available until its version-qualified Windows adapter is implemented and tested. ODA remains optional and its licensing restrictions continue to apply.
+
+
+## Read-only DXF-to-DXF comparison
+
+- Added `DxfComparator` / `compare_dxf_files` for comparing a reference DXF with a converted candidate without modifying either file.
+- The report compares layout entity inventories, user block names and block-entity inventories, layers, layouts, INSUNITS/MEASUREMENT, and supported geometry signatures using a caller-specified positive finite coordinate tolerance.
+- Initial supported geometry signatures cover LINE, CIRCLE, ARC, POINT, LWPOLYLINE, TEXT, MTEXT, INSERT, and ELLIPSE. Handles are not treated as stable identity across conversion.
+- Entity types without a qualified geometry signature (including dimensions, hatches, splines, proxies, and other unsupported types) are reported and keep the comparison `INCOMPLETE`; they are never silently ignored as a fidelity pass.
+- Even `MATCHED_SUPPORTED_CONTENT` is only a match for the explicitly supported comparison surface. `fidelity_status` remains `UNKNOWN` and `requires_review=true` for every report.
+- This comparator accepts DXF on both sides. It does not parse DWG directly and cannot replace the future source-DWG-to-output-DXF Golden qualification workflow.
