@@ -109,7 +109,7 @@ class DxfComparator:
             ("entity_counts", source_counts, candidate_counts),
             ("layers", source_layers, candidate_layers),
             ("blocks", source_block_names, candidate_block_names),
-            ("block_entity_counts", dict(sorted(source_block_inventory.items())), dict(sorted(candidate_block_inventory.items()))),
+            ("block_entity_counts", self._serialize_block_inventory(source_block_inventory), self._serialize_block_inventory(candidate_block_inventory)),
             ("layouts", source_layouts, candidate_layouts),
             ("INSUNITS", source_insunits, candidate_insunits),
             ("MEASUREMENT", source_measurement, candidate_measurement),
@@ -127,7 +127,7 @@ class DxfComparator:
         unsupported = sorted(source_unsupported | candidate_unsupported)
         if differences:
             status = "DIFFERENCES_FOUND"
-            geometry_status = "DIFFERENCES_FOUND" if geometry_mismatches or block_mismatches else (
+            geometry_status = "DIFFERENCES_FOUND" if geometry_mismatches or block_mismatches or block_inventory_mismatches else (
                 "INCOMPLETE" if unsupported else "MATCHED"
             )
         elif unsupported:
@@ -156,8 +156,8 @@ class DxfComparator:
             candidate_insunits=candidate_insunits,
             source_measurement=source_measurement,
             candidate_measurement=candidate_measurement,
-            source_block_entity_counts=dict(sorted(source_block_inventory.items())),
-            candidate_block_entity_counts=dict(sorted(candidate_block_inventory.items())),
+            source_block_entity_counts=self._serialize_block_inventory(source_block_inventory),
+            candidate_block_entity_counts=self._serialize_block_inventory(candidate_block_inventory),
             geometry_mismatch_count=geometry_mismatches + block_mismatches + block_inventory_mismatches,
             unsupported_entity_types=unsupported,
             structural_differences=differences,
@@ -270,6 +270,10 @@ class DxfComparator:
         if not math.isfinite(number):
             raise ValueError("DXF_GEOMETRY_NONFINITE")
         return round(number / tolerance)
+
+    @staticmethod
+    def _serialize_block_inventory(inventory: Counter) -> dict[str, int]:
+        return {f"{block_name}::{entity_type}": count for (block_name, entity_type), count in sorted(inventory.items())}
 
     @staticmethod
     def _counter_delta(left: Counter, right: Counter) -> int:
