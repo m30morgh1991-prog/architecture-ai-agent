@@ -17,10 +17,11 @@ from runtime.cad_conversion.oda_file_converter import sha256_file
 class FakeProvider:
     provider_id = "fake_provider"
 
-    def __init__(self, *, fidelity_status="UNKNOWN", requires_review=True, wrong_hash=False, mutate_source=False):
+    def __init__(self, *, fidelity_status="UNKNOWN", requires_review=True, wrong_hash=False, wrong_source_hash=False, mutate_source=False):
         self.fidelity_status = fidelity_status
         self.requires_review = requires_review
         self.wrong_hash = wrong_hash
+        self.wrong_source_hash = wrong_source_hash
         self.mutate_source = mutate_source
 
     def convert_dwg_to_dxf(self, source_path, output_path):
@@ -35,7 +36,7 @@ class FakeProvider:
             output_path=output,
             engine="fake",
             output_version="ACAD2018",
-            source_sha256=sha256_file(source),
+            source_sha256="f" * 64 if self.wrong_source_hash else sha256_file(source),
             output_sha256="0" * 64 if self.wrong_hash else sha256_file(output),
             source_unchanged=not self.mutate_source,
             execution_status="COMPLETED",
@@ -92,6 +93,12 @@ class TestCadConversionEngine(unittest.TestCase):
         with self.assertRaises(ConversionError) as caught:
             engine.convert_dwg_to_dxf("fake_provider", self.source, self.output)
         self.assertEqual(caught.exception.code, "PROVIDER_OUTPUT_HASH_MISMATCH")
+
+    def test_provider_source_hash_must_match_engine_snapshot(self):
+        engine = CadConversionEngine([FakeProvider(wrong_source_hash=True)])
+        with self.assertRaises(ConversionError) as caught:
+            engine.convert_dwg_to_dxf("fake_provider", self.source, self.output)
+        self.assertEqual(caught.exception.code, "PROVIDER_SOURCE_HASH_MISMATCH")
 
     def test_source_mutation_is_rejected(self):
         engine = CadConversionEngine([FakeProvider(mutate_source=True)])
