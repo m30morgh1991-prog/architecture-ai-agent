@@ -73,6 +73,19 @@ def advanced_entity_signature(entity: Any, tolerance: float) -> tuple | None:
             if not geometry:
                 return None
             extra = ("geometry_block", str(geometry))
+        elif kind == "SPLINE":
+            # SPLINE geometry is stored in entity-owned arrays, not only in
+            # dxfattribs(). Include both defining point sets and curve
+            # parameters so point, knot, and rational-weight changes are seen.
+            extra = (
+                "spline_definition",
+                int(entity.dxf.get("degree", 0)),
+                int(entity.dxf.get("flags", 0)),
+                tuple(_normalise(point, tolerance) for point in entity.control_points),
+                tuple(_normalise(point, tolerance) for point in entity.fit_points),
+                tuple(_normalise(value, tolerance) for value in entity.knots),
+                tuple(_normalise(value, tolerance) for value in entity.weights),
+            )
         elif kind == "LEADER":
             extra = _normalise(getattr(entity, "vertices", ()), tolerance)
         elif kind == "MLEADER":
