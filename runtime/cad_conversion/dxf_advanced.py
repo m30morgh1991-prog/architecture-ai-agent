@@ -77,12 +77,21 @@ def advanced_entity_signature(entity: Any, tolerance: float) -> tuple | None:
             # SPLINE geometry is stored in entity-owned arrays, not only in
             # dxfattribs(). Include both defining point sets and curve
             # parameters so point, knot, and rational-weight changes are seen.
+            # ezdxf exposes VertexArray points as NumPy arrays, so normalize
+            # their scalar coordinates explicitly rather than treating them
+            # as generic Python objects.
             extra = (
                 "spline_definition",
                 int(entity.dxf.get("degree", 0)),
                 int(entity.dxf.get("flags", 0)),
-                tuple(_normalise(point, tolerance) for point in entity.control_points),
-                tuple(_normalise(point, tolerance) for point in entity.fit_points),
+                tuple(
+                    tuple(_normalise(float(component), tolerance) for component in point)
+                    for point in entity.control_points
+                ),
+                tuple(
+                    tuple(_normalise(float(component), tolerance) for component in point)
+                    for point in entity.fit_points
+                ),
                 tuple(_normalise(value, tolerance) for value in entity.knots),
                 tuple(_normalise(value, tolerance) for value in entity.weights),
             )
