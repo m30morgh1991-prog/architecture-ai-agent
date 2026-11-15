@@ -271,7 +271,7 @@ class DxfComparator:
         layer = dxf.get("layer", "0")
         if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}:
             text_value = entity.text if kind == "MTEXT" else dxf.get("text", "")
-            if "\ufffd" in str(text_value):
+            if any(char == "\ufffd" or 0xDC80 <= ord(char) <= 0xDCFF for char in str(text_value)):
                 # Invalid source bytes decoded as U+FFFD are not trusted text.
                 return None
         if kind == "LINE":
