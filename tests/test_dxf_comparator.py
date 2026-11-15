@@ -4,6 +4,7 @@ import hashlib
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import ezdxf
@@ -287,6 +288,55 @@ class TestDxfComparator(unittest.TestCase):
         self.assertTrue(report.requires_review)
 
 
+
+    def test_missing_shx_and_reversed_persian_text_do_not_block_geometry(self):
+        def write(path):
+            document = ezdxf.new("R2010")
+            document.styles.new("PERSIAN_MISSING", dxfattribs={"font": "not-installed.shx"})
+            modelspace = document.modelspace()
+            modelspace.add_line((0, 0), (20, 10))
+            modelspace.add_text("ﻡﻼﺳ", dxfattribs={"style": "PERSIAN_MISSING"})
+            modelspace.add_mtext("ﻥﺎﺘﺳﺭﺎﮐ", dxfattribs={"style": "PERSIAN_MISSING"})
+            document.saveas(path)
+
+        write(self.source)
+        write(self.candidate)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "MATCHED_SUPPORTED_CONTENT")
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.source_entity_counts["LINE"], 1)
+        self.assertEqual(report.source_entity_counts["TEXT"], 1)
+        self.assertEqual(report.source_entity_counts["MTEXT"], 1)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
+
+    def test_text_signature_exception_does_not_block_geometry_comparison(self):
+        def write(path):
+            document = ezdxf.new("R2010")
+            modelspace = document.modelspace()
+            modelspace.add_line((0, 0), (20, 10))
+            modelspace.add_text("سلام")
+            document.saveas(path)
+
+        write(self.source)
+        write(self.candidate)
+        original_signature = DxfComparator._signature
+
+        def fail_only_text(entity, tolerance):
+            if entity.dxftype() == "TEXT":
+                raise UnicodeError("simulated legacy text decode failure")
+            return original_signature(entity, tolerance)
+
+        with patch.object(DxfComparator, "_signature", side_effect=fail_only_text):
+            report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "INCOMPLETE")
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertIn("TEXT_READ_UNAVAILABLE", report.unsupported_entity_types)
+        self.assertEqual(report.source_entity_counts["LINE"], 1)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
 
 if __name__ == "__main__":
     unittest.main()
