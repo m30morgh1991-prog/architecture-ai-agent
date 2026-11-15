@@ -1,3 +1,22 @@
+## Current live inventory — 2026-11-15
+
+This is the latest exact-state snapshot; it supersedes all earlier open-PR counts above.
+
+- Current open PR count: **22**.
+- PR #150 head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 completed/success; 429 tests passed. Draft.
+- PR #151 head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 completed/success; 432 tests passed. Draft, stacked on #150.
+- PR #152 head `2b7b7d08269893aebf6b612dcd19b4f42667dbbc`: Bug Hunt #43741879578, Runtime #43741879584, PR CI #43741879589 completed/success; 433 tests passed. Draft, stacked on #151.
+- PR #154 head `9581913da9339766b5aadbbdde0b9b3906b495aa`: Bug Hunt #43743324148, Runtime #43743324031, PR CI #43743324020 completed/success; 442 tests passed. Draft, stacked on #152. HTTP requests are bounded/validated and the server binds to loopback by default.
+- PR #153 head `6ee1105ca5ded83036060e3aa5e374f87bf4467e`: Bug Hunt #43742686768, Runtime #43742686762, PR CI #43742686745 completed/success. Existing Persian/SHX reader resilience fix; stacked on #148.
+- PR #155 head `3e9fb4b74a53852a03c100a1e8f20fd46a05be4b`: Bug Hunt #43743423068, Runtime #43743423067, PR CI #43743423077 completed/success; 444 tests passed. Completes existing layout/viewport/UCS comparison coverage; stacked on #153.
+- Runtime dependency chain: #150 → #151 → #152 → #154.
+- CAD dependency chain: #143 → #144 → #148 → #153 → #155. Important: PR #144's base SHA `f085976c82153c93af966fbd6d3f5fe06967579a` is older than current PR #143 head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`; synchronize #144 and then revalidate descendants before merge.
+- PR #147 current head before this update: `bdf6342fe9c76aa9348b033ec3ec02c837c9cfd2`; Bug Hunt #43742552151, Runtime #43742552164, PR CI #43742552153 completed/success. This state update creates a new head and requires fresh exact-head checks.
+- No PR was merged, approved, or closed in this update. All implementation PRs remain open; merge order and explicit owner authorization remain mandatory.
+- Mainline CI remains UNKNOWN (no run/status records for main SHA `ad60e81cef4335c771fee8df4fad57740d06481b`). Windows/AutoCAD/ODA/real SHX host tests remain NOT_RUN.
+
+---
+
 ## Newly observed CAD reader resilience PR — 2026-11-15
 
 The live open PR inventory has increased to **20** with PR #153. This supersedes the prior 19-PR snapshot.
