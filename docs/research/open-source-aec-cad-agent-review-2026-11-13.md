@@ -175,3 +175,21 @@ The live PR #131 workflow `Golden DWG to DXF Fidelity Test` run #24 (run ID `432
 - Overall report: `NEEDS_REVIEW`; native writer overall status: `BLOCKED`. No lossless-conversion claim is justified.
 
 **Decision update:** retain ezdwg as a read/inspection experiment only; reject its current Golden DWG→DXF and native DWG write paths as production conversion providers. Do not weaken the failed Golden gate to obtain green CI. Use these two immutable fixtures as the baseline for the isolated acadrust pilot in issue #145, and require the same independent entity/property/hash checks.
+
+
+## Additional independent DWG reader candidate — LibreDWG (2026-11-15)
+
+**Finding:** GNU LibreDWG is a viable *test-only independent reference*, not a production dependency selected for this project.
+
+- Official repository: https://github.com/LibreDWG/libredwg
+- Official command documentation: https://www.gnu.org/software/libredwg/manual/html_node/Programs.html
+- Current documented release: 0.14 (2026-06-27); the project documents `dwg2dxf`, `dwgread -O DXF`, and read/export targets through R2018.
+- License: GPL-3.0-or-later. The upstream README describes roughly 90% coverage; the project itself notes incomplete entity support.
+- Build path on Ubuntu requires a native toolchain and development packages; the upstream Docker build note estimates roughly 5–10 minutes depending on hardware.
+- Upstream release notes describe recent parser/security fixes and improvements to DXF round-trip handling, but that is not evidence of compatibility with our Golden fixtures.
+
+**Proposed use:** build a pinned CLI in an isolated CI job and use it as a second independent DWG reader/reference DXF generator. Compare its entity/table/property inventories against acadrust and ezdxf. Treat LibreDWG output as another implementation's evidence, not ground truth: any disagreement remains NEEDS_REVIEW until reconciled with an authoritative CAD host.
+
+**Adoption decision:** do not link, vendor, bundle, or add LibreDWG to the production runtime. GPL-3.0 licensing and incomplete DWG entity coverage make it unsuitable as an assumed drop-in production engine for a potentially closed-source customer deployment. A test-only CI invocation is a separate legal/engineering decision and should remain optional.
+
+No LibreDWG source, binary, dependency, or generated output is added by this documentation update.
