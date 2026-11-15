@@ -1,6 +1,8 @@
 from pathlib import Path
+import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from runtime.bug_hunting_gate import REQUIRED_SECTIONS, REQUIRED_TOKENS, validate_evidence, run
 
@@ -70,6 +72,15 @@ class BugHuntingGateTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             self.assertEqual(run("123", root), 1)
+
+    def test_run_uses_github_pull_request_ref_when_pr_number_is_stale(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            evidence = root / "docs" / "bug-hunting" / "PR-154.md"
+            evidence.parent.mkdir(parents=True)
+            evidence.write_text(GOOD, encoding="utf-8")
+            with patch.dict(os.environ, {"GITHUB_REF": "refs/pull/154/merge"}):
+                self.assertEqual(run("123", root), 0)
 
     def test_required_contract_is_stronger(self):
         self.assertEqual(len(REQUIRED_SECTIONS), 13)
