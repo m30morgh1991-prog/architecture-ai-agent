@@ -5,6 +5,7 @@ fidelity, and unsupported entity types keep the result incomplete.
 """
 from __future__ import annotations
 
+import hashlib
 import math
 from collections import Counter
 from dataclasses import asdict, dataclass, field
@@ -21,6 +22,9 @@ from .dxf_advanced import advanced_entity_signature, insert_attributes_signature
 class DxfComparisonReport:
     source_path: str
     candidate_path: str
+    source_sha256: str | None = None
+    candidate_sha256: str | None = None
+    ezdxf_version: str | None = None
     comparison_status: str
     geometry_comparison_status: str
     fidelity_status: str
@@ -77,6 +81,9 @@ class DxfComparator:
                 return self._failure(source, candidate, "SOURCE_UNREADABLE", "An input DXF file cannot be inspected.")
 
         try:
+            source_sha256 = cls_sha256_file(source)
+            candidate_sha256 = cls_sha256_file(candidate)
+            ezdxf_version = getattr(ezdxf, "__version__", None)
             source_doc = ezdxf.readfile(source)
             candidate_doc = ezdxf.readfile(candidate)
         except (OSError, DXFError, UnicodeError, ValueError) as exc:
@@ -142,6 +149,9 @@ class DxfComparator:
         return DxfComparisonReport(
             source_path=str(source),
             candidate_path=str(candidate),
+            source_sha256=source_sha256,
+            candidate_sha256=candidate_sha256,
+            ezdxf_version=ezdxf_version,
             comparison_status=status,
             geometry_comparison_status=geometry_status,
             fidelity_status="UNKNOWN",
@@ -338,6 +348,15 @@ class DxfComparator:
             error_code=code,
             error_message=message,
         )
+
+
+def cls_sha256_file(path: Path) -> str:
+    """Hash a DXF in bounded chunks so comparison reports identify exact inputs."""
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def compare_dxf_files(
