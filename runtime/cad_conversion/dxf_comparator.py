@@ -146,8 +146,8 @@ class DxfComparator:
         source_ucs_properties = self._ucs_properties(source_doc, tolerance)
         candidate_ucs_properties = self._ucs_properties(candidate_doc, tolerance)
         extent_keys = ("$EXTMIN", "$EXTMAX", "$PEXTMIN", "$PEXTMAX", "$LIMMIN", "$LIMMAX", "$PLIMMIN", "$PLIMMAX")
-        source_extents = self._header_properties(source_doc, extent_keys, tolerance)
-        candidate_extents = self._header_properties(candidate_doc, extent_keys, tolerance)
+        source_extents = self._computed_extents(source_doc, tolerance)
+        candidate_extents = self._computed_extents(candidate_doc, tolerance)
         coordinate_keys = ("$INSBASE", "$UCSORG", "$UCSXDIR", "$UCSYDIR", "$UCSNAME", "$UCSORTHOREF", "$UCSORTHOVIEW", "$UCSBASE", "$PUCSORG", "$PUCSXDIR", "$PUCSYDIR", "$PUCSNAME", "$PUCSORTHOREF", "$PUCSORTHOVIEW", "$TILEMODE", "$WORLDVIEW", "$CVPORT")
         source_coordinate_metadata = self._header_properties(source_doc, coordinate_keys, tolerance)
         candidate_coordinate_metadata = self._header_properties(candidate_doc, coordinate_keys, tolerance)
@@ -376,7 +376,7 @@ class DxfComparator:
                 attributes,
             )
         if kind == "VIEWPORT":
-            return ("VIEWPORT", cls._stable_attributes(dxf.dxfattribs(), tolerance, {"handle", "owner", "paperspace"}))
+            return ("VIEWPORT", cls._stable_attributes(entity.dxfattribs(), tolerance, {"handle", "owner", "paperspace"}))
         if kind == "ELLIPSE":
             return (
                 layer, cls._vector(dxf.center, tolerance),
@@ -482,6 +482,36 @@ class DxfComparator:
             properties[str(record.dxf.name)] = cls._stable_attributes(
                 record.dxfattribs(), tolerance, {"handle", "owner"}
             )
+        return dict(sorted(properties.items()))
+
+    @classmethod
+    def _computed_extents(cls, document: Any, tolerance: float) -> dict[str, Any]:
+        """Compute conservative per-layout extents without depending on stale header extents."""
+        from ezdxf import bbox
+
+        properties = {}
+        ignored_types = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF", "VIEWPORT"}
+        for layout in document.layouts:
+            entities = []
+            for entity in layout:
+                try:
+                    if entity.dxftype() not in ignored_types:
+                        entities.append(entity)
+                except Exception:
+                    continue
+            try:
+                bounds = bbox.extents(entities, fast=True)
+                if bounds.has_data:
+                    properties[layout.name] = {
+                        "min": cls._stable_value(bounds.extmin, tolerance),
+                        "max": cls._stable_value(bounds.extmax, tolerance),
+                    }
+                else:
+                    properties[layout.name] = None
+            except Exception:
+                # Extents are supplementary metadata; a failure must not erase
+                # the independently collected entity signatures.
+                properties[layout.name] = "UNKNOWN"
         return dict(sorted(properties.items()))
 
     @classmethod
