@@ -106,7 +106,7 @@ class TestDxfValidator(unittest.TestCase):
         self.assertEqual(report.entity_types["LINE"], 1)
         self.assertEqual(report.text_entity_count, 2)
         self.assertEqual(report.persian_text_entity_count, 2)
-        self.assertEqual(report.text_read_warning_count, 0)
+        self.assertEqual(report.entity_read_warning_count, 0)
         self.assertEqual(report.fidelity_status, "UNKNOWN")
         self.assertTrue(report.requires_review)
 
@@ -122,7 +122,7 @@ class TestDxfValidator(unittest.TestCase):
         self.assertEqual(report.parse_status, "PASS")
         self.assertEqual(report.entity_types["LINE"], 1)
         self.assertEqual(report.text_entity_count, 1)
-        self.assertEqual(report.text_read_warning_count, 1)
+        self.assertEqual(report.entity_read_warning_count, 1)
         self.assertEqual(report.fidelity_status, "UNKNOWN")
 
 if __name__ == "__main__":
