@@ -1,5 +1,14 @@
+import http.client
+import json
+import threading
 import unittest
+from copy import deepcopy
+from http.server import HTTPServer
+from unittest.mock import patch
 
+from runtime import app as runtime_app
+from runtime.audit import AuditTrail
+from runtime.execution_record import ExecutionRecordStore
 from runtime.idempotency import IdempotencyGuard
 
 
@@ -28,6 +37,71 @@ class IdempotencyTests(unittest.TestCase):
         guard.clear("execution-1")
         self.assertIsNone(guard.check("execution-1"))
         self.assertFalse(guard.has_completed("execution-1"))
+
+
+    def test_same_execution_id_with_different_payload_returns_conflict(self):
+        payload = {
+            "execution_id": "same-execution",
+            "project_id": "project-1",
+            "input_version_id": "version-1",
+            "plan_id": "plan-1",
+            "elements": [{
+                "element_id": "F01",
+                "element_type": "FURNITURE",
+                "state": "EDITABLE",
+                "geometry": {"x": 10, "y": 10},
+            }],
+            "request": {
+                "change_type": "FURNITURE",
+                "target_ids": ["F01"],
+                "instruction": "Move sofa",
+            },
+        }
+
+        with (
+            patch.object(runtime_app, "execution_records", ExecutionRecordStore()),
+            patch.object(runtime_app, "audit_trail", AuditTrail()),
+            patch.object(runtime_app, "idempotency_guard", IdempotencyGuard()),
+        ):
+            server = HTTPServer(("127.0.0.1", 0), runtime_app.Handler)
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            try:
+                def post(body):
+                    connection = http.client.HTTPConnection(
+                        "127.0.0.1", server.server_port, timeout=3
+                    )
+                    connection.request(
+                        "POST",
+                        "/v1/execute",
+                        body=json.dumps(body),
+                        headers={"Content-Type": "application/json"},
+                    )
+                    response = connection.getresponse()
+                    result = json.loads(response.read().decode("utf-8"))
+                    connection.close()
+                    return response.status, result
+
+                first_status, first = post(payload)
+                self.assertEqual(first_status, 200)
+                self.assertFalse(first["idempotent_replay"])
+
+                replay_status, replay = post(payload)
+                self.assertEqual(replay_status, 200)
+                self.assertTrue(replay["idempotent_replay"])
+
+                changed_payload = deepcopy(payload)
+                changed_payload["request"]["instruction"] = "Move sofa elsewhere"
+                conflict_status, conflict = post(changed_payload)
+                self.assertEqual(conflict_status, 409)
+                self.assertEqual(
+                    conflict["error"],
+                    "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
+                )
+            finally:
+                server.shutdown()
+                thread.join(timeout=3)
+                server.server_close()
 
 
 if __name__ == "__main__":
