@@ -18,7 +18,7 @@ from ezdxf import DXFError
 from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
-COMPARATOR_VERSION = "0.6.0"
+COMPARATOR_VERSION = "0.7.0"
 
 
 @dataclass(frozen=True)
