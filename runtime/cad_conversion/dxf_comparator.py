@@ -147,7 +147,7 @@ class DxfComparator:
             differences.append("block_entity_counts")
 
         unsupported = sorted(source_unsupported | candidate_unsupported)
-        geometry_unsupported = unsupported - {"TEXT_READ_UNAVAILABLE"}
+        geometry_unsupported = set(unsupported) - {"TEXT_READ_UNAVAILABLE"}
         if differences:
             status = "DIFFERENCES_FOUND"
             geometry_status = "DIFFERENCES_FOUND" if geometry_mismatches or block_mismatches or block_inventory_mismatches else (
