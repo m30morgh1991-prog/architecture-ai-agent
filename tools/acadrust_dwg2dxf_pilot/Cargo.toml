@@ -6,11 +6,18 @@ publish = false
 license = "MIT"
 
 [dependencies]
-# Exact pilot pin. Do not add this crate to the production runtime dependencies.
-acadrust = { version = "=0.6.8", default-features = false }
+# Stable release baseline and exact upstream source snapshot are both optional
+# so CI can compare them without changing the production runtime.
+acadrust-release = { package = "acadrust", version = "=0.6.8", default-features = false, optional = true }
+acadrust-main = { package = "acadrust", git = "https://github.com/hakanaktt/acadrust", rev = "52034a673ff59bf6936ebf01ec794b07a97df246", default-features = false, optional = true }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
+
+[features]
+default = ["release"]
+release = ["dep:acadrust-release"]
+upstream-main = ["dep:acadrust-main"]
 
 [profile.release]
 lto = true
