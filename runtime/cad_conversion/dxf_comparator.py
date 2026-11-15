@@ -66,6 +66,7 @@ class DxfComparisonReport:
     geometry_mismatch_count: int = 0
     text_mismatch_count: int = 0
     viewport_mismatch_count: int = 0
+    entity_metadata_mismatch_count: int = 0
     unsupported_entity_types: list[str] = field(default_factory=list)
     structural_differences: list[str] = field(default_factory=list)
     error_code: str | None = None
@@ -116,8 +117,8 @@ class DxfComparator:
                 f"At least one DXF could not be parsed or recovered ({type(exc).__name__}).",
             )
 
-        source_entities, source_blocks, source_block_inventory, source_unsupported = self._collect(source_doc, tolerance)
-        candidate_entities, candidate_blocks, candidate_block_inventory, candidate_unsupported = self._collect(candidate_doc, tolerance)
+        source_entities, source_blocks, source_block_inventory, source_metadata, source_unsupported = self._collect(source_doc, tolerance)
+        candidate_entities, candidate_blocks, candidate_block_inventory, candidate_metadata, candidate_unsupported = self._collect(candidate_doc, tolerance)
         if source_recovered:
             source_unsupported.add("DXF_RECOVERY_USED")
         if candidate_recovered:
@@ -132,6 +133,7 @@ class DxfComparator:
             + self._counter_delta(source_blocks, candidate_blocks, include_types=text_types)
         )
         viewport_mismatches = self._counter_delta(source_entities, candidate_entities, include_types={"VIEWPORT"})
+        entity_metadata_mismatches = self._counter_delta(source_metadata, candidate_metadata)
 
         source_counts = self._layout_counts(source_doc)
         candidate_counts = self._layout_counts(candidate_doc)
@@ -190,13 +192,15 @@ class DxfComparator:
             differences.append("text_content")
         if viewport_mismatches and "viewports" not in differences:
             differences.append("viewports")
+        if entity_metadata_mismatches:
+            differences.append("entity_metadata")
         if block_mismatches:
             differences.append("block_definition_geometry")
         if block_inventory_mismatches and "block_entity_counts" not in differences:
             differences.append("block_entity_counts")
 
         unsupported = sorted(source_unsupported | candidate_unsupported)
-        geometry_unsupported = set(unsupported) - {"TEXT_READ_UNAVAILABLE"}
+        geometry_unsupported = set(unsupported) - {"TEXT_READ_UNAVAILABLE", "ENTITY_METADATA_UNSUPPORTED"}
         if differences:
             status = "DIFFERENCES_FOUND"
             geometry_status = "DIFFERENCES_FOUND" if geometry_mismatches or block_mismatches or block_inventory_mismatches else (
@@ -252,6 +256,7 @@ class DxfComparator:
             geometry_mismatch_count=geometry_mismatches + block_mismatches + block_inventory_mismatches,
             text_mismatch_count=text_mismatches,
             viewport_mismatch_count=viewport_mismatches,
+            entity_metadata_mismatch_count=entity_metadata_mismatches,
             unsupported_entity_types=unsupported,
             structural_differences=differences,
         )
@@ -270,10 +275,11 @@ class DxfComparator:
                 raise strict_error
 
     @classmethod
-    def _collect(cls, document: Any, tolerance: float) -> tuple[Counter, Counter, Counter, set[str]]:
+    def _collect(cls, document: Any, tolerance: float) -> tuple[Counter, Counter, Counter, Counter, set[str]]:
         layout_signatures: Counter = Counter()
         block_signatures: Counter = Counter()
         block_inventory: Counter = Counter()
+        metadata_signatures: Counter = Counter()
         unsupported: set[str] = set()
         text_kinds = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}
 
@@ -292,6 +298,12 @@ class DxfComparator:
                     unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else kind)
                 else:
                     layout_signatures[(container, kind, (signature, presentation))] += 1
+                try:
+                    metadata = cls._entity_metadata_signature(entity, tolerance)
+                    if metadata is not None:
+                        metadata_signatures[(container, kind, metadata)] += 1
+                except Exception:
+                    unsupported.add("ENTITY_METADATA_UNSUPPORTED")
 
         for block in document.blocks:
             if getattr(block, "is_any_layout", False):
@@ -319,7 +331,13 @@ class DxfComparator:
                     unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else kind)
                 else:
                     block_signatures[(container, kind, (signature, presentation))] += 1
-        return layout_signatures, block_signatures, block_inventory, unsupported
+                try:
+                    metadata = cls._entity_metadata_signature(entity, tolerance)
+                    if metadata is not None:
+                        metadata_signatures[(container, kind, metadata)] += 1
+                except Exception:
+                    unsupported.add("ENTITY_METADATA_UNSUPPORTED")
+        return layout_signatures, block_signatures, block_inventory, metadata_signatures, unsupported
 
     @classmethod
     def _signature(cls, entity: Any, tolerance: float) -> tuple | None:
@@ -462,6 +480,83 @@ class DxfComparator:
             for key, value in attributes.items()
             if key not in excluded
         ))
+
+    @classmethod
+    def _tag_payload(cls, tags: Any, tolerance: float, *, max_tags: int = 4096) -> tuple:
+        values = []
+        for index, tag in enumerate(tags):
+            if index >= max_tags:
+                raise ValueError("DXF_METADATA_TAG_LIMIT")
+            code = int(tag.code)
+            if code == 1005:
+                # Handle references are not stable across independent DXF files.
+                raise ValueError("DXF_METADATA_HANDLE_REFERENCE_UNRESOLVED")
+            value = tag.value
+            if isinstance(value, (bytes, bytearray)):
+                value = ("SHA256", hashlib.sha256(bytes(value)).hexdigest())
+            else:
+                value = cls._stable_value(value, tolerance)
+            values.append((code, value))
+        return tuple(values)
+
+    @classmethod
+    def _extension_dictionary_payload(
+        cls,
+        dictionary: Any,
+        tolerance: float,
+        *,
+        depth: int = 0,
+        seen: set[str] | None = None,
+        budget: list[int] | None = None,
+    ) -> tuple:
+        if depth > 8:
+            raise ValueError("DXF_EXTENSION_DICTIONARY_DEPTH_LIMIT")
+        if seen is None:
+            seen = set()
+        if budget is None:
+            budget = [0]
+        handle = getattr(getattr(dictionary, "dxf", None), "handle", None)
+        if handle and handle in seen:
+            raise ValueError("DXF_EXTENSION_DICTIONARY_CYCLE")
+        if handle:
+            seen.add(handle)
+        items = list(dictionary.items())
+        budget[0] += len(items)
+        if budget[0] > 256:
+            raise ValueError("DXF_EXTENSION_DICTIONARY_ENTRY_LIMIT")
+        result = []
+        for key, value in sorted(items, key=lambda item: str(item[0])):
+            kind = value.dxftype()
+            if kind == "XRECORD":
+                payload = ("XRECORD", cls._tag_payload(value.tags, tolerance))
+            elif kind == "DICTIONARY":
+                payload = ("DICTIONARY", cls._extension_dictionary_payload(
+                    value, tolerance, depth=depth + 1, seen=seen, budget=budget
+                ))
+            else:
+                raise TypeError(f"DXF_EXTENSION_OBJECT_UNSUPPORTED:{kind}")
+            result.append((str(key), payload))
+        return tuple(result)
+
+    @classmethod
+    def _entity_metadata_signature(cls, entity: Any, tolerance: float) -> tuple | None:
+        xdata_payload = ()
+        xdata = getattr(entity, "xdata", None)
+        data = getattr(xdata, "data", {}) if xdata is not None else {}
+        if data:
+            app_payloads = []
+            for appid, tags in sorted(data.items(), key=lambda item: str(item[0])):
+                app_payloads.append((str(appid), cls._tag_payload(tags, tolerance)))
+            xdata_payload = tuple(app_payloads)
+
+        extension_payload = ()
+        if getattr(entity, "has_extension_dict", False):
+            extension_payload = cls._extension_dictionary_payload(
+                entity.get_extension_dict(), tolerance
+            )
+        if not xdata_payload and not extension_payload:
+            return None
+        return ("XDATA", xdata_payload, "EXTENSION_DICTIONARY", extension_payload)
 
     @classmethod
     def _table_properties(cls, table: Any, tolerance: float) -> dict[str, Any]:
