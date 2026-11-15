@@ -397,7 +397,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 #[cfg(test)]
 mod tests {
     use super::convert;
-    use acadrust::{CadDocument, DwgWriter, EntityType, Line};
+    use super::acadrust::{CadDocument, DwgWriter, EntityType, Line};
     use std::{
         fs,
         path::{Path, PathBuf},
