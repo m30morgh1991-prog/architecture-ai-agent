@@ -154,3 +154,10 @@ A second source-checked pass found a more directly relevant native DWG/DXF libra
 6. Adopt only after entity-by-entity coverage, real-file round trips, memory/time limits, license review, and fail-closed reporting pass independently.
 
 No candidate in this section is approved as the production conversion provider. PlanModel remains canonical; converter output remains untrusted evidence until independently validated.
+
+
+### acadrust upstream CI snapshot — 2026-11-15
+
+The current upstream `hakanaktt/acadrust` main commit observed during this review is `52034a673ff59bf6936ebf01ec794b07a97df246`. All ten reported check-runs on that exact upstream SHA completed successfully: Rust analysis, Python/Actions/C# analysis, Ubuntu tests, Windows tests, macOS tests, FreeBSD aarch64/x86_64 checks, and WebAssembly checks.
+
+This is a positive maintenance signal for a pilot candidate, but it is **upstream CI only**, not our own integration, entity-fidelity, Golden DWG, memory, or conversion-roundtrip evidence. The upstream README also notes that tests requiring drawing files not present in the repository are ignored unless the user supplies those fixtures. Our pilot must therefore use independently controlled synthetic and Golden fixtures and report skipped coverage explicitly.
