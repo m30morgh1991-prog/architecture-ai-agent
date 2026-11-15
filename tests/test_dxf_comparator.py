@@ -338,5 +338,37 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.fidelity_status, "UNKNOWN")
         self.assertTrue(report.requires_review)
 
+    def test_one_sided_text_read_failure_is_not_reported_as_geometry_change(self):
+        def write(path):
+            document = ezdxf.new("R2010")
+            modelspace = document.modelspace()
+            modelspace.add_line((0, 0), (20, 10))
+            modelspace.add_text("سلام")
+            document.saveas(path)
+
+        write(self.source)
+        write(self.candidate)
+        original_signature = DxfComparator._signature
+        text_calls = 0
+
+        def fail_first_text_only(entity, tolerance):
+            nonlocal text_calls
+            if entity.dxftype() == "TEXT":
+                text_calls += 1
+                if text_calls == 1:
+                    raise UnicodeError("simulated one-sided legacy text decode failure")
+            return original_signature(entity, tolerance)
+
+        with patch.object(DxfComparator, "_signature", side_effect=fail_first_text_only):
+            report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.geometry_mismatch_count, 0)
+        self.assertGreater(report.text_mismatch_count, 0)
+        self.assertIn("text_content", report.structural_differences)
+        self.assertIn("TEXT_READ_UNAVAILABLE", report.unsupported_entity_types)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
 if __name__ == "__main__":
     unittest.main()
