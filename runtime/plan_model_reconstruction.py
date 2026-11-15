@@ -106,11 +106,15 @@ def build_plan_model_from_detection(
             unresolved.add(element_type)
 
     unique: list[dict[str, Any]] = []
-    seen: set[str] = set()
+    seen: dict[str, dict[str, Any]] = {}
     for item in evidence_items:
-        if item["evidence_id"] in seen:
+        evidence_id = item["evidence_id"]
+        previous = seen.get(evidence_id)
+        if previous is not None:
+            if previous != item:
+                raise ValueError("PLAN_RECONSTRUCTION_EVIDENCE_ID_CONFLICT")
             continue
-        seen.add(item["evidence_id"])
+        seen[evidence_id] = item
         unique.append(item)
 
     unresolved.update(ALLOWED_ELEMENT_TYPES - {e.element_type for e in elements if e.state == "LOCKED"})
