@@ -45,6 +45,10 @@ class DxfComparisonReport:
     candidate_block_entity_counts: dict[str, int] = field(default_factory=dict)
     source_layouts: list[str] = field(default_factory=list)
     candidate_layouts: list[str] = field(default_factory=list)
+    source_text_styles: dict[str, Any] = field(default_factory=dict)
+    candidate_text_styles: dict[str, Any] = field(default_factory=dict)
+    source_dimension_styles: dict[str, Any] = field(default_factory=dict)
+    candidate_dimension_styles: dict[str, Any] = field(default_factory=dict)
     source_layout_properties: dict[str, Any] = field(default_factory=dict)
     candidate_layout_properties: dict[str, Any] = field(default_factory=dict)
     source_viewport_properties: dict[str, Any] = field(default_factory=dict)
@@ -139,6 +143,10 @@ class DxfComparator:
         candidate_block_names = self._user_block_names(candidate_doc)
         source_layouts = sorted(layout.name for layout in source_doc.layouts)
         candidate_layouts = sorted(layout.name for layout in candidate_doc.layouts)
+        source_text_styles = self._table_properties(source_doc.styles, tolerance)
+        candidate_text_styles = self._table_properties(candidate_doc.styles, tolerance)
+        source_dimension_styles = self._table_properties(source_doc.dimstyles, tolerance)
+        candidate_dimension_styles = self._table_properties(candidate_doc.dimstyles, tolerance)
         source_layout_properties = self._layout_properties(source_doc, tolerance)
         candidate_layout_properties = self._layout_properties(candidate_doc, tolerance)
         source_viewport_properties = self._viewport_properties(source_doc, tolerance)
@@ -163,6 +171,8 @@ class DxfComparator:
             ("blocks", source_block_names, candidate_block_names),
             ("block_entity_counts", self._serialize_block_inventory(source_block_inventory), self._serialize_block_inventory(candidate_block_inventory)),
             ("layouts", source_layouts, candidate_layouts),
+            ("text_styles", source_text_styles, candidate_text_styles),
+            ("dimension_styles", source_dimension_styles, candidate_dimension_styles),
             ("layout_properties", source_layout_properties, candidate_layout_properties),
             ("viewports", source_viewport_properties, candidate_viewport_properties),
             ("ucs_properties", source_ucs_properties, candidate_ucs_properties),
@@ -219,6 +229,10 @@ class DxfComparator:
             candidate_blocks=candidate_block_names,
             source_layouts=source_layouts,
             candidate_layouts=candidate_layouts,
+            source_text_styles=source_text_styles,
+            candidate_text_styles=candidate_text_styles,
+            source_dimension_styles=source_dimension_styles,
+            candidate_dimension_styles=candidate_dimension_styles,
             source_layout_properties=source_layout_properties,
             candidate_layout_properties=candidate_layout_properties,
             source_viewport_properties=source_viewport_properties,
@@ -448,6 +462,22 @@ class DxfComparator:
             for key, value in attributes.items()
             if key not in excluded
         ))
+
+    @classmethod
+    def _table_properties(cls, table: Any, tolerance: float) -> dict[str, Any]:
+        """Compare style-table records while excluding volatile handles and owners."""
+        properties = {}
+        for record in table:
+            try:
+                name = str(record.dxf.name)
+                properties[name] = cls._stable_attributes(
+                    record.dxfattribs(), tolerance, {"handle", "owner"}
+                )
+            except Exception:
+                # Keep the table entry visible but never invent a normalized value.
+                name = str(getattr(getattr(record, "dxf", None), "name", "UNKNOWN"))
+                properties[name] = "UNKNOWN"
+        return dict(sorted(properties.items()))
 
     @classmethod
     def _layout_properties(cls, document: Any, tolerance: float) -> dict[str, Any]:
