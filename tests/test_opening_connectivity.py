@@ -109,7 +109,7 @@ class OpeningConnectivityTests(unittest.TestCase):
         self.assertEqual(result[0]["touched_space_count"], 0)
 
     def test_invalid_tolerance_is_rejected(self):
-        for tolerance in (float("nan"), float("inf"), -0.1, True, "bad"):
+        for tolerance in (float("nan"), float("inf"), -0.1, True, "bad", "0.01"):
             with self.subTest(tolerance=tolerance):
                 with self.assertRaisesRegex(
                     ValueError, "OPENING_CONNECTIVITY_TOLERANCE_INVALID"
@@ -177,6 +177,21 @@ class OpeningConnectivityTests(unittest.TestCase):
         )
         self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
         self.assertFalse(result[0]["host_wall_evidenced"])
+
+
+    def test_invalid_top_level_collections_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "OPENING_CONNECTIVITY_OPENINGS_INVALID"):
+            classify_opening_connectivity(
+                None, self.spaces, self.boundaries, host_wall_ids={"W1"}
+            )
+        with self.assertRaisesRegex(ValueError, "OPENING_CONNECTIVITY_SPACES_INVALID"):
+            classify_opening_connectivity(
+                [self.opening], None, self.boundaries, host_wall_ids={"W1"}
+            )
+        with self.assertRaisesRegex(ValueError, "OPENING_CONNECTIVITY_BOUNDARIES_INVALID"):
+            classify_opening_connectivity(
+                [self.opening], self.spaces, None, host_wall_ids={"W1"}
+            )
 
     def test_missing_opening_id_is_handled_as_unresolved(self):
         opening = {**self.opening}
