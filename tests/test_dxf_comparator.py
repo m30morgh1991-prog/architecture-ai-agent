@@ -81,13 +81,19 @@ class TestDxfComparator(unittest.TestCase):
         self.assertNotIn("DIMENSION", report.unsupported_entity_types)
         self.assertEqual(report.fidelity_status, "UNKNOWN")
 
-    def test_malformed_candidate_fails_closed(self):
+    def test_malformed_candidate_fails_closed_and_preserves_provenance(self):
         self._write_dxf(self.source)
         self.candidate.write_text("not a DXF", encoding="utf-8")
+        source_bytes = self.source.read_bytes()
+        candidate_bytes = self.candidate.read_bytes()
         report = compare_dxf_files(self.source, self.candidate)
         self.assertEqual(report.comparison_status, "COMPARISON_FAILED")
         self.assertEqual(report.error_code, "DXF_PARSE_FAILED")
         self.assertTrue(report.requires_review)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertEqual(report.source_sha256, hashlib.sha256(source_bytes).hexdigest())
+        self.assertEqual(report.candidate_sha256, hashlib.sha256(candidate_bytes).hexdigest())
+        self.assertTrue(report.ezdxf_version)
 
     def test_invalid_tolerance_is_rejected(self):
         with self.assertRaises(ValueError):
