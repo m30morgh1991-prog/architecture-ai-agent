@@ -1,3 +1,19 @@
+## Post-cleanup implementation update — 2026-11-15
+
+This addendum follows the repository cleanup snapshot above and records the first implementation PR opened after that snapshot.
+
+- PR #150 — `fix(runtime): keep rejected executions out of PASS audit` — remains open as a draft, current exact head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`.
+- TDD RED evidence: on test-only head `d83fa8982c524e5b8f7f6f38e5adf8c74715316a`, Runtime Tests run #43739863627 ran 429 tests and failed exactly one: the new regression test observed the false `PASS` audit event.
+- TDD GREEN evidence: on implementation head `95f1b993f8ddc6df655d24a60207e7255ad0d1ff`, Bug Hunt #43740008417, Runtime Tests #43740008362 and PR CI #43740008288 all completed/success; the full 429-test suite passed.
+- The PR-150 evidence-only final head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a` was then rechecked: Bug Hunt #43740147040, Runtime Tests #43740147034 and PR CI #43740147064 all completed/success. The final full suite ran 429 tests; the new regression test passed.
+- The fix records EXECUTE STARTED before validation, BLOCKED on rejection paths, and PASS only after validation, controlled-editing, and approval gates succeed. Rejected results expose audit_complete=false, audit_ok=false, and runtime_ok=false.
+- The open PR count is now **17**, adding PR #150 to the 16-PR cleanup inventory above. No PR was merged or approved.
+- This does not resolve the other P0 runtime issues: payload-bound idempotency, HTTP request validation/body limits, safe network binding, persistent execution/audit records, and canonical PlanModel pipeline integration remain open.
+
+All statuses above apply only to their stated exact heads. Windows/AutoCAD/ODA runtime checks remain NOT_RUN. The owner-controlled merge policy is unchanged.
+
+---
+
 ## Latest cleanup and exact-state audit — 2026-11-15
 
 This section supersedes any conflicting PR counts, head SHAs, readiness labels, or CI claims in older checkpoint text below.
