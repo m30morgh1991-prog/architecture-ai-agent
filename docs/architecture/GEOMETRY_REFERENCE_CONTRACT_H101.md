@@ -40,3 +40,12 @@ The first implementation is intentionally a standalone runtime contract and unit
 3. Extend typed dimension evidence with definition points and conservative dimension-to-geometry reconciliation.
 4. Add golden regression assertions; do not change the immutable Golden DWG files.
 5. Keep Windows/AutoCAD host tests NOT_RUN until a compatible user Windows host is available.
+
+## Validation invariants added during review
+
+- The public `GeometryReference` dataclass validates on construction; callers cannot obtain an area-conversion capability by bypassing the builder.
+- Evidence records require non-blank string identifiers, source references, and values, plus a canonical lowercase SHA-256 that matches the parent reference.
+- Evidence collections and matrix inputs must be actual tuple/list values; strings are not expanded into character sequences.
+- A 3x3 pixel-to-world transform must be affine and nonsingular. Its determinant test is scale-relative so valid small pixel scales remain representable.
+- A 4x4 coordinate transform is an affine homogeneous transform: the final row must be [0, 0, 0, 1] and its 3x3 linear part must be nonsingular.
+- These checks validate evidence structure only; they do not apply OCS/WCS, nested INSERT transforms, or prove geometry correctness.
