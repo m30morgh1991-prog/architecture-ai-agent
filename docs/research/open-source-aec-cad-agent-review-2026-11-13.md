@@ -96,3 +96,61 @@ This is source/README/license-surface research, not a runtime integration test. 
 **Decision update:** retain AutoCAD-MCP as a promising adapter candidate, but downgrade from "pilot-ready without caveat" to **conditional pilot candidate**. Pin upstream commit and all dependencies; do not copy its floating dependency ranges into our core. Our own disposable-DXF compatibility tests are mandatory before adoption. A red floating-dependency lane is a maintenance risk and must remain visible in future reviews.
 
 This audit only observes upstream CI evidence; it does not mean we ran the upstream suite or server ourselves.
+
+
+## Additional DWG engine and browser viewer candidates — 2026-11-15
+
+A second source-checked pass found a more directly relevant native DWG/DXF library and two optional viewer/application candidates. These are research findings only; no dependency, code, drawing, or Golden fixture has been imported.
+
+### 1. hakanaktt/acadrust — strongest new conversion-engine pilot candidate
+
+- Upstream: https://github.com/hakanaktt/acadrust
+- Current upstream release observed: v0.6.8; latest repository push observed 2026-11-15.
+- License declared by the upstream repository and Cargo.toml: MPL-2.0 (not MIT).
+- Pure-Rust library exposing native binary DWG and ASCII/binary DXF read/write APIs without requiring AutoCAD. Upstream documents R12–R2018+ format coverage, 48 top-level entity variants, optional failsafe diagnostics, and configurable Rayon concurrency.
+- This is materially more relevant to a headless DWG→DXF backend than an AutoCAD UI/MCP server. A narrow isolated Rust adapter could read with DwgReader and write DXF directly with DxfWriter, avoiding a full intermediate DXF text buffer. This is a hypothesis to test, not a verified performance result.
+- Entity/version support is not equivalent to lossless fidelity. The library's own documentation says entity availability varies by version. The MPL-2.0 notice and third-party DWG code provenance must be reviewed before distribution.
+
+**Decision:** promote to P1 for a read-only conversion pilot, not a mandatory dependency. Pin exact crate version and checksum. First test synthetic fixtures, then owner-approved copies of the two Golden DWGs. Record input/output SHA-256, DWG version, entity/property inventories, unsupported and recovered records, units, memory peak, elapsed time, and independent DXF reopen results. Any skipped or recovered record keeps fidelity UNKNOWN / NEEDS_REVIEW.
+
+### 2. CADCraft — useful integration/CLI reference, not a proven fidelity engine
+
+- Upstream: https://github.com/storytold/cadcraft
+- Declared license: MIT OR Apache-2.0; README explicitly labels the application early development.
+- Provides cross-platform Rust desktop/CLI/MCP workflows and uses acadrust for DWG input/output. Its current bridge converts DWG to an in-memory DXF byte buffer and then parses that DXF into its own document model.
+- Its own file-format parity document says the review used no real third-party file and that unsupported objects can be dropped on save. It identifies R13/R14 as untested and R2018+ real-file reads as untested.
+- A public performance report for a 47.8 MB DWG measured 16–28 seconds and 4.54 GB maximum resident memory on an Apple M1 Pro; the report attributes much of the overhead to holding a 276 MB intermediate DXF text buffer before parsing. This is evidence about CADCraft's bridge path, not proof that direct acadrust DwgReader→DxfWriter use has the same overhead.
+
+**Decision:** reuse only CLI/MCP capability-discovery and test-harness ideas. Do not adopt the full desktop app or its intermediate-DXF bridge. Our pilot should test direct document-to-writer conversion and explicitly measure peak memory on large files.
+
+### 3. HakanSeven12/OpenCADStudio — technically interesting, license-incompatible by default
+
+- Upstream: https://github.com/HakanSeven12/OpenCADStudio
+- Declared license: GPL-3.0. README describes native DWG/DXF read/write (R14–2018), headless conversion, and a JSON/MCP automation endpoint.
+- It is a large, active 2D/3D CAD application and uses acadrust as a core engine. Its broader application scope and GPL-3.0 license make it unsuitable as a default embedded dependency for our provider-neutral, commercializable 2D agent.
+
+**Decision:** inspect as an external reference or separately launched optional tool only. Do not copy code or bundle it into the MVP without an explicit license/product decision.
+
+### 4. MLightCAD — promising optional tablet/browser viewer, not our DWG conversion backend
+
+- Upstream: https://github.com/mlightcad/cad-viewer
+- Main viewer/data-model packages are MIT-licensed and DXF parsing is built in. DWG loading is opt-in through a separate LibreDWG-based WebAssembly worker package licensed GPL-3.0.
+- Upstream documents limitations in the open-source DWG path: incomplete entity coverage, larger bundle, slower startup, high memory use, and possible out-of-memory errors on large drawings. A separate proprietary parser is offered, so it is not part of the free/open-source path.
+
+**Decision:** keep as a P2 candidate for a future read-only browser viewer on Android/tablet, initially with DXF only. Do not add its GPL DWG worker to the product until distribution/licensing and mobile memory tests are resolved. The viewer is not a replacement for our conversion or validation engine.
+
+### 5. dwgdxf WASM wrapper and additional AutoCAD MCP candidate — do not adopt yet
+
+- https://github.com/ducflair/dwgdxf advertises a browser/server DWG→DXF wrapper around acadrust, but the repository metadata reports no asserted license, the README describes acadrust as MIT while the current acadrust project declares MPL-2.0, and the wrapper's latest observed push was 2026-07-02. This license mismatch and maintenance gap block adoption pending clarification.
+- https://github.com/thewisekape/autocad-mcp is Apache-2.0 and describes File IPC, COM and ezdxf backends, but its latest observed push was 2026-04-05 and it has a small public footprint. It is not a stronger candidate than the already evaluated U-C4N/Autocad-MCP project.
+
+### Updated implementation sequence
+
+1. Finish the exact-head provenance correction and DXF comparator CI in PR #143.
+2. Keep the open geometry/research PRs under review; do not let a CAD-engine pilot modify PlanModel, ConstraintMap, ApprovedChangePlan, BIM semantics, or H101.
+3. Create an isolated acadrust pilot harness with a pinned MPL-2.0 dependency and no production routing. Compare direct DwgReader→DxfWriter against the current ODA/LibreDWG routes where legally and technically available.
+4. Add resource limits, timeouts, cancellation, temporary-output isolation, atomic output promotion, and post-conversion validation. Never trust exit code alone.
+5. Run synthetic tests first. Run Golden DWG tests only read-only and only when the workflow has access to the fixtures. Real AutoCAD/Windows host tests remain NOT_RUN until the user confirms the Windows environment is restored.
+6. Adopt only after entity-by-entity coverage, real-file round trips, memory/time limits, license review, and fail-closed reporting pass independently.
+
+No candidate in this section is approved as the production conversion provider. PlanModel remains canonical; converter output remains untrusted evidence until independently validated.
