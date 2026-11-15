@@ -145,7 +145,6 @@ class DxfComparator:
         candidate_viewport_properties = self._viewport_properties(candidate_doc, tolerance)
         source_ucs_properties = self._ucs_properties(source_doc, tolerance)
         candidate_ucs_properties = self._ucs_properties(candidate_doc, tolerance)
-        extent_keys = ("$EXTMIN", "$EXTMAX", "$PEXTMIN", "$PEXTMAX", "$LIMMIN", "$LIMMAX", "$PLIMMIN", "$PLIMMAX")
         source_extents = self._computed_extents(source_doc, tolerance)
         candidate_extents = self._computed_extents(candidate_doc, tolerance)
         coordinate_keys = ("$INSBASE", "$UCSORG", "$UCSXDIR", "$UCSYDIR", "$UCSNAME", "$UCSORTHOREF", "$UCSORTHOVIEW", "$UCSBASE", "$PUCSORG", "$PUCSXDIR", "$PUCSYDIR", "$PUCSNAME", "$PUCSORTHOREF", "$PUCSORTHOVIEW", "$TILEMODE", "$WORLDVIEW", "$CVPORT")
