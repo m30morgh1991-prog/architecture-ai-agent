@@ -1,5 +1,6 @@
 import json
 import hashlib
+from dataclasses import asdict, is_dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
@@ -14,6 +15,14 @@ from .idempotency import IdempotencyConflictError, IdempotencyGuard
 execution_records = ExecutionRecordStore()
 audit_trail = AuditTrail()
 idempotency_guard = IdempotencyGuard()
+
+
+def _json_default(value):
+    if is_dataclass(value) and not isinstance(value, type):
+        return asdict(value)
+    raise TypeError(
+        f"Object of type {type(value).__name__} is not JSON serializable"
+    )
 
 
 def fingerprint_request_payload(payload) -> str:
@@ -157,7 +166,7 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
 
 class Handler(BaseHTTPRequestHandler):
     def _json(self, status, body):
-        payload = json.dumps(body).encode()
+        payload = json.dumps(body, default=_json_default).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(payload)))
