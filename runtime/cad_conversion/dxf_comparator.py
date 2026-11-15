@@ -50,6 +50,7 @@ class DxfComparisonReport:
     source_measurement: int | None = None
     candidate_measurement: int | None = None
     geometry_mismatch_count: int = 0
+    text_mismatch_count: int = 0
     unsupported_entity_types: list[str] = field(default_factory=list)
     structural_differences: list[str] = field(default_factory=list)
     error_code: str | None = None
@@ -106,9 +107,14 @@ class DxfComparator:
             source_unsupported.add("DXF_RECOVERY_USED")
         if candidate_recovered:
             candidate_unsupported.add("DXF_RECOVERY_USED")
-        geometry_mismatches = self._counter_delta(source_entities, candidate_entities)
-        block_mismatches = self._counter_delta(source_blocks, candidate_blocks)
-        block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory)
+        geometry_mismatches = self._counter_delta(source_entities, candidate_entities, text_only=False)
+        block_mismatches = self._counter_delta(source_blocks, candidate_blocks, text_only=False)
+        block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory, text_only=False)
+        text_mismatches = (
+            self._counter_delta(source_entities, candidate_entities, text_only=True)
+            + self._counter_delta(source_blocks, candidate_blocks, text_only=True)
+            + self._counter_delta(source_block_inventory, candidate_block_inventory, text_only=True)
+        )
 
         source_counts = self._layout_counts(source_doc)
         candidate_counts = self._layout_counts(candidate_doc)
@@ -141,6 +147,8 @@ class DxfComparator:
                 differences.append(label)
         if geometry_mismatches:
             differences.append("supported_geometry_signatures")
+        if text_mismatches:
+            differences.append("text_content")
         if block_mismatches:
             differences.append("block_definition_geometry")
         if block_inventory_mismatches and "block_entity_counts" not in differences:
@@ -187,6 +195,7 @@ class DxfComparator:
             source_block_entity_counts=self._serialize_block_inventory(source_block_inventory),
             candidate_block_entity_counts=self._serialize_block_inventory(candidate_block_inventory),
             geometry_mismatch_count=geometry_mismatches + block_mismatches + block_inventory_mismatches,
+            text_mismatch_count=text_mismatches,
             unsupported_entity_types=unsupported,
             structural_differences=differences,
         )
@@ -344,8 +353,20 @@ class DxfComparator:
         return {f"{block_name}::{entity_type}": count for (block_name, entity_type), count in sorted(inventory.items())}
 
     @staticmethod
-    def _counter_delta(left: Counter, right: Counter) -> int:
-        return sum((left - right).values()) + sum((right - left).values())
+    def _counter_delta(left: Counter, right: Counter, *, text_only: bool | None = None) -> int:
+        text_types = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}
+
+        def selected(counter: Counter) -> Counter:
+            if text_only is None:
+                return counter
+            return Counter({
+                key: count for key, count in counter.items()
+                if ((isinstance(key, tuple) and len(key) > 1 and key[1] in text_types) is text_only)
+            })
+
+        selected_left = selected(left)
+        selected_right = selected(right)
+        return sum((selected_left - selected_right).values()) + sum((selected_right - selected_left).values())
 
     @staticmethod
     def _layout_counts(document: Any) -> dict[str, int]:
