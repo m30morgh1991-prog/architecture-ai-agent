@@ -17,7 +17,10 @@ def _finite_point(value):
     for coordinate in value:
         if isinstance(coordinate, bool) or not isinstance(coordinate, Real):
             return None
-        number = float(coordinate)
+        try:
+            number = float(coordinate)
+        except (TypeError, ValueError, OverflowError):
+            return None
         if not isfinite(number):
             return None
         point.append(number)
@@ -75,7 +78,7 @@ def classify_opening_connectivity(
     supplied wall inventory, and all three opening evidence references exist.
     Even then, the relation status remains UNKNOWN pending downstream review.
     """
-    if isinstance(tolerance, bool):
+    if isinstance(tolerance, bool) or not isinstance(tolerance, Real):
         raise ValueError("OPENING_CONNECTIVITY_TOLERANCE_INVALID")
     try:
         tolerance = float(tolerance)
@@ -83,6 +86,12 @@ def classify_opening_connectivity(
         raise ValueError("OPENING_CONNECTIVITY_TOLERANCE_INVALID") from None
     if not isfinite(tolerance) or tolerance < 0:
         raise ValueError("OPENING_CONNECTIVITY_TOLERANCE_INVALID")
+    if not isinstance(openings, (list, tuple)):
+        raise ValueError("OPENING_CONNECTIVITY_OPENINGS_INVALID")
+    if not isinstance(spaces, (list, tuple)):
+        raise ValueError("OPENING_CONNECTIVITY_SPACES_INVALID")
+    if not isinstance(boundary_points, dict):
+        raise ValueError("OPENING_CONNECTIVITY_BOUNDARIES_INVALID")
 
     if isinstance(host_wall_ids, (list, tuple, set, frozenset)):
         verified_host_wall_ids = {
@@ -93,11 +102,8 @@ def classify_opening_connectivity(
         # into apparently verified wall IDs.
         verified_host_wall_ids = set()
 
-    safe_openings = openings if isinstance(openings, (list, tuple)) else ()
-    safe_spaces = spaces if isinstance(spaces, (list, tuple)) else ()
-    safe_boundary_points = boundary_points if isinstance(boundary_points, dict) else {}
     out = []
-    for index, opening in enumerate(safe_openings):
+    for index, opening in enumerate(openings):
         if not isinstance(opening, dict):
             opening = {}
         opening_id = opening.get("opening_id")
@@ -105,13 +111,13 @@ def classify_opening_connectivity(
         point = _finite_point(opening.get("point"))
         span = opening.get("span")
         touched = []
-        for space in safe_spaces:
+        for space in spaces:
             if not isinstance(space, dict):
                 continue
             boundary_handle = space.get("boundary_handle")
             if not _valid_evidence_id(boundary_handle):
                 continue
-            pts = safe_boundary_points.get(boundary_handle, [])
+            pts = boundary_points.get(boundary_handle, [])
             segments = _segments(pts)
             if not segments:
                 continue
