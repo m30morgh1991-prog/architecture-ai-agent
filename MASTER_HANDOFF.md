@@ -1,3 +1,20 @@
+## Current PR queue and runtime blocker update — 2026-11-15
+
+This update supersedes the prior open-PR count above.
+
+- Current open PR count: **18** — the 16 PRs remaining after the two cleanup closures, plus #150 and #151.
+- PR #150 current head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 all completed/success; 429 tests passed. Draft, not merged.
+- PR #151 current head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`, stacked on PR #150: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 all completed/success; 432 tests passed. Draft, not independently mergeable or merged.
+- PR #151 TDD RED was observed on corrected test-only head `0e973e4a80d03c4ec3fcba62ad958743b10f9fa0`: the HTTP handler returned 200 for a different payload using the same execution ID; the regression expected 409. The implementation binds the idempotency cache to canonical request fingerprints and rejects mismatches.
+- PR #151 also updates WorkflowGuard to use execution identity with the shared idempotency guard; a cross-execution key-reuse test passes.
+- A separate P0 API defect was discovered while building the integration test: valid successful HTTP execution responses can fail JSON serialization because the response includes an ApprovedChangePlan containing a ChangeRequest dataclass, while the legacy handler uses plain `json.dumps`. This remains UNRESOLVED and must be fixed separately with a successful-request HTTP regression test.
+- Other P0 items remain: HTTP body/schema validation and size limits, localhost/network binding, persistent execution/audit state, canonical runtime pipeline integration, and in-flight idempotency reservation for any future concurrent server.
+- No PR was merged, approved, or closed in this update. PR #150 and #151 remain drafts; explicit user authorization is still required before each merge.
+
+All listed CI evidence applies only to the exact heads named above. Mainline CI remains UNKNOWN because the fresh main SHA query returned no workflow/status records. Windows/AutoCAD/ODA host tests remain NOT_RUN.
+
+---
+
 ## Post-cleanup implementation update — 2026-11-15
 
 This addendum follows the repository cleanup snapshot above and records the first implementation PR opened after that snapshot.
