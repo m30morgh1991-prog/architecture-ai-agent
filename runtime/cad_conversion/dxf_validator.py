@@ -146,7 +146,7 @@ class DxfValidator:
                     text_entities += 1
                     try:
                         value = self._text_value(entity)
-                        if "\\ufffd" in value:
+                        if "\ufffd" in value:
                             # A replacement character signals lossy decoding.
                             entity_read_warnings += 1
                             continue
