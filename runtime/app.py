@@ -31,10 +31,20 @@ def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResul
 
 def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, execution_id=None):
     audit_id = execution_id or f"local:{plan.plan_id}"
-    audit_trail.record(audit_id, "EXECUTE", "PASS")
+    audit_trail.record(audit_id, "EXECUTE", "STARTED")
     validation = validate_request(plan, request)
     if validation.status != "PASS":
-        return {"status": validation.status, "validation": validation.__dict__}
+        audit_trail.record(
+            audit_id, "EXECUTE", "BLOCKED",
+            {"failure_codes": list(validation.failure_codes)},
+        )
+        return {
+            "status": validation.status,
+            "validation": validation.__dict__,
+            "audit_complete": False,
+            "audit_ok": False,
+            "runtime_ok": False,
+        }
 
     permissions = [
         EditPermission(element_id=e.element_id, state=e.state)
@@ -42,13 +52,21 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
     ]
     controlled = build_controlled_editing_decision(permissions=permissions)
     if not controlled.executable:
+        reasons = controlled.blocking_reasons()
+        audit_trail.record(
+            audit_id, "EXECUTE", "BLOCKED",
+            {"failure_codes": reasons},
+        )
         return {
             "status": "REJECT",
             "validation": {
                 "status": "REJECT",
-                "failure_codes": controlled.blocking_reasons(),
+                "failure_codes": reasons,
                 "messages": ["Controlled editing gate blocked execution"],
             },
+            "audit_complete": False,
+            "audit_ok": False,
+            "runtime_ok": False,
         }
 
     approval = build_approved_change_plan(
@@ -57,6 +75,10 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
         editable_element_ids=[e.element_id for e in plan.elements if e.state == "EDITABLE"],
     )
     if approval.status != "APPROVED":
+        audit_trail.record(
+            audit_id, "EXECUTE", "BLOCKED",
+            {"failure_codes": [approval.reason]},
+        )
         return {
             "status": "REJECT",
             "validation": {
@@ -64,9 +86,13 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
                 "failure_codes": [approval.reason],
                 "messages": ["Approved change plan rejected"],
             },
+            "audit_complete": False,
+            "audit_ok": False,
+            "runtime_ok": False,
         }
 
     approved = ApprovedChangePlan(request, list(approval.approved_target_ids), approval.status)
+    audit_trail.record(audit_id, "EXECUTE", "PASS")
     before = {e.element_id: deepcopy(e.geometry) for e in plan.elements}
     after = deepcopy(before)
 
