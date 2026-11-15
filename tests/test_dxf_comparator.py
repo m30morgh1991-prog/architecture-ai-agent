@@ -378,7 +378,7 @@ class TestDxfComparator(unittest.TestCase):
             modelspace.add_text("سلام")
             document.saveas(path)
             raw = path.read_bytes()
-            raw = raw.replace("سلام".encode("utf-8"), b"\\xff\\xfe\\xfd\\xfc", 1)
+            raw = raw.replace("سلام".encode("utf-8"), b"\xff\xfe\xfd\xfc", 1)
             path.write_bytes(raw)
 
         write(self.source)
