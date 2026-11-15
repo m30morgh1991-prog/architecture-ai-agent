@@ -176,7 +176,7 @@ class OpeningConnectivityTests(unittest.TestCase):
             tolerance=0.01, host_wall_ids=42,
         )
         self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
-        self.assertFalse(result[0]["host_wall_evidenced")
+        self.assertFalse(result[0]["host_wall_evidenced"])
 
     def test_missing_opening_id_is_handled_as_unresolved(self):
         opening = {**self.opening}
