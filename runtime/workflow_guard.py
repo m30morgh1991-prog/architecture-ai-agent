@@ -50,7 +50,7 @@ class WorkflowGuard:
             {"state": decision.state, "failure_code": failure_code},
         )
 
-        self.idempotency.store(key, decision)
+        self.idempotency.store(key, execution_id, decision)
         return decision
 
     def trace(self, execution_id: str) -> list[Any]:
