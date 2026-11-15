@@ -1,3 +1,47 @@
+## Latest cleanup and exact-state audit — 2026-11-15
+
+This section supersedes any conflicting PR counts, head SHAs, readiness labels, or CI claims in older checkpoint text below.
+
+### Mainline evidence
+- Current `main` SHA: `ad60e81cef4335c771fee8df4fad57740d06481b`.
+- A fresh query of workflow runs and combined commit statuses returned no records for this main SHA. Mainline Green is therefore **UNKNOWN / NOT independently confirmed** in this audit. PR-head checks are not substitutes for mainline checks.
+
+### Pull-request cleanup
+- The live inventory initially contained 18 open PRs.
+- PR #133 was closed as superseded by this newer checkpoint. Its discussion and branch are retained.
+- PR #131 was closed as a failed, non-production ezdwg conversion experiment. Its data-loss result is retained as a negative regression baseline; neither its branch nor Golden inputs were deleted.
+- Current open PR count after those two closures: **16** — #149, #148, #147, #144, #143, #139, #138, #137, #136, #135, #132, #130, #129, #128, #127, #119.
+- No other PR or branch was closed or deleted. No PR was merged or approved.
+
+### Exact-head CI evidence checked live
+- PR #149, head `465548467b7da20abaf274a718f7c93cfb2dce1a`: Bug Hunt #698, AgentShield #82, PR CI #739, Runtime #1026, and acadrust pilot #18 all completed/success. This is still an isolated pilot; conversion fidelity remains NEEDS_REVIEW, not PASS.
+- PR #147, head `4972438078d5fbe1fa6a0a43256a66fea3aa03d7`: Bug Hunt #685, PR CI #726, Runtime #1013 all completed/success. This state-file update creates a new head; all three checks must rerun.
+- PR #143, head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`: Bug Hunt #667, PR CI #708, Runtime #995 all completed/success.
+- PR #144, head `569ceffffa6104998b24da163b86c2e38052af1f`: Bug Hunt #631, PR CI #672, Runtime #959 all completed/success.
+- PR #148, head `a8faeb44a39a124092587a9e5c0fd3e908a1c8ab`: Bug Hunt #661, PR CI #702, Runtime #989 all completed/success.
+- PR #139, head `5cedcffb4c8dbc1e07b98eac640455872be816bd`: Bug Hunt #694, PR CI #735, Runtime #1022 all completed/success.
+- PR #138, head `867fb5fee0f3b9a6b8a2957d50ef575a01526355`: Bug Hunt #665, PR CI #706, Runtime #993 all completed/success.
+- PR #137, head `63d009f2cd138b1c1a6f7fb2fd66897920d07003`: Bug Hunt #676, PR CI #717, Runtime #1004 all completed/success.
+- PR #136, head `9e1b937006001a9790ed1ccd2f3163960fe8f039`: Bug Hunt #682, PR CI #723, Runtime #1010 all completed/success.
+- PR #135, head `fb52cc47d1c86104856a8c27f819fe5f5eaf3339`: Bug Hunt #662, PR CI #703, Runtime #990 all completed/success.
+- These are exact PR-head workflow results only. They do not establish merge approval, runtime fidelity, or post-merge mainline Green.
+
+### Dependency and backlog triage
+- CAD comparator chain: PR #143 → PR #144 → PR #148. PR #144 is based on an older #143 head, and #148 is based on #144. Rebase/synchronize in dependency order and rerun exact-head checks before any merge decision.
+- Autodesk evidence chain: PR #129 → PR #130 → PR #132. #130 and #132 are stacked and must not be treated as independently mergeable.
+- PRs #127 and #128 are older mainline-based work; re-check their diff overlap and current base before deciding whether to retain, rebase, or close.
+- PR #119 remains research-only for Shiraz parking-rule sources and is stale relative to current main; verify source currency and rebase before relying on it.
+- PRs #135–#139 contain distinct contract/research corrections. Keep them open pending ordered technical review and integration decisions; green CI alone is not an instruction to merge.
+- PR #147's earlier statements that mainline CI is green are superseded by the fresh query above, which returned no mainline run/status records.
+
+### Repository cleanup boundaries
+- No source files, runtime contracts, dependencies, Golden DWGs, or branches were deleted in this cleanup pass.
+- No feature work was added. The next implementation priority remains the existing runtime/API safety and canonical-contract defects identified in the full audit.
+- Windows, AutoCAD, ODA, and real-host tests remain NOT_RUN until the user confirms the Windows environment and software are ready.
+- Owner-controlled merge policy remains unchanged: ask for explicit approval for each PR and exact head SHA before merging.
+
+---
+
 ## Live repository checkpoint — 2026-11-15 (verified from GitHub)
 
 ### Mainline
