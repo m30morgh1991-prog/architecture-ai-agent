@@ -1,6 +1,4 @@
-use acadrust::{
-    CadDocument, DwgReadOptions, DwgReader, DxfReader, DxfWriter, ReadStats,
-};
+use acadrust::{CadDocument, DwgReadOptions, DwgReader, DxfReader, DxfWriter, ReadStats};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::{
@@ -106,15 +104,19 @@ fn sha256_file(path: &Path) -> Result<String, Box<dyn Error>> {
 }
 
 fn absolute_output(path: &Path) -> Result<PathBuf, Box<dyn Error>> {
-    let name = path
-        .file_name()
-        .ok_or("OUTPUT_PATH_MUST_HAVE_FILENAME")?;
-    let parent = path.parent().filter(|p| !p.as_os_str().is_empty()).unwrap_or(Path::new("."));
+    let name = path.file_name().ok_or("OUTPUT_PATH_MUST_HAVE_FILENAME")?;
+    let parent = path
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or(Path::new("."));
     Ok(fs::canonicalize(parent)?.join(name))
 }
 
 fn temporary_sibling(path: &Path, label: &str) -> Result<PathBuf, Box<dyn Error>> {
-    let name = path.file_name().ok_or("OUTPUT_PATH_MUST_HAVE_FILENAME")?.to_string_lossy();
+    let name = path
+        .file_name()
+        .ok_or("OUTPUT_PATH_MUST_HAVE_FILENAME")?
+        .to_string_lossy();
     let parent = path.parent().ok_or("OUTPUT_PARENT_MISSING")?;
     Ok(parent.join(format!(".{name}.{}.{}.tmp", std::process::id(), label)))
 }
@@ -139,7 +141,10 @@ fn write_report_atomically(path: &Path, report: &Report) -> Result<(), Box<dyn E
     let temporary = temporary_sibling(path, "report")?;
     reserve_new_file(&temporary)?;
     let result = (|| -> Result<(), Box<dyn Error>> {
-        let mut file = OpenOptions::new().write(true).truncate(true).open(&temporary)?;
+        let mut file = OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .open(&temporary)?;
         serde_json::to_writer_pretty(&mut file, report)?;
         file.write_all(b"\n")?;
         file.sync_all()?;
@@ -152,11 +157,7 @@ fn write_report_atomically(path: &Path, report: &Report) -> Result<(), Box<dyn E
     result
 }
 
-fn convert(
-    input: &Path,
-    candidate: &Path,
-    report_path: &Path,
-) -> Result<Report, Box<dyn Error>> {
+fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report, Box<dyn Error>> {
     let started = Instant::now();
     let input = fs::canonicalize(input)?;
     let candidate = absolute_output(candidate)?;
@@ -165,10 +166,20 @@ fn convert(
     if !input.is_file() {
         return Err("INPUT_MUST_BE_A_FILE".into());
     }
-    if input.extension().and_then(|v| v.to_str()).map(|v| v.eq_ignore_ascii_case("dwg")) != Some(true) {
+    if input
+        .extension()
+        .and_then(|v| v.to_str())
+        .map(|v| v.eq_ignore_ascii_case("dwg"))
+        != Some(true)
+    {
         return Err("INPUT_EXTENSION_MUST_BE_DWG".into());
     }
-    if candidate.extension().and_then(|v| v.to_str()).map(|v| v.eq_ignore_ascii_case("dxf")) != Some(true) {
+    if candidate
+        .extension()
+        .and_then(|v| v.to_str())
+        .map(|v| v.eq_ignore_ascii_case("dxf"))
+        != Some(true)
+    {
         return Err("CANDIDATE_EXTENSION_MUST_BE_DXF".into());
     }
     if candidate == input || report_path == input || candidate == report_path {
@@ -268,10 +279,14 @@ fn convert(
         let structural_checks_pass = reasons.is_empty();
         // Even a structural match is NOT a fidelity PASS; independent
         // ezdxf checks and deeper entity/property comparison remain required.
-        let decision = if structural_checks_pass { "NEEDS_REVIEW" } else { "BLOCKED" }.to_string();
-        reasons.push(
-            "INDEPENDENT_ENTITY_PROPERTY_AND_CAD_HOST_FIDELITY_REVIEW_REQUIRED".to_string(),
-        );
+        let decision = if structural_checks_pass {
+            "NEEDS_REVIEW"
+        } else {
+            "BLOCKED"
+        }
+        .to_string();
+        reasons
+            .push("INDEPENDENT_ENTITY_PROPERTY_AND_CAD_HOST_FIDELITY_REVIEW_REQUIRED".to_string());
 
         Ok(Report {
             schema_version: 1,
@@ -328,9 +343,7 @@ fn convert(
 fn main() -> Result<(), Box<dyn Error>> {
     let args = std::env::args().skip(1).collect::<Vec<_>>();
     if args.len() != 3 {
-        eprintln!(
-            "Usage: acadrust-dwg2dxf-pilot INPUT.dwg OUTPUT.candidate.dxf REPORT.json"
-        );
+        eprintln!("Usage: acadrust-dwg2dxf-pilot INPUT.dwg OUTPUT.candidate.dxf REPORT.json");
         std::process::exit(2);
     }
     let report = convert(
