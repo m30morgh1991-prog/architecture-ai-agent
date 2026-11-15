@@ -1,3 +1,23 @@
+## Runtime remediation chain update — 2026-11-15
+
+This is the newest inventory snapshot and supersedes prior PR-count notes.
+
+- Current open PR count: **19** — the 16 PRs retained after cleanup plus #150, #151, and #152.
+- PR #150 exact head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 completed/success; 429 tests passed. Draft.
+- PR #151 exact head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 completed/success; 432 tests passed. Draft, stacked on #150.
+- PR #152 exact head `2b7b7d08269893aebf6b612dcd19b4f42667dbbc`: Bug Hunt #43741879578, Runtime #43741879584, PR CI #43741879589 completed/success; 433 tests passed. Draft, stacked on #151.
+- Dependency order is strictly #150 → #151 → #152. Do not merge later PRs independently or before their base PRs.
+- #150 fixes the false EXECUTE PASS audit event on rejected requests.
+- #151 binds idempotency replay to a canonical request fingerprint and rejects changed payloads using the same execution ID.
+- #152 makes Handler._json serialize nested dataclass values through dataclasses.asdict while still rejecting arbitrary unsupported objects.
+- A remaining P0 API/runtime backlog: strict HTTP request schema validation and body-size caps; localhost-only binding/authentication before network deployment; durable execution/audit/idempotency storage; canonical PlanModel/ConstraintMap runtime integration; in-flight idempotency reservation for concurrent execution; and real controlled CAD writer implementation.
+- PR #151's initial valid-request test also identified that successful HTTP responses previously failed serialization; this is fixed by #152 and covered by its regression test.
+- No PR was merged, approved, or closed in this update. All three remediation PRs remain Draft; explicit user authorization is required for each merge.
+
+The current PR #147 head before this addendum was `8c4bbbc66795a536ad7e83e14c9c50b655f2ae68`, with Bug Hunt #43741582623, Runtime #43741582593, and PR CI #43741582627 completed/success. This addendum changes PR #147's head, so those results are historical and must be rerun on the new exact head. Mainline CI remains UNKNOWN; Windows/AutoCAD/ODA host tests remain NOT_RUN.
+
+---
+
 ## Current PR queue and runtime blocker update — 2026-11-15
 
 This update supersedes the prior open-PR count above.
