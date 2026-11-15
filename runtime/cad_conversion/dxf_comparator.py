@@ -147,14 +147,15 @@ class DxfComparator:
             differences.append("block_entity_counts")
 
         unsupported = sorted(source_unsupported | candidate_unsupported)
+        geometry_unsupported = unsupported - {"TEXT_READ_UNAVAILABLE"}
         if differences:
             status = "DIFFERENCES_FOUND"
             geometry_status = "DIFFERENCES_FOUND" if geometry_mismatches or block_mismatches or block_inventory_mismatches else (
-                "INCOMPLETE" if unsupported else "MATCHED"
+                "INCOMPLETE" if geometry_unsupported else "MATCHED"
             )
         elif unsupported:
             status = "INCOMPLETE"
-            geometry_status = "INCOMPLETE"
+            geometry_status = "INCOMPLETE" if geometry_unsupported else "MATCHED"
         else:
             status = "MATCHED_SUPPORTED_CONTENT"
             geometry_status = "MATCHED"
@@ -217,14 +218,14 @@ class DxfComparator:
                     kind = entity.dxftype()
                     signature = cls._signature(entity, tolerance)
                 except Exception:
-                    unsupported.add("UNKNOWN_ENTITY")
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"} else "UNKNOWN_ENTITY")
                     continue
                 if signature is None:
-                    unsupported.add(kind)
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"} else kind)
                 else:
                     presentation = presentation_signature(entity, tolerance)
                     if presentation is None:
-                        unsupported.add(kind)
+                        unsupported.add("TEXT_READ_UNAVAILABLE" if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"} else kind)
                     else:
                         layout_signatures[(container, kind, (signature, presentation))] += 1
 
