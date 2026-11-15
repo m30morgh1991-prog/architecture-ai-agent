@@ -80,10 +80,12 @@ class DxfComparator:
             except OSError:
                 return self._failure(source, candidate, "SOURCE_UNREADABLE", "An input DXF file cannot be inspected.")
 
+        source_sha256: str | None = None
+        candidate_sha256: str | None = None
+        ezdxf_version = getattr(ezdxf, "__version__", None)
         try:
             source_sha256 = cls_sha256_file(source)
             candidate_sha256 = cls_sha256_file(candidate)
-            ezdxf_version = getattr(ezdxf, "__version__", None)
             source_doc = ezdxf.readfile(source)
             candidate_doc = ezdxf.readfile(candidate)
         except (OSError, DXFError, UnicodeError, ValueError) as exc:
@@ -92,6 +94,9 @@ class DxfComparator:
                 candidate,
                 "DXF_PARSE_FAILED",
                 f"At least one DXF could not be parsed ({type(exc).__name__}).",
+                source_sha256=source_sha256,
+                candidate_sha256=candidate_sha256,
+                ezdxf_version=ezdxf_version,
             )
 
         source_entities, source_blocks, source_block_inventory, source_unsupported = self._collect(source_doc, tolerance)
@@ -337,7 +342,16 @@ class DxfComparator:
             return None
 
     @staticmethod
-    def _failure(source: Path, candidate: Path, code: str, message: str) -> DxfComparisonReport:
+    def _failure(
+        source: Path,
+        candidate: Path,
+        code: str,
+        message: str,
+        *,
+        source_sha256: str | None = None,
+        candidate_sha256: str | None = None,
+        ezdxf_version: str | None = None,
+    ) -> DxfComparisonReport:
         return DxfComparisonReport(
             source_path=str(source),
             candidate_path=str(candidate),
@@ -345,6 +359,9 @@ class DxfComparator:
             geometry_comparison_status="NOT_RUN",
             fidelity_status="UNKNOWN",
             requires_review=True,
+            source_sha256=source_sha256,
+            candidate_sha256=candidate_sha256,
+            ezdxf_version=ezdxf_version,
             error_code=code,
             error_message=message,
         )
