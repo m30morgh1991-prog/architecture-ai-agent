@@ -13,7 +13,7 @@ permissions:
 jobs:
   pilot:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,34 +37,40 @@ jobs:
       - name: Rust format check
         run: cargo fmt --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml -- --check
 
-      - name: Rust unit tests
-        run: cargo test --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml --locked
+      - name: Rust unit tests — release and upstream source
+        run: |
+          cargo test --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml --locked --no-default-features --features release
+          cargo test --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml --locked --no-default-features --features upstream-main
 
-      - name: Convert and independently reopen Golden DWGs
+      - name: Compare release and upstream source on Golden DWGs
         shell: bash
         run: |
           set +e
           mkdir -p "$RUNNER_TEMP/acadrust-pilot"
           overall=0
-          for name in bagheri7 afifiiiii.end.edit3; do
-            input="test-assets/golden-projects/${name}.dwg"
-            candidate="$RUNNER_TEMP/acadrust-pilot/${name}.candidate.dxf"
-            report="$RUNNER_TEMP/acadrust-pilot/${name}.report.json"
-            echo "::group::${name}"
-            cargo run --release --locked --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml -- \
-              "$input" "$candidate" "$report"
-            convert_status=$?
-            if [ $convert_status -eq 0 ]; then
-              python tools/acadrust_dwg2dxf_pilot/verify_ezdxf.py "$candidate" "$report"
-              verify_status=$?
-            else
-              verify_status=99
-            fi
-            echo "fixture=${name} converter_exit=${convert_status} independent_verifier_exit=${verify_status}" | tee -a "$RUNNER_TEMP/acadrust-pilot/summary.txt"
-            if [ $convert_status -ne 0 ] || [ $verify_status -ne 0 ]; then
-              overall=1
-            fi
-            echo "::endgroup::"
+          for engine in release upstream-main; do
+            for name in bagheri7 afifiiiii.end.edit3; do
+              input="test-assets/golden-projects/${name}.dwg"
+              candidate="$RUNNER_TEMP/acadrust-pilot/${name}.${engine}.candidate.dxf"
+              report="$RUNNER_TEMP/acadrust-pilot/${name}.${engine}.report.json"
+              echo "::group::${engine} / ${name}"
+              cargo run --release --locked --no-default-features --features "$engine" \
+                --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml -- \
+                "$input" "$candidate" "$report"
+              convert_status=$?
+              if [ $convert_status -eq 0 ]; then
+                python tools/acadrust_dwg2dxf_pilot/verify_ezdxf.py "$candidate" "$report"
+                verify_status=$?
+              else
+                verify_status=99
+              fi
+              echo "engine=${engine} fixture=${name} converter_exit=${convert_status} independent_verifier_exit=${verify_status}" \
+                | tee -a "$RUNNER_TEMP/acadrust-pilot/summary.txt"
+              if [ $convert_status -ne 0 ] || [ $verify_status -ne 0 ]; then
+                overall=1
+              fi
+              echo "::endgroup::"
+            done
           done
           exit $overall
 
@@ -72,7 +78,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: acadrust-dwg2dxf-pilot-evidence
+          name: acadrust-dwg2dxf-comparison-evidence
           path: |
             ${{ runner.temp }}/acadrust-pilot/
             tools/acadrust_dwg2dxf_pilot/Cargo.lock
