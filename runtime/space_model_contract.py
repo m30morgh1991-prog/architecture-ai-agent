@@ -8,12 +8,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import isfinite
+from numbers import Real
 from typing import Literal
 
 
 def _finite_float(value: object) -> float:
     """Convert a numeric coordinate without accepting bool, NaN or infinity."""
-    if isinstance(value, bool):
+    if isinstance(value, bool) or not isinstance(value, Real):
         raise ValueError("SPACE_GEOMETRY_INVALID")
     try:
         number = float(value)
