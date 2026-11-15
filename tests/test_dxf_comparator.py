@@ -8,6 +8,9 @@ from unittest.mock import patch
 from pathlib import Path
 
 import ezdxf
+from ezdxf.entities import factory
+from ezdxf.lldxf.tags import Tags
+from ezdxf.lldxf.types import DXFBinaryTag, DXFTag
 
 from runtime.cad_conversion import DxfComparator, compare_dxf_files
 
@@ -49,7 +52,7 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.source_sha256, hashlib.sha256(source_bytes).hexdigest())
         self.assertEqual(report.candidate_sha256, hashlib.sha256(candidate_bytes).hexdigest())
         self.assertTrue(report.ezdxf_version)
-        self.assertEqual(report.comparator_version, "0.8.0")
+        self.assertEqual(report.comparator_version, "0.9.0")
         self.assertEqual(self.source.read_bytes(), source_bytes)
         self.assertEqual(self.candidate.read_bytes(), candidate_bytes)
         json.dumps(report.to_dict())
@@ -583,6 +586,61 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.comparison_status, "INCOMPLETE")
         self.assertIn("ENTITY_METADATA_UNSUPPORTED", report.unsupported_entity_types)
         self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_proxy_graphic_changes_are_hashed_but_never_treated_as_geometry(self):
+        def write(path, graphic):
+            document = ezdxf.new("R2010")
+            proxy = factory.new("ACAD_PROXY_ENTITY", dxfattribs={"layer": "0"})
+            proxy.proxy_graphic = graphic
+            proxy.acdb_proxy_entity = Tags([
+                DXFTag(100, "AcDbProxyEntity"),
+                DXFTag(91, 501),
+                DXFTag(92, len(graphic)),
+                DXFBinaryTag(310, graphic),
+                DXFTag(95, 0),
+            ])
+            document.modelspace().add_entity(proxy)
+            document.modelspace().add_line((0, 0), (10, 0))
+            document.saveas(path)
+
+        write(self.source, b"proxy-graphic-source")
+        write(self.candidate, b"proxy-graphic-candidate")
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("proxy_graphics", report.structural_differences)
+        self.assertGreater(report.proxy_graphic_mismatch_count, 0)
+        self.assertEqual(report.source_proxy_graphics[0]["byte_count"], len(b"proxy-graphic-source"))
+        self.assertIsNotNone(report.source_proxy_graphics[0]["sha256"])
+        self.assertIn("ACAD_PROXY_ENTITY", report.unsupported_entity_types)
+        self.assertEqual(report.geometry_comparison_status, "INCOMPLETE")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_identical_proxy_graphics_remain_incomplete_not_a_fidelity_pass(self):
+        def write(path):
+            graphic = b"same-opaque-proxy-graphic"
+            document = ezdxf.new("R2010")
+            proxy = factory.new("ACAD_PROXY_ENTITY", dxfattribs={"layer": "0"})
+            proxy.proxy_graphic = graphic
+            proxy.acdb_proxy_entity = Tags([
+                DXFTag(100, "AcDbProxyEntity"),
+                DXFTag(91, 501),
+                DXFTag(92, len(graphic)),
+                DXFBinaryTag(310, graphic),
+                DXFTag(95, 0),
+            ])
+            document.modelspace().add_entity(proxy)
+            document.modelspace().add_line((0, 0), (10, 0))
+            document.saveas(path)
+
+        write(self.source)
+        write(self.candidate)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "INCOMPLETE")
+        self.assertEqual(report.proxy_graphic_mismatch_count, 0)
+        self.assertEqual(report.geometry_comparison_status, "INCOMPLETE")
         self.assertEqual(report.fidelity_status, "UNKNOWN")
 
 if __name__ == "__main__":
