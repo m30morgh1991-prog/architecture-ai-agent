@@ -119,6 +119,65 @@ class OpeningConnectivityTests(unittest.TestCase):
                         tolerance=tolerance, host_wall_ids={"W1"},
                     )
 
+
+    def test_boolean_boundary_coordinates_cannot_create_connection(self):
+        boundaries = {
+            "A": [(0, 0), (True, 0), (True, 10), (0, 10)],
+            "B": [(True, 0), (20, 0), (20, 10), (True, 10)],
+        }
+        opening = {**self.opening, "span": [[1, 4], [1, 6]]}
+        result = classify_opening_connectivity(
+            [opening], self.spaces, boundaries,
+            tolerance=0.01, host_wall_ids={"W1"},
+        )
+        self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
+        self.assertEqual(result[0]["touched_space_count"], 0)
+
+    def test_boolean_span_coordinates_cannot_create_connection(self):
+        boundaries = {
+            "A": [(0, 0), (1, 0), (1, 10), (0, 10)],
+            "B": [(1, 0), (20, 0), (20, 10), (1, 10)],
+        }
+        opening = {**self.opening, "span": [[True, 4], [True, 6]]}
+        result = classify_opening_connectivity(
+            [opening], self.spaces, boundaries,
+            tolerance=0.01, host_wall_ids={"W1"},
+        )
+        self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
+        self.assertEqual(result[0]["touched_space_count"], 0)
+
+    def test_non_finite_or_malformed_boundaries_remain_unresolved(self):
+        invalid_boundaries = [
+            {"A": [(0, 0), (10, 0), (float("nan"), 10), (0, 10)],
+             "B": [(10, 0), (20, 0), (20, 10), (10, 10)]},
+            {"A": [(0, 0), (10,), (10, 10), (0, 10)],
+             "B": [(10, 0), (20, 0), (20, 10), (10, 10)]},
+        ]
+        for boundaries in invalid_boundaries:
+            with self.subTest(boundaries=boundaries):
+                result = classify_opening_connectivity(
+                    [self.opening], self.spaces, boundaries,
+                    tolerance=0.01, host_wall_ids={"W1"},
+                )
+                self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
+
+    def test_string_host_wall_inventory_cannot_verify_wall(self):
+        opening = {**self.opening, "host_wall_id": "W"}
+        result = classify_opening_connectivity(
+            [opening], self.spaces, self.boundaries,
+            tolerance=0.01, host_wall_ids="W",
+        )
+        self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
+        self.assertFalse(result[0]["host_wall_evidenced"])
+
+    def test_invalid_host_wall_inventory_type_fails_closed(self):
+        result = classify_opening_connectivity(
+            [self.opening], self.spaces, self.boundaries,
+            tolerance=0.01, host_wall_ids=42,
+        )
+        self.assertEqual(result[0]["type"], "OPENING_CONNECTIVITY_UNKNOWN")
+        self.assertFalse(result[0]["host_wall_evidenced")
+
     def test_missing_opening_id_is_handled_as_unresolved(self):
         opening = {**self.opening}
         opening.pop("opening_id")
