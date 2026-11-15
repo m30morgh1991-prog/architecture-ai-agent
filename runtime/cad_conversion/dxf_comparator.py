@@ -18,7 +18,7 @@ from ezdxf import DXFError
 from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
-COMPARATOR_VERSION = "0.4.0"
+COMPARATOR_VERSION = "0.5.0"
 
 
 @dataclass(frozen=True)
@@ -90,18 +90,22 @@ class DxfComparator:
             source_sha256 = cls_sha256_file(source)
             candidate_sha256 = cls_sha256_file(candidate)
             ezdxf_version = getattr(ezdxf, "__version__", None)
-            source_doc = ezdxf.readfile(source)
-            candidate_doc = ezdxf.readfile(candidate)
-        except (OSError, DXFError, UnicodeError, ValueError) as exc:
+            source_doc, source_recovered = self._read_document(source)
+            candidate_doc, candidate_recovered = self._read_document(candidate)
+        except Exception as exc:
             return self._failure(
                 source,
                 candidate,
                 "DXF_PARSE_FAILED",
-                f"At least one DXF could not be parsed ({type(exc).__name__}).",
+                f"At least one DXF could not be parsed or recovered ({type(exc).__name__}).",
             )
 
         source_entities, source_blocks, source_block_inventory, source_unsupported = self._collect(source_doc, tolerance)
         candidate_entities, candidate_blocks, candidate_block_inventory, candidate_unsupported = self._collect(candidate_doc, tolerance)
+        if source_recovered:
+            source_unsupported.add("DXF_RECOVERY_USED")
+        if candidate_recovered:
+            candidate_unsupported.add("DXF_RECOVERY_USED")
         geometry_mismatches = self._counter_delta(source_entities, candidate_entities)
         block_mismatches = self._counter_delta(source_blocks, candidate_blocks)
         block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory)
@@ -186,6 +190,19 @@ class DxfComparator:
             structural_differences=differences,
         )
 
+    @staticmethod
+    def _read_document(path: Path) -> tuple[Any, bool]:
+        """Read strictly first, then recover damaged records without hiding uncertainty."""
+        try:
+            return ezdxf.readfile(path), False
+        except Exception as strict_error:
+            try:
+                from ezdxf import recover
+                document, _auditor = recover.readfile(path)
+                return document, True
+            except Exception:
+                raise strict_error
+
     @classmethod
     def _collect(cls, document: Any, tolerance: float) -> tuple[Counter, Counter, Counter, set[str]]:
         layout_signatures: Counter = Counter()
@@ -196,11 +213,12 @@ class DxfComparator:
         for layout in document.layouts:
             container = ("layout", layout.name)
             for entity in layout:
-                kind = entity.dxftype()
                 try:
+                    kind = entity.dxftype()
                     signature = cls._signature(entity, tolerance)
-                except (AttributeError, TypeError, ValueError):
-                    signature = None
+                except Exception:
+                    unsupported.add("UNKNOWN_ENTITY")
+                    continue
                 if signature is None:
                     unsupported.add(kind)
                 else:
@@ -223,12 +241,13 @@ class DxfComparator:
                     block_inventory[(block.name, f"XREF:{xref_path or 'UNRESOLVED'}")] += 1
                     unsupported.add("XREF_DEPENDENCY")
             for entity in block:
-                kind = entity.dxftype()
-                block_inventory[(block.name, kind)] += 1
                 try:
+                    kind = entity.dxftype()
+                    block_inventory[(block.name, kind)] += 1
                     signature = cls._signature(entity, tolerance)
-                except (AttributeError, TypeError, ValueError):
-                    signature = None
+                except Exception:
+                    unsupported.add("UNKNOWN_ENTITY")
+                    continue
                 if signature is None:
                     unsupported.add(kind)
                 else:
@@ -335,7 +354,10 @@ class DxfComparator:
         counts: Counter = Counter()
         for layout in document.layouts:
             for entity in layout:
-                counts[entity.dxftype()] += 1
+                try:
+                    counts[entity.dxftype()] += 1
+                except Exception:
+                    counts["UNKNOWN_ENTITY"] += 1
         return dict(sorted(counts.items()))
 
     @staticmethod
