@@ -67,6 +67,11 @@ class DxfComparisonReport:
     text_mismatch_count: int = 0
     viewport_mismatch_count: int = 0
     entity_metadata_mismatch_count: int = 0
+    source_proxy_graphics: list[dict[str, Any]] = field(default_factory=list)
+    candidate_proxy_graphics: list[dict[str, Any]] = field(default_factory=list)
+    proxy_graphic_mismatch_count: int = 0
+    source_proxy_object_count: int = 0
+    candidate_proxy_object_count: int = 0
     unsupported_entity_types: list[str] = field(default_factory=list)
     structural_differences: list[str] = field(default_factory=list)
     error_code: str | None = None
@@ -134,6 +139,15 @@ class DxfComparator:
         )
         viewport_mismatches = self._counter_delta(source_entities, candidate_entities, include_types={"VIEWPORT"})
         entity_metadata_mismatches = self._counter_delta(source_metadata, candidate_metadata)
+        source_proxy_counter, source_proxy_graphics = self._proxy_graphic_inventory(source_doc)
+        candidate_proxy_counter, candidate_proxy_graphics = self._proxy_graphic_inventory(candidate_doc)
+        proxy_graphic_mismatches = self._counter_delta(source_proxy_counter, candidate_proxy_counter)
+        source_proxy_object_count = self._proxy_object_count(source_doc)
+        candidate_proxy_object_count = self._proxy_object_count(candidate_doc)
+        if source_proxy_object_count:
+            source_unsupported.add("ACAD_PROXY_OBJECT")
+        if candidate_proxy_object_count:
+            candidate_unsupported.add("ACAD_PROXY_OBJECT")
 
         source_counts = self._layout_counts(source_doc)
         candidate_counts = self._layout_counts(candidate_doc)
@@ -194,6 +208,10 @@ class DxfComparator:
             differences.append("viewports")
         if entity_metadata_mismatches:
             differences.append("entity_metadata")
+        if proxy_graphic_mismatches:
+            differences.append("proxy_graphics")
+        if source_proxy_object_count != candidate_proxy_object_count:
+            differences.append("proxy_objects")
         if block_mismatches:
             differences.append("block_definition_geometry")
         if block_inventory_mismatches and "block_entity_counts" not in differences:
@@ -257,6 +275,11 @@ class DxfComparator:
             text_mismatch_count=text_mismatches,
             viewport_mismatch_count=viewport_mismatches,
             entity_metadata_mismatch_count=entity_metadata_mismatches,
+            source_proxy_graphics=source_proxy_graphics,
+            candidate_proxy_graphics=candidate_proxy_graphics,
+            proxy_graphic_mismatch_count=proxy_graphic_mismatches,
+            source_proxy_object_count=source_proxy_object_count,
+            candidate_proxy_object_count=candidate_proxy_object_count,
             unsupported_entity_types=unsupported,
             structural_differences=differences,
         )
@@ -537,6 +560,54 @@ class DxfComparator:
                 raise TypeError(f"DXF_EXTENSION_OBJECT_UNSUPPORTED:{kind}")
             result.append((str(key), payload))
         return tuple(result)
+
+    @classmethod
+    def _proxy_graphic_inventory(cls, document: Any) -> tuple[Counter, list[dict[str, Any]]]:
+        """Hash opaque proxy graphics for inventory only; never interpret them as geometry."""
+        inventory: Counter = Counter()
+        entries: list[dict[str, Any]] = []
+        for layout in document.layouts:
+            for entity in layout:
+                try:
+                    if entity.dxftype() != "ACAD_PROXY_ENTITY":
+                        continue
+                    graphic = getattr(entity, "proxy_graphic", b"") or b""
+                    tags = getattr(entity, "acdb_proxy_entity", None) or ()
+                    class_id = next((tag.value for tag in tags if tag.code == 91), None)
+                    drawing_format = next((tag.value for tag in tags if tag.code == 95), None)
+                    digest = hashlib.sha256(graphic).hexdigest() if graphic else None
+                    item = {
+                        "layout": layout.name,
+                        "byte_count": len(graphic),
+                        "sha256": digest,
+                        "class_id": class_id,
+                        "drawing_format": drawing_format,
+                    }
+                    entries.append(item)
+                    inventory[(layout.name, len(graphic), digest, class_id, drawing_format)] += 1
+                except Exception:
+                    inventory[(layout.name, "UNKNOWN_PROXY_GRAPHIC")] += 1
+                    entries.append({
+                        "layout": layout.name,
+                        "byte_count": None,
+                        "sha256": None,
+                        "class_id": None,
+                        "drawing_format": None,
+                        "status": "UNKNOWN",
+                    })
+        entries.sort(key=lambda item: repr(sorted(item.items())))
+        return inventory, entries
+
+    @staticmethod
+    def _proxy_object_count(document: Any) -> int:
+        count = 0
+        for obj in document.objects:
+            try:
+                if obj.dxftype() == "ACAD_PROXY_OBJECT":
+                    count += 1
+            except Exception:
+                continue
+        return count
 
     @classmethod
     def _entity_metadata_signature(cls, entity: Any, tolerance: float) -> tuple | None:
