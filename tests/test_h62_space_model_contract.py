@@ -141,6 +141,24 @@ class H62SpaceModelContractTests(unittest.TestCase):
                 relations=relations,
             )
 
+    def test_numeric_strings_are_not_coerced_into_geometry(self):
+        cases = (
+            ("bbox", ["0", 0, 10, 10], "SPACE_GEOMETRY_INVALID"),
+            ("centroid", [5, "5"], "SPACE_GEOMETRY_INVALID"),
+            ("area", "100", "SPACE_GEOMETRY_INVALID"),
+        )
+        for field, value, error in cases:
+            with self.subTest(field=field):
+                spaces, relations = self.base()
+                spaces[0][field] = value
+                with self.assertRaisesRegex(ValueError, error):
+                    build_space_model(
+                        model_id="space-model-01",
+                        source_sha256="src-01",
+                        spaces=spaces,
+                        relations=relations,
+                    )
+
     def test_boolean_area_is_not_coerced_to_one(self):
         spaces, relations = self.base()
         spaces[0]["area"] = True
