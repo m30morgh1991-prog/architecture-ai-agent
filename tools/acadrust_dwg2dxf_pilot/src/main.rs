@@ -1,3 +1,18 @@
+#[cfg(all(feature = "release", feature = "upstream-main"))]
+compile_error!("Select exactly one acadrust implementation feature.");
+#[cfg(not(any(feature = "release", feature = "upstream-main")))]
+compile_error!("Select either the release or upstream-main acadrust feature.");
+
+#[cfg(feature = "release")]
+use acadrust_release as acadrust;
+#[cfg(feature = "upstream-main")]
+use acadrust_main as acadrust;
+
+#[cfg(feature = "release")]
+const ACADRUST_BUILD: &str = "crates.io:0.6.8";
+#[cfg(feature = "upstream-main")]
+const ACADRUST_BUILD: &str = "git:52034a673ff59bf6936ebf01ec794b07a97df246";
+
 use acadrust::{CadDocument, DwgReadOptions, DwgReader, DxfReader, DxfWriter, ReadStats};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -305,7 +320,7 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
             schema_version: 1,
             tool: "acadrust-dwg2dxf-pilot".to_string(),
             tool_version: env!("CARGO_PKG_VERSION").to_string(),
-            acadrust_version: "0.6.8".to_string(),
+            acadrust_version: ACADRUST_BUILD.to_string(),
             decision,
             structural_checks_pass,
             input_path: input.display().to_string(),
