@@ -52,6 +52,38 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(self.candidate.read_bytes(), candidate_bytes)
         json.dumps(report.to_dict())
 
+    def test_layer_table_property_changes_are_detected(self):
+        def write(path, *, color, lineweight, plot):
+            document = ezdxf.new("R2010")
+            document.layers.new(
+                "A-WALL",
+                dxfattribs={
+                    "color": color,
+                    "lineweight": lineweight,
+                    "linetype": "CONTINUOUS",
+                    "plot": plot,
+                },
+            )
+            document.modelspace().add_line(
+                (0, 0), (10, 0), dxfattribs={"layer": "A-WALL"}
+            )
+            document.saveas(path)
+
+        write(self.source, color=1, lineweight=25, plot=1)
+        write(self.candidate, color=3, lineweight=50, plot=0)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("layer_properties", report.structural_differences)
+        self.assertEqual(report.source_layer_properties["A-WALL"]["color"], 1)
+        self.assertEqual(report.candidate_layer_properties["A-WALL"]["color"], 3)
+        self.assertEqual(report.source_layer_properties["A-WALL"]["lineweight"], 25)
+        self.assertEqual(report.candidate_layer_properties["A-WALL"]["lineweight"], 50)
+        self.assertTrue(report.source_layer_properties["A-WALL"]["plot"])
+        self.assertFalse(report.candidate_layer_properties["A-WALL"]["plot"])
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
+
     def test_geometry_difference_is_detected(self):
         self._write_dxf(self.source)
         self._write_dxf(self.candidate, line_end=(10.5, 5))
