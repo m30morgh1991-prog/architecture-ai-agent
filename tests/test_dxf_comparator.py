@@ -49,7 +49,7 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.source_sha256, hashlib.sha256(source_bytes).hexdigest())
         self.assertEqual(report.candidate_sha256, hashlib.sha256(candidate_bytes).hexdigest())
         self.assertTrue(report.ezdxf_version)
-        self.assertEqual(report.comparator_version, "0.7.0")
+        self.assertEqual(report.comparator_version, "0.8.0")
         self.assertEqual(self.source.read_bytes(), source_bytes)
         self.assertEqual(self.candidate.read_bytes(), candidate_bytes)
         json.dumps(report.to_dict())
@@ -527,6 +527,61 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
         self.assertIn("dimension_styles", report.structural_differences)
         self.assertIn("ARCH", report.source_dimension_styles)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_xdata_change_is_detected_without_geometry_mismatch(self):
+        def write(path, label):
+            document = ezdxf.new("R2010")
+            document.appids.new("ARCH_APP")
+            line = document.modelspace().add_line((0, 0), (10, 0))
+            line.set_xdata("ARCH_APP", [(1000, label), (1040, 1.5), (1070, 2)])
+            document.saveas(path)
+
+        write(self.source, "source metadata")
+        write(self.candidate, "candidate metadata")
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("entity_metadata", report.structural_differences)
+        self.assertGreater(report.entity_metadata_mismatch_count, 0)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.geometry_mismatch_count, 0)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_extension_dictionary_xrecord_change_is_detected(self):
+        def write(path, label):
+            document = ezdxf.new("R2010")
+            line = document.modelspace().add_line((0, 0), (10, 0))
+            extension = line.new_extension_dict()
+            record = extension.add_xrecord("ARCH_RECORD")
+            record.reset([(1, label), (40, 1.25), (1070, 7)])
+            document.saveas(path)
+
+        write(self.source, "source record")
+        write(self.candidate, "candidate record")
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("entity_metadata", report.structural_differences)
+        self.assertGreater(report.entity_metadata_mismatch_count, 0)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.geometry_mismatch_count, 0)
+
+    def test_unresolved_xdata_handle_reference_fails_closed(self):
+        def write(path):
+            document = ezdxf.new("R2010")
+            document.appids.new("ARCH_APP")
+            line = document.modelspace().add_line((0, 0), (10, 0))
+            line.set_xdata("ARCH_APP", [(1005, "ABCD")])
+            document.saveas(path)
+
+        write(self.source)
+        write(self.candidate)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "INCOMPLETE")
+        self.assertIn("ENTITY_METADATA_UNSUPPORTED", report.unsupported_entity_types)
         self.assertEqual(report.geometry_comparison_status, "MATCHED")
         self.assertEqual(report.fidelity_status, "UNKNOWN")
 
