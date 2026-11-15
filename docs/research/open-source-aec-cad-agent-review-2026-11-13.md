@@ -161,3 +161,17 @@ No candidate in this section is approved as the production conversion provider. 
 The current upstream `hakanaktt/acadrust` main commit observed during this review is `52034a673ff59bf6936ebf01ec794b07a97df246`. All ten reported check-runs on that exact upstream SHA completed successfully: Rust analysis, Python/Actions/C# analysis, Ubuntu tests, Windows tests, macOS tests, FreeBSD aarch64/x86_64 checks, and WebAssembly checks.
 
 This is a positive maintenance signal for a pilot candidate, but it is **upstream CI only**, not our own integration, entity-fidelity, Golden DWG, memory, or conversion-roundtrip evidence. The upstream README also notes that tests requiring drawing files not present in the repository are ignored unless the user supplies those fixtures. Our pilot must therefore use independently controlled synthetic and Golden fixtures and report skipped coverage explicitly.
+
+
+### Existing Golden fixture baseline: ezdwg conversion is currently rejected — 2026-11-15
+
+The live PR #131 workflow `Golden DWG to DXF Fidelity Test` run #24 (run ID `43270191429`) was inspected on PR head `d4231b5c68be56e737977c1b909fb3a05607ae0d`. It completed/failure for the correct reason: the generated DXF files do not preserve the Golden source entity inventory.
+
+- For `bagheri7.dwg`, the source modelspace contains 8,842 LINE entities, while the `modelspace_only=True` conversion output contained only 2 LINE entities. Other source categories were also lost.
+- For `afifiiiii.end.edit3.dwg`, the source includes 72,447 LINE, 8 DIMENSION, 141 HATCH, 151 INSERT, 70 LWPOLYLINE, 14 MTEXT, and 85 TEXT entities; the conversion output contained only two HATCH entities.
+- The adapter reported zero skipped entities because it only counted the tiny selected export set; independent source-vs-output counts exposed the much larger mismatch. This is exactly why source-side inventory and independent reopen checks are mandatory.
+- The strict native DWG writer probe was BLOCKED on both files because block XDATA, preview, extension-dictionary, and (for Bagheri7) Xref metadata could not be preserved.
+- Both original DWG SHA-256 values matched before and after; the source fixtures were not modified.
+- Overall report: `NEEDS_REVIEW`; native writer overall status: `BLOCKED`. No lossless-conversion claim is justified.
+
+**Decision update:** retain ezdwg as a read/inspection experiment only; reject its current Golden DWG→DXF and native DWG write paths as production conversion providers. Do not weaken the failed Golden gate to obtain green CI. Use these two immutable fixtures as the baseline for the isolated acadrust pilot in issue #145, and require the same independent entity/property/hash checks.
