@@ -27,7 +27,7 @@ python tools/acadrust_dwg2dxf_pilot/verify_ezdxf.py \
   /tmp/bagheri7.candidate.dxf /tmp/bagheri7.report.json
 ```
 
-The output path and report path must not already exist. The converter writes a same-directory temporary file and atomically renames it to the candidate path only after the DXF can be reopened by acadrust. A candidate is not a final deliverable.
+The output path and report path must not already exist. The converter writes a same-directory temporary file and uses atomic create-if-absent hard-link promotion only after the DXF can be reopened by acadrust; an existing or concurrently-created destination is never replaced. The report records candidate byte size and Linux peak RSS when `/proc/self/status` is available. A candidate is not a final deliverable.
 
 ## Evidence limits
 
