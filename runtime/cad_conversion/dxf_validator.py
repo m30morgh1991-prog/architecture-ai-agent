@@ -67,7 +67,7 @@ class DxfValidationReport:
     layouts: list[str] = field(default_factory=list)
     dimension_count: int = 0
     text_entity_count: int = 0
-    text_read_warning_count: int = 0
+    entity_read_warning_count: int = 0
     non_ascii_text_entity_count: int = 0
     persian_text_entity_count: int = 0
     block_definition_entity_count: int = 0
@@ -131,7 +131,7 @@ class DxfValidator:
         text_entities = 0
         non_ascii_text_entities = 0
         persian_text_entities = 0
-        text_read_warnings = 0
+        entity_read_warnings = 0
         dimension_count = 0
 
         for layout in document.layouts:
@@ -139,7 +139,7 @@ class DxfValidator:
                 try:
                     kind = entity.dxftype()
                 except Exception:
-                    text_read_warnings += 1
+                    entity_read_warnings += 1
                     continue
                 layout_counts[kind] += 1
                 if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}:
@@ -152,7 +152,7 @@ class DxfValidator:
                             persian_text_entities += 1
                     except Exception:
                         # Text is not authoritative for geometry extraction.
-                        text_read_warnings += 1
+                        entity_read_warnings += 1
                 if kind == "DIMENSION":
                     dimension_count += 1
 
@@ -162,7 +162,7 @@ class DxfValidator:
                 try:
                     block_counts[entity.dxftype()] += 1
                 except Exception:
-                    text_read_warnings += 1
+                    entity_read_warnings += 1
 
         try:
             auditor = document.audit()
@@ -177,11 +177,11 @@ class DxfValidator:
         ]
         insunits = self._header_int(document, "$INSUNITS")
         measurement = self._header_int(document, "$MEASUREMENT")
-        audit_status = "RECOVERY_USED" if recovery_used else ("CLEAN" if not audit_errors and not audit_fixes else "HAS_FINDINGS")
+        audit_status = ("RECOVERY_USED_WITH_FINDINGS" if audit_errors or audit_fixes else "RECOVERY_USED") if recovery_used else ("CLEAN" if not audit_errors and not audit_fixes else "HAS_FINDINGS")
 
         return DxfValidationReport(
             source_path=str(source),
-            validation_status="PARSE_PASS" if audit_status == "CLEAN" and text_read_warnings == 0 else "PARSE_PASS_WITH_AUDIT_FINDINGS",
+            validation_status="PARSE_PASS" if audit_status == "CLEAN" and entity_read_warnings == 0 else "PARSE_PASS_WITH_AUDIT_FINDINGS",
             parse_status="PASS",
             audit_status=audit_status,
             fidelity_status="UNKNOWN",
@@ -195,7 +195,7 @@ class DxfValidator:
             layouts=sorted(layout.name for layout in document.layouts),
             dimension_count=dimension_count,
             text_entity_count=text_entities,
-            text_read_warning_count=text_read_warnings,
+            entity_read_warning_count=entity_read_warnings,
             non_ascii_text_entity_count=non_ascii_text_entities,
             persian_text_entity_count=persian_text_entities,
             block_definition_entity_count=sum(block_counts.values()),
