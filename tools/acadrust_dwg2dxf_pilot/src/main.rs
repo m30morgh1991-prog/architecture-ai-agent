@@ -3,10 +3,10 @@ compile_error!("Select exactly one acadrust implementation feature.");
 #[cfg(not(any(feature = "release", feature = "upstream-main")))]
 compile_error!("Select either the release or upstream-main acadrust feature.");
 
-#[cfg(feature = "release")]
-use acadrust_release as acadrust;
 #[cfg(feature = "upstream-main")]
 use acadrust_main as acadrust;
+#[cfg(feature = "release")]
+use acadrust_release as acadrust;
 
 #[cfg(feature = "release")]
 const ACADRUST_BUILD: &str = "crates.io:0.6.8";
