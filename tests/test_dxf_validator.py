@@ -125,5 +125,25 @@ class TestDxfValidator(unittest.TestCase):
         self.assertEqual(report.entity_read_warning_count, 1)
         self.assertEqual(report.fidelity_status, "UNKNOWN")
 
+    def test_lossily_decoded_text_is_flagged_without_losing_geometry(self):
+        document = ezdxf.new("R2010")
+        modelspace = document.modelspace()
+        modelspace.add_line((0, 0), (20, 10))
+        modelspace.add_text("سلام")
+        document.saveas(self.source)
+
+        raw = self.source.read_bytes()
+        raw = raw.replace("سلام".encode("utf-8"), b"\\xff\\xfe\\xfd\\xfc", 1)
+        self.source.write_bytes(raw)
+
+        report = validate_dxf(self.source)
+
+        self.assertEqual(report.parse_status, "PASS")
+        self.assertEqual(report.entity_types["LINE"], 1)
+        self.assertEqual(report.text_entity_count, 1)
+        self.assertEqual(report.entity_read_warning_count, 1)
+        self.assertEqual(report.validation_status, "PARSE_PASS_WITH_AUDIT_FINDINGS")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
 if __name__ == "__main__":
     unittest.main()
