@@ -34,7 +34,7 @@ _AREA_TO_M2 = {
 def _finite_tuple(values: tuple[float, ...] | None, expected: int, code: str):
     if values is None:
         return None
-    if len(values) != expected:
+    if not isinstance(values, (tuple, list)) or len(values) != expected:
         raise ValueError(code)
     result = []
     for value in values:
@@ -51,10 +51,33 @@ def _finite_tuple(values: tuple[float, ...] | None, expected: int, code: str):
 
 
 def _ids(values: tuple[str, ...], code: str) -> None:
+    if not isinstance(values, (tuple, list)) or isinstance(values, (str, bytes)):
+        raise ValueError(code)
     if any(not isinstance(value, str) or not value.strip() for value in values):
         raise ValueError(code)
     if len(values) != len(set(values)):
         raise ValueError(code)
+
+
+def _valid_sha256(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and value == value.lower()
+        and all(ch in "0123456789abcdef" for ch in value)
+    )
+
+
+def _nonsingular_2x2(a: float, b: float, c: float, d: float) -> bool:
+    scale = max(abs(a), abs(b), abs(c), abs(d))
+    return scale > 0.0 and abs(a * d - b * c) > 1e-12 * scale * scale
+
+
+def _nonsingular_3x3(values: tuple[float, ...]) -> bool:
+    a, b, c, d, e, f, g, h, i = values
+    scale = max(abs(value) for value in values)
+    determinant = a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g)
+    return scale > 0.0 and abs(determinant) > 1e-12 * scale ** 3
 
 
 @dataclass(frozen=True)
@@ -67,13 +90,18 @@ class GeometryReferenceEvidence:
     value: str
 
     def validate(self, expected_source_sha256: str) -> None:
-        if not self.evidence_id or not self.source_ref or not self.value:
+        if any(
+            not isinstance(value, str) or not value.strip()
+            for value in (self.evidence_id, self.source_ref, self.value)
+        ):
             raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_INCOMPLETE")
+        if not _valid_sha256(self.source_sha256):
+            raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_SOURCE_HASH_INVALID")
         if self.source_sha256 != expected_source_sha256:
             raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_SOURCE_MISMATCH")
-        if self.domain not in {"COORDINATE_FRAME", "UNIT", "SCALE", "TRANSFORM", "DIMENSION"}:
+        if not isinstance(self.domain, str) or self.domain not in {"COORDINATE_FRAME", "UNIT", "SCALE", "TRANSFORM", "DIMENSION"}:
             raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_DOMAIN_INVALID")
-        if self.status not in _ALLOWED_STATUSES:
+        if not isinstance(self.status, str) or self.status not in _ALLOWED_STATUSES:
             raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_STATUS_INVALID")
 
 
@@ -105,25 +133,26 @@ class GeometryReference:
     dimension_reconciliation_status: EvidenceStatus = "UNKNOWN"
     evidence_records: tuple[GeometryReferenceEvidence, ...] = ()
 
+    def __post_init__(self) -> None:
+        # The public dataclass constructor must not bypass evidence validation.
+        self.validate()
+
     def validate(self) -> None:
-        if not self.reference_id:
+        if not isinstance(self.reference_id, str) or not self.reference_id.strip():
             raise ValueError("GEOMETRY_REFERENCE_ID_MISSING")
-        if (
-            len(self.source_sha256) != 64
-            or any(ch not in "0123456789abcdef" for ch in self.source_sha256.lower())
-        ):
+        if not _valid_sha256(self.source_sha256):
             raise ValueError("GEOMETRY_REFERENCE_SOURCE_HASH_INVALID")
-        if self.coordinate_frame not in _ALLOWED_FRAMES:
+        if not isinstance(self.coordinate_frame, str) or self.coordinate_frame not in _ALLOWED_FRAMES:
             raise ValueError("GEOMETRY_REFERENCE_FRAME_INVALID")
-        if self.linear_unit not in _ALLOWED_UNITS:
+        if not isinstance(self.linear_unit, str) or self.linear_unit not in _ALLOWED_UNITS:
             raise ValueError("GEOMETRY_REFERENCE_UNIT_INVALID")
-        if self.scale_basis not in _ALLOWED_SCALE_BASES:
+        if not isinstance(self.scale_basis, str) or self.scale_basis not in _ALLOWED_SCALE_BASES:
             raise ValueError("GEOMETRY_REFERENCE_SCALE_BASIS_INVALID")
         for status in (
             self.coordinate_frame_status, self.unit_status, self.scale_status,
             self.dimension_reconciliation_status,
         ):
-            if status not in _ALLOWED_STATUSES:
+            if not isinstance(status, str) or status not in _ALLOWED_STATUSES:
                 raise ValueError("GEOMETRY_REFERENCE_STATUS_INVALID")
 
         for values, code in (
@@ -135,8 +164,12 @@ class GeometryReference:
         ):
             _ids(values, code)
 
+        if not isinstance(self.evidence_records, (tuple, list)):
+            raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_RECORDS_INVALID")
         evidence_by_id = {}
         for record in self.evidence_records:
+            if not isinstance(record, GeometryReferenceEvidence):
+                raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_RECORDS_INVALID")
             record.validate(self.source_sha256)
             if record.evidence_id in evidence_by_id:
                 raise ValueError("GEOMETRY_REFERENCE_EVIDENCE_ID_DUPLICATE")
@@ -205,19 +238,33 @@ class GeometryReference:
             ):
                 raise ValueError("GEOMETRY_REFERENCE_PIXEL_TRANSFORM_NOT_AFFINE")
             a, b, _, c, d, _, _, _, _ = pixel_transform
-            if abs(a * d - b * c) <= 1e-12:
+            if not _nonsingular_2x2(a, b, c, d):
                 raise ValueError("GEOMETRY_REFERENCE_PIXEL_TRANSFORM_SINGULAR")
             if not self.transform_evidence_ids:
                 raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_MISSING")
-        _finite_tuple(
+        coordinate_transform = _finite_tuple(
             self.coordinate_transform_4x4, 16,
             "GEOMETRY_REFERENCE_COORDINATE_TRANSFORM_INVALID",
         )
-        if self.coordinate_transform_4x4 is not None:
+        if coordinate_transform is not None:
             if not self.transform_evidence_ids:
                 raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_MISSING")
             if any(evidence_by_id[x].status != "SUPPORTED" for x in self.transform_evidence_ids):
                 raise ValueError("GEOMETRY_REFERENCE_TRANSFORM_EVIDENCE_UNPROVEN")
+            if (
+                abs(coordinate_transform[12]) > 1e-12
+                or abs(coordinate_transform[13]) > 1e-12
+                or abs(coordinate_transform[14]) > 1e-12
+                or abs(coordinate_transform[15] - 1.0) > 1e-12
+            ):
+                raise ValueError("GEOMETRY_REFERENCE_COORDINATE_TRANSFORM_NOT_AFFINE")
+            linear = (
+                coordinate_transform[0], coordinate_transform[1], coordinate_transform[2],
+                coordinate_transform[4], coordinate_transform[5], coordinate_transform[6],
+                coordinate_transform[8], coordinate_transform[9], coordinate_transform[10],
+            )
+            if not _nonsingular_3x3(linear):
+                raise ValueError("GEOMETRY_REFERENCE_COORDINATE_TRANSFORM_SINGULAR")
         if (
             self.scale_basis == "RASTER_CALIBRATION"
             and self.scale_status == "SUPPORTED"
@@ -255,6 +302,4 @@ def build_geometry_reference(**data) -> GeometryReference:
             else GeometryReferenceEvidence(**item)
             for item in data["evidence_records"]
         )
-    reference = GeometryReference(**data)
-    reference.validate()
-    return reference
+    return GeometryReference(**data)
