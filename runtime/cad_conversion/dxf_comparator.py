@@ -22,13 +22,13 @@ from .dxf_advanced import advanced_entity_signature, insert_attributes_signature
 class DxfComparisonReport:
     source_path: str
     candidate_path: str
-    source_sha256: str | None = None
-    candidate_sha256: str | None = None
-    ezdxf_version: str | None = None
     comparison_status: str
     geometry_comparison_status: str
     fidelity_status: str
     requires_review: bool
+    source_sha256: str | None = None
+    candidate_sha256: str | None = None
+    ezdxf_version: str | None = None
     source_entity_counts: dict[str, int] = field(default_factory=dict)
     candidate_entity_counts: dict[str, int] = field(default_factory=dict)
     source_layers: list[str] = field(default_factory=list)
