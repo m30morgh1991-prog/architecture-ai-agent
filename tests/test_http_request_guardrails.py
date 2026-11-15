@@ -58,7 +58,7 @@ class HttpRequestGuardrailTests(unittest.TestCase):
 
     def test_missing_content_length_returns_411_without_reading_body(self):
         handler = self._handler(VALID_BODY, content_length=None)
-        handler.headers.remove("Content-Length")
+        del handler.headers["Content-Length"]
         status, body = self._invoke(handler)
         self.assertEqual(status, 411)
         self.assertEqual(body["error"], "CONTENT_LENGTH_REQUIRED")
