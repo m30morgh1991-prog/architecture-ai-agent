@@ -18,6 +18,9 @@ from ezdxf import DXFError
 from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
+COMPARATOR_VERSION = "0.3.0"
+
+
 @dataclass(frozen=True)
 class DxfComparisonReport:
     source_path: str
@@ -29,6 +32,7 @@ class DxfComparisonReport:
     source_sha256: str | None = None
     candidate_sha256: str | None = None
     ezdxf_version: str | None = None
+    comparator_version: str = COMPARATOR_VERSION
     source_entity_counts: dict[str, int] = field(default_factory=dict)
     candidate_entity_counts: dict[str, int] = field(default_factory=dict)
     source_layers: list[str] = field(default_factory=list)
