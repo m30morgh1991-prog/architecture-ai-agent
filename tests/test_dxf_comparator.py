@@ -456,12 +456,10 @@ class TestDxfComparator(unittest.TestCase):
         self.assertIn("ucs_properties", report.structural_differences)
         self.assertEqual(report.geometry_comparison_status, "MATCHED")
 
-    def test_header_extents_change_is_detected(self):
+    def test_computed_layout_extents_change_is_reported(self):
         def write(path, max_x):
             document = ezdxf.new("R2010")
-            document.header["$EXTMIN"] = (0, 0, 0)
-            document.header["$EXTMAX"] = (max_x, 100, 0)
-            document.modelspace().add_line((0, 0), (10, 0))
+            document.modelspace().add_line((0, 0), (max_x, 100))
             document.saveas(path)
 
         write(self.source, 100)
@@ -470,7 +468,8 @@ class TestDxfComparator(unittest.TestCase):
 
         self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
         self.assertIn("extents", report.structural_differences)
-        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertNotEqual(report.source_extents, report.candidate_extents)
+        self.assertEqual(report.geometry_comparison_status, "DIFFERENCES_FOUND")
 
     def test_coordinate_system_header_change_is_detected(self):
         def write(path, ucs_origin):
