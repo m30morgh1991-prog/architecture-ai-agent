@@ -269,6 +269,11 @@ class DxfComparator:
         kind = entity.dxftype()
         dxf = entity.dxf
         layer = dxf.get("layer", "0")
+        if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}:
+            text_value = entity.text if kind == "MTEXT" else dxf.get("text", "")
+            if "\\ufffd" in str(text_value):
+                # Invalid source bytes decoded as U+FFFD are not trusted text.
+                return None
         if kind == "LINE":
             points = [cls._vector(dxf.start, tolerance), cls._vector(dxf.end, tolerance)]
             return (layer, tuple(sorted(points)))
