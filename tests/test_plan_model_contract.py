@@ -1,5 +1,6 @@
 import unittest
 
+from runtime.element_evidence_contract import build_element_evidence_bundle
 from runtime.plan_model_contract import ConstraintMap, PlanElement, PlanModel
 
 
@@ -27,6 +28,37 @@ class PlanModelContractTests(unittest.TestCase):
         )
         cmap.validate()
         self.assertIn("C01-C12", cmap.unknown_element_ids)
+
+    def test_element_evidence_type_must_match_plan_element_type(self):
+        source_sha = "a" * 64
+        evidence = build_element_evidence_bundle(
+            bundle_id="bundle-01",
+            source_sha256=source_sha,
+            evidences=[{
+                "evidence_id": "E-WALL",
+                "source_sha256": source_sha,
+                "kind": "UNKNOWN",
+                "element_type": "WALLS",
+                "status": "UNKNOWN",
+                "description": "Unresolved wall evidence.",
+                "confidence": 0.0,
+            }],
+        )
+        model = PlanModel(
+            model_id="PM-01",
+            source_sha256=source_sha,
+            drawing_count=1,
+            elements=(
+                PlanElement(
+                    "D01", "DOORS", "UNKNOWN", {}, ("E-WALL",), 0.0
+                ),
+            ),
+            element_evidence=evidence,
+        )
+        with self.assertRaisesRegex(
+            ValueError, "PLAN_ELEMENT_EVIDENCE_TYPE_MISMATCH"
+        ):
+            model.validate()
 
     def test_constraint_states_must_not_overlap(self):
         with self.assertRaisesRegex(ValueError, "CONSTRAINT_STATE_OVERLAP"):
