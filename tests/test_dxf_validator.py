@@ -133,7 +133,7 @@ class TestDxfValidator(unittest.TestCase):
         document.saveas(self.source)
 
         raw = self.source.read_bytes()
-        raw = raw.replace("سلام".encode("utf-8"), b"\\xff\\xfe\\xfd\\xfc", 1)
+        raw = raw.replace("سلام".encode("utf-8"), b"\xff\xfe\xfd\xfc", 1)
         self.source.write_bytes(raw)
 
         report = validate_dxf(self.source)
