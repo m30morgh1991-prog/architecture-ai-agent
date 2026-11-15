@@ -6,10 +6,104 @@ from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
 from .execution_record import ExecutionRecordStore
 from .final_validation import validate_post_edit
-from .controlled_editing_contract import EditPermission, build_controlled_editing_decision
+from .controlled_editing_contract import EDIT_PERMISSION_STATES, EditPermission, build_controlled_editing_decision
 from .approved_change_plan_contract import build_approved_change_plan
 from .audit import AuditTrail
 from .idempotency import IdempotencyConflictError, IdempotencyGuard
+
+
+MAX_REQUEST_BODY_BYTES = 16 * 1024 * 1024
+
+
+def _reject_duplicate_json_keys(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("JSON_DUPLICATE_KEY")
+        result[key] = value
+    return result
+
+
+def _reject_non_finite_json(value):
+    raise ValueError("JSON_NON_FINITE_NUMBER")
+
+
+def validate_execution_payload(body):
+    if not isinstance(body, dict):
+        return "REQUEST_SCHEMA_INVALID"
+
+    required = {
+        "execution_id", "project_id", "input_version_id",
+        "plan_id", "elements", "request",
+    }
+    allowed = required | {"simulated_geometry"}
+    if not required.issubset(body) or not set(body).issubset(allowed):
+        return "REQUEST_SCHEMA_INVALID"
+
+    for field in ("execution_id", "project_id", "input_version_id", "plan_id"):
+        value = body.get(field)
+        if not isinstance(value, str) or not value.strip():
+            return "REQUEST_SCHEMA_INVALID"
+        if len(value) > 256:
+            return "REQUEST_SCHEMA_INVALID"
+
+    elements = body.get("elements")
+    if not isinstance(elements, list):
+        return "REQUEST_SCHEMA_INVALID"
+
+    seen_ids = set()
+    allowed_element_fields = {"element_id", "element_type", "state", "geometry"}
+    for element in elements:
+        if not isinstance(element, dict):
+            return "REQUEST_SCHEMA_INVALID"
+        if not {"element_id", "element_type", "state"}.issubset(element):
+            return "REQUEST_SCHEMA_INVALID"
+        if not set(element).issubset(allowed_element_fields):
+            return "REQUEST_SCHEMA_INVALID"
+        element_id = element.get("element_id")
+        element_type = element.get("element_type")
+        state = element.get("state")
+        if not isinstance(element_id, str) or not element_id.strip() or len(element_id) > 256:
+            return "REQUEST_SCHEMA_INVALID"
+        if element_id in seen_ids:
+            return "REQUEST_SCHEMA_INVALID"
+        seen_ids.add(element_id)
+        if not isinstance(element_type, str) or not element_type.strip():
+            return "REQUEST_SCHEMA_INVALID"
+        if not isinstance(state, str) or state not in EDIT_PERMISSION_STATES:
+            return "REQUEST_SCHEMA_INVALID"
+        if "geometry" in element and not isinstance(element["geometry"], dict):
+            return "REQUEST_SCHEMA_INVALID"
+
+    request = body.get("request")
+    if not isinstance(request, dict):
+        return "REQUEST_SCHEMA_INVALID"
+    if set(request) != {"change_type", "target_ids", "instruction"}:
+        return "REQUEST_SCHEMA_INVALID"
+    if not isinstance(request.get("change_type"), str) or not request["change_type"].strip():
+        return "REQUEST_SCHEMA_INVALID"
+    target_ids = request.get("target_ids")
+    if (
+        not isinstance(target_ids, list)
+        or not target_ids
+        or not all(isinstance(value, str) and value.strip() for value in target_ids)
+        or len(set(target_ids)) != len(target_ids)
+    ):
+        return "REQUEST_SCHEMA_INVALID"
+    if not isinstance(request.get("instruction"), str) or not request["instruction"].strip():
+        return "REQUEST_SCHEMA_INVALID"
+
+    simulated_geometry = body.get("simulated_geometry")
+    if simulated_geometry is not None:
+        if not isinstance(simulated_geometry, dict):
+            return "REQUEST_SCHEMA_INVALID"
+        if not all(
+            isinstance(key, str) and key.strip() and isinstance(value, dict)
+            for key, value in simulated_geometry.items()
+        ):
+            return "REQUEST_SCHEMA_INVALID"
+
+    return None
 
 
 execution_records = ExecutionRecordStore()
@@ -185,10 +279,41 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path != "/v1/execute":
-            self.send_error(404)
-            return
-        length = int(self.headers.get("Content-Length", "0"))
-        body = json.loads(self.rfile.read(length) or b"{}")
+            return self.send_error(404)
+
+        if self.headers.get_content_type().lower() != "application/json":
+            return self._json(415, {"error": "CONTENT_TYPE_UNSUPPORTED"})
+
+        length_headers = self.headers.get_all("Content-Length", [])
+        if not length_headers:
+            return self._json(411, {"error": "CONTENT_LENGTH_REQUIRED"})
+        if len(length_headers) != 1:
+            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
+
+        raw_length = length_headers[0]
+        if not raw_length.isdigit():
+            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
+        length = int(raw_length)
+        if length <= 0:
+            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
+        if length > MAX_REQUEST_BODY_BYTES:
+            return self._json(413, {"error": "REQUEST_BODY_TOO_LARGE"})
+
+        raw_body = self.rfile.read(length)
+        if len(raw_body) != length:
+            return self._json(400, {"error": "REQUEST_BODY_TRUNCATED"})
+        try:
+            body = json.loads(
+                raw_body.decode("utf-8"),
+                object_pairs_hook=_reject_duplicate_json_keys,
+                parse_constant=_reject_non_finite_json,
+            )
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+            return self._json(400, {"error": "JSON_BODY_INVALID"})
+
+        schema_error = validate_execution_payload(body)
+        if schema_error:
+            return self._json(400, {"error": schema_error})
 
         execution_id = body["execution_id"]
         try:
@@ -258,9 +383,10 @@ class Handler(BaseHTTPRequestHandler):
         })
 
 
+
 def main():
-    server = HTTPServer(("0.0.0.0", 8000), Handler)
-    print("Architecture AI Agent runtime listening on :8000")
+    server = HTTPServer(("127.0.0.1", 8000), Handler)
+    print("Architecture AI Agent runtime listening on 127.0.0.1:8000")
     server.serve_forever()
 
 
