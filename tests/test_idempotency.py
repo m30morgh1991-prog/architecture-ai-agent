@@ -9,33 +9,54 @@ from unittest.mock import patch
 from runtime import app as runtime_app
 from runtime.audit import AuditTrail
 from runtime.execution_record import ExecutionRecordStore
-from runtime.idempotency import IdempotencyGuard
+from runtime.idempotency import IdempotencyConflictError, IdempotencyGuard
 
 
 class IdempotencyTests(unittest.TestCase):
     def test_duplicate_returns_original(self):
         guard = IdempotencyGuard()
         original = {"status": "PASS"}
-        self.assertIs(guard.store("k", original), original)
-        self.assertIs(guard.store("k", {"status": "OTHER"}), original)
+        self.assertIs(guard.store("k", "fingerprint-1", original), original)
+        self.assertIs(
+            guard.store("k", "fingerprint-1", {"status": "OTHER"}), original
+        )
 
     def test_completed_key_is_replayable(self):
         guard = IdempotencyGuard()
         result = {"status": "PASS", "failure_code": None}
-        guard.store("execution-1", result)
+        guard.store("execution-1", "fingerprint-1", result)
         self.assertTrue(guard.has_completed("execution-1"))
-        self.assertEqual(guard.check("execution-1"), result)
+        self.assertEqual(guard.check("execution-1", "fingerprint-1"), result)
+
+    def test_different_fingerprint_is_a_conflict_and_does_not_replace_result(self):
+        guard = IdempotencyGuard()
+        original = {"status": "PASS"}
+        guard.store("execution-1", "fingerprint-1", original)
+
+        with self.assertRaisesRegex(
+            IdempotencyConflictError,
+            "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
+        ):
+            guard.check("execution-1", "fingerprint-2")
+
+        with self.assertRaisesRegex(
+            IdempotencyConflictError,
+            "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
+        ):
+            guard.store("execution-1", "fingerprint-2", {"status": "OTHER"})
+
+        self.assertIs(guard.check("execution-1", "fingerprint-1"), original)
 
     def test_unknown_key_is_not_completed(self):
         guard = IdempotencyGuard()
-        self.assertIsNone(guard.check("missing"))
+        self.assertIsNone(guard.check("missing", "fingerprint-1"))
         self.assertFalse(guard.has_completed("missing"))
 
     def test_clear_removes_replay_evidence(self):
         guard = IdempotencyGuard()
-        guard.store("execution-1", {"status": "PASS"})
+        guard.store("execution-1", "fingerprint-1", {"status": "PASS"})
         guard.clear("execution-1")
-        self.assertIsNone(guard.check("execution-1"))
+        self.assertIsNone(guard.check("execution-1", "fingerprint-1"))
         self.assertFalse(guard.has_completed("execution-1"))
 
 
