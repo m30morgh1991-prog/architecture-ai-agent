@@ -55,7 +55,7 @@ def _resolve_evidence_path(pr_number: str, root: Path | None = None) -> Path:
         return requested_path
 
     github_ref = os.environ.get("GITHUB_REF", "")
-    match = re.fullmatch(r"refs/pull/(\\d+)/(?:merge|head)", github_ref)
+    match = re.fullmatch(r"refs/pull/(\d+)/(?:merge|head)", github_ref)
     if match:
         ref_path = evidence_path(match.group(1), root)
         if ref_path.exists():
