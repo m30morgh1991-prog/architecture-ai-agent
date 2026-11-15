@@ -1,3 +1,45 @@
+## Live repository checkpoint — 2026-11-15 (verified from GitHub)
+
+### Mainline
+- Current `main`: `ad60e81cef4335c771fee8df4fad57740d06481b`.
+- PR #142 is merged. Its merge commit is the current main HEAD.
+- Mainline checks on that exact SHA: `test`, `runtime-tests`, and `Mandatory Bug Hunt` are all `completed/success`.
+- PR #142 established the current governance policy: AI performs technical review; the repository owner controls each merge. No PR may be merged without a separate explicit owner authorization for that PR and exact head SHA. No fabricated APPROVE review.
+
+### Open pull requests and current gates
+- Open PR inventory observed: #143, #139, #138, #137, #136, #135, #133, #132, #131, #130, #129, #128, #127, #119.
+- **PR #143 — DXF comparison provenance:** exact head `f085976c82153c93af966fbd6d3f5fe06967579a`. The provenance failure-path bug was fixed: malformed-DXF parse failures now preserve successfully computed source/candidate SHA-256 hashes and the ezdxf version. Regression test verifies both hashes independently and keeps fidelity UNKNOWN. All three required checks on this exact head are `completed/success`. PR base is stale by one commit; GitHub reports `mergeable_state=behind`. It is not yet merge-ready under strict up-to-date checks.
+- **PR #139 — open-source AEC/CAD research:** exact head `fd9f502dae9992617537323db523cc62d43550d2`. Mandatory Bug Hunt is `completed/success`; PR CI and Runtime Tests were still running at checkpoint time. Branch is behind main by two commits. New research evaluates acadrust v0.6.8 (MPL-2.0), CADCraft, OpenCADStudio (GPL-3.0), MLightCAD (MIT core / optional GPL-3.0 DWG worker), and dwgdxf license/maintenance concerns. No runtime dependency or external code was imported.
+- **PRs #135–#138 — geometry/evidence sequence:** exact heads respectively `8c3724cd0b1d873b3f4e534dc3f3f1a6f4ba33b8`, `e594f1ce91a7365000cc9ad1ab15009f6f5f1568`, `c62169459052c6962cc2397849b3d56d53b4e0e7`, and `5d9f411fa6ca6d3554d982e58507e79b2d32527e`. All three standard checks are `completed/success` on each exact head. All four branches are behind main by two commits; strict up-to-date status is not satisfied. No merge or H-stage advancement is authorized.
+- **PR #131 — Golden DWG→DXF fidelity test:** exact head `d4231b5c68be56e737977c1b909fb3a05607ae0d`. Standard CI/Runtime/Bug Hunt checks are green, but the dedicated `Convert Golden DWGs and independently reopen DXF` check is `completed/failure`. This PR is blocked; its failure must be investigated rather than overridden.
+- **PR #132 — AutoCAD 2020 host target:** exact head `94f506e0b5d87c9fa01565e960e6de866f0dd2b4`; six checks are `completed/success`. It is stacked on PR #130, so it must not be treated as independently mergeable. Real Windows/AutoCAD host execution remains NOT_RUN until the user confirms the Windows environment is ready.
+- Other older PRs remain open and require fresh exact-head review; historical green checks do not replace current branch synchronization or current CI.
+
+### CAD conversion research and next pilot
+- Issue #141 remains open: expand the independent read-only DXF comparator, including layer/style/layout/entity inventories, units, XData/proxy content and adversarial/resource-heavy fixtures.
+- Issue #145 was created for an isolated direct `acadrust` DWG→DXF pilot. The proposed path is direct `DwgReader → CadDocument → DxfWriter`, avoiding a full intermediate DXF text buffer. The pilot is not yet implemented or tested.
+- acadrust currently declares MPL-2.0; pin the exact version and audit `THIRD_PARTY_NOTICES.md` before any distribution. Its advertised version/entity coverage is upstream documentation, not our own fidelity evidence.
+- CADCraft's public performance report measured 4.54 GB maximum RSS for one 47.8 MB DWG using its intermediate-DXF bridge; this is a warning about that bridge design, not a direct acadrust benchmark.
+- MLightCAD is only a possible future DXF-first read-only tablet/browser viewer. Its optional DWG worker is GPL-3.0 and has documented coverage/memory limits.
+- No production conversion provider has been selected. No acadrust or other third-party runtime dependency has been added.
+
+### Safety and unresolved evidence
+- Golden DWGs remain immutable: `test-assets/golden-projects/bagheri7.dwg` and `test-assets/golden-projects/afifiiiii.end.edit3.dwg`.
+- Windows, AutoCAD, and real ODA host tests remain `NOT_RUN` until the user confirms Windows replacement and software installation.
+- Conversion fidelity remains UNKNOWN / NEEDS_REVIEW unless independently established. Parser success, a self-comparison, or a successful exit code is not a fidelity PASS.
+- PlanModel remains canonical. No research candidate may mutate PlanModel, ConstraintMap, ApprovedChangePlan, BIM semantics, or H101.
+- No repository settings, rulesets, branch protection, secrets, or collaborators were changed.
+- The daily Architecture Agent Guard, Auto-Runner, and Daily Backup automations were found disabled. Auto-Runner's stored prompt predates the owner-controlled merge policy and must not be re-enabled without first replacing that conflicting instruction. This checkpoint does not claim automated daily monitoring is active.
+
+### Continuation order
+1. Complete PR #139 exact-head Runtime Tests and verify all gates on `fd9f502dae9992617537323db523cc62d43550d2`.
+2. Bring PR #143 and #139 up to date with main through a safe branch-update path, then rerun all required checks on the resulting exact heads.
+3. Review and resolve the older open PRs #135–#138 before advancing geometry stages; investigate PR #131's dedicated Golden conversion failure.
+4. Start issue #145 only as an isolated, pinned, license-reviewed acadrust pilot; do not route production conversions to it yet.
+5. Preserve all fail-closed states and request explicit owner authorization before any PR merge.
+
+---
+
 ## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
 
 - Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
