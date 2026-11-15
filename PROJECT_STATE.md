@@ -1,3 +1,22 @@
+## Latest CAD comparison inventory — 2026-11-15
+
+This snapshot supersedes the earlier 22-PR inventory. Current open PR count: **23**.
+
+- PR #150 head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 completed/success; 429 tests. Draft.
+- PR #151 head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 completed/success; 432 tests. Draft, stacked on #150.
+- PR #152 head `2b7b7d08269893aebf6b612dcd19b4f42667dbbc`: Bug Hunt #43741879578, Runtime #43741879584, PR CI #43741879589 completed/success; 433 tests. Draft, stacked on #151.
+- PR #154 head `9581913da9339766b5aadbbdde0b9b3906b495aa`: Bug Hunt #43743324148, Runtime #43743324031, PR CI #43743324020 completed/success; 442 tests. Draft, stacked on #152.
+- PR #153 head `6ee1105ca5ded83036060e3aa5e374f87bf4467e`: Bug Hunt #43742686768, Runtime #43742686762, PR CI #43742686745 completed/success. Persian/SHX reader resilience, stacked on #148.
+- PR #155 head `3e9fb4b74a53852a03c100a1e8f20fd46a05be4b`: Bug Hunt #43743423068, Runtime #43743423067, PR CI #43743423077 completed/success; 444 tests. Layout/viewport/UCS comparator coverage, stacked on #153.
+- PR #156 head `841cea9fce12d6a32c884e91d32295564054f7c1`: Bug Hunt #43743661164, Runtime #43743661173, PR CI #43743661175 completed/success; 446 tests. Text STYLE and DIMSTYLE table comparison; SHX/bigfont filenames are metadata only and no font is loaded or substituted. Stacked on #155.
+- Runtime dependency chain: #150 → #151 → #152 → #154.
+- CAD dependency chain: #143 → #144 → #148 → #153 → #155 → #156. PR #144 still has a stale base SHA `f085976c82153c93af966fbd6d3f5fe06967579a`, older than current PR #143 head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`; synchronize #144 and revalidate descendants before merge.
+- PR #147 current head before this update: `08df23cd9c702e302bd7f78888a517be046aaa39`; Bug Hunt #43743617082, Runtime #43743617024, PR CI #43743616984 all completed/success. This state update creates a new head and requires fresh exact-head checks.
+- No PR was merged, approved, or closed in this update. All implementation PRs remain open; explicit owner authorization is required for every merge.
+- Mainline CI remains UNKNOWN for main SHA `ad60e81cef4335c771fee8df4fad57740d06481b`. Windows/AutoCAD/ODA/real SHX host tests remain NOT_RUN.
+
+---
+
 ## Current live inventory — 2026-11-15
 
 This is the latest exact-state snapshot; it supersedes all earlier open-PR counts above.
