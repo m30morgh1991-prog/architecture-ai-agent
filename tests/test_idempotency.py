@@ -45,16 +45,11 @@ class IdempotencyTests(unittest.TestCase):
             "project_id": "project-1",
             "input_version_id": "version-1",
             "plan_id": "plan-1",
-            "elements": [{
-                "element_id": "F01",
-                "element_type": "FURNITURE",
-                "state": "EDITABLE",
-                "geometry": {"x": 10, "y": 10},
-            }],
+            "elements": [],
             "request": {
                 "change_type": "FURNITURE",
-                "target_ids": ["F01"],
-                "instruction": "Move sofa",
+                "target_ids": ["MISSING"],
+                "instruction": "Move missing sofa",
             },
         }
 
@@ -85,6 +80,7 @@ class IdempotencyTests(unittest.TestCase):
                 first_status, first = post(payload)
                 self.assertEqual(first_status, 200)
                 self.assertFalse(first["idempotent_replay"])
+                self.assertEqual(first["result"]["status"], "REJECT")
 
                 replay_status, replay = post(payload)
                 self.assertEqual(replay_status, 200)
