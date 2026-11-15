@@ -181,7 +181,7 @@ class DxfValidator:
 
         return DxfValidationReport(
             source_path=str(source),
-            validation_status="PARSE_PASS" if audit_status == "CLEAN" else "PARSE_PASS_WITH_AUDIT_FINDINGS",
+            validation_status="PARSE_PASS" if audit_status == "CLEAN" and text_read_warnings == 0 else "PARSE_PASS_WITH_AUDIT_FINDINGS",
             parse_status="PASS",
             audit_status=audit_status,
             fidelity_status="UNKNOWN",
