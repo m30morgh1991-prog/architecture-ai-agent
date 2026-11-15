@@ -219,5 +219,10 @@ Research record: `docs/research/plan-understanding-research-and-revit-ai-review-
 | bbl-dres/plan-extract | staged room/wall/opening/stair extraction and graph-oriented evaluation | Plan understanding / reconstruction / topology | Research benchmark only |
 | Agent-CAD | typed IR, immutable revision and geometry-check patterns | ApprovedChangePlan / PostEditDiff / Audit | Design reference only |
 | awesome-cad-agent | discover additional candidate tools and benchmarks | Research workflow | Index only |
+| hakanaktt/acadrust | native DWG/DXF parsing and writing, failsafe diagnostics, bounded concurrency | Isolated CAD conversion provider pilot | P1 pilot candidate only; MPL-2.0; no production adoption |
+| storytold/cadcraft | CLI/MCP workflows, capability discovery and automation test patterns | CAD adapter tooling | Reference only; early development and documented memory/fidelity gaps |
+| HakanSeven12/OpenCADStudio | native DWG/DXF conversion and audit/readback patterns | External tool evaluation | Reference only; GPL-3.0 and broad 2D/3D application scope |
+| mlightcad/cad-viewer | offline browser DXF viewer and mobile-friendly display | Future read-only PWA viewer | P2 viewer candidate; DWG worker is optional GPL-3.0 and has coverage/memory limits |
+| ducflair/dwgdxf | acadrust WebAssembly conversion wrapper | Research only | Not adopted; license declaration mismatch and stale maintenance evidence |
 
 Integration is limited to the existing architecture boundaries. No third-party model, dataset, package or new canonical IR is approved by this matrix entry. See `docs/research/open-source-aec-cad-agent-review-2026-11-13.md`.
