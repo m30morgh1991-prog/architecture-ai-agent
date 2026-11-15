@@ -50,17 +50,11 @@ def evidence_path(pr_number: str, root: Path | None = None) -> Path:
 
 def _resolve_evidence_path(pr_number: str, root: Path | None = None) -> Path:
     """Prefer the actual pull-request ref when the supplied PR number is stale."""
-    requested_path = evidence_path(pr_number, root)
-    if requested_path.exists():
-        return requested_path
-
     github_ref = os.environ.get("GITHUB_REF", "")
     match = re.fullmatch(r"refs/pull/(\d+)/(?:merge|head)", github_ref)
     if match:
-        ref_path = evidence_path(match.group(1), root)
-        if ref_path.exists():
-            return ref_path
-    return requested_path
+        return evidence_path(match.group(1), root)
+    return evidence_path(pr_number, root)
 
 def _outside_fenced_code_lines(text: str) -> list[str]:
     """Return Markdown lines outside fenced code blocks (backticks or tildes)."""
