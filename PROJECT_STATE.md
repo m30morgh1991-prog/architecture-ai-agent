@@ -7,22 +7,33 @@
 - PR #142 established the current governance policy: AI performs technical review; the repository owner controls each merge. No PR may be merged without a separate explicit owner authorization for that PR and exact head SHA. No fabricated APPROVE review.
 
 ### Open pull requests and current gates
-- Open PR inventory observed: #147, #143, #139, #138, #137, #136, #135, #133, #132, #131, #130, #129, #128, #127, #119.
-- **PR #143 — DXF comparison provenance:** exact head `f085976c82153c93af966fbd6d3f5fe06967579a`. The provenance failure-path bug was fixed: malformed-DXF parse failures now preserve successfully computed source/candidate SHA-256 hashes and the ezdxf version. Regression test verifies both hashes independently and keeps fidelity UNKNOWN. All three required checks on this exact head are `completed/success`. PR base is stale by one commit; GitHub reports `mergeable_state=behind`. It is not yet merge-ready under strict up-to-date checks.
-- **PR #139 — open-source AEC/CAD research:** latest head `ce5acb3320e322fe01facda8250472002ea9c848`. All three required checks (`Mandatory Bug Hunt`, `test`, `runtime-tests`) are `completed/success` on this exact head. The branch remains behind main by two commits. Research evaluates acadrust v0.6.8 (MPL-2.0), records its upstream CI snapshot on `52034a673ff59bf6936ebf01ec794b07a97df246` (10/10 checks success), and documents CADCraft, OpenCADStudio (GPL-3.0), MLightCAD (MIT core / optional GPL-3.0 DWG worker), and dwgdxf license/maintenance concerns. No runtime dependency or external code was imported.
-- **PRs #135–#138 — geometry/evidence sequence:** latest heads: #135 `5a0b8e84afe71bb34c70a72e5ba2e7490214503e` (all three required checks completed/success on this exact head); #136 `e594f1ce91a7365000cc9ad1ab15009f6f5f1568` (all three checks success); #137 `c62169459052c6962cc2397849b3d56d53b4e0e7` (all three checks success); #138 `8ca8d4884f403b9bc41bc07826a047e383595543` (all three checks success after hardening direct-constructor validation and affine/nonsingular transforms). All four branches remain behind main by two commits; strict up-to-date status is not satisfied. No merge or H-stage advancement is authorized.
-- **PR #131 — Golden DWG→DXF fidelity test:** exact head `d4231b5c68be56e737977c1b909fb3a05607ae0d`. Standard CI/Runtime/Bug Hunt checks are green, but the dedicated Golden conversion/reopen check fails for a real fidelity reason: Bagheri7 has 8,842 source LINE entities but the `modelspace_only=True` DXF output has 2; Afifiiiii has 72,447 source LINE plus dimensions/hatches/inserts/polylines/text, while output has only two HATCH entities. Source SHA-256 values remain unchanged. Strict native DWG writer probes are BLOCKED by XDATA, preview, extension-dictionary and Xref preservation gaps. Overall is NEEDS_REVIEW/BLOCKED; do not weaken the gate.
-- **PR #132 — AutoCAD 2020 host target:** exact head `94f506e0b5d87c9fa01565e960e6de866f0dd2b4`; six checks are `completed/success`. It is stacked on PR #130, so it must not be treated as independently mergeable. Real Windows/AutoCAD host execution remains NOT_RUN until the user confirms the Windows environment is ready.
-- **PR #147 — durable checkpoint refresh:** previous head `dd7035936d7a85f18b78c59144b1d39fa11c1491` passed all three required checks; this follow-up refresh changes its head, so those checks are stale for the new revision and must rerun.
-- Other older PRs remain open and require fresh exact-head review; historical green checks do not replace current branch synchronization or current CI.
+- Live open inventory includes PRs #149, #147, #143, #139, #138, #137, #136, #135 and older PRs #133, #132, #131, #130, #129, #128, #127, #119.
+- **READY_FOR_OWNER_DECISION — PRs #135, #136, #137, #138, #139, #143, #147.** Each branch is synchronized with current main `ad60e81cef4335c771fee8df4fad57740d06481b`, GitHub reports mergeable=true, no unresolved review threads were found, and all required checks completed/success on the exact current head. This is technical readiness only; no human approval is fabricated and every merge still requires a separate explicit owner authorization for that PR and exact head SHA.
+- **PR #135 — opening/host-wall evidence guard:** exact head `fb52cc47d1c86104856a8c27f819fe5f5eaf3339`; Bug Hunt, PR CI and Runtime Tests all completed/success. Rejects malformed/boolean/non-finite geometry, string wall inventories and invalid top-level inputs. Connected candidates remain UNKNOWN.
+- **PR #136 — empty detector evidence and type integrity:** exact head `9e1b937006001a9790ed1ccd2f3163960fe8f039`; all three required checks completed/success. Adds source-bound UNKNOWN detector-gap evidence, rejects conflicting evidence-ID reuse, and requires PlanElement evidence type to match its ElementEvidence type.
+- **PR #137 — SpaceModel numeric validation:** exact head `63d009f2cd138b1c1a6f7fb2fd66897920d07003`; all three required checks completed/success. Rejects booleans, non-finite values and numeric strings in bbox, centroid and area.
+- **PR #138 — GeometryReference / H101:** exact head `867fb5fee0f3b9a6b8a2957d50ef575a01526355`; all three required checks completed/success. Public dataclass construction validates evidence; coordinate transforms must be affine and nonsingular. No DWG parsing or PlanModel integration is claimed.
+- **PR #139 — open-source AEC/CAD research:** exact head `f04d5470c98c94a75bdcbdeb00d61370d3d2dbd3`; all three required checks completed/success. Static research only; no external code or model weights adopted.
+- **PR #143 — DXF comparison provenance:** exact head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`; all three required checks completed/success. Streaming SHA-256 and ezdxf version are retained even on parse-failure reports.
+- **PR #147 — durable checkpoint:** exact head `d3a2f1072d51b8251c0f4275d136272eb19db7c4`; all three required checks completed/success. This checkpoint refresh is being updated again with current PR/pilot results, so its current head and checks will change.
+- **PR #149 — isolated acadrust DWG→DXF pilot:** draft, exact head `063c4b2547805b08f5264600b482ea504b8e0c48`; all five checks completed/success (PR CI, Runtime Tests, Bug Hunt, AgentShield, dedicated acadrust pilot). It is not production-ready and remains draft.
+- **PR #131 — existing ezdwg Golden conversion:** dedicated conversion/reopen gate remains failed. Bagheri7's prior ezdwg output contained only 2 entities versus 8,842 source LINE entities; Afifiiiii output was similarly incomplete. This failure remains valid evidence and is not overridden by the separate acadrust pilot.
+- **PR #132** remains stacked on PR #130; do not treat it as independently mergeable. Older PRs not listed as ready still require fresh exact-head review.
+- No PR other than the previously authorized PR #142 has been merged. No PR approval is fabricated. No H-stage advancement is claimed.
 
-### CAD conversion research and next pilot
-- Issue #141 remains open: expand the independent read-only DXF comparator, including layer/style/layout/entity inventories, units, XData/proxy content and adversarial/resource-heavy fixtures.
-- Issue #145 tracks an isolated direct `acadrust` DWG→DXF pilot. The proposed path is direct `DwgReader → CadDocument → DxfWriter`, avoiding a full intermediate DXF text buffer. The pilot is not yet implemented or tested. Existing `ezdwg` Golden results are rejected as production conversion evidence.
-- acadrust currently declares MPL-2.0; pin the exact version and audit `THIRD_PARTY_NOTICES.md` before any distribution. Its advertised version/entity coverage is upstream documentation, not our own fidelity evidence.
-- CADCraft's public performance report measured 4.54 GB maximum RSS for one 47.8 MB DWG using its intermediate-DXF bridge; this is a warning about that bridge design, not a direct acadrust benchmark.
-- MLightCAD is only a possible future DXF-first read-only tablet/browser viewer. Its optional DWG worker is GPL-3.0 and has documented coverage/memory limits.
-- No production conversion provider has been selected. No acadrust or other third-party runtime dependency has been added.
+### CAD conversion research and pilot evidence
+- Issue #141 remains open for expansion of the independent read-only DXF comparator: layer/style/layout/entity inventories, units, XData/proxy content, dimensions, nested blocks and adversarial/resource-heavy fixtures.
+- Issue #145 is now implemented as an isolated pilot in PR #149. It pins the crates.io release `acadrust = 0.6.8` (MPL-2.0), disables optional Rayon parallelism, and writes directly from `CadDocument` to a temporary DXF candidate through `DxfWriter::write_to_file`, avoiding a full intermediate DXF byte/string buffer.
+- On the successful pilot head `a5ee9614835d21aadb34c0826fd4678ae31053ce` (before the final evidence-only commit), both Golden fixtures converted and reopened independently:
+  - Bagheri7: 19,268 source entities; 19,268 acadrust DXF-reopen entities; ezdxf 1.4.5 independently found 13,208 modelspace entities, 42 layers and 7 linetypes.
+  - Afifiiiii: 74,252 source entities; 74,252 acadrust DXF-reopen entities; ezdxf independently found 72,921 modelspace entities, 33 layers and 6 linetypes.
+  - Both input SHA-256 values were unchanged. Rust and ezdxf core inventory checks matched.
+  - Both decisions remain NEEDS_REVIEW, never PASS. Per-entity properties, dimensions, XData, proxy graphics, nested block semantics, layouts, fonts and CAD-host visual fidelity remain unresolved.
+- Pilot artifact from run `43726067671`, artifact `14166741334`: [download evidence and candidate DXFs](https://github.com/m30morgh1991-prog/architecture-ai-agent/actions/runs/43726067671/artifacts/14166741334). ZIP SHA-256: `a9f6f2fcf70193c8c3f18ff1e0c0512bc4b5465b4ed65e727b6765a31d4e0129`. It contains candidate DXFs, JSON reports, generated Cargo.lock and summary. Cargo.lock is not yet committed; it must be pinned before production adoption.
+- The converter enforces a 512 MiB input/decompressed-data cap, mesh limits, strict parsing, source-hash immutability, no-overwrite atomic hard-link publication, candidate/report SHA-256, candidate byte size and Linux peak RSS when available. It never emits a production/final output.
+- Upstream acadrust main is currently commit `52034a673ff59bf6936ebf01ec794b07a97df246`; comparison shows 581 commits beyond the `v0.6.8` release tag, despite the same package version string. A separate pinned-source comparison is the next experiment; do not silently substitute upstream main for the release.
+- No production conversion provider is selected. No acadrust dependency has been added to production runtime manifests.
+- CADCraft's reported 4.54 GB peak RSS for a 47.8 MB DWG remains a warning about its intermediate-DXF bridge, not an acadrust benchmark. MLightCAD's optional DWG worker remains GPL-3.0 and is not selected.
 
 ### Safety and unresolved evidence
 - Golden DWGs remain immutable: `test-assets/golden-projects/bagheri7.dwg` and `test-assets/golden-projects/afifiiiii.end.edit3.dwg`.
@@ -33,11 +44,12 @@
 - The daily Architecture Agent Guard, Auto-Runner, and Daily Backup automations were found disabled. Auto-Runner's stored prompt predates the owner-controlled merge policy and must not be re-enabled without first replacing that conflicting instruction. This checkpoint does not claim automated daily monitoring is active.
 
 ### Continuation order
-1. Complete PR #139 exact-head Runtime Tests and verify all gates on `fd9f502dae9992617537323db523cc62d43550d2`.
-2. Bring PR #143 and #139 up to date with main through a safe branch-update path, then rerun all required checks on the resulting exact heads.
-3. Review and resolve the older open PRs #135–#138 before advancing geometry stages; investigate PR #131's dedicated Golden conversion failure.
-4. Start issue #145 only as an isolated, pinned, license-reviewed acadrust pilot; do not route production conversions to it yet.
-5. Preserve all fail-closed states and request explicit owner authorization before any PR merge.
+1. Complete final exact-head CI verification for PR #149 after its durable evidence update; keep it draft until the release and upstream-main comparison, entity-level fidelity checks, and license review are complete.
+2. Run a second isolated acadrust comparison pinned to upstream commit `52034a673ff59bf6936ebf01ec794b07a97df246`; keep the released 0.6.8 result as the stable baseline.
+3. Expand fidelity checks for entity-type counts, blocks/INSERTs, dimensions, HATCH boundaries, XData, layouts, units and text/font handling. Any discrepancy remains BLOCKED/NEEDS_REVIEW.
+4. PRs #135, #136, #137, #138, #139, #143 and #147 are technically ready for individual owner decisions; merge only after explicit authorization for the exact current PR head.
+5. Keep PR #131's ezdwg Golden failure visible; do not weaken its gate or route production conversions to an unproven provider.
+6. Windows/AutoCAD/ODA host testing remains NOT_RUN until the user confirms the Windows environment is ready. Preserve fail-closed states and do not advance H-stages without evidence.
 
 ---
 
