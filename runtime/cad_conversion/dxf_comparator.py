@@ -685,7 +685,7 @@ class DxfComparator:
         from ezdxf import bbox
 
         properties = {}
-        ignored_types = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF", "VIEWPORT"}
+        ignored_types = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF", "VIEWPORT", "ACAD_PROXY_ENTITY"}
         for layout in document.layouts:
             entities = []
             for entity in layout:
