@@ -210,24 +210,23 @@ class DxfComparator:
         block_signatures: Counter = Counter()
         block_inventory: Counter = Counter()
         unsupported: set[str] = set()
+        text_kinds = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}
 
         for layout in document.layouts:
             container = ("layout", layout.name)
             for entity in layout:
+                kind = None
                 try:
                     kind = entity.dxftype()
                     signature = cls._signature(entity, tolerance)
-                except Exception:
-                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"} else "UNKNOWN_ENTITY")
-                    continue
-                if signature is None:
-                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"} else kind)
-                else:
                     presentation = presentation_signature(entity, tolerance)
-                    if presentation is None:
-                        unsupported.add("TEXT_READ_UNAVAILABLE" if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"} else kind)
-                    else:
-                        layout_signatures[(container, kind, (signature, presentation))] += 1
+                except Exception:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else "UNKNOWN_ENTITY")
+                    continue
+                if signature is None or presentation is None:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else kind)
+                else:
+                    layout_signatures[(container, kind, (signature, presentation))] += 1
 
         for block in document.blocks:
             if getattr(block, "is_any_layout", False):
@@ -242,21 +241,19 @@ class DxfComparator:
                     block_inventory[(block.name, f"XREF:{xref_path or 'UNRESOLVED'}")] += 1
                     unsupported.add("XREF_DEPENDENCY")
             for entity in block:
+                kind = None
                 try:
                     kind = entity.dxftype()
                     block_inventory[(block.name, kind)] += 1
                     signature = cls._signature(entity, tolerance)
-                except Exception:
-                    unsupported.add("UNKNOWN_ENTITY")
-                    continue
-                if signature is None:
-                    unsupported.add(kind)
-                else:
                     presentation = presentation_signature(entity, tolerance)
-                    if presentation is None:
-                        unsupported.add(kind)
-                    else:
-                        block_signatures[(container, kind, (signature, presentation))] += 1
+                except Exception:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else "UNKNOWN_ENTITY")
+                    continue
+                if signature is None or presentation is None:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else kind)
+                else:
+                    block_signatures[(container, kind, (signature, presentation))] += 1
         return layout_signatures, block_signatures, block_inventory, unsupported
 
     @classmethod
