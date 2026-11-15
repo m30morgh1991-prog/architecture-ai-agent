@@ -1,6 +1,6 @@
 import unittest
 
-from runtime.geometry_reference_contract import build_geometry_reference
+from runtime.geometry_reference_contract import GeometryReference, build_geometry_reference
 
 
 class GeometryReferenceContractTests(unittest.TestCase):
@@ -148,6 +148,71 @@ class GeometryReferenceContractTests(unittest.TestCase):
                     "source_ref": "drawing-header", "value": "MM",
                 }],
             )
+
+
+    def test_direct_dataclass_construction_cannot_bypass_evidence_validation(self):
+        with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_UNIT_SUPPORT_UNPROVEN"):
+            GeometryReference(
+                reference_id="geom-ref-direct",
+                source_sha256="a" * 64,
+                linear_unit="MM",
+                unit_status="SUPPORTED",
+            )
+
+    def test_evidence_record_rejects_blank_value(self):
+        with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_EVIDENCE_INCOMPLETE"):
+            self.base(
+                linear_unit="MM", unit_status="SUPPORTED",
+                unit_evidence_ids=["unit-blank"],
+                evidence_records=[{
+                    "evidence_id": "unit-blank", "source_sha256": "a" * 64,
+                    "domain": "UNIT", "status": "SUPPORTED",
+                    "source_ref": "drawing-header", "value": " ",
+                }],
+            )
+
+    def test_coordinate_transform_rejects_projective_matrix(self):
+        with self.assertRaisesRegex(
+            ValueError, "GEOMETRY_REFERENCE_COORDINATE_TRANSFORM_NOT_AFFINE"
+        ):
+            self.base(
+                coordinate_transform_4x4=[
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0.1, 0, 0, 1,
+                ],
+                transform_evidence_ids=["transform-projective"],
+            )
+
+    def test_coordinate_transform_rejects_singular_matrix(self):
+        with self.assertRaisesRegex(
+            ValueError, "GEOMETRY_REFERENCE_COORDINATE_TRANSFORM_SINGULAR"
+        ):
+            self.base(
+                coordinate_transform_4x4=[
+                    1, 0, 0, 0,
+                    0, 0, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1,
+                ],
+                transform_evidence_ids=["transform-singular"],
+            )
+
+    def test_pixel_transform_accepts_small_valid_scale(self):
+        ref = self.base(
+            pixel_to_world_transform=[
+                1e-7, 0, 0,
+                0, 1e-7, 0,
+                0, 0, 1,
+            ],
+            transform_evidence_ids=["calibration-small-scale"],
+        )
+        self.assertEqual(ref.pixel_to_world_transform[0], 1e-7)
+
+    def test_builder_rejects_string_for_transform_collection(self):
+        with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_COLLECTION_INVALID"):
+            self.base(pixel_to_world_transform="100010001")
 
     def test_bad_source_hash_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_SOURCE_HASH_INVALID"):
