@@ -1,3 +1,17 @@
+## Newly observed CAD reader resilience PR — 2026-11-15
+
+The live open PR inventory has increased to **20** with PR #153. This supersedes the prior 19-PR snapshot.
+
+- PR #153, title `fix(cad): keep DXF geometry readable despite damaged Persian text`, is open and targets PR #148's branch `feat/cad-nested-block-validation-v0.4`. It is therefore stacked after #148 and must not merge before its base.
+- Current PR #153 head at this snapshot: `f8f8d2d6e81ccc6e70db4098e005fee13f250e4e`. No workflow runs were visible yet for this exact head.
+- Earlier PR #153 head `2d8ee3e50cf31ed3af0173a186adfe193ff581b9` failed Runtime/PR CI due a list-minus-set TypeError in comparator unsupported-kind handling. A later head fixed that and exposed a stale comparator-version assertion (`0.4.0` vs `0.5.0`). Those failures apply to earlier heads only; the current head still needs exact-head verification.
+- The PR scope is consistent with existing user requirements: keep geometry readable despite missing SHX or text decoding faults; preserve the original Persian text; do not reverse, normalize, repair, substitute fonts, or add a standalone text module. Recovered input and unreadable text remain INCOMPLETE/UNKNOWN/NEEDS_REVIEW, not PASS.
+- PR #153 is a bugfix in the existing reader/comparator, not a new product capability. Keep it in the review queue, but require all three gates and exact-head evidence before any merge.
+- The CAD dependency chain is now #143 → #144 → #148 → #153. Synchronize and verify in dependency order; do not merge #153 independently.
+- No PR was merged, approved, or closed in this update. Windows/AutoCAD/ODA and real SHX/KATEB host tests remain NOT_RUN.
+
+---
+
 ## Runtime remediation chain update — 2026-11-15
 
 This is the newest inventory snapshot and supersedes prior PR-count notes.
