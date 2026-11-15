@@ -18,7 +18,7 @@ from ezdxf import DXFError
 from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
-COMPARATOR_VERSION = "0.5.0"
+COMPARATOR_VERSION = "0.6.0"
 
 
 @dataclass(frozen=True)
@@ -45,12 +45,23 @@ class DxfComparisonReport:
     candidate_block_entity_counts: dict[str, int] = field(default_factory=dict)
     source_layouts: list[str] = field(default_factory=list)
     candidate_layouts: list[str] = field(default_factory=list)
+    source_layout_properties: dict[str, Any] = field(default_factory=dict)
+    candidate_layout_properties: dict[str, Any] = field(default_factory=dict)
+    source_viewport_properties: dict[str, Any] = field(default_factory=dict)
+    candidate_viewport_properties: dict[str, Any] = field(default_factory=dict)
+    source_ucs_properties: dict[str, Any] = field(default_factory=dict)
+    candidate_ucs_properties: dict[str, Any] = field(default_factory=dict)
+    source_extents: dict[str, Any] = field(default_factory=dict)
+    candidate_extents: dict[str, Any] = field(default_factory=dict)
+    source_coordinate_metadata: dict[str, Any] = field(default_factory=dict)
+    candidate_coordinate_metadata: dict[str, Any] = field(default_factory=dict)
     source_insunits: int | None = None
     candidate_insunits: int | None = None
     source_measurement: int | None = None
     candidate_measurement: int | None = None
     geometry_mismatch_count: int = 0
     text_mismatch_count: int = 0
+    viewport_mismatch_count: int = 0
     unsupported_entity_types: list[str] = field(default_factory=list)
     structural_differences: list[str] = field(default_factory=list)
     error_code: str | None = None
@@ -107,13 +118,16 @@ class DxfComparator:
             source_unsupported.add("DXF_RECOVERY_USED")
         if candidate_recovered:
             candidate_unsupported.add("DXF_RECOVERY_USED")
-        geometry_mismatches = self._counter_delta(source_entities, candidate_entities, text_only=False)
-        block_mismatches = self._counter_delta(source_blocks, candidate_blocks, text_only=False)
-        block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory, text_only=False)
+        geometry_exclusions = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF", "VIEWPORT"}
+        geometry_mismatches = self._counter_delta(source_entities, candidate_entities, exclude_types=geometry_exclusions)
+        block_mismatches = self._counter_delta(source_blocks, candidate_blocks, exclude_types=geometry_exclusions)
+        block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory, exclude_types=geometry_exclusions)
+        text_types = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}
         text_mismatches = (
-            self._counter_delta(source_entities, candidate_entities, text_only=True)
-            + self._counter_delta(source_blocks, candidate_blocks, text_only=True)
+            self._counter_delta(source_entities, candidate_entities, include_types=text_types)
+            + self._counter_delta(source_blocks, candidate_blocks, include_types=text_types)
         )
+        viewport_mismatches = self._counter_delta(source_entities, candidate_entities, include_types={"VIEWPORT"})
 
         source_counts = self._layout_counts(source_doc)
         candidate_counts = self._layout_counts(candidate_doc)
@@ -125,6 +139,18 @@ class DxfComparator:
         candidate_block_names = self._user_block_names(candidate_doc)
         source_layouts = sorted(layout.name for layout in source_doc.layouts)
         candidate_layouts = sorted(layout.name for layout in candidate_doc.layouts)
+        source_layout_properties = self._layout_properties(source_doc, tolerance)
+        candidate_layout_properties = self._layout_properties(candidate_doc, tolerance)
+        source_viewport_properties = self._viewport_properties(source_doc, tolerance)
+        candidate_viewport_properties = self._viewport_properties(candidate_doc, tolerance)
+        source_ucs_properties = self._ucs_properties(source_doc, tolerance)
+        candidate_ucs_properties = self._ucs_properties(candidate_doc, tolerance)
+        extent_keys = ("$EXTMIN", "$EXTMAX", "$PEXTMIN", "$PEXTMAX", "$LIMMIN", "$LIMMAX", "$PLIMMIN", "$PLIMMAX")
+        source_extents = self._header_properties(source_doc, extent_keys, tolerance)
+        candidate_extents = self._header_properties(candidate_doc, extent_keys, tolerance)
+        coordinate_keys = ("$INSBASE", "$UCSORG", "$UCSXDIR", "$UCSYDIR", "$UCSNAME", "$UCSORTHOREF", "$UCSORTHOVIEW", "$UCSBASE", "$PUCSORG", "$PUCSXDIR", "$PUCSYDIR", "$PUCSNAME", "$PUCSORTHOREF", "$PUCSORTHOVIEW", "$TILEMODE", "$WORLDVIEW", "$CVPORT")
+        source_coordinate_metadata = self._header_properties(source_doc, coordinate_keys, tolerance)
+        candidate_coordinate_metadata = self._header_properties(candidate_doc, coordinate_keys, tolerance)
         source_insunits = self._header_int(source_doc, "$INSUNITS")
         candidate_insunits = self._header_int(candidate_doc, "$INSUNITS")
         source_measurement = self._header_int(source_doc, "$MEASUREMENT")
@@ -138,6 +164,11 @@ class DxfComparator:
             ("blocks", source_block_names, candidate_block_names),
             ("block_entity_counts", self._serialize_block_inventory(source_block_inventory), self._serialize_block_inventory(candidate_block_inventory)),
             ("layouts", source_layouts, candidate_layouts),
+            ("layout_properties", source_layout_properties, candidate_layout_properties),
+            ("viewports", source_viewport_properties, candidate_viewport_properties),
+            ("ucs_properties", source_ucs_properties, candidate_ucs_properties),
+            ("extents", source_extents, candidate_extents),
+            ("coordinate_metadata", source_coordinate_metadata, candidate_coordinate_metadata),
             ("INSUNITS", source_insunits, candidate_insunits),
             ("MEASUREMENT", source_measurement, candidate_measurement),
         )
@@ -148,6 +179,8 @@ class DxfComparator:
             differences.append("supported_geometry_signatures")
         if text_mismatches:
             differences.append("text_content")
+        if viewport_mismatches and "viewports" not in differences:
+            differences.append("viewports")
         if block_mismatches:
             differences.append("block_definition_geometry")
         if block_inventory_mismatches and "block_entity_counts" not in differences:
@@ -187,6 +220,16 @@ class DxfComparator:
             candidate_blocks=candidate_block_names,
             source_layouts=source_layouts,
             candidate_layouts=candidate_layouts,
+            source_layout_properties=source_layout_properties,
+            candidate_layout_properties=candidate_layout_properties,
+            source_viewport_properties=source_viewport_properties,
+            candidate_viewport_properties=candidate_viewport_properties,
+            source_ucs_properties=source_ucs_properties,
+            candidate_ucs_properties=candidate_ucs_properties,
+            source_extents=source_extents,
+            candidate_extents=candidate_extents,
+            source_coordinate_metadata=source_coordinate_metadata,
+            candidate_coordinate_metadata=candidate_coordinate_metadata,
             source_insunits=source_insunits,
             candidate_insunits=candidate_insunits,
             source_measurement=source_measurement,
@@ -195,6 +238,7 @@ class DxfComparator:
             candidate_block_entity_counts=self._serialize_block_inventory(candidate_block_inventory),
             geometry_mismatch_count=geometry_mismatches + block_mismatches + block_inventory_mismatches,
             text_mismatch_count=text_mismatches,
+            viewport_mismatch_count=viewport_mismatches,
             unsupported_entity_types=unsupported,
             structural_differences=differences,
         )
@@ -331,6 +375,8 @@ class DxfComparator:
                 cls._quantize(dxf.get("column_spacing", 0), tolerance),
                 attributes,
             )
+        if kind == "VIEWPORT":
+            return ("VIEWPORT", cls._stable_attributes(dxf.dxfattribs(), tolerance, {"handle", "owner", "paperspace"}))
         if kind == "ELLIPSE":
             return (
                 layer, cls._vector(dxf.center, tolerance),
@@ -357,20 +403,98 @@ class DxfComparator:
         return {f"{block_name}::{entity_type}": count for (block_name, entity_type), count in sorted(inventory.items())}
 
     @staticmethod
-    def _counter_delta(left: Counter, right: Counter, *, text_only: bool | None = None) -> int:
-        text_types = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}
-
+    def _counter_delta(
+        left: Counter,
+        right: Counter,
+        *,
+        include_types: set[str] | None = None,
+        exclude_types: set[str] | None = None,
+    ) -> int:
         def selected(counter: Counter) -> Counter:
-            if text_only is None:
-                return counter
-            return Counter({
-                key: count for key, count in counter.items()
-                if ((isinstance(key, tuple) and len(key) > 1 and key[1] in text_types) is text_only)
-            })
+            result = Counter()
+            for key, count in counter.items():
+                kind = key[1] if isinstance(key, tuple) and len(key) > 1 else None
+                if include_types is not None and kind not in include_types:
+                    continue
+                if exclude_types is not None and kind in exclude_types:
+                    continue
+                result[key] = count
+            return result
 
         selected_left = selected(left)
         selected_right = selected(right)
         return sum((selected_left - selected_right).values()) + sum((selected_right - selected_left).values())
+
+    @classmethod
+    def _stable_value(cls, value: Any, tolerance: float) -> Any:
+        if value is None or isinstance(value, (str, bool, int)):
+            return value
+        if isinstance(value, float):
+            return cls._quantize(value, tolerance)
+        if hasattr(value, "x") and hasattr(value, "y"):
+            components = [value.x, value.y]
+            if hasattr(value, "z"):
+                components.append(value.z)
+            return tuple(cls._quantize(component, tolerance) for component in components)
+        if isinstance(value, dict):
+            return tuple(sorted((str(key), cls._stable_value(item, tolerance)) for key, item in value.items()))
+        if isinstance(value, (tuple, list)):
+            return tuple(cls._stable_value(item, tolerance) for item in value)
+        raise TypeError(f"DXF_METADATA_VALUE_UNSUPPORTED:{type(value).__name__}")
+
+    @classmethod
+    def _stable_attributes(cls, attributes: dict[str, Any], tolerance: float, excluded: set[str]) -> tuple:
+        return tuple(sorted(
+            (str(key), cls._stable_value(value, tolerance))
+            for key, value in attributes.items()
+            if key not in excluded
+        ))
+
+    @classmethod
+    def _layout_properties(cls, document: Any, tolerance: float) -> dict[str, Any]:
+        properties = {}
+        for layout in document.layouts:
+            record = getattr(layout, "dxf_layout", None)
+            if record is None:
+                continue
+            properties[layout.name] = cls._stable_attributes(
+                record.dxfattribs(), tolerance, {"handle", "owner", "block_record_handle"}
+            )
+        return dict(sorted(properties.items()))
+
+    @classmethod
+    def _viewport_properties(cls, document: Any, tolerance: float) -> dict[str, Any]:
+        properties = {}
+        for layout in document.layouts:
+            viewports = []
+            for entity in layout:
+                if entity.dxftype() == "VIEWPORT":
+                    viewports.append(cls._stable_attributes(
+                        entity.dxfattribs(), tolerance, {"handle", "owner", "paperspace"}
+                    ))
+            properties[layout.name] = tuple(sorted(viewports, key=repr))
+        return dict(sorted(properties.items()))
+
+    @classmethod
+    def _ucs_properties(cls, document: Any, tolerance: float) -> dict[str, Any]:
+        properties = {}
+        for record in document.ucs:
+            properties[str(record.dxf.name)] = cls._stable_attributes(
+                record.dxfattribs(), tolerance, {"handle", "owner"}
+            )
+        return dict(sorted(properties.items()))
+
+    @classmethod
+    def _header_properties(cls, document: Any, keys: tuple[str, ...], tolerance: float) -> dict[str, Any]:
+        properties = {}
+        for key in keys:
+            try:
+                value = document.header.get(key)
+                if value is not None:
+                    properties[key] = cls._stable_value(value, tolerance)
+            except (AttributeError, TypeError, ValueError, OverflowError):
+                properties[key] = "UNKNOWN"
+        return properties
 
     @staticmethod
     def _layout_counts(document: Any) -> dict[str, int]:
