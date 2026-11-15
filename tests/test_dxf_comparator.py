@@ -370,5 +370,28 @@ class TestDxfComparator(unittest.TestCase):
         self.assertIn("TEXT_READ_UNAVAILABLE", report.unsupported_entity_types)
         self.assertEqual(report.fidelity_status, "UNKNOWN")
 
+    def test_lossily_decoded_text_is_incomplete_but_geometry_stays_comparable(self):
+        def write(path):
+            document = ezdxf.new("R2010")
+            modelspace = document.modelspace()
+            modelspace.add_line((0, 0), (20, 10))
+            modelspace.add_text("سلام")
+            document.saveas(path)
+            raw = path.read_bytes()
+            raw = raw.replace("سلام".encode("utf-8"), b"\\xff\\xfe\\xfd\\xfc", 1)
+            path.write_bytes(raw)
+
+        write(self.source)
+        write(self.candidate)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "INCOMPLETE")
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertIn("TEXT_READ_UNAVAILABLE", report.unsupported_entity_types)
+        self.assertEqual(report.source_entity_counts["LINE"], 1)
+        self.assertEqual(report.geometry_mismatch_count, 0)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
+
 if __name__ == "__main__":
     unittest.main()
