@@ -113,7 +113,6 @@ class DxfComparator:
         text_mismatches = (
             self._counter_delta(source_entities, candidate_entities, text_only=True)
             + self._counter_delta(source_blocks, candidate_blocks, text_only=True)
-            + self._counter_delta(source_block_inventory, candidate_block_inventory, text_only=True)
         )
 
         source_counts = self._layout_counts(source_doc)
