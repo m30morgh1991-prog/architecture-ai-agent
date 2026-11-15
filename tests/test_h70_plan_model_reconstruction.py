@@ -104,6 +104,18 @@ class H70PlanModelReconstructionTests(unittest.TestCase):
         self.assertEqual(len(bundle.evidence_for("WALLS")), 1)
         self.assertIn("DOORS", bundle.unresolved_element_types)
 
+    def test_reused_evidence_id_across_different_candidates_is_rejected(self):
+        data = self.detection()
+        data["candidates"][1]["evidence_ids"] = ["E-WALL"]
+        with self.assertRaisesRegex(
+            ValueError, "PLAN_RECONSTRUCTION_EVIDENCE_ID_CONFLICT"
+        ):
+            build_plan_model_from_detection(
+                model_id="PM-CONFLICT",
+                source_sha256=self.SHA,
+                detection_result=data,
+            )
+
     def test_duplicate_candidate_evidence_is_normalized(self):
         data = self.detection()
         data["candidates"][0]["evidence_ids"] = ["E-SAME", "E-SAME"]
