@@ -49,7 +49,7 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.source_sha256, hashlib.sha256(source_bytes).hexdigest())
         self.assertEqual(report.candidate_sha256, hashlib.sha256(candidate_bytes).hexdigest())
         self.assertTrue(report.ezdxf_version)
-        self.assertEqual(report.comparator_version, "0.6.0")
+        self.assertEqual(report.comparator_version, "0.7.0")
         self.assertEqual(self.source.read_bytes(), source_bytes)
         self.assertEqual(self.candidate.read_bytes(), candidate_bytes)
         json.dumps(report.to_dict())
@@ -486,6 +486,49 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
         self.assertIn("coordinate_metadata", report.structural_differences)
         self.assertEqual(report.geometry_comparison_status, "MATCHED")
+
+    def test_text_style_shx_reference_change_is_detected_without_loading_font(self):
+        def write(path, font_name):
+            document = ezdxf.new("R2010")
+            document.styles.new(
+                "PERSIAN",
+                dxfattribs={"font": font_name, "bigfont": "missing_bigfont.shx"},
+            )
+            modelspace = document.modelspace()
+            modelspace.add_line((0, 0), (10, 0))
+            modelspace.add_text("سلام", dxfattribs={"style": "PERSIAN"})
+            document.saveas(path)
+
+        write(self.source, "missing_primary.shx")
+        write(self.candidate, "alternate_missing.shx")
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("text_styles", report.structural_differences)
+        self.assertIn("PERSIAN", report.source_text_styles)
+        self.assertIn("missing_primary.shx", repr(report.source_text_styles["PERSIAN"]))
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_dimension_style_property_change_is_detected(self):
+        def write(path, text_height):
+            document = ezdxf.new("R2010")
+            document.dimstyles.new(
+                "ARCH",
+                dxfattribs={"dimtxt": text_height, "dimasz": 1.5},
+            )
+            document.modelspace().add_line((0, 0), (10, 0))
+            document.saveas(path)
+
+        write(self.source, 2.5)
+        write(self.candidate, 3.0)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("dimension_styles", report.structural_differences)
+        self.assertIn("ARCH", report.source_dimension_styles)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
 
 if __name__ == "__main__":
     unittest.main()
