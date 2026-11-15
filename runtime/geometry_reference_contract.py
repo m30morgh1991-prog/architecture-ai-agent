@@ -294,8 +294,11 @@ def build_geometry_reference(**data) -> GeometryReference:
         "coordinate_evidence_ids", "unit_evidence_ids", "scale_evidence_ids",
         "transform_evidence_ids", "dimension_evidence_ids", "evidence_records",
     ):
-        if data.get(key) is not None:
-            data[key] = tuple(data[key])
+        value = data.get(key)
+        if value is not None:
+            if not isinstance(value, (tuple, list)) or isinstance(value, (str, bytes)):
+                raise ValueError("GEOMETRY_REFERENCE_COLLECTION_INVALID")
+            data[key] = tuple(value)
     if data.get("evidence_records") is not None:
         data["evidence_records"] = tuple(
             item if isinstance(item, GeometryReferenceEvidence)
