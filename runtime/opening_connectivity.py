@@ -7,11 +7,30 @@ wall verified against the supplied wall inventory, and source evidence IDs.
 from __future__ import annotations
 
 from math import hypot, isfinite
+from numbers import Real
+
+
+def _finite_point(value):
+    if not isinstance(value, (list, tuple)) or len(value) != 2:
+        return None
+    point = []
+    for coordinate in value:
+        if isinstance(coordinate, bool) or not isinstance(coordinate, Real):
+            return None
+        number = float(coordinate)
+        if not isfinite(number):
+            return None
+        point.append(number)
+    return tuple(point)
 
 
 def _segments(points):
-    pts = [(float(p[0]), float(p[1])) for p in points]
-    return list(zip(pts, pts[1:] + pts[:1])) if len(pts) >= 3 else []
+    if not isinstance(points, (list, tuple)) or len(points) < 3:
+        return []
+    pts = [_finite_point(point) for point in points]
+    if any(point is None for point in pts):
+        return []
+    return list(zip(pts, pts[1:] + pts[:1]))
 
 
 def _distance_to_segment(p, a, b):
@@ -26,12 +45,14 @@ def _distance_to_segment(p, a, b):
 
 
 def _span_touches_boundary(span, points, tolerance):
-    if not span or len(span) < 2 or not points:
+    if not isinstance(span, (list, tuple)) or len(span) != 2:
+        return False
+    a, b = _finite_point(span[0]), _finite_point(span[1])
+    if a is None or b is None:
         return False
     segments = _segments(points)
     if not segments:
         return False
-    a, b = span[0], span[1]
     # Endpoint proximity is deliberately conservative and avoids treating a
     # nearby insertion point as an architectural opening by itself.
     return (
@@ -63,24 +84,40 @@ def classify_opening_connectivity(
     if not isfinite(tolerance) or tolerance < 0:
         raise ValueError("OPENING_CONNECTIVITY_TOLERANCE_INVALID")
 
-    verified_host_wall_ids = {
-        value for value in (host_wall_ids or ()) if _valid_evidence_id(value)
-    }
+    if isinstance(host_wall_ids, (list, tuple, set, frozenset)):
+        verified_host_wall_ids = {
+            value for value in host_wall_ids if _valid_evidence_id(value)
+        }
+    else:
+        # A string is not an inventory: iterating it would turn characters
+        # into apparently verified wall IDs.
+        verified_host_wall_ids = set()
+
+    safe_openings = openings if isinstance(openings, (list, tuple)) else ()
+    safe_spaces = spaces if isinstance(spaces, (list, tuple)) else ()
+    safe_boundary_points = boundary_points if isinstance(boundary_points, dict) else {}
     out = []
-    for index, opening in enumerate(openings):
+    for index, opening in enumerate(safe_openings):
+        if not isinstance(opening, dict):
+            opening = {}
         opening_id = opening.get("opening_id")
         stable_opening_id = opening_id if _valid_evidence_id(opening_id) else f"UNKNOWN-{index}"
-        point = opening.get("point")
+        point = _finite_point(opening.get("point"))
         span = opening.get("span")
         touched = []
-        for space in spaces:
-            pts = boundary_points.get(space["boundary_handle"], [])
+        for space in safe_spaces:
+            if not isinstance(space, dict):
+                continue
+            boundary_handle = space.get("boundary_handle")
+            if not _valid_evidence_id(boundary_handle):
+                continue
+            pts = safe_boundary_points.get(boundary_handle, [])
             segments = _segments(pts)
             if not segments:
                 continue
             if span and _span_touches_boundary(span, pts, tolerance):
                 touched.append(space)
-            elif not span and point and min(
+            elif not span and point is not None and min(
                 _distance_to_segment(point, a, b) for a, b in segments
             ) <= tolerance:
                 touched.append(space)
