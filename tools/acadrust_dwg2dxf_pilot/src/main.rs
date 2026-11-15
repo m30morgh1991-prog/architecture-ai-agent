@@ -84,7 +84,9 @@ struct Report {
     output_read: ReadSummary,
     architecture_omissions: Vec<String>,
     candidate_path: String,
+    candidate_bytes: u64,
     candidate_sha256: String,
+    peak_rss_kib: Option<u64>,
     elapsed_ms: u128,
     reasons: Vec<String>,
 }
@@ -137,6 +139,12 @@ fn reserve_new_file(path: &Path) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn peak_rss_kib() -> Option<u64> {
+    let status = fs::read_to_string("/proc/self/status").ok()?;
+    let line = status.lines().find(|line| line.starts_with("VmHWM:"))?;
+    line.split_whitespace().nth(1)?.parse().ok()
+}
+
 fn write_report_atomically(path: &Path, report: &Report) -> Result<(), Box<dyn Error>> {
     let temporary = temporary_sibling(path, "report")?;
     reserve_new_file(&temporary)?;
@@ -148,7 +156,10 @@ fn write_report_atomically(path: &Path, report: &Report) -> Result<(), Box<dyn E
         serde_json::to_writer_pretty(&mut file, report)?;
         file.write_all(b"\n")?;
         file.sync_all()?;
-        fs::rename(&temporary, path)?;
+        // Hard-link creation is atomic and fails if the destination exists;
+        // unlike rename(), it cannot replace a file created in a race window.
+        fs::hard_link(&temporary, path)?;
+        let _ = fs::remove_file(&temporary);
         Ok(())
     })();
     if result.is_err() {
@@ -236,7 +247,9 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
 
         let input_sha256_after = sha256_file(&input)?;
         let input_unchanged = input_sha256_before == input_sha256_after;
+        let candidate_bytes = fs::metadata(&candidate_tmp)?.len();
         let candidate_sha256 = sha256_file(&candidate_tmp)?;
+        let peak_rss_kib = peak_rss_kib();
 
         let mut reasons = Vec::new();
         if source_entity_count != output_entity_count {
@@ -316,7 +329,9 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
             output_read: ReadSummary::from(&output_stats),
             architecture_omissions: omissions,
             candidate_path: candidate.display().to_string(),
+            candidate_bytes,
             candidate_sha256,
+            peak_rss_kib,
             elapsed_ms: started.elapsed().as_millis(),
             reasons,
         })
@@ -326,7 +341,10 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
         Ok(report) => {
             // Candidate path is explicit and never represents a production
             // output. Rename is atomic because temp and candidate share a dir.
-            fs::rename(&candidate_tmp, &candidate)?;
+            // Create-if-absent atomic promotion of the candidate artifact.
+            // The candidate remains a review-only file, never a final output.
+            fs::hard_link(&candidate_tmp, &candidate)?;
+            let _ = fs::remove_file(&candidate_tmp);
             if let Err(error) = write_report_atomically(&report_path, &report) {
                 let _ = fs::remove_file(&candidate);
                 return Err(error);
@@ -442,6 +460,21 @@ mod tests {
         assert!(convert(&input, &candidate, &report_path).is_err());
         assert_eq!(fs::read(&candidate).unwrap(), b"keep-me");
         assert!(!report_path.exists());
+        let _ = fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn existing_report_is_never_overwritten() {
+        let dir = test_dir("report-no-overwrite");
+        let input = dir.join("input.dwg");
+        let candidate = dir.join("candidate.dxf");
+        let report_path = dir.join("report.json");
+        synthetic_dwg(&input);
+        fs::write(&report_path, b"keep-report").unwrap();
+
+        assert!(convert(&input, &candidate, &report_path).is_err());
+        assert!(!candidate.exists());
+        assert_eq!(fs::read(&report_path).unwrap(), b"keep-report");
         let _ = fs::remove_dir_all(dir);
     }
 }
