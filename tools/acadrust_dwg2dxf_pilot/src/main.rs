@@ -170,7 +170,10 @@ fn polyline_smooth_surface_records(document: &CadDocument) -> Vec<PolylineSmooth
                 owner_handle: format!("{:X}", polyline.common.owner_handle),
                 smooth_surface: polyline.smooth_surface as i16,
                 source_flags: polyline.flags.bits(),
-                source_vertex_flags_default: polyline.vertices.iter().all(|vertex| vertex.flags.bits() == 0),
+                source_vertex_flags_default: polyline
+                    .vertices
+                    .iter()
+                    .all(|vertex| vertex.flags.bits() == 0),
             }),
             _ => None,
         })
