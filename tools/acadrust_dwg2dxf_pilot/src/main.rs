@@ -163,13 +163,11 @@ fn polyline_smooth_surface_records(document: &CadDocument) -> Vec<PolylineSmooth
     document
         .entities()
         .filter_map(|entity| match entity {
-            EntityType::Polyline2D(polyline) if polyline.smooth_surface as i16 != 0 => {
-                Some(PolylineSmoothSurfaceRecord {
-                    handle: format!("{:X}", polyline.common.handle),
-                    owner_handle: format!("{:X}", polyline.common.owner_handle),
-                    smooth_surface: polyline.smooth_surface as i16,
-                })
-            }
+            EntityType::Polyline2D(polyline) => Some(PolylineSmoothSurfaceRecord {
+                handle: format!("{:X}", polyline.common.handle),
+                owner_handle: format!("{:X}", polyline.common.owner_handle),
+                smooth_surface: polyline.smooth_surface as i16,
+            }),
             _ => None,
         })
         .collect()
@@ -259,7 +257,7 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
         let source_document = source_outcome.document;
         let source_stats = source_outcome.stats;
         let source_tables = table_counts(&source_document);
-        // Capture non-default POLYLINE group 75 values from every layout and block.
+        // Capture every 2D POLYLINE group 75 value, including the default zero, from every layout and block.
         // These are the source-side evidence needed to distinguish reader loss
         // from DXF writer loss in the independent ezdxf comparison.
         let source_polyline_smooth_surfaces = polyline_smooth_surface_records(&source_document);
