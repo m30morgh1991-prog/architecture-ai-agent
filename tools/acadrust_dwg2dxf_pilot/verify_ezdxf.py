@@ -58,7 +58,14 @@ def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict
                     "reason": "GROUP_75_VALUE_MISMATCH",
                 }
             )
-        if actual_owner != record["source_owner_handle"]:
+        if not record["source_owner_handle"] or not actual_owner:
+            mismatches.append(
+                {
+                    **record,
+                    "reason": "OWNER_HANDLE_MISSING",
+                }
+            )
+        elif actual_owner != record["source_owner_handle"]:
             mismatches.append(
                 {
                     **record,
@@ -73,7 +80,7 @@ def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict
             len(mismatches) == 0 and len(observed) == len(expected_records)
         ),
         "matches_source_polyline_owners": not any(
-            item.get("reason") == "OWNER_HANDLE_MISMATCH" for item in mismatches
+            item.get("reason") in ("OWNER_HANDLE_MISMATCH", "OWNER_HANDLE_MISSING") for item in mismatches
         ),
     }
 
