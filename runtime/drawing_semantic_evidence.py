@@ -7,6 +7,7 @@ PlanModel/ConstraintMap chain.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+import math
 from typing import Literal
 
 EvidenceStatus = Literal["SUPPORTED","UNCERTAIN","CONTRADICTED","UNKNOWN"]
@@ -18,6 +19,23 @@ EvidenceDomain = Literal[
 _ALLOWED_STATUSES={"SUPPORTED","UNCERTAIN","CONTRADICTED","UNKNOWN"}
 _ALLOWED_DOMAINS={"SYMBOL","LINEWORK","TEXT","DIMENSION","LEVEL","SECTION_MARKER",
                   "ELEVATION_MARKER","HATCH","STRUCTURE","SCALE_UNIT","TITLE_BLOCK","TOPOLOGY"}
+
+
+def _valid_sha256(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and value == value.lower()
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def _valid_finite_number(value: object) -> bool:
+    return (
+        not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and math.isfinite(value)
+    )
 
 @dataclass(frozen=True)
 class DrawingEvidence:
@@ -33,7 +51,10 @@ class DrawingEvidence:
     notes: str = ""
 
     def validate(self) -> None:
-        if not self.evidence_id or not self.source_sha256 or len(self.source_sha256) != 64:
+        if (
+            not isinstance(self.evidence_id, str) or not self.evidence_id.strip()
+            or not _valid_sha256(self.source_sha256)
+        ):
             raise ValueError("DRAWING_EVIDENCE_SOURCE_INVALID")
         if self.domain not in _ALLOWED_DOMAINS:
             raise ValueError("DRAWING_EVIDENCE_DOMAIN_INVALID")
@@ -41,7 +62,10 @@ class DrawingEvidence:
             raise ValueError("DRAWING_EVIDENCE_CONTENT_MISSING")
         if self.status not in _ALLOWED_STATUSES:
             raise ValueError("DRAWING_EVIDENCE_STATUS_INVALID")
-        if not 0.0 <= self.confidence <= 1.0:
+        if (
+            not _valid_finite_number(self.confidence)
+            or not 0.0 <= self.confidence <= 1.0
+        ):
             raise ValueError("DRAWING_EVIDENCE_CONFIDENCE_INVALID")
         if not self.source_ref:
             raise ValueError("DRAWING_EVIDENCE_PROVENANCE_MISSING")
@@ -56,7 +80,10 @@ class DrawingEvidenceSet:
     unresolved: tuple[str,...]=()
 
     def validate(self) -> None:
-        if not self.set_id or len(self.source_sha256) != 64:
+        if (
+            not isinstance(self.set_id, str) or not self.set_id.strip()
+            or not _valid_sha256(self.source_sha256)
+        ):
             raise ValueError("DRAWING_EVIDENCE_SET_INVALID")
         ids=[x.evidence_id for x in self.evidences]
         if len(ids)!=len(set(ids)):
@@ -86,6 +113,8 @@ class DimensionEvidence:
             raise ValueError("DIMENSION_ID_MISSING")
         if self.status not in _ALLOWED_STATUSES:
             raise ValueError("DIMENSION_STATUS_INVALID")
+        if self.value is not None and not _valid_finite_number(self.value):
+            raise ValueError("DIMENSION_VALUE_INVALID")
         if self.status == "SUPPORTED":
             if not self.measured_geometry_ids or not self.extension_geometry_ids:
                 raise ValueError("DIMENSION_GEOMETRY_REFERENCE_MISSING")
@@ -109,6 +138,8 @@ class LevelEvidence:
             raise ValueError("LEVEL_EVIDENCE_ID_MISSING")
         if self.status not in _ALLOWED_STATUSES:
             raise ValueError("LEVEL_STATUS_INVALID")
+        if self.elevation is not None and not _valid_finite_number(self.elevation):
+            raise ValueError("LEVEL_ELEVATION_INVALID")
         if self.status == "SUPPORTED":
             if self.elevation is None:
                 raise ValueError("LEVEL_ELEVATION_UNKNOWN")
@@ -147,7 +178,7 @@ def build_drawing_evidence_set(*, set_id: str, source_sha256: str,
             evidence_id=str(x["evidence_id"]), source_sha256=str(x.get("source_sha256",source_sha256)),
             domain=str(x["domain"]), subject_id=str(x["subject_id"]),
             predicate=str(x["predicate"]), value=str(x["value"]),
-            status=str(x.get("status","UNKNOWN")), confidence=float(x.get("confidence",0.0)),
+            status=str(x.get("status","UNKNOWN")), confidence=x.get("confidence",0.0),
             source_ref=str(x["source_ref"]), notes=str(x.get("notes","")),
         ) for x in records),
         unresolved=tuple(str(x) for x in (
