@@ -126,6 +126,28 @@ class GeometryReferenceContractTests(unittest.TestCase):
                         transform_evidence_ids=["calibration-01"],
                     )
 
+    def test_transform_matrices_reject_numeric_strings(self):
+        pixel = [1, 0, 0, 0, 1, 0, 0, 0, 1]
+        pixel[0] = "1.0"
+        with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_PIXEL_TRANSFORM_INVALID"):
+            self.base(
+                pixel_to_world_transform=pixel,
+                transform_evidence_ids=["calibration-string"],
+            )
+
+        coordinate = [
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1,
+        ]
+        coordinate[0] = "1.0"
+        with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_COORDINATE_TRANSFORM_INVALID"):
+            self.base(
+                coordinate_transform_4x4=coordinate,
+                transform_evidence_ids=["coordinate-string"],
+            )
+
     def test_supported_dimension_reconciliation_requires_dimension_evidence(self):
         with self.assertRaisesRegex(ValueError, "GEOMETRY_REFERENCE_DIMENSION_SUPPORT_UNPROVEN"):
             self.base(dimension_reconciliation_status="SUPPORTED")
