@@ -55,8 +55,13 @@ class ImpactAnalysis:
             raise ValueError("IMPACT_ELEMENT_ID_DUPLICATE")
         for item in self.items:
             item.validate()
-        if self.status == "PASS" and self.blockers:
-            raise ValueError("PASS_CANNOT_HAVE_IMPACT_BLOCKERS")
+        if self.status == "PASS":
+            if self.blockers:
+                raise ValueError("PASS_CANNOT_HAVE_IMPACT_BLOCKERS")
+            if not self.impacted_element_ids or not self.items:
+                raise ValueError("PASS_REQUIRES_IMPACT_EVIDENCE")
+            if any(item.scope in {"PROTECTED", "UNKNOWN"} for item in self.items):
+                raise ValueError("PASS_CANNOT_INCLUDE_PROTECTED_OR_UNKNOWN_IMPACT")
 
 
 def analyze_impact(
