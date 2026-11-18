@@ -15,7 +15,7 @@ def report(source_value: int, output_value: int) -> dict:
         ],
         "independent_ezdxf": {
             "polyline_smooth_surfaces": [
-                {"handle": "A1", "actual_smooth_type": output_value}
+                {"handle": "A1", "source_owner_handle": "B1", "output_owner_handle": "B1", "actual_smooth_type": output_value}
             ]
         },
     }
@@ -39,6 +39,20 @@ class SmoothSurfaceReportTests(unittest.TestCase):
         right["source_polyline_smooth_surfaces"] = []
         issues = compare_report_pair(left, right)
         self.assertTrue(any(issue.startswith("SOURCE_HANDLE_SET_MISMATCH") for issue in issues))
+
+    def test_source_owner_handle_disagreement_is_reported(self) -> None:
+        left = report(6, 6)
+        right = report(6, 6)
+        right["source_polyline_smooth_surfaces"][0]["owner_handle"] = "C2"
+        issues = compare_report_pair(left, right)
+        self.assertTrue(any(issue.startswith("SOURCE_OWNER_HANDLE_MISMATCH") for issue in issues))
+
+    def test_independent_output_owner_handle_disagreement_is_reported(self) -> None:
+        left = report(6, 6)
+        right = report(6, 6)
+        right["independent_ezdxf"]["polyline_smooth_surfaces"][0]["output_owner_handle"] = "C2"
+        issues = compare_report_pair(left, right)
+        self.assertTrue(any(issue.startswith("OUTPUT_OWNER_HANDLE_MISMATCH") for issue in issues))
 
 
 if __name__ == "__main__":
