@@ -46,6 +46,8 @@ struct PolylineSmoothSurfaceRecord {
     handle: String,
     owner_handle: String,
     smooth_surface: i16,
+    source_flags: u16,
+    source_vertex_flags_default: bool,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -167,6 +169,8 @@ fn polyline_smooth_surface_records(document: &CadDocument) -> Vec<PolylineSmooth
                 handle: format!("{:X}", polyline.common.handle),
                 owner_handle: format!("{:X}", polyline.common.owner_handle),
                 smooth_surface: polyline.smooth_surface as i16,
+                source_flags: polyline.flags.bits(),
+                source_vertex_flags_default: polyline.vertices.iter().all(|vertex| vertex.flags.bits() == 0),
             }),
             _ => None,
         })
