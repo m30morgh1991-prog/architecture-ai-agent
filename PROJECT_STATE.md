@@ -1,3 +1,207 @@
+## Latest CAD comparison inventory — 2026-11-15
+
+This snapshot supersedes the earlier 22-PR inventory. Current open PR count: **23**.
+
+- PR #150 head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 completed/success; 429 tests. Draft.
+- PR #151 head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 completed/success; 432 tests. Draft, stacked on #150.
+- PR #152 head `2b7b7d08269893aebf6b612dcd19b4f42667dbbc`: Bug Hunt #43741879578, Runtime #43741879584, PR CI #43741879589 completed/success; 433 tests. Draft, stacked on #151.
+- PR #154 head `9581913da9339766b5aadbbdde0b9b3906b495aa`: Bug Hunt #43743324148, Runtime #43743324031, PR CI #43743324020 completed/success; 442 tests. Draft, stacked on #152.
+- PR #153 head `6ee1105ca5ded83036060e3aa5e374f87bf4467e`: Bug Hunt #43742686768, Runtime #43742686762, PR CI #43742686745 completed/success. Persian/SHX reader resilience, stacked on #148.
+- PR #155 head `3e9fb4b74a53852a03c100a1e8f20fd46a05be4b`: Bug Hunt #43743423068, Runtime #43743423067, PR CI #43743423077 completed/success; 444 tests. Layout/viewport/UCS comparator coverage, stacked on #153.
+- PR #156 head `841cea9fce12d6a32c884e91d32295564054f7c1`: Bug Hunt #43743661164, Runtime #43743661173, PR CI #43743661175 completed/success; 446 tests. Text STYLE and DIMSTYLE table comparison; SHX/bigfont filenames are metadata only and no font is loaded or substituted. Stacked on #155.
+- Runtime dependency chain: #150 → #151 → #152 → #154.
+- CAD dependency chain: #143 → #144 → #148 → #153 → #155 → #156. PR #144 still has a stale base SHA `f085976c82153c93af966fbd6d3f5fe06967579a`, older than current PR #143 head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`; synchronize #144 and revalidate descendants before merge.
+- PR #147 current head before this update: `08df23cd9c702e302bd7f78888a517be046aaa39`; Bug Hunt #43743617082, Runtime #43743617024, PR CI #43743616984 all completed/success. This state update creates a new head and requires fresh exact-head checks.
+- No PR was merged, approved, or closed in this update. All implementation PRs remain open; explicit owner authorization is required for every merge.
+- Mainline CI remains UNKNOWN for main SHA `ad60e81cef4335c771fee8df4fad57740d06481b`. Windows/AutoCAD/ODA/real SHX host tests remain NOT_RUN.
+
+---
+
+## Current live inventory — 2026-11-15
+
+This is the latest exact-state snapshot; it supersedes all earlier open-PR counts above.
+
+- Current open PR count: **22**.
+- PR #150 head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 completed/success; 429 tests passed. Draft.
+- PR #151 head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 completed/success; 432 tests passed. Draft, stacked on #150.
+- PR #152 head `2b7b7d08269893aebf6b612dcd19b4f42667dbbc`: Bug Hunt #43741879578, Runtime #43741879584, PR CI #43741879589 completed/success; 433 tests passed. Draft, stacked on #151.
+- PR #154 head `9581913da9339766b5aadbbdde0b9b3906b495aa`: Bug Hunt #43743324148, Runtime #43743324031, PR CI #43743324020 completed/success; 442 tests passed. Draft, stacked on #152. HTTP requests are bounded/validated and the server binds to loopback by default.
+- PR #153 head `6ee1105ca5ded83036060e3aa5e374f87bf4467e`: Bug Hunt #43742686768, Runtime #43742686762, PR CI #43742686745 completed/success. Existing Persian/SHX reader resilience fix; stacked on #148.
+- PR #155 head `3e9fb4b74a53852a03c100a1e8f20fd46a05be4b`: Bug Hunt #43743423068, Runtime #43743423067, PR CI #43743423077 completed/success; 444 tests passed. Completes existing layout/viewport/UCS comparison coverage; stacked on #153.
+- Runtime dependency chain: #150 → #151 → #152 → #154.
+- CAD dependency chain: #143 → #144 → #148 → #153 → #155. Important: PR #144's base SHA `f085976c82153c93af966fbd6d3f5fe06967579a` is older than current PR #143 head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`; synchronize #144 and then revalidate descendants before merge.
+- PR #147 current head before this update: `bdf6342fe9c76aa9348b033ec3ec02c837c9cfd2`; Bug Hunt #43742552151, Runtime #43742552164, PR CI #43742552153 completed/success. This state update creates a new head and requires fresh exact-head checks.
+- No PR was merged, approved, or closed in this update. All implementation PRs remain open; merge order and explicit owner authorization remain mandatory.
+- Mainline CI remains UNKNOWN (no run/status records for main SHA `ad60e81cef4335c771fee8df4fad57740d06481b`). Windows/AutoCAD/ODA/real SHX host tests remain NOT_RUN.
+
+---
+
+## Newly observed CAD reader resilience PR — 2026-11-15
+
+The live open PR inventory has increased to **20** with PR #153. This supersedes the prior 19-PR snapshot.
+
+- PR #153, title `fix(cad): keep DXF geometry readable despite damaged Persian text`, is open and targets PR #148's branch `feat/cad-nested-block-validation-v0.4`. It is therefore stacked after #148 and must not merge before its base.
+- Current PR #153 head at this snapshot: `f8f8d2d6e81ccc6e70db4098e005fee13f250e4e`. No workflow runs were visible yet for this exact head.
+- Earlier PR #153 head `2d8ee3e50cf31ed3af0173a186adfe193ff581b9` failed Runtime/PR CI due a list-minus-set TypeError in comparator unsupported-kind handling. A later head fixed that and exposed a stale comparator-version assertion (`0.4.0` vs `0.5.0`). Those failures apply to earlier heads only; the current head still needs exact-head verification.
+- The PR scope is consistent with existing user requirements: keep geometry readable despite missing SHX or text decoding faults; preserve the original Persian text; do not reverse, normalize, repair, substitute fonts, or add a standalone text module. Recovered input and unreadable text remain INCOMPLETE/UNKNOWN/NEEDS_REVIEW, not PASS.
+- PR #153 is a bugfix in the existing reader/comparator, not a new product capability. Keep it in the review queue, but require all three gates and exact-head evidence before any merge.
+- The CAD dependency chain is now #143 → #144 → #148 → #153. Synchronize and verify in dependency order; do not merge #153 independently.
+- No PR was merged, approved, or closed in this update. Windows/AutoCAD/ODA and real SHX/KATEB host tests remain NOT_RUN.
+
+---
+
+## Runtime remediation chain update — 2026-11-15
+
+This is the newest inventory snapshot and supersedes prior PR-count notes.
+
+- Current open PR count: **19** — the 16 PRs retained after cleanup plus #150, #151, and #152.
+- PR #150 exact head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 completed/success; 429 tests passed. Draft.
+- PR #151 exact head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 completed/success; 432 tests passed. Draft, stacked on #150.
+- PR #152 exact head `2b7b7d08269893aebf6b612dcd19b4f42667dbbc`: Bug Hunt #43741879578, Runtime #43741879584, PR CI #43741879589 completed/success; 433 tests passed. Draft, stacked on #151.
+- Dependency order is strictly #150 → #151 → #152. Do not merge later PRs independently or before their base PRs.
+- #150 fixes the false EXECUTE PASS audit event on rejected requests.
+- #151 binds idempotency replay to a canonical request fingerprint and rejects changed payloads using the same execution ID.
+- #152 makes Handler._json serialize nested dataclass values through dataclasses.asdict while still rejecting arbitrary unsupported objects.
+- A remaining P0 API/runtime backlog: strict HTTP request schema validation and body-size caps; localhost-only binding/authentication before network deployment; durable execution/audit/idempotency storage; canonical PlanModel/ConstraintMap runtime integration; in-flight idempotency reservation for concurrent execution; and real controlled CAD writer implementation.
+- PR #151's initial valid-request test also identified that successful HTTP responses previously failed serialization; this is fixed by #152 and covered by its regression test.
+- No PR was merged, approved, or closed in this update. All three remediation PRs remain Draft; explicit user authorization is required for each merge.
+
+The current PR #147 head before this addendum was `8c4bbbc66795a536ad7e83e14c9c50b655f2ae68`, with Bug Hunt #43741582623, Runtime #43741582593, and PR CI #43741582627 completed/success. This addendum changes PR #147's head, so those results are historical and must be rerun on the new exact head. Mainline CI remains UNKNOWN; Windows/AutoCAD/ODA host tests remain NOT_RUN.
+
+---
+
+## Current PR queue and runtime blocker update — 2026-11-15
+
+This update supersedes the prior open-PR count above.
+
+- Current open PR count: **18** — the 16 PRs remaining after the two cleanup closures, plus #150 and #151.
+- PR #150 current head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`: Bug Hunt #43740147040, Runtime #43740147034, PR CI #43740147064 all completed/success; 429 tests passed. Draft, not merged.
+- PR #151 current head `d52e9c1a92f58f4a1a629dbf413a2746f627491e`, stacked on PR #150: Bug Hunt #43741176591, Runtime #43741176576, PR CI #43741176603 all completed/success; 432 tests passed. Draft, not independently mergeable or merged.
+- PR #151 TDD RED was observed on corrected test-only head `0e973e4a80d03c4ec3fcba62ad958743b10f9fa0`: the HTTP handler returned 200 for a different payload using the same execution ID; the regression expected 409. The implementation binds the idempotency cache to canonical request fingerprints and rejects mismatches.
+- PR #151 also updates WorkflowGuard to use execution identity with the shared idempotency guard; a cross-execution key-reuse test passes.
+- A separate P0 API defect was discovered while building the integration test: valid successful HTTP execution responses can fail JSON serialization because the response includes an ApprovedChangePlan containing a ChangeRequest dataclass, while the legacy handler uses plain `json.dumps`. This remains UNRESOLVED and must be fixed separately with a successful-request HTTP regression test.
+- Other P0 items remain: HTTP body/schema validation and size limits, localhost/network binding, persistent execution/audit state, canonical runtime pipeline integration, and in-flight idempotency reservation for any future concurrent server.
+- No PR was merged, approved, or closed in this update. PR #150 and #151 remain drafts; explicit user authorization is still required before each merge.
+
+All listed CI evidence applies only to the exact heads named above. Mainline CI remains UNKNOWN because the fresh main SHA query returned no workflow/status records. Windows/AutoCAD/ODA host tests remain NOT_RUN.
+
+---
+
+## Post-cleanup implementation update — 2026-11-15
+
+This addendum follows the repository cleanup snapshot above and records the first implementation PR opened after that snapshot.
+
+- PR #150 — `fix(runtime): keep rejected executions out of PASS audit` — remains open as a draft, current exact head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a`.
+- TDD RED evidence: on test-only head `d83fa8982c524e5b8f7f6f38e5adf8c74715316a`, Runtime Tests run #43739863627 ran 429 tests and failed exactly one: the new regression test observed the false `PASS` audit event.
+- TDD GREEN evidence: on implementation head `95f1b993f8ddc6df655d24a60207e7255ad0d1ff`, Bug Hunt #43740008417, Runtime Tests #43740008362 and PR CI #43740008288 all completed/success; the full 429-test suite passed.
+- The PR-150 evidence-only final head `b50ade91cd1e9c771f7e81500dc9fbf6f1a23c3a` was then rechecked: Bug Hunt #43740147040, Runtime Tests #43740147034 and PR CI #43740147064 all completed/success. The final full suite ran 429 tests; the new regression test passed.
+- The fix records EXECUTE STARTED before validation, BLOCKED on rejection paths, and PASS only after validation, controlled-editing, and approval gates succeed. Rejected results expose audit_complete=false, audit_ok=false, and runtime_ok=false.
+- The open PR count is now **17**, adding PR #150 to the 16-PR cleanup inventory above. No PR was merged or approved.
+- This does not resolve the other P0 runtime issues: payload-bound idempotency, HTTP request validation/body limits, safe network binding, persistent execution/audit records, and canonical PlanModel pipeline integration remain open.
+
+All statuses above apply only to their stated exact heads. Windows/AutoCAD/ODA runtime checks remain NOT_RUN. The owner-controlled merge policy is unchanged.
+
+---
+
+## Latest cleanup and exact-state audit — 2026-11-15
+
+This section supersedes any conflicting PR counts, head SHAs, readiness labels, or CI claims in older checkpoint text below.
+
+### Mainline evidence
+- Current `main` SHA: `ad60e81cef4335c771fee8df4fad57740d06481b`.
+- A fresh query of workflow runs and combined commit statuses returned no records for this main SHA. Mainline Green is therefore **UNKNOWN / NOT independently confirmed** in this audit. PR-head checks are not substitutes for mainline checks.
+
+### Pull-request cleanup
+- The live inventory initially contained 18 open PRs.
+- PR #133 was closed as superseded by this newer checkpoint. Its discussion and branch are retained.
+- PR #131 was closed as a failed, non-production ezdwg conversion experiment. Its data-loss result is retained as a negative regression baseline; neither its branch nor Golden inputs were deleted.
+- Current open PR count after those two closures: **16** — #149, #148, #147, #144, #143, #139, #138, #137, #136, #135, #132, #130, #129, #128, #127, #119.
+- No other PR or branch was closed or deleted. No PR was merged or approved.
+
+### Exact-head CI evidence checked live
+- PR #149, head `465548467b7da20abaf274a718f7c93cfb2dce1a`: Bug Hunt #698, AgentShield #82, PR CI #739, Runtime #1026, and acadrust pilot #18 all completed/success. This is still an isolated pilot; conversion fidelity remains NEEDS_REVIEW, not PASS.
+- PR #147, head `4972438078d5fbe1fa6a0a43256a66fea3aa03d7`: Bug Hunt #685, PR CI #726, Runtime #1013 all completed/success. This state-file update creates a new head; all three checks must rerun.
+- PR #143, head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`: Bug Hunt #667, PR CI #708, Runtime #995 all completed/success.
+- PR #144, head `569ceffffa6104998b24da163b86c2e38052af1f`: Bug Hunt #631, PR CI #672, Runtime #959 all completed/success.
+- PR #148, head `a8faeb44a39a124092587a9e5c0fd3e908a1c8ab`: Bug Hunt #661, PR CI #702, Runtime #989 all completed/success.
+- PR #139, head `5cedcffb4c8dbc1e07b98eac640455872be816bd`: Bug Hunt #694, PR CI #735, Runtime #1022 all completed/success.
+- PR #138, head `867fb5fee0f3b9a6b8a2957d50ef575a01526355`: Bug Hunt #665, PR CI #706, Runtime #993 all completed/success.
+- PR #137, head `63d009f2cd138b1c1a6f7fb2fd66897920d07003`: Bug Hunt #676, PR CI #717, Runtime #1004 all completed/success.
+- PR #136, head `9e1b937006001a9790ed1ccd2f3163960fe8f039`: Bug Hunt #682, PR CI #723, Runtime #1010 all completed/success.
+- PR #135, head `fb52cc47d1c86104856a8c27f819fe5f5eaf3339`: Bug Hunt #662, PR CI #703, Runtime #990 all completed/success.
+- These are exact PR-head workflow results only. They do not establish merge approval, runtime fidelity, or post-merge mainline Green.
+
+### Dependency and backlog triage
+- CAD comparator chain: PR #143 → PR #144 → PR #148. PR #144 is based on an older #143 head, and #148 is based on #144. Rebase/synchronize in dependency order and rerun exact-head checks before any merge decision.
+- Autodesk evidence chain: PR #129 → PR #130 → PR #132. #130 and #132 are stacked and must not be treated as independently mergeable.
+- PRs #127 and #128 are older mainline-based work; re-check their diff overlap and current base before deciding whether to retain, rebase, or close.
+- PR #119 remains research-only for Shiraz parking-rule sources and is stale relative to current main; verify source currency and rebase before relying on it.
+- PRs #135–#139 contain distinct contract/research corrections. Keep them open pending ordered technical review and integration decisions; green CI alone is not an instruction to merge.
+- PR #147's earlier statements that mainline CI is green are superseded by the fresh query above, which returned no mainline run/status records.
+
+### Repository cleanup boundaries
+- No source files, runtime contracts, dependencies, Golden DWGs, or branches were deleted in this cleanup pass.
+- No feature work was added. The next implementation priority remains the existing runtime/API safety and canonical-contract defects identified in the full audit.
+- Windows, AutoCAD, ODA, and real-host tests remain NOT_RUN until the user confirms the Windows environment and software are ready.
+- Owner-controlled merge policy remains unchanged: ask for explicit approval for each PR and exact head SHA before merging.
+
+---
+
+## Live repository checkpoint — 2026-11-15 (verified from GitHub)
+
+### Mainline
+- Current `main`: `ad60e81cef4335c771fee8df4fad57740d06481b`.
+- PR #142 is merged. Its merge commit is the current main HEAD.
+- Mainline checks on that exact SHA: `test`, `runtime-tests`, and `Mandatory Bug Hunt` are all `completed/success`.
+- PR #142 established the current governance policy: AI performs technical review; the repository owner controls each merge. No PR may be merged without a separate explicit owner authorization for that PR and exact head SHA. No fabricated APPROVE review.
+
+### Open pull requests and current gates
+- Live open inventory includes PRs #149, #147, #143, #139, #138, #137, #136, #135 and older PRs #133, #132, #131, #130, #129, #128, #127, #119.
+- **READY_FOR_OWNER_DECISION — PRs #135, #136, #137, #138, #139, #143, #147.** Each branch is synchronized with current main `ad60e81cef4335c771fee8df4fad57740d06481b`, GitHub reports mergeable=true, no unresolved review threads were found, and all required checks completed/success on the exact current head. This is technical readiness only; no human approval is fabricated and every merge still requires a separate explicit owner authorization for that PR and exact head SHA.
+- **PR #135 — opening/host-wall evidence guard:** exact head `fb52cc47d1c86104856a8c27f819fe5f5eaf3339`; Bug Hunt, PR CI and Runtime Tests all completed/success. Rejects malformed/boolean/non-finite geometry, string wall inventories and invalid top-level inputs. Connected candidates remain UNKNOWN.
+- **PR #136 — empty detector evidence and type integrity:** exact head `9e1b937006001a9790ed1ccd2f3163960fe8f039`; all three required checks completed/success. Adds source-bound UNKNOWN detector-gap evidence, rejects conflicting evidence-ID reuse, and requires PlanElement evidence type to match its ElementEvidence type.
+- **PR #137 — SpaceModel numeric validation:** exact head `63d009f2cd138b1c1a6f7fb2fd66897920d07003`; all three required checks completed/success. Rejects booleans, non-finite values and numeric strings in bbox, centroid and area.
+- **PR #138 — GeometryReference / H101:** exact head `867fb5fee0f3b9a6b8a2957d50ef575a01526355`; all three required checks completed/success. Public dataclass construction validates evidence; coordinate transforms must be affine and nonsingular. No DWG parsing or PlanModel integration is claimed.
+- **PR #139 — open-source AEC/CAD research:** exact head `f04d5470c98c94a75bdcbdeb00d61370d3d2dbd3`; all three required checks completed/success. Static research only; no external code or model weights adopted.
+- **PR #143 — DXF comparison provenance:** exact head `2e9a8f5ebf1790471ed892e88aa8c431643d3e80`; all three required checks completed/success. Streaming SHA-256 and ezdxf version are retained even on parse-failure reports.
+- **PR #147 — durable checkpoint:** exact head `d3a2f1072d51b8251c0f4275d136272eb19db7c4`; all three required checks completed/success. This checkpoint refresh is being updated again with current PR/pilot results, so its current head and checks will change.
+- **PR #149 — isolated acadrust DWG→DXF pilot:** draft, exact head `063c4b2547805b08f5264600b482ea504b8e0c48`; all five checks completed/success (PR CI, Runtime Tests, Bug Hunt, AgentShield, dedicated acadrust pilot). It is not production-ready and remains draft.
+- **PR #131 — existing ezdwg Golden conversion:** dedicated conversion/reopen gate remains failed. Bagheri7's prior ezdwg output contained only 2 entities versus 8,842 source LINE entities; Afifiiiii output was similarly incomplete. This failure remains valid evidence and is not overridden by the separate acadrust pilot.
+- **PR #132** remains stacked on PR #130; do not treat it as independently mergeable. Older PRs not listed as ready still require fresh exact-head review.
+- No PR other than the previously authorized PR #142 has been merged. No PR approval is fabricated. No H-stage advancement is claimed.
+
+### CAD conversion research and pilot evidence
+- Issue #141 remains open for expansion of the independent read-only DXF comparator: layer/style/layout/entity inventories, units, XData/proxy content, dimensions, nested blocks and adversarial/resource-heavy fixtures.
+- Issue #145 is now implemented as an isolated pilot in PR #149. It pins the crates.io release `acadrust = 0.6.8` (MPL-2.0), disables optional Rayon parallelism, and writes directly from `CadDocument` to a temporary DXF candidate through `DxfWriter::write_to_file`, avoiding a full intermediate DXF byte/string buffer.
+- On the successful pilot head `a5ee9614835d21aadb34c0826fd4678ae31053ce` (before the final evidence-only commit), both Golden fixtures converted and reopened independently:
+  - Bagheri7: 19,268 source entities; 19,268 acadrust DXF-reopen entities; ezdxf 1.4.5 independently found 13,208 modelspace entities, 42 layers and 7 linetypes.
+  - Afifiiiii: 74,252 source entities; 74,252 acadrust DXF-reopen entities; ezdxf independently found 72,921 modelspace entities, 33 layers and 6 linetypes.
+  - Both input SHA-256 values were unchanged. Rust and ezdxf core inventory checks matched.
+  - Both decisions remain NEEDS_REVIEW, never PASS. Per-entity properties, dimensions, XData, proxy graphics, nested block semantics, layouts, fonts and CAD-host visual fidelity remain unresolved.
+- Pilot artifact from run `43726067671`, artifact `14166741334`: [download evidence and candidate DXFs](https://github.com/m30morgh1991-prog/architecture-ai-agent/actions/runs/43726067671/artifacts/14166741334). ZIP SHA-256: `a9f6f2fcf70193c8c3f18ff1e0c0512bc4b5465b4ed65e727b6765a31d4e0129`. It contains candidate DXFs, JSON reports, generated Cargo.lock and summary. Cargo.lock is not yet committed; it must be pinned before production adoption.
+- The converter enforces a 512 MiB input/decompressed-data cap, mesh limits, strict parsing, source-hash immutability, no-overwrite atomic hard-link publication, candidate/report SHA-256, candidate byte size and Linux peak RSS when available. It never emits a production/final output.
+- Upstream acadrust main is currently commit `52034a673ff59bf6936ebf01ec794b07a97df246`; comparison shows 581 commits beyond the `v0.6.8` release tag, despite the same package version string. A separate pinned-source comparison is the next experiment; do not silently substitute upstream main for the release.
+- No production conversion provider is selected. No acadrust dependency has been added to production runtime manifests.
+- CADCraft's reported 4.54 GB peak RSS for a 47.8 MB DWG remains a warning about its intermediate-DXF bridge, not an acadrust benchmark. MLightCAD's optional DWG worker remains GPL-3.0 and is not selected.
+
+### Safety and unresolved evidence
+- Golden DWGs remain immutable: `test-assets/golden-projects/bagheri7.dwg` and `test-assets/golden-projects/afifiiiii.end.edit3.dwg`.
+- Windows, AutoCAD, and real ODA host tests remain `NOT_RUN` until the user confirms Windows replacement and software installation.
+- Conversion fidelity remains UNKNOWN / NEEDS_REVIEW unless independently established. Parser success, a self-comparison, or a successful exit code is not a fidelity PASS.
+- PlanModel remains canonical. No research candidate may mutate PlanModel, ConstraintMap, ApprovedChangePlan, BIM semantics, or H101.
+- No repository settings, rulesets, branch protection, secrets, or collaborators were changed.
+- The daily Architecture Agent Guard, Auto-Runner, and Daily Backup automations were found disabled. Auto-Runner's stored prompt predates the owner-controlled merge policy and must not be re-enabled without first replacing that conflicting instruction. This checkpoint does not claim automated daily monitoring is active.
+
+### Continuation order
+1. Complete final exact-head CI verification for PR #149 after its durable evidence update; keep it draft until the release and upstream-main comparison, entity-level fidelity checks, and license review are complete.
+2. Run a second isolated acadrust comparison pinned to upstream commit `52034a673ff59bf6936ebf01ec794b07a97df246`; keep the released 0.6.8 result as the stable baseline.
+3. Expand fidelity checks for entity-type counts, blocks/INSERTs, dimensions, HATCH boundaries, XData, layouts, units and text/font handling. Any discrepancy remains BLOCKED/NEEDS_REVIEW.
+4. PRs #135, #136, #137, #138, #139, #143 and #147 are technically ready for individual owner decisions; merge only after explicit authorization for the exact current PR head.
+5. Keep PR #131's ezdwg Golden failure visible; do not weaken its gate or route production conversions to an unproven provider.
+6. Windows/AutoCAD/ODA host testing remains NOT_RUN until the user confirms the Windows environment is ready. Preserve fail-closed states and do not advance H-stages without evidence.
+
+---
+
 ## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
 
 - Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
