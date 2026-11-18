@@ -5,7 +5,7 @@ This checkpoint supersedes all 2026-11-15 inventory counts and status statements
 ### Source of truth and mainline status
 - Current main SHA: `d65a160f1d052bc653b9f7967be612e4aad25041`.
 - Recursive main tree inspected: 321 tracked files; no repository-tree truncation.
-- Mainline workflow-run query and combined commit-status query returned no records for this SHA. Mainline Green is therefore UNKNOWN; do not infer success from PR checks.
+- Exact-mainline push gates for this SHA completed successfully: Runtime Tests run #44364003526 (443 tests), PR CI Gate run #44364003510, and Bug Hunt Gate run #44364003486. Mainline Green is confirmed for this SHA. The earlier commit-workflow wrapper returned no records, but the direct Actions run inventory confirms the exact-SHA push runs.
 - Open PR inventory at this checkpoint: **28**. No PR has been merged, approved, or closed as part of this audit.
 - Documentation branch `docs/live-checkpoint-2026-11-15` was synchronized with main using merge commit `36c8a5a0c4e1c2f7ce150d9eb0d7794b7119bb62`; this documentation update creates a new PR #147 head and requires fresh exact-head checks.
 
@@ -16,7 +16,7 @@ This checkpoint supersedes all 2026-11-15 inventory counts and status statements
 - PR #159 — exact head `e0894e9358ff9283fd48bdbf673e924a5890f7b2`: PR CI, Runtime Tests, Bug Hunt all completed/success. H69/H100 evidence rejects boolean confidence, non-finite measurements, and non-canonical SHA-256 strings.
 - PR #162 — exact head `a029a966825a7043598e93b10420633879c1ecc6`: PR CI, Runtime Tests, Bug Hunt all completed/success. Stacked on PR #136; blocks unsupported or confidence-inflated LOCKED/EDITABLE promotion. Merge order: #136 first, then #162.
 - PR #163 — exact head `9aeec67d9a77905cc47c2c2ab2f154c9f4082acc`: PR CI, Runtime Tests, Bug Hunt all completed/success. H75 blocks FURNITURE/FURNITURE_LAYOUT_CHANGE requests targeting non-FURNITURE PlanModel elements, even if ConstraintMap incorrectly marks the target editable.
-- PR #164 — current exact head `81c763d3b5770deb7ab70b86b16dd1081be37bd2`: Bug Hunt completed/success; PR CI and Runtime Tests were in progress at last live check. It hardens final/production/visual gates against truthy non-booleans and direct inconsistent PASS objects. Do not claim Green until both remaining checks complete on this exact head.
+- PR #164 — exact head `2df1fb9c97d3497114c619326801df3f3d523451`: PR CI, Runtime Tests, and Bug Hunt all completed/success; Runtime Tests passed 453 tests. It hardens final/production/visual gates against truthy non-booleans and direct inconsistent PASS objects.
 
 ### CAD conversion pilot — evidence, not production approval
 - PR #149 current exact head `24d70f7a3ba8bfb8cb5a2156bae10a82a3ca0492`: PR CI, Runtime Tests, Bug Hunt and AgentShield were in progress/completed as recorded by the latest run; the dedicated acadrust Golden pilot was still in progress at last check.
