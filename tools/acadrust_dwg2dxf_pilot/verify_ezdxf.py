@@ -21,8 +21,22 @@ def sha256(path: Path) -> str:
 
 
 
+def source_polyline_downsave_eligible(expected: dict[str, object]) -> bool:
+    """Mirror acadrust's documented POLYLINE -> LWPOLYLINE down-save guard."""
+    flags = expected.get("source_flags")
+    smooth_surface = expected.get("smooth_surface", 0)
+    vertex_flags_default = expected.get("source_vertex_flags_default")
+    return (
+        type(flags) is int
+        and (flags & ~0x81) == 0
+        and type(smooth_surface) is int
+        and smooth_surface == 0
+        and vertex_flags_default is True
+    )
+
+
 def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict[str, object]:
-    """Compare source non-default POLYLINE group 75 values with ezdxf output."""
+    """Compare group 75 while allowing only acadrust's exact plain-2D down-save."""
     expected_records = report.get("source_polyline_smooth_surfaces", [])
     observed: list[dict[str, object]] = []
     mismatches: list[dict[str, object]] = []
@@ -34,14 +48,35 @@ def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict
         if entity is None:
             mismatches.append({"handle": handle, "reason": "MISSING_ENTITY"})
             continue
-        if entity.dxftype() != "POLYLINE":
-            mismatches.append(
-                {"handle": handle, "reason": "ENTITY_TYPE_CHANGED", "actual_type": entity.dxftype()}
-            )
+
+        entity_type = entity.dxftype()
+        normalized = False
+        if entity_type == "LWPOLYLINE":
+            if not source_polyline_downsave_eligible(expected):
+                mismatches.append({
+                    "handle": handle,
+                    "reason": "ENTITY_TYPE_CHANGED_NOT_ELIGIBLE_FOR_LWPOLYLINE",
+                    "actual_type": entity_type,
+                    "source_flags": expected.get("source_flags"),
+                    "source_vertex_flags_default": expected.get("source_vertex_flags_default"),
+                    "expected_smooth_surface": expected_value,
+                })
+                continue
+            # LWPOLYLINE has no group 75. The source default is zero, and the
+            # pinned writer only normalizes this exact plain-2D case.
+            actual_value = 0
+            normalized = True
+        elif entity_type == "POLYLINE":
+            raw_smooth_type = entity.dxf.get("smooth_type", 0)
+            actual_value = 0 if raw_smooth_type is None else int(raw_smooth_type)
+        else:
+            mismatches.append({
+                "handle": handle,
+                "reason": "ENTITY_TYPE_CHANGED",
+                "actual_type": entity_type,
+            })
             continue
 
-        raw_smooth_type = entity.dxf.get("smooth_type", 0)
-        actual_value = 0 if raw_smooth_type is None else int(raw_smooth_type)
         actual_owner = str(entity.dxf.get("owner", "")).upper()
         record = {
             "handle": handle,
@@ -49,29 +84,16 @@ def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict
             "output_owner_handle": actual_owner,
             "expected_smooth_surface": expected_value,
             "actual_smooth_type": actual_value,
+            "actual_entity_type": entity_type,
+            "representation_normalized": normalized,
         }
         observed.append(record)
         if actual_value != expected_value:
-            mismatches.append(
-                {
-                    **record,
-                    "reason": "GROUP_75_VALUE_MISMATCH",
-                }
-            )
+            mismatches.append({**record, "reason": "GROUP_75_VALUE_MISMATCH"})
         if not record["source_owner_handle"] or not actual_owner:
-            mismatches.append(
-                {
-                    **record,
-                    "reason": "OWNER_HANDLE_MISSING",
-                }
-            )
+            mismatches.append({**record, "reason": "OWNER_HANDLE_MISSING"})
         elif actual_owner != record["source_owner_handle"]:
-            mismatches.append(
-                {
-                    **record,
-                    "reason": "OWNER_HANDLE_MISMATCH",
-                }
-            )
+            mismatches.append({**record, "reason": "OWNER_HANDLE_MISMATCH"})
 
     return {
         "polyline_smooth_surfaces": observed,
