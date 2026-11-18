@@ -1,3 +1,55 @@
+## Live checkpoint — 2026-11-18 (full audit continuation)
+
+This checkpoint supersedes all 2026-11-15 inventory counts and status statements below. It is based on live GitHub state after syncing this documentation branch with current main.
+
+### Source of truth and mainline status
+- Current main SHA: `d65a160f1d052bc653b9f7967be612e4aad25041`.
+- Recursive main tree inspected: 321 tracked files; no repository-tree truncation.
+- Mainline workflow-run query and combined commit-status query returned no records for this SHA. Mainline Green is therefore UNKNOWN; do not infer success from PR checks.
+- Open PR inventory at this checkpoint: **28**. No PR has been merged, approved, or closed as part of this audit.
+- Documentation branch `docs/live-checkpoint-2026-11-15` was synchronized with main using merge commit `36c8a5a0c4e1c2f7ce150d9eb0d7794b7119bb62`; this documentation update creates a new PR #147 head and requires fresh exact-head checks.
+
+### Newly reviewed validation PRs
+- PR #136 — exact head `c7382c0c7c83bdccb1253094a3863fe950cec8d7`: PR CI, Runtime Tests, Bug Hunt all completed/success. Preserves UNKNOWN evidence when detection yields no candidates.
+- PR #137 — exact head `18fe62364b7a9e956ca7f88fec1894e89cdcd286`: PR CI, Runtime Tests, Bug Hunt all completed/success. Rejects boolean/non-finite/numeric-string SpaceModel values.
+- PR #138 — exact head `d4b93ab0267511136278e2bb827cde9ba1955c1d`: PR CI, Runtime Tests, Bug Hunt all completed/success after a follow-up rejecting numeric-string transform matrices. This is an H101 GeometryReference contract only; no H-stage unlock is claimed.
+- PR #159 — exact head `e0894e9358ff9283fd48bdbf673e924a5890f7b2`: PR CI, Runtime Tests, Bug Hunt all completed/success. H69/H100 evidence rejects boolean confidence, non-finite measurements, and non-canonical SHA-256 strings.
+- PR #162 — exact head `a029a966825a7043598e93b10420633879c1ecc6`: PR CI, Runtime Tests, Bug Hunt all completed/success. Stacked on PR #136; blocks unsupported or confidence-inflated LOCKED/EDITABLE promotion. Merge order: #136 first, then #162.
+- PR #163 — exact head `9aeec67d9a77905cc47c2c2ab2f154c9f4082acc`: PR CI, Runtime Tests, Bug Hunt all completed/success. H75 blocks FURNITURE/FURNITURE_LAYOUT_CHANGE requests targeting non-FURNITURE PlanModel elements, even if ConstraintMap incorrectly marks the target editable.
+- PR #164 — current exact head `81c763d3b5770deb7ab70b86b16dd1081be37bd2`: Bug Hunt completed/success; PR CI and Runtime Tests were in progress at last live check. It hardens final/production/visual gates against truthy non-booleans and direct inconsistent PASS objects. Do not claim Green until both remaining checks complete on this exact head.
+
+### CAD conversion pilot — evidence, not production approval
+- PR #149 current exact head `24d70f7a3ba8bfb8cb5a2156bae10a82a3ca0492`: PR CI, Runtime Tests, Bug Hunt and AgentShield were in progress/completed as recorded by the latest run; the dedicated acadrust Golden pilot was still in progress at last check.
+- Prior exact code head `04c5591a66f6a2a2ef36cbd7426136ef874c8323` completed Rust formatting, both Rust feature test suites, PR CI, Runtime Tests, Bug Hunt and AgentShield successfully; the dedicated pilot correctly failed on real release-candidate fidelity differences.
+- Independent ezdxf verification on that prior head: pinned upstream-main candidate passed the narrow group-75/owner/inventory checks on both Golden DWGs and remained NEEDS_REVIEW; release 0.6.8 candidate was BLOCKED by 12 Bagheri7 and 27 Afifiiiii group-75 mismatches (source value 6, output value 0).
+- The earlier verifier's 13 Bagheri7 POLYLINE→LWPOLYLINE false positives were corrected using the pinned writer's exact eligibility predicate. The real release metadata-loss mismatches remain and must not be hidden or converted to a green result.
+- No production converter/provider is selected. Full geometry/entity fidelity, Windows, AutoCAD, ODA, SHX host tests remain NOT_RUN.
+
+### Newly tracked blockers
+- P0 issue #160: execution/visual runtime must consume the canonical source-bound PlanModel + ConstraintMap + evidence bundle; client-supplied states, detached ConstraintMap dictionaries, or a forged APPROVED dictionary must never grant editing authority. Also requires cross-contract model/source consistency and wiring the planned stages into one orchestrator.
+- P1 issue #161: persist execution records, audit and idempotency state for crash-safe recovery; in-memory stores remain test adapters only.
+- P1 issue #165: define relation-type/direction-aware transitive BIM impact propagation before implementing graph closure.
+- P1 issue #166: complete deterministic rule and conflict evaluators; current applicable H76 rules intentionally remain NEEDS_REVIEW until an explicit deterministic evaluator exists.
+
+### Existing dependency chains requiring synchronization before merge
+- Runtime chain: #150 → #151 → #152 → #154. These branches have prior green checks but are based on an older main/base chain; synchronize #150 to current main, then revalidate descendants in order.
+- CAD chain: #143 → #144 → #148 → #153 → #155 → #156 → #157 → #158. PR #144 has a stale base relative to #143; synchronize in dependency order and revalidate descendants. PR #158 has no exact-head CI evidence.
+- Autodesk chain: #129 → #130 → #132. Keep source snapshot binding fail-closed and verify the parent chain before merge.
+- PR #147 is documentation-only and has not been merged. Its new exact-head checks are required.
+
+### Governance and next execution order
+1. Wait for exact-head PR #149 and #164 checks; inspect final artifacts/logs, not just check names.
+2. Present green independent PRs (#136, #137, #138, #159, #163) for technical review/owner decision; merge #162 only after #136. No merge is performed by this checkpoint.
+3. Synchronize the runtime and CAD dependency chains against current main, then rerun required CI and regression gates on each exact head.
+4. Resolve P0 issue #160 before enabling real or network-facing execution. Keep legacy simulation explicitly non-production.
+5. Complete the H22/H23/H75/H76 orchestrated pipeline and source/model binding without changing the user's architecture-specific PlanUnderstanding design or adding unrelated features.
+6. Keep Golden DWGs immutable. Run real Windows/AutoCAD/ODA/SHX tests only after the user's Windows environment is ready.
+7. Do not advance H stages or claim production readiness from contract-only PASS or PR CI alone.
+
+**No merge, approval, production-provider selection, real CAD write, or H-stage advancement is authorized by this checkpoint.**
+
+---
+
 ## Latest CAD comparison inventory — 2026-11-15
 
 This snapshot supersedes the earlier 22-PR inventory. Current open PR count: **23**.
