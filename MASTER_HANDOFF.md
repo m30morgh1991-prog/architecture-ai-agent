@@ -1,6 +1,6 @@
 ## Current handoff — 2026-11-18
 
-The current repository source of truth is main `d65a160f1d052bc653b9f7967be612e4aad25041`. Mainline CI is UNKNOWN because no exact-SHA workflow/status records were returned. There are 28 open PRs; no PR was merged or approved in this audit.
+The current repository source of truth is main `d65a160f1d052bc653b9f7967be612e4aad25041`. Mainline Green is confirmed: exact-SHA Runtime Tests run #44364003526 passed 443 tests, PR CI Gate #44364003510 passed, and Bug Hunt Gate #44364003486 passed. There are 28 open PRs; no PR was merged or approved in this audit.
 
 ### Immediate priorities
 1. P0 #160: bind all execution/visual paths to a source-bound canonical PlanModel, ConstraintMap, and evidence bundle. The legacy HTTP/visual simulator still accepts detached state/approval data and is not production authority.
@@ -14,7 +14,7 @@ The current repository source of truth is main `d65a160f1d052bc653b9f7967be612e4
 - #159: H69/H100 boolean/non-finite evidence and canonical SHA-256 validation; exact-head three mandatory gates green.
 - #162: PlanElement confidence/state and evidence-backed promotion guard; exact-head three mandatory gates green, stacked on #136.
 - #163: H75 furniture change-type/target-type guard; exact-head three mandatory gates green.
-- #164: exact-boolean final/production/visual gates and direct PASS status coherence; Bug Hunt green, Runtime and PR CI were still running at last check.
+- #164: exact-boolean final/production/visual gates and direct PASS status coherence; exact-head PR CI, Runtime Tests and Bug Hunt all passed, with 453 tests.
 - #138 follow-up rejects numeric-string geometry transforms; exact-head three mandatory gates green.
 
 ### CAD pilot result
