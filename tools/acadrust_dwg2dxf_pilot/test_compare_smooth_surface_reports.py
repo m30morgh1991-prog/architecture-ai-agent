@@ -5,8 +5,13 @@ from __future__ import annotations
 
 import unittest
 
+import ezdxf
+
 from compare_smooth_surface_reports import compare_report_pair
-from verify_ezdxf import source_polyline_downsave_eligible
+from verify_ezdxf import (
+    source_polyline_downsave_eligible,
+    verify_polyline_smooth_surfaces,
+)
 
 
 def report(source_value: int, output_value: int) -> dict:
@@ -43,6 +48,41 @@ class SmoothSurfaceReportTests(unittest.TestCase):
                     "source_flags": flags,
                     "source_vertex_flags_default": vertex_default,
                 }))
+
+    def test_lwpolyline_is_accepted_only_for_default_plain_2d_source(self) -> None:
+        document = ezdxf.new()
+        entity = document.modelspace().add_lwpolyline([(0, 0), (10, 0)])
+        report_data = {
+            "source_polyline_smooth_surfaces": [{
+                "handle": entity.dxf.handle,
+                "owner_handle": entity.dxf.owner,
+                "smooth_surface": 0,
+                "source_flags": 0,
+                "source_vertex_flags_default": True,
+            }]
+        }
+        result = verify_polyline_smooth_surfaces(document, report_data)
+        self.assertTrue(result["matches_source_polyline_smooth_surfaces"])
+        self.assertTrue(result["polyline_smooth_surfaces"][0]["representation_normalized"])
+
+    def test_lwpolyline_cannot_replace_non_default_smooth_surface(self) -> None:
+        document = ezdxf.new()
+        entity = document.modelspace().add_lwpolyline([(0, 0), (10, 0)])
+        report_data = {
+            "source_polyline_smooth_surfaces": [{
+                "handle": entity.dxf.handle,
+                "owner_handle": entity.dxf.owner,
+                "smooth_surface": 6,
+                "source_flags": 0,
+                "source_vertex_flags_default": True,
+            }]
+        }
+        result = verify_polyline_smooth_surfaces(document, report_data)
+        self.assertFalse(result["matches_source_polyline_smooth_surfaces"])
+        self.assertEqual(
+            result["polyline_smooth_surface_mismatches"][0]["reason"],
+            "ENTITY_TYPE_CHANGED_NOT_ELIGIBLE_FOR_LWPOLYLINE",
+        )
 
     def test_missing_source_flags_fail_closed(self) -> None:
         self.assertFalse(source_polyline_downsave_eligible({"smooth_surface": 0}))
