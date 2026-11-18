@@ -1,3 +1,34 @@
+## Current handoff — 2026-11-18
+
+The current repository source of truth is main `d65a160f1d052bc653b9f7967be612e4aad25041`. Mainline CI is UNKNOWN because no exact-SHA workflow/status records were returned. There are 28 open PRs; no PR was merged or approved in this audit.
+
+### Immediate priorities
+1. P0 #160: bind all execution/visual paths to a source-bound canonical PlanModel, ConstraintMap, and evidence bundle. The legacy HTTP/visual simulator still accepts detached state/approval data and is not production authority.
+2. Exact-head verification of PR #149 (acadrust dual-engine Golden pilot) and PR #164 (truthy boolean/direct PASS gate hardening).
+3. Review green independent PRs #136, #137, #138, #159 and #163. PR #162 is stacked on #136 and must merge after it.
+4. Synchronize stale runtime chain #150→#151→#152→#154 and CAD chain #143→#144→#148→#153→#155→#156→#157→#158 in dependency order; old green checks are not current after base changes.
+5. Resolve P1 #161 durable persistence, #165 BIM impact propagation semantics, and #166 deterministic rule/conflict evaluation.
+6. Keep real Windows/AutoCAD/ODA/SHX host tests NOT_RUN until Windows reinstall and matching software setup.
+
+### Verified audit fixes opened
+- #159: H69/H100 boolean/non-finite evidence and canonical SHA-256 validation; exact-head three mandatory gates green.
+- #162: PlanElement confidence/state and evidence-backed promotion guard; exact-head three mandatory gates green, stacked on #136.
+- #163: H75 furniture change-type/target-type guard; exact-head three mandatory gates green.
+- #164: exact-boolean final/production/visual gates and direct PASS status coherence; Bug Hunt green, Runtime and PR CI were still running at last check.
+- #138 follow-up rejects numeric-string geometry transforms; exact-head three mandatory gates green.
+
+### CAD pilot result
+The prior exact code head demonstrated a real release 0.6.8 data-loss issue: group 75 source value 6 becomes output 0 for 12 Bagheri7 and 27 Afifiiiii polylines. The pinned upstream candidate passed the narrow independent group-75 checks, but remains NEEDS_REVIEW and has not passed full CAD fidelity or host testing. The pilot must remain failed/blocked until the release/upstream discrepancy is resolved or a separately reviewed engine choice is made. Do not weaken the verifier.
+
+### Governance
+- No merge without explicit owner authorization.
+- Green means exact-head completed/success for required gates; queued, in-progress, missing, stale, or failed is not Green.
+- Logical/static PASS, runtime PASS, visual PASS and real host PASS remain distinct.
+- Golden DWGs remain immutable.
+- No feature expansion beyond resolving existing defects and completing planned stages.
+- No real CAD writer is enabled.
+- H101 remains locked; no H-stage advancement is claimed.
+
 ## Latest CAD comparison inventory — 2026-11-15
 
 This snapshot supersedes the earlier 22-PR inventory. Current open PR count: **23**.
