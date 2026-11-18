@@ -40,7 +40,8 @@ def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict
             )
             continue
 
-        actual_value = int(entity.dxf.get("smooth_type", 0))
+        raw_smooth_type = entity.dxf.get("smooth_type", 0)
+        actual_value = 0 if raw_smooth_type is None else int(raw_smooth_type)
         actual_owner = str(entity.dxf.get("owner", "")).upper()
         record = {
             "handle": handle,

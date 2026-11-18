@@ -13,7 +13,9 @@ const ACADRUST_BUILD: &str = "crates.io:0.6.8";
 #[cfg(feature = "upstream-main")]
 const ACADRUST_BUILD: &str = "git:52034a673ff59bf6936ebf01ec794b07a97df246";
 
-use acadrust::{CadDocument, DwgReadOptions, DwgReader, DxfReader, DxfWriter, EntityType, ReadStats};
+use acadrust::{
+    CadDocument, DwgReadOptions, DwgReader, DxfReader, DxfWriter, EntityType, ReadStats,
+};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::{
@@ -260,8 +262,7 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
         // Capture non-default POLYLINE group 75 values from every layout and block.
         // These are the source-side evidence needed to distinguish reader loss
         // from DXF writer loss in the independent ezdxf comparison.
-        let source_polyline_smooth_surfaces =
-            polyline_smooth_surface_records(&source_document);
+        let source_polyline_smooth_surfaces = polyline_smooth_surface_records(&source_document);
         let source_entity_count = source_document.entities().count();
         let source_modelspace_entity_count =
             source_document.entities_in_block("*Model_Space").count();
