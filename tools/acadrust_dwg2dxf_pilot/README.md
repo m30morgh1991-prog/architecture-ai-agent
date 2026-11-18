@@ -45,3 +45,8 @@ The output and report paths must not already exist. The converter creates a same
 The initial gate compares source/output entity and modelspace counts, table counts, drawing version, unit variables, parser diagnostics and architecture omissions. The independent ezdxf check validates that a second parser can reopen the DXF and compares core inventories. This is intentionally conservative but is not a complete fidelity proof. XData, proxy graphics, nested block semantics, dimension rendering, paper-space layout fidelity, OCS/WCS, fonts and AutoCAD/ODA interoperability still require deeper tests.
 
 Windows/AutoCAD host tests remain NOT_RUN until the user confirms the Windows environment is ready.
+
+
+## Targeted POLYLINE spline-fit regression
+
+The pilot records every non-default 2D POLYLINE smooth-surface value (DXF group code 75) from the source `CadDocument`, including block definitions, then checks the same handles and values after an independent `ezdxf` reopen. A second comparison checks source-side and independently reopened output values between the pinned release and upstream implementations. This helps distinguish DWG reader decoding differences from DXF writer serialization loss. Any missing handle, changed entity type, group-75 mismatch, or cross-engine disagreement fails the pilot. It remains a narrow regression check, not a complete fidelity proof.

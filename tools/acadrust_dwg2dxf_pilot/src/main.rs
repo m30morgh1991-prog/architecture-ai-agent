@@ -13,7 +13,7 @@ const ACADRUST_BUILD: &str = "crates.io:0.6.8";
 #[cfg(feature = "upstream-main")]
 const ACADRUST_BUILD: &str = "git:52034a673ff59bf6936ebf01ec794b07a97df246";
 
-use acadrust::{CadDocument, DwgReadOptions, DwgReader, DxfReader, DxfWriter, ReadStats};
+use acadrust::{CadDocument, DwgReadOptions, DwgReader, DxfReader, DxfWriter, EntityType, ReadStats};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::{
@@ -37,6 +37,13 @@ struct TableCounts {
     dim_styles: usize,
     block_records: usize,
     app_ids: usize,
+}
+
+#[derive(Debug, Clone, Serialize)]
+struct PolylineSmoothSurfaceRecord {
+    handle: String,
+    owner_handle: String,
+    smooth_surface: i16,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -95,6 +102,7 @@ struct Report {
     output_insertion_units: i16,
     source_measurement: i16,
     output_measurement: i16,
+    source_polyline_smooth_surfaces: Vec<PolylineSmoothSurfaceRecord>,
     source_read: ReadSummary,
     output_read: ReadSummary,
     architecture_omissions: Vec<String>,
@@ -147,6 +155,22 @@ fn table_counts(document: &CadDocument) -> TableCounts {
         block_records: document.block_records.iter().count(),
         app_ids: document.app_ids.iter().count(),
     }
+}
+
+fn polyline_smooth_surface_records(document: &CadDocument) -> Vec<PolylineSmoothSurfaceRecord> {
+    document
+        .entities()
+        .filter_map(|entity| match entity {
+            EntityType::Polyline2D(polyline) if polyline.smooth_surface as i16 != 0 => {
+                Some(PolylineSmoothSurfaceRecord {
+                    handle: format!("{:X}", polyline.common.handle),
+                    owner_handle: format!("{:X}", polyline.common.owner_handle),
+                    smooth_surface: polyline.smooth_surface as i16,
+                })
+            }
+            _ => None,
+        })
+        .collect()
 }
 
 fn reserve_new_file(path: &Path) -> Result<(), Box<dyn Error>> {
@@ -233,6 +257,11 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
         let source_document = source_outcome.document;
         let source_stats = source_outcome.stats;
         let source_tables = table_counts(&source_document);
+        // Capture non-default POLYLINE group 75 values from every layout and block.
+        // These are the source-side evidence needed to distinguish reader loss
+        // from DXF writer loss in the independent ezdxf comparison.
+        let source_polyline_smooth_surfaces =
+            polyline_smooth_surface_records(&source_document);
         let source_entity_count = source_document.entities().count();
         let source_modelspace_entity_count =
             source_document.entities_in_block("*Model_Space").count();
@@ -340,6 +369,7 @@ fn convert(input: &Path, candidate: &Path, report_path: &Path) -> Result<Report,
             output_insertion_units,
             source_measurement,
             output_measurement,
+            source_polyline_smooth_surfaces,
             source_read: ReadSummary::from(&source_stats),
             output_read: ReadSummary::from(&output_stats),
             architecture_omissions: omissions,

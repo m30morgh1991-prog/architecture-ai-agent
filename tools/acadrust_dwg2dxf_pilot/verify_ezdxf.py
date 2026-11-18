@@ -20,6 +20,53 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+
+def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict[str, object]:
+    """Compare source non-default POLYLINE group 75 values with ezdxf output."""
+    expected_records = report.get("source_polyline_smooth_surfaces", [])
+    observed: list[dict[str, object]] = []
+    mismatches: list[dict[str, object]] = []
+
+    for expected in expected_records:
+        handle = str(expected.get("handle", "")).upper()
+        expected_value = int(expected.get("smooth_surface", 0))
+        entity = document.entitydb.get(handle) if handle else None
+        if entity is None:
+            mismatches.append({"handle": handle, "reason": "MISSING_ENTITY"})
+            continue
+        if entity.dxftype() != "POLYLINE":
+            mismatches.append(
+                {"handle": handle, "reason": "ENTITY_TYPE_CHANGED", "actual_type": entity.dxftype()}
+            )
+            continue
+
+        actual_value = int(entity.dxf.get("smooth_type", 0))
+        actual_owner = str(entity.dxf.get("owner", "")).upper()
+        record = {
+            "handle": handle,
+            "source_owner_handle": str(expected.get("owner_handle", "")).upper(),
+            "output_owner_handle": actual_owner,
+            "expected_smooth_surface": expected_value,
+            "actual_smooth_type": actual_value,
+        }
+        observed.append(record)
+        if actual_value != expected_value:
+            mismatches.append(
+                {
+                    **record,
+                    "reason": "GROUP_75_VALUE_MISMATCH",
+                }
+            )
+
+    return {
+        "polyline_smooth_surfaces": observed,
+        "polyline_smooth_surface_mismatches": mismatches,
+        "matches_source_polyline_smooth_surfaces": (
+            len(mismatches) == 0 and len(observed) == len(expected_records)
+        ),
+    }
+
+
 def main() -> int:
     if len(sys.argv) != 3:
         print("Usage: verify_ezdxf.py CANDIDATE.dxf REPORT.json", file=sys.stderr)
@@ -40,6 +87,9 @@ def main() -> int:
         "matches_source_modelspace_entities": False,
         "matches_source_layer_count": False,
         "matches_source_linetype_count": False,
+        "polyline_smooth_surfaces": [],
+        "polyline_smooth_surface_mismatches": [],
+        "matches_source_polyline_smooth_surfaces": False,
     }
 
     try:
@@ -47,6 +97,7 @@ def main() -> int:
         modelspace_count = len(document.modelspace())
         layer_count = len(document.layers)
         linetype_count = len(document.linetypes)
+        smooth_surface_check = verify_polyline_smooth_surfaces(document, report)
         checks.update(
             {
                 "reopened": True,
@@ -62,6 +113,7 @@ def main() -> int:
                 "matches_source_linetype_count": (
                     linetype_count == report["source_tables"]["line_types"]
                 ),
+                **smooth_surface_check,
             }
         )
     except Exception as exc:  # record parser failures as evidence, do not hide them
@@ -78,6 +130,7 @@ def main() -> int:
             "matches_source_modelspace_entities",
             "matches_source_layer_count",
             "matches_source_linetype_count",
+            "matches_source_polyline_smooth_surfaces",
         )
     )
     report["independent_ezdxf"] = checks

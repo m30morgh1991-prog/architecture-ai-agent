@@ -72,6 +72,16 @@ jobs:
               echo "::endgroup::"
             done
           done
+          python tools/acadrust_dwg2dxf_pilot/test_compare_smooth_surface_reports.py
+          synthetic_status=$?
+          python tools/acadrust_dwg2dxf_pilot/compare_smooth_surface_reports.py \\
+            "$RUNNER_TEMP/acadrust-pilot" bagheri7 afifiiiii.end.edit3
+          compare_status=$?
+          echo "smooth_surface_synthetic_tests_exit=${synthetic_status} cross_engine_smooth_surface_exit=${compare_status}" \\
+            | tee -a "$RUNNER_TEMP/acadrust-pilot/summary.txt"
+          if [ $synthetic_status -ne 0 ] || [ $compare_status -ne 0 ]; then
+            overall=1
+          fi
           exit $overall
 
       - name: Upload pilot evidence
