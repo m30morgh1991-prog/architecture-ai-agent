@@ -29,7 +29,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install independent DXF reader
-        run: python -m pip install "ezdxf>=1.4,<2"
+        run: python -m pip install "ezdxf==1.4.5"
 
       - name: Generate pinned dependency lock
         run: cargo generate-lockfile --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml
