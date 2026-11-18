@@ -50,3 +50,17 @@ Windows/AutoCAD host tests remain NOT_RUN until the user confirms the Windows en
 ## Targeted POLYLINE spline-fit regression
 
 The pilot records every 2D POLYLINE smooth-surface value (DXF group code 75), including the default zero, from the source `CadDocument` across Model Space, layouts and block definitions. It then checks the same handles, owner handles and values after an independent `ezdxf` reopen. A second comparison checks source-side and independently reopened output values between the pinned release and upstream implementations. This helps distinguish DWG reader decoding differences from DXF writer serialization loss. Any missing handle, unapproved entity-type conversion, group-75 mismatch, or cross-engine disagreement fails the pilot. The pinned writer's documented POLYLINE-to-LWPOLYLINE normalization is accepted only when the source is a plain 2D POLYLINE with group 75 equal to zero, flags limited to the closed/continuous bits, and default vertex flags. This check establishes only the group-75 representation rule; it is not a full geometry-fidelity proof.
+
+
+## Latest dual-engine Golden comparison — 2026-11-18
+
+The exact-head workflow run on code head `04c5591a66f6a2a2ef36cbd7426136ef874c8323` completed Rust formatting and both feature-specific Rust unit-test suites successfully. The independent verifier now accepts only the pinned writer's exact documented plain-2D POLYLINE-to-LWPOLYLINE normalization (default group 75, allowed flags, default vertex flags).
+
+Results:
+- Upstream-main candidate: independent ezdxf verification passed for Bagheri7 and Afifiiiii; both reports remain NEEDS_REVIEW, not fidelity PASS.
+- Release 0.6.8 candidate: independent ezdxf verification blocked on 12 Bagheri7 and 27 Afifiiiii group-code-75 mismatches (source value 6, output value 0).
+- Cross-engine comparison reports exactly 12 and 27 output disagreements respectively.
+- The former 13 Bagheri7 POLYLINE-to-LWPOLYLINE normalizations are now accepted only under the exact source flags predicate; no false entity-type mismatch remains.
+- The pilot workflow remains failed intentionally because the release candidate loses non-default smooth-surface metadata. This is a real conversion fidelity failure, not a test harness or Rust compilation failure.
+
+This pilot is not production-ready and must not be made green by weakening the source/output comparison. Native Windows/AutoCAD/ODA host validation remains NOT_RUN.
