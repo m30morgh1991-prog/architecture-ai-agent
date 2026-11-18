@@ -58,12 +58,22 @@ def verify_polyline_smooth_surfaces(document, report: dict[str, object]) -> dict
                     "reason": "GROUP_75_VALUE_MISMATCH",
                 }
             )
+        if actual_owner != record["source_owner_handle"]:
+            mismatches.append(
+                {
+                    **record,
+                    "reason": "OWNER_HANDLE_MISMATCH",
+                }
+            )
 
     return {
         "polyline_smooth_surfaces": observed,
         "polyline_smooth_surface_mismatches": mismatches,
         "matches_source_polyline_smooth_surfaces": (
             len(mismatches) == 0 and len(observed) == len(expected_records)
+        ),
+        "matches_source_polyline_owners": not any(
+            item.get("reason") == "OWNER_HANDLE_MISMATCH" for item in mismatches
         ),
     }
 
@@ -91,6 +101,7 @@ def main() -> int:
         "polyline_smooth_surfaces": [],
         "polyline_smooth_surface_mismatches": [],
         "matches_source_polyline_smooth_surfaces": False,
+        "matches_source_polyline_owners": False,
     }
 
     try:
@@ -132,6 +143,7 @@ def main() -> int:
             "matches_source_layer_count",
             "matches_source_linetype_count",
             "matches_source_polyline_smooth_surfaces",
+            "matches_source_polyline_owners",
         )
     )
     report["independent_ezdxf"] = checks
