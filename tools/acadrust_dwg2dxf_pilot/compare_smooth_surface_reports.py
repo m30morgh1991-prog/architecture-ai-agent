@@ -9,8 +9,10 @@ from pathlib import Path
 from typing import Any
 
 
-def _index(records: list[dict[str, Any]], value_key: str, label: str) -> tuple[dict[str, int], list[str]]:
-    indexed: dict[str, int] = {}
+def _index(
+    records: list[dict[str, Any]], value_key: str, owner_key: str, label: str
+) -> tuple[dict[str, tuple[int, str]], list[str]]:
+    indexed: dict[str, tuple[int, str]] = {}
     errors: list[str] = []
     for record in records:
         handle = str(record.get("handle", "")).upper()
@@ -20,7 +22,10 @@ def _index(records: list[dict[str, Any]], value_key: str, label: str) -> tuple[d
         if handle in indexed:
             errors.append(f"{label}_DUPLICATE_HANDLE handle={handle}")
             continue
-        indexed[handle] = int(record.get(value_key, 0))
+        indexed[handle] = (
+            int(record.get(value_key, 0)),
+            str(record.get(owner_key, "")).upper(),
+        )
     return indexed, errors
 
 
@@ -32,17 +37,19 @@ def compare_report_pair(release: dict[str, Any], upstream: dict[str, Any]) -> li
             release.get("source_polyline_smooth_surfaces", []),
             upstream.get("source_polyline_smooth_surfaces", []),
             "smooth_surface",
+            "owner_handle",
         ),
         (
             "OUTPUT",
             release.get("independent_ezdxf", {}).get("polyline_smooth_surfaces", []),
             upstream.get("independent_ezdxf", {}).get("polyline_smooth_surfaces", []),
             "actual_smooth_type",
+            "output_owner_handle",
         ),
     )
-    for label, left_records, right_records, value_key in stages:
-        left, left_errors = _index(left_records, value_key, f"RELEASE_{label}")
-        right, right_errors = _index(right_records, value_key, f"UPSTREAM_{label}")
+    for label, left_records, right_records, value_key, owner_key in stages:
+        left, left_errors = _index(left_records, value_key, owner_key, f"RELEASE_{label}")
+        right, right_errors = _index(right_records, value_key, owner_key, f"UPSTREAM_{label}")
         issues.extend(left_errors)
         issues.extend(right_errors)
         if set(left) != set(right):
@@ -52,9 +59,15 @@ def compare_report_pair(release: dict[str, Any], upstream: dict[str, Any]) -> li
                 f"{label}_HANDLE_SET_MISMATCH missing_upstream={missing_upstream} missing_release={missing_release}"
             )
         for handle in sorted(set(left) & set(right)):
-            if left[handle] != right[handle]:
+            left_value, left_owner = left[handle]
+            right_value, right_owner = right[handle]
+            if left_value != right_value:
                 issues.append(
-                    f"{label}_SMOOTH_SURFACE_MISMATCH handle={handle} release={left[handle]} upstream={right[handle]}"
+                    f"{label}_SMOOTH_SURFACE_MISMATCH handle={handle} release={left_value} upstream={right_value}"
+                )
+            if left_owner != right_owner:
+                issues.append(
+                    f"{label}_OWNER_HANDLE_MISMATCH handle={handle} release={left_owner} upstream={right_owner}"
                 )
     return issues
 
