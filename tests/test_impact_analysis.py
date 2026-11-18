@@ -1,5 +1,5 @@
 from runtime.change_request_contract import ChangeRequest
-from runtime.impact_analysis import ImpactStatus, analyze_impact
+from runtime.impact_analysis import ImpactAnalysis, ImpactItem, ImpactStatus, analyze_impact
 from runtime.plan_model_contract import ConstraintMap, PlanElement, PlanModel
 
 
@@ -114,3 +114,26 @@ def test_bim_relation_unknown_neighbor_fails_closed():
     result = analyze_impact(plan, _map(), _request())
     assert result.status == "BLOCKED"
     assert "UNKNOWN_INDIRECT_IMPACT" in result.blockers
+
+
+def test_direct_impact_pass_cannot_contain_protected_or_unknown_items():
+    result = ImpactAnalysis(
+        SOURCE, "pm-75", "cr-75", "PASS", ("W01",),
+        (ImpactItem("W01", "PROTECTED", "Protected target."),), (),
+    )
+    try:
+        result.validate()
+    except ValueError as exc:
+        assert "PASS_CANNOT_INCLUDE_PROTECTED_OR_UNKNOWN_IMPACT" in str(exc)
+    else:
+        raise AssertionError("PASS with protected impact must be rejected")
+
+
+def test_direct_impact_pass_requires_evidence_items():
+    result = ImpactAnalysis(SOURCE, "pm-75", "cr-75", "PASS", (), (), ())
+    try:
+        result.validate()
+    except ValueError as exc:
+        assert "PASS_REQUIRES_IMPACT_EVIDENCE" in str(exc)
+    else:
+        raise AssertionError("empty PASS impact must be rejected")
