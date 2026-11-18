@@ -9,6 +9,8 @@ H100 binds drawing-language evidence without creating a second semantic model.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
+from numbers import Real
 from typing import Any, Literal
 
 from runtime.bim_ready_contract import BIMElementIdentity, BIMElementRelation, validate_bim_graph
@@ -32,8 +34,15 @@ class PlanElement:
     def validate(self) -> None:
         if not self.element_id or not self.element_type:
             raise ValueError("INVALID_PLAN_ELEMENT")
-        if not 0.0 <= self.confidence <= 1.0:
+        if (
+            isinstance(self.confidence, bool)
+            or not isinstance(self.confidence, Real)
+            or not isfinite(float(self.confidence))
+            or not 0.0 <= self.confidence <= 1.0
+        ):
             raise ValueError("INVALID_CONFIDENCE")
+        if self.state not in {"LOCKED", "EDITABLE", "CONDITIONAL", "UNKNOWN"}:
+            raise ValueError("INVALID_PLAN_ELEMENT_STATE")
         if not self.evidence_ids:
             raise ValueError("MISSING_ELEMENT_EVIDENCE")
         if self.state == "LOCKED" and self.confidence < 0.95:
@@ -84,11 +93,23 @@ class PlanModel:
                 missing_ids = set(element.evidence_ids) - set(evidence_by_id)
                 if missing_ids:
                     raise ValueError("PLAN_ELEMENT_EVIDENCE_REFERENCE_MISSING")
-                if any(
-                    evidence_by_id[evidence_id].element_type != element.element_type
+                referenced_evidence = [
+                    evidence_by_id[evidence_id]
                     for evidence_id in set(element.evidence_ids)
+                ]
+                if any(
+                    evidence.element_type != element.element_type
+                    for evidence in referenced_evidence
                 ):
                     raise ValueError("PLAN_ELEMENT_EVIDENCE_TYPE_MISMATCH")
+                if element.state in {"LOCKED", "EDITABLE"}:
+                    if any(evidence.status != "SUPPORTED" for evidence in referenced_evidence):
+                        raise ValueError("PLAN_ELEMENT_PROMOTION_EVIDENCE_NOT_SUPPORTED")
+                    strongest_evidence_confidence = max(
+                        evidence.confidence for evidence in referenced_evidence
+                    )
+                    if element.confidence > strongest_evidence_confidence:
+                        raise ValueError("PLAN_ELEMENT_CONFIDENCE_EXCEEDS_EVIDENCE")
 
         if self.drawing_evidence is not None:
             self.drawing_evidence.validate()
