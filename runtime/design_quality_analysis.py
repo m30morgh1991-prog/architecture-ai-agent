@@ -79,8 +79,8 @@ class DesignFinding:
             raise ValueError("DESIGN_FINDING_SEVERITY_INVALID")
         if not self.space_ids:
             raise ValueError("DESIGN_FINDING_SPACES_MISSING")
-        if not self.evidence_ids:
-            raise ValueError("DESIGN_FINDING_EVIDENCE_MISSING")
+        if any(not isinstance(item, str) or not item.strip() for item in self.evidence_ids):
+            raise ValueError("DESIGN_FINDING_EVIDENCE_INVALID")
 
 
 @dataclass(frozen=True)
@@ -145,20 +145,17 @@ def analyze_space_program_fit(
     for requirement in requirements:
         space = spaces.get(requirement.space_id)
         if space is None:
-            # There is no source-bound evidence to support a fabricated finding.
-            # The missing mapping is represented as an unresolved model-level item
-            # only when at least one space supplies traceable evidence.
+            # Missing mapping is itself a review finding; evidence may be absent
+            # when upstream detection produced no traceable space records.
             available_evidence = tuple(dict.fromkeys(
                 evidence_id for item in space_model.spaces for evidence_id in item.evidence_ids
             ))
-            if available_evidence:
-                finding = DesignFinding(
-                    "PROGRAM_SPACE_NOT_MAPPED", "REVIEW", (requirement.space_id,),
-                    available_evidence[:8],
-                    f"Program space '{requirement.space_id}' is not mapped to a detected SpaceModel record.",
-                    "Map the program requirement to the correct space or complete space detection before evaluating it.",
-                )
-                findings.append(finding)
+            findings.append(DesignFinding(
+                "PROGRAM_SPACE_NOT_MAPPED", "REVIEW", (requirement.space_id,),
+                available_evidence[:8],
+                f"Program space '{requirement.space_id}' is not mapped to a detected SpaceModel record.",
+                "Map the program requirement to the correct space or complete space detection before evaluating it.",
+            ))
             continue
 
         if requirement.min_area is not None and space.area < requirement.min_area:
@@ -185,6 +182,14 @@ def analyze_space_program_fit(
 
         for other_id in requirement.required_adjacent_to:
             pair = (space.space_id, other_id)
+            if other_id not in spaces:
+                findings.append(DesignFinding(
+                    "ADJACENCY_TARGET_UNMAPPED", "REVIEW", pair,
+                    evidence_for((space.space_id,)),
+                    f"Required adjacency target {other_id} is not mapped to a SpaceModel record.",
+                    "Complete space mapping before judging the required adjacency.",
+                ))
+                continue
             pair_relations = relations.get(frozenset(pair), [])
             positive = [r for r in pair_relations if r.relation_type in {"SHARED_BOUNDARY", "CONNECTED_BY_OPENING"}]
             disconnected = [r for r in pair_relations if r.relation_type == "DISCONNECTED"]
@@ -207,6 +212,14 @@ def analyze_space_program_fit(
 
         for other_id in requirement.avoid_adjacent_to:
             pair = (space.space_id, other_id)
+            if other_id not in spaces:
+                findings.append(DesignFinding(
+                    "AVOID_ADJACENCY_TARGET_UNMAPPED", "REVIEW", pair,
+                    evidence_for((space.space_id,)),
+                    f"Separation target {other_id} is not mapped to a SpaceModel record.",
+                    "Complete space mapping before evaluating separation or privacy requirements.",
+                ))
+                continue
             pair_relations = relations.get(frozenset(pair), [])
             adjacent = [r for r in pair_relations if r.relation_type in {"SHARED_BOUNDARY", "CONNECTED_BY_OPENING"}]
             if adjacent:
