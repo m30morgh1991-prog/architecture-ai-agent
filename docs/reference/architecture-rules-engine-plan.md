@@ -1,0 +1,30 @@
+# Architecture Rules Engine — Implementation/Test Plan
+
+This registry is the initial normalized reference catalog. It is **not yet executable compliance logic**.
+
+## Required deterministic behavior
+- Validate schema/types, finite numeric inputs, non-boolean numeric values, positive areas/dimensions, and known unit conversions.
+- Evaluate only when required inputs, room classification, jurisdiction, building type, floor count, and rule applicability are known.
+- Return one of: PASS, FAIL, UNKNOWN, NEEDS_REVIEW, BLOCKED.
+- Use PASS only when the rule predicate is deterministically evaluated from trusted evidence.
+- Never infer room category, dimensions, or applicability from uncertain raster-only detection for final compliance.
+- A candidate rule with no official edition/page evidence cannot yield an official compliance PASS; it may yield a provisional geometric check explicitly marked as such.
+- Report rule/source IDs, measured values, required values, evidence references, and reason codes.
+
+## Recommended first executable slices
+1. Generic typed comparison primitives (min/max/equality, area ratio, conditional threshold) with unit-safe inputs.
+2. Stair landing/tread/riser and room minimum-width checks when geometry is trusted.
+3. Parking bay dimensions, opening widths, ramp widths and slope; keep parking count requirements review-gated until source conflicts and municipality are resolved.
+4. Light-well area/dimension and window-to-window distance, gated by lot area, served room category, floor count <=5, and reliable geometry.
+5. Courtyard and balcony projection checks, gated by street width and local applicability.
+
+## Test matrix
+- Exact threshold => PASS (provisional reference check only).
+- One unit below minimum / above maximum => FAIL.
+- Missing required input => UNKNOWN.
+- Invalid type, bool, NaN, infinity, negative area, zero dimension => BLOCKED or UNKNOWN with reason.
+- Unknown room class, floor count, lot-area band, ramp type, or direction => NEEDS_REVIEW.
+- Conflicting source rule => NEEDS_REVIEW with both source IDs retained.
+- Units mixed (cm/m) => explicit conversion; never silently compare.
+- Uncertain geometry evidence => no compliance PASS.
+- Light-well rule at 5 floors may evaluate only if all other context is known; 6+ floors => NEEDS_REVIEW under supplied summary scope.

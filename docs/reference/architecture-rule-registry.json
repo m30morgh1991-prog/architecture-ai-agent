@@ -1,0 +1,518 @@
+{
+  "schema_version": "0.1",
+  "registry_id": "architecture-regulation-user-supplied",
+  "status": "REFERENCE_CANDIDATES",
+  "default_result_when_context_missing": "NEEDS_REVIEW",
+  "sources": [
+    {
+      "source_id": "AR-SRC-001",
+      "title": "آموزش ضوابط طراحی معماری.pdf",
+      "page_count": 67,
+      "binary_committed": false,
+      "verification": "USER_SUPPLIED; OFFICIAL_EDITION_NOT_VERIFIED"
+    },
+    {
+      "source_id": "AR-SRC-002",
+      "title": "ضوابط پارکینگ.pdf",
+      "page_count": 27,
+      "binary_committed": false,
+      "verification": "USER_SUPPLIED; OFFICIAL_EDITION_NOT_VERIFIED"
+    },
+    {
+      "source_id": "AR-SRC-003",
+      "title": "User message: supplemental Persian architecture rule summary",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "USER_SUPPLIED; OFFICIAL_EDITION_NOT_VERIFIED"
+    },
+    {
+      "source_id": "AR-SRC-004",
+      "title": "ضوابط و مقررات بازنگری طرح تفصیلی شهر شیراز (zavabemogararatbaznegari.pdf)",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "USER_PROVIDED_OFFICIAL_MUNICIPAL_URL; RETRIEVAL_FAILED; CONTENT_NOT_INSPECTED",
+      "url": "https://shaffaf.shiraz.ir/ImageGallery/FileManager/FilesForManager/taTafzil/zavabemogararatbaznegari.pdf"
+    },
+    {
+      "source_id": "AR-SRC-005",
+      "title": "قانون شهرداری — ماده ۱۰۰ (متن تجمیعی بازنشرشده)",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; CURRENT_PRIMARY_GAZETTE_OR_PARLIAMENT_COPY_REQUIRED",
+      "url": "https://lawlex.ir/laws/shahrdari/100",
+      "notes": "Research lead only; verify current consolidated text, amendments and notes against an official primary publication."
+    },
+    {
+      "source_id": "AR-SRC-006",
+      "title": "دادنامه ۱۴۰۳۳۱۳۹۰۰۰۱۸۲۹۵۸۷ مورخ ۱۴۰۳/۰۸/۰۱ — بند ۳ بخشنامه ۲۳۹۰۲۴",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF-%DB%B3-%D8%A8%D8%AE%D8%B4%D9%86%D8%A7%D9%85%D9%87-%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D9%85-%D8%A8%D8%AE%D8%B4%DB%8C-%D8%A8%D9%87-%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF%D9%87%D8%A7-%D9%88-%D8%B9%D9%85%D9%84%DA%A9%D8%B1%D8%AF-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-140331390001829587",
+      "notes": "Do not generalize beyond the reproduced judgment text; obtain official court/Gazette copy."
+    },
+    {
+      "source_id": "AR-SRC-007",
+      "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۰۵۴۷۳۵۰ مورخ ۱۴۰۵/۰۳/۰۵ — بند ۱۱ بخشنامه ۲۳۹۰۲۴",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF-%DB%B1%DB%B1-%D8%A8%D8%AE%D8%B4%D9%86%D8%A7%D9%85%D9%87-%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D9%85-%D8%A8%D8%AE%D8%B4%DB%8C-%D8%A8%D9%87-%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF%D9%87%D8%A7-%D9%88-%D8%B9%D9%85%D9%84%DA%A9%D8%B1%D8%AF-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-140531390000547350",
+      "notes": "The reproduced text is a research lead, not an official publication copy."
+    },
+    {
+      "source_id": "AR-SRC-008",
+      "title": "دادنامه ۱۴۰۴۳۱۳۹۰۰۰۰۶۴۶۸۶۵ مورخ ۱۴۰۴/۰۳/۱۳",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://amagestate.com/legal/article-100-commission-ruling/",
+      "notes": "Commercial-use-in-non-commercial-zone issue; read narrowly and reconcile with later interpretation."
+    },
+    {
+      "source_id": "AR-SRC-009",
+      "title": "نظریه مشورتی ۷/۱۴۰۴/۶۸۱ مورخ ۱۴۰۴/۱۰/۲۸",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "SECONDARY_REPRODUCTION; PRIMARY_SIGNED_COPY_PENDING",
+      "url": "https://www.hoshyarvakil.ir/opinion/7-1404-681/",
+      "notes": "Interpretive research lead following judgment 646865; do not generalize beyond its precise conclusion."
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "STAIR_CORE_CLEAR_DIMENSIONS",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "stair_core_clear_width_cm",
+        "stair_core_clear_length_cm"
+      ],
+      "expected": {
+        "width_cm": 240,
+        "length_cm": 480
+      },
+      "unit": "cm",
+      "predicate": "dimensions_at_least",
+      "note": "No stairwell eye/void per supplied summary; applicability needs verification."
+    },
+    {
+      "rule_id": "STAIR_RISER_HEIGHT",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "stair_riser_cm"
+      ],
+      "expected": {
+        "value_cm": 17
+      },
+      "unit": "cm",
+      "predicate": "equals_reference"
+    },
+    {
+      "rule_id": "STAIR_TREAD_DEPTH",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "stair_tread_cm"
+      ],
+      "expected": {
+        "value_cm": 30
+      },
+      "unit": "cm",
+      "predicate": "equals_reference"
+    },
+    {
+      "rule_id": "ELEVATOR_SHAFT_CLEAR",
+      "source_id": "AR-SRC-003",
+      "category": "elevator",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "elevator_shaft_clear_width_cm",
+        "elevator_shaft_clear_length_cm"
+      ],
+      "expected": {
+        "width_cm": 160,
+        "length_cm": 200
+      },
+      "unit": "cm",
+      "predicate": "dimensions_at_least"
+    },
+    {
+      "rule_id": "ELEVATOR_LOBBY_CLEAR",
+      "source_id": "AR-SRC-003",
+      "category": "elevator",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "elevator_lobby_width_cm",
+        "elevator_lobby_length_cm"
+      ],
+      "expected": {
+        "width_cm": 150,
+        "length_cm": 150
+      },
+      "unit": "cm",
+      "predicate": "dimensions_at_least"
+    },
+    {
+      "rule_id": "CORE_WALL_THICKNESS",
+      "source_id": "AR-SRC-003",
+      "category": "core",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "core_wall_thickness_cm"
+      ],
+      "expected": {
+        "value_cm": 20
+      },
+      "unit": "cm",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "CORE_COUNT_BY_UNITS",
+      "source_id": "AR-SRC-003",
+      "category": "core",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "residential_units_per_floor"
+      ],
+      "expected": {
+        "up_to_4_units": 1,
+        "over_4_units_minimum": 2
+      },
+      "unit": "cores",
+      "predicate": "conditional_count",
+      "note": "Stair and elevator count logic requires authority/context verification."
+    },
+    {
+      "rule_id": "LIGHTWELL_MAIN_LOT_LE_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_ratio": 0.06,
+        "min_dimension_m": 2
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 <= 200 AND served_room_class == MAIN"
+    },
+    {
+      "rule_id": "LIGHTWELL_SECONDARY_LOT_LE_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_ratio": 0.03,
+        "min_dimension_m": 2
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 <= 200 AND served_room_class == SECONDARY"
+    },
+    {
+      "rule_id": "LIGHTWELL_MAIN_LOT_GT_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_min_m2": 12,
+        "min_dimension_m": 3
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 > 200 AND served_room_class == MAIN"
+    },
+    {
+      "rule_id": "LIGHTWELL_SECONDARY_LOT_GT_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_min_m2": 6,
+        "min_dimension_m": 2
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 > 200 AND served_room_class == SECONDARY"
+    },
+    {
+      "rule_id": "LIGHTWELL_OPPOSING_MAIN_WINDOWS",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "window_clear_distance_m",
+        "window_room_class_a",
+        "window_room_class_b"
+      ],
+      "expected": {
+        "main_main_min_m": 6,
+        "secondary_secondary_min_m": 4,
+        "main_secondary_min_m": 4
+      },
+      "unit": "m",
+      "predicate": "conditional_min_distance"
+    },
+    {
+      "rule_id": "PARKING_SINGLE_BAY",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "parking_width_m",
+        "parking_length_m"
+      ],
+      "expected": {
+        "width_m": 2.5,
+        "length_m": 5
+      },
+      "unit": "m",
+      "predicate": "dimensions_at_least"
+    },
+    {
+      "rule_id": "PARKING_ADJACENT_BAY_OPENING",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "bay_count_adjacent",
+        "opening_width_m"
+      ],
+      "expected": {
+        "1": 2.5,
+        "2": 4.5,
+        "3": 7
+      },
+      "unit": "m",
+      "predicate": "lookup_minimum_width"
+    },
+    {
+      "rule_id": "PARKING_MANEUVER",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "maneuver_space_m"
+      ],
+      "expected": {
+        "value_m": 5
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "PARKING_ENTRY_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "parking_entry_width_m"
+      ],
+      "expected": {
+        "value_m": 3
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "RAMP_WIDTH_STRAIGHT",
+      "source_id": "AR-SRC-003",
+      "category": "ramp",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "ramp_type",
+        "ramp_direction",
+        "ramp_width_m"
+      ],
+      "expected": {
+        "straight_one_way_m": 3,
+        "straight_two_way_m": 6
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "RAMP_WIDTH_CURVED",
+      "source_id": "AR-SRC-003",
+      "category": "ramp",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "ramp_type",
+        "ramp_direction",
+        "ramp_width_m"
+      ],
+      "expected": {
+        "curved_one_way_m": 3.65,
+        "curved_two_way_m": 7
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "RAMP_SLOPE",
+      "source_id": "AR-SRC-003",
+      "category": "ramp",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "ramp_slope_percent"
+      ],
+      "expected": {
+        "max_percent": 15
+      },
+      "unit": "percent",
+      "predicate": "maximum"
+    },
+    {
+      "rule_id": "WINDOW_AREA_RATIO",
+      "source_id": "AR-SRC-003",
+      "category": "daylight",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "room_area_m2",
+        "window_area_m2"
+      ],
+      "expected": {
+        "ratio_min": 0.2
+      },
+      "unit": "ratio",
+      "predicate": "area_ratio_min",
+      "note": "User wording supplied as one fifth; applicability needs confirmation."
+    },
+    {
+      "rule_id": "COURTYARD_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "courtyard",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "courtyard_continuous",
+        "courtyard_width_m"
+      ],
+      "expected": {
+        "continuous_min_m": 2,
+        "noncontinuous_min_m": 3
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "BALCONY_STREET_PROJECTION",
+      "source_id": "AR-SRC-003",
+      "category": "projection",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "street_width_m",
+        "projection_depth_m",
+        "projection_clear_height_m"
+      ],
+      "expected": {
+        "street_12_to_20_projection_m": 1.2,
+        "street_over_20_projection_m": 1.5,
+        "clear_height_min_m": 3.5
+      },
+      "unit": "m",
+      "predicate": "conditional_projection"
+    },
+    {
+      "rule_id": "KITCHEN_BEDROOM_MIN_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "room",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "room_type",
+        "room_clear_width_m"
+      ],
+      "expected": {
+        "min_width_m": 2.5
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "LIVING_MIN_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "room",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "living_clear_width_m"
+      ],
+      "expected": {
+        "min_width_m": 3
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "LANDING_MIN_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "landing_clear_width_m"
+      ],
+      "expected": {
+        "min_width_m": 1.2
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    }
+  ],
+  "limitations": [
+    "Registry values are not official legal compliance assertions.",
+    "Parking count formulas, fractional parking, odd-unit exemption, and height notes require source review and contextual resolution before automatic enforcement.",
+    "For all rules, unknown inputs or uncertain geometry must return UNKNOWN or NEEDS_REVIEW, not PASS.",
+    "The five-floor limitation stated for lightwell rules must be represented in applicability context."
+  ]
+}
