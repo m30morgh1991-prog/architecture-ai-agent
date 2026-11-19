@@ -110,3 +110,25 @@ The plan checker may flag potential exposure (e.g., construction beyond permit, 
 5. Obtain Shiraz-specific written procedure, forms, fine calculation bases, current council-approved tariffs, appeal workflow and enforcement practices. Treat informal municipal practice as unverified until supported by an official circular, resolution or published legal instrument.
 6. Map parcel jurisdiction precisely (city limits / city buffer / outside both) before selecting Article 100 or Article 99 workflow.
 
+
+
+## 8. Product-priority boundary — design optimization comes first (2026-11-19)
+
+This regulation research is a supporting knowledge layer. It must not displace or harden the primary product workflow into a permit-enforcement tool.
+
+### Primary product priorities
+1. Understand the architectural plan reliably: geometry, spaces, walls, openings, columns, dimensions, levels and relationships, each with evidence and uncertainty.
+2. Find design problems and opportunities: inefficient/circulation-heavy layouts, weak adjacency, unusable or leftover areas, spatial conflicts, poor furniture fit, daylight/ventilation concerns where evidence permits, privacy and functional-zoning issues.
+3. Propose useful alternatives and explain trade-offs rather than merely flagging failures.
+4. Analyze change impact on neighboring spaces, dimensions, circulation, structure and other constraints before controlled editing.
+5. Preserve architect control: suggestions are advisory until selected and approved; uncertain observations remain visible as uncertain.
+
+### How regulations support this workflow
+- Regulations are consulted when relevant to the project, location, use, permit and design stage; they are not the default ranking function for every design suggestion.
+- Separate hard, verified constraints from conditional requirements, design guidance and unknowns. A regulation with incomplete scope or source evidence must not block an otherwise useful design alternative.
+- When a candidate design appears to conflict with a verified mandatory requirement, explain the exact evidence, affected element and possible compliant alternatives. Do not silently discard the design or claim legal approval.
+- Article 100 research is limited to identifying preventable sources of construction/permit mismatch (for example, unapproved additions or changes from approved drawings). The product is not to adjudicate cases, calculate penalties, predict demolition, or automate commission decisions.
+- Some risks are detectable only during construction or by comparing the as-built building with the approved permit set; mark these as outside drawing-only detection rather than pretending the plan checker can detect them.
+
+### Priority rule
+If work competes for implementation time, prioritize plan understanding, design-quality diagnosis, alternative generation, impact analysis and controlled editing over expanding legal-procedure analysis. Continue collecting high-value official regulations in parallel, but do not let that research block the design-optimization core.
