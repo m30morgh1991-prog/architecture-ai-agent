@@ -1,7 +1,7 @@
 """Deterministic reconstruction of an evidence-backed PlanModel (H70/H100)."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from math import isfinite
 from typing import Any
 
@@ -60,6 +60,15 @@ def build_plan_model_from_detection(
         geometry_reference.validate()
         if geometry_reference.source_sha256 != source_sha256:
             raise ValueError("PLAN_RECONSTRUCTION_GEOMETRY_REFERENCE_SOURCE_MISMATCH")
+
+    resolved_space_model = space_model
+    if geometry_reference is not None and space_model is not None:
+        if space_model.geometry_reference is None:
+            resolved_space_model = replace(space_model, geometry_reference=geometry_reference)
+        elif space_model.geometry_reference != geometry_reference:
+            raise ValueError("PLAN_RECONSTRUCTION_GEOMETRY_REFERENCE_CONFLICT")
+    elif geometry_reference is None and space_model is not None:
+        geometry_reference = space_model.geometry_reference
 
     elements: list[PlanElement] = []
     evidence_items: list[dict[str, Any]] = []
@@ -158,7 +167,7 @@ def build_plan_model_from_detection(
         drawing_count=drawing_count,
         elements=tuple(elements),
         unresolved=tuple(sorted(unresolved)),
-        space_model=space_model,
+        space_model=resolved_space_model,
         element_evidence=bundle,
         drawing_evidence=drawing_evidence,
         geometry_reference=geometry_reference,
