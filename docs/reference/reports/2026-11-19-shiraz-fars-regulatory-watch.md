@@ -11,7 +11,7 @@
 2. **Shiraz residential floor-height 350 cm is only a press lead.** Tasnim and Mehr reports dated 1405/08/17 say the Fars Article-5 commission approved a change to the detailed plan allowing residential floor height up to 350 cm. The original minutes/resolution, amended clause, height definition, map/zoning applicability, notification and effective date were not obtained. Keep status ANNOUNCED / SOURCE_REQUIRED.
 3. **A newer Article-100 precedent on change-of-use is verified in full-text reproduction.** Judgment 1404/05/28, No. 1404313900001295686, explains that Article 100 fines under notes 2–4 concern construction/area, not change-of-use as an operating-stage violation. For commercial use in a non-commercial zone, the statutory route is closure under Article 55(24), not an Article-100 fine; urban land-use change belongs to Article-5. The ruling is binding in similar cases under Article 89. Primary court/Gazette copy still pending.
 4. **Two fresh 1405 legal opinions surfaced, but only as secondary Telegram reproductions.** 7/1405/261 (1405/06/22) addresses execution of final demolition decisions and limits on expanding the demolition footprint; 7/1405/231 (1405/06/15) says Article 100 does not decide legal subdivision and Article 101 is the special route. They are research leads, not binding precedents and not yet independently verified against signed official copies.
-5. **The previous clause-11 citation is unreliable.** A page surfaced with a ruling date of 1406/03/05—future relative to 1405/08/28—and an inconsistent docket-year prefix. It cannot be treated as a current precedent. The clause-11 status is therefore UNKNOWN, not “confirmed upheld.”
+5. **Clause 11 status is clarified by a full reproduced judgment.** Judgment No. 140531390000547350 dated 1405/03/05 rejects the request to annul clause 11. It holds narrowly that when demolition is only the consequence of non-payment of the fine under notes 2/3, subsequent payment or settlement removes the basis to execute that substitute demolition. This does not legalize the underlying construction generally. Official court/Gazette copy remains pending.
 6. The official primary municipality plan PDF already recorded in AR-SRC-004 was not retrieved in this run. No new official Shiraz parking/fee, fire, heritage map, utility-location, or parcel-specific zoning document was received.
 
 ## New or reviewed documents
@@ -59,7 +59,7 @@ Judgment No. 1403313900001829587 dated 1403/08/01 **annulled clause 3 from its d
 
 ### Clause 11 of the same circular
 
-The earlier register entry was based on an unverified/future-dated result. The page now surfaced displays a ruling date **1406/03/05**, which is future relative to this report, and its number/date metadata are inconsistent. **No conclusion is recorded about clause 11's current legal status.** Keep UNKNOWN until an official dated court/Gazette document is found.
+An additional full-text retrieval located judgment No. **140531390000547350**, dated **1405/03/05**. The General Board **rejected the request to annul clause 11**. Its reasoning is limited: demolition under the end of notes 2 and 3 is a substitute guarantee for non-payment; once the fine is paid or settled, there is no basis to execute that substitute demolition. This does not establish a general right to retain all unauthorized construction. Source level remains a full-text reproduction on a secondary legal host; official court/Gazette copy is still pending.
 
 ### Judgment 646865 dated 1404/03/13
 
@@ -96,7 +96,7 @@ The 1403/05/09 judgment cited above is a caution against automatically importing
 
 - 350 cm residential floor-height report: no official Article-5 resolution, amended clause, zone map, definition, effective date, or conditions.
 - Topic 24: exact six-month effective calendar day and official ministry-hosted PDF not independently confirmed. Two secondary reposts disagree on the day/month.
-- Clause 11: UNKNOWN; the search result's displayed 1406/03/05 date is future and inconsistent with its docket prefix.
+- Clause 11: NOT ANNULLED by reproduced judgment No. 140531390000547350 dated 1405/03/05; the holding is limited to removal of the substitute demolition consequence after payment/settlement of the fine under notes 2/3. Official court/Gazette copy remains pending.
 - Historic Shiraz plan: actual PDF and boundary maps not received.
 - Article-100 / Article-99 current primary consolidated law: Parliament/Qavanin link timed out; secondary texts were read.
 - Official current Shiraz parking, permit, fee/tariff, fire, heritage, utilities and parcel-specific zoning documents were not obtained in this run.
@@ -153,3 +153,8 @@ This does not annul the entire Article-99 procedure or the whole guideline. Offi
 Jurisdiction for the described boundary-change case is based on the location status **at the time of the violation**: if the parcel was outside city harem then and later enters, the earlier violation remains with Article-99 commission; a violation after entering city limits/harem is Article-100. This is a non-binding advisory opinion, but it is an important data-model safeguard. Source: [opinion 7/1403/747](https://hoshyarvakil.ir/opinion/7-1403-747/).
 
 Therefore, a rule must retain the violation date and historic city-limit/harem map; current parcel status alone is insufficient.
+
+
+## Clause 11 judgment — follow-up verification (2026-11-19)
+
+Full reproduced text of General Board judgment No. 140531390000547350 dated 1405/03/05 was located. The Board rejected the petition to annul clause 11 of circular 239024. The clause provides that a demolition decision issued solely because the owner/beneficiary did not pay the fine under the end of Article 100 notes 2 and 3 is no longer executable if the fine is subsequently paid or settled. The Board treats that demolition as a substitute/guarantee for non-payment. This does **not** turn payment into a general permit, legalize other violations, or remove independent demolition grounds. Source level: COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; official court/Gazette copy and hash remain SOURCE_REQUIRED.
