@@ -107,3 +107,10 @@ The current research found two more sources:
 - Advisory opinion 7/1403/747 (1403/10/30) states that jurisdiction for an earlier violation remains with the Article-99 commission if the parcel was outside city harem at the violation date, even if it later enters; a violation after entry falls to Article 100.
 
 Source links: https://amagestate.com/legal/article-99-building-demolition-ruling/ ; https://hoshyarvakil.ir/opinion/7-1403-747/ . Both are reproductions; official primary copies remain pending.
+
+
+## Article 99 additional judgments and boundary-date rule — 2026-11-19
+- Judgment 1403313900001065343 (1403/05/09) annulled clauses 7, 8, 9, 10, and 14 of circular 145016 (1401/07/19) in the specified respects. It does not annul the entire guideline or Article 99.
+- Advisory opinion 7/1403/747 (1403/10/30) states that, in the described later-boundary-entry case, the violation date controls Article-99 vs. Article-100 jurisdiction. Store historic parcel boundary/harem status separately from current status.
+
+Reproductions: https://amagestate.com/legal/article-99-building-demolition-ruling/ ; https://hoshyarvakil.ir/opinion/7-1403-747/ . Official primary copies remain pending.
