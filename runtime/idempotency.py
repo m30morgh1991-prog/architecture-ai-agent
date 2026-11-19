@@ -62,7 +62,12 @@ class IdempotencyGuard:
             state = result.get("state", state)
             if state is None:
                 state = result.get("status")
-        return state != "RUNNING"
+        if state is not None:
+            return state in {"SUCCEEDED", "FAILED", "BLOCKED"}
+        status = result.get("status") if isinstance(result, dict) else None
+        if status is not None:
+            return status in {"PASS", "REJECT", "NEEDS_REVISION", "SUCCEEDED", "FAILED", "BLOCKED"}
+        return True
 
     def clear(self, key: str) -> None:
         self._completed.pop(key, None)
