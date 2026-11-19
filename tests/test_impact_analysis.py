@@ -74,6 +74,25 @@ def test_protected_target_is_blocked():
     assert "PROTECTED_TARGET" in result.blockers
 
 
+def test_furniture_change_cannot_target_wall_even_if_constraint_map_marks_it_editable():
+    constraint_map = ConstraintMap(
+        map_id="cm-forged-editable-wall",
+        model_id="pm-75",
+        protected_element_ids=(),
+        editable_element_ids=("W01",),
+        conditional_element_ids=(),
+        unknown_element_ids=(),
+        evidence_ids=("ev-w01",),
+    )
+    result = analyze_impact(
+        _plan(), constraint_map,
+        _request(target_ids=("W01",), change_type="FURNITURE_LAYOUT_CHANGE"),
+    )
+    assert result.status == "BLOCKED"
+    assert result.blockers == ("CHANGE_TYPE_TARGET_TYPE_MISMATCH",)
+    assert result.impacted_element_ids == ("W01",)
+
+
 def test_source_mismatch_is_blocked():
     result = analyze_impact(
         _plan(), _map(),
