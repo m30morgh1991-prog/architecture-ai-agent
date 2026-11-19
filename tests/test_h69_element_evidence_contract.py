@@ -96,5 +96,34 @@ class H69ElementEvidenceContractTests(unittest.TestCase):
             )
 
 
+    def test_boolean_confidence_is_rejected_directly_and_by_builder(self):
+        evidence = ElementEvidence(
+            evidence_id="E02", source_sha256=self.SHA, kind="DWG_ENTITY",
+            element_type="WALLS", status="SUPPORTED",
+            description="Boolean confidence must not become 1.0.", confidence=True,
+        )
+        with self.assertRaisesRegex(ValueError, "ELEMENT_EVIDENCE_CONFIDENCE_INVALID"):
+            evidence.validate()
+        with self.assertRaisesRegex(ValueError, "ELEMENT_EVIDENCE_CONFIDENCE_INVALID"):
+            build_element_evidence_bundle(
+                bundle_id="B02", source_sha256=self.SHA,
+                evidences=[{
+                    "evidence_id": "E02", "kind": "DWG_ENTITY",
+                    "element_type": "WALLS", "status": "SUPPORTED",
+                    "description": "Boolean confidence must be rejected.",
+                    "confidence": True,
+                }],
+            )
+
+    def test_non_hex_source_hash_is_rejected(self):
+        evidence = ElementEvidence(
+            evidence_id="E03", source_sha256="g" * 64, kind="DWG_ENTITY",
+            element_type="WALLS", status="SUPPORTED",
+            description="Invalid source hash.", confidence=0.5,
+        )
+        with self.assertRaisesRegex(ValueError, "ELEMENT_EVIDENCE_SOURCE_INVALID"):
+            evidence.validate()
+
+
 if __name__ == "__main__":
     unittest.main()
