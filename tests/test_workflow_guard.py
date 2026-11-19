@@ -1,4 +1,5 @@
 import unittest
+from runtime.idempotency import IdempotencyConflictError
 from runtime.workflow_guard import WorkflowGuard
 
 
@@ -12,6 +13,16 @@ class WorkflowGuardTests(unittest.TestCase):
         self.assertEqual(finished.state, "SUCCEEDED")
         self.assertEqual(duplicate, started)
         self.assertEqual([e.stage for e in guard.trace("E18")], ["WORKFLOW", "WORKFLOW"])
+
+    def test_idempotency_key_cannot_be_reused_for_another_execution(self):
+        guard = WorkflowGuard()
+        guard.begin("E18D", "shared-key")
+
+        with self.assertRaisesRegex(
+            IdempotencyConflictError,
+            "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
+        ):
+            guard.begin("E19D", "shared-key")
 
     def test_blocking_failure_becomes_blocked(self):
         guard = WorkflowGuard()
