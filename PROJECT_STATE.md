@@ -1,3 +1,15 @@
+## Live checkpoint — 2026-11-19 (PR #173 runtime-chain reconciliation)
+
+- Live main SHA: `2cf784e5307ceaa924f811bc0818b1b211ad267d`. PR #173 base matches main; compare reports 21 commits ahead / 0 behind.
+- PR #173 remains OPEN, DRAFT, UNMERGED, mergeable=true, no submitted reviews, no review threads. Exact head SHA `ae199aabf97b6c745f000593ba0813f0810ec307` passed the three required workflows: Bug Hunt Gate run 44554495886, PR CI Gate run 44554495937, Runtime Tests run 44554495919 (all completed/success). Any commit to this branch requires rerunning exact-head checks.
+- PR #173 contains the audit false-PASS correction (#150), request fingerprint idempotency and WorkflowGuard updates (#151), nested dataclass JSON serialization (#152), request guardrail/schema code and loopback default (#154), and PR #171's HTTP 503/BLOCKED-before-body-read boundary. Changed paths: docs/bug-hunting/PR-171.md, docs/bug-hunting/PR-173.md, runtime/app.py, runtime/bug_hunting_gate.py, runtime/idempotency.py, runtime/workflow_guard.py, and related regression tests.
+- Historical PRs #150, #151, #152, #154 and #171 remain open draft/unmerged; treat as superseded candidates and do not merge independently. PR #173 consolidates their safe intended changes.
+- PR #172 remains OPEN/DRAFT/unmerged, head `62c3ea9e48b25be68bbe95c8d0703ab88d6a1d7f`, with all three checks successful on that exact head (Bug Hunt 44549941031, PR CI 44549940916, Runtime 44549940870). It is stacked on #171's branch/head `f00760045d020a11ceaefe8781e17efb60531cb7`; do not merge independently or ahead of its parent. After #173's human review/merge, retarget or rebuild #172 on the accepted mainline, then rerun its checks.
+- Safety: HTTP execution remains BLOCKED (503 before request body consumption); no client-provided state can authorize editing. TLS/authentication is not implemented; remote access remains disabled. Windows/AutoCAD tests remain NOT_RUN unless executed on a real compatible host. No PR merge, approval, or stage advancement performed.
+- Immediate next actions: human review #173; after approval and merge, reconcile #172's HTTPS contract dependency and exact-head checks; then revisit only remaining runtime gaps. No new architecture features.
+
+---
+
 ## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
 
 - Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
