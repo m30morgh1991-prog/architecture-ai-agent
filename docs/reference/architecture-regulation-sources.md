@@ -84,3 +84,17 @@ The previously recorded interpretation of the docket number as a ruling dated 14
 - Historic Shiraz plan report: https://www.tasnimnews.ir/fa/news/1404/12/01/3521507/%D8%B7%D8%B1%D8%AD-%D8%B6%D9%88%D8%A7%D8%A8%D8%B7-%DB%8C%DA%A9%D9%BE%D8%A7%D8%B1%DA%86%D9%87-%D8%A8%D8%A7%D9%81%D8%AA-%D8%AA%D8%A7%D8%B1%DB%8C%D8%AE%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%AF%D8%B1-%D8%A7%D8%B3%D9%86%D8%A7%D8%AF-%D9%85%D9%84%DB%8C-%D8%AB%D8%A8%D8%AA-%D8%B4%D8%AF
 
 Official-source retrieval failures remain logged; none of the above press leads or secondary copies are promoted to executable rules.
+
+
+## Article 99 follow-up — 2026-11-19
+
+| ID | Document | Status | Source level | Holding / scope |
+|---|---|---|---|---|
+| AR-SRC-017 | General Board judgment 1403313900001065343, 1403/05/09; circular 145016 dated 1401/07/19 | EFFECTIVE; specific clauses annulled | COURT_PRIMARY text reproduced; official copy pending | Annuls clauses 7 and 8 (demolition deadline/execution procedure), 9 (50–70% fine formula), 10 (re-referral for demolition after non-payment), and 14 (allocation/use of collected funds) of the cited Article-99 guideline. Does not annul the whole guideline or Article 99. |
+| AR-SRC-018 | Advisory opinion 7/1403/747, 1403/10/30 | ANNOUNCED; non-binding | OFFICIAL_SECONDARY reproduction | Jurisdiction follows the legal boundary status at the date of violation: if construction occurred while outside city harem, Article-99 commission remains competent even if the parcel later enters city limits/harem; construction after entry is Article-100. |
+
+Links:
+- Judgment 1065343: https://amagestate.com/legal/article-99-building-demolition-ruling/
+- Opinion 7/1403/747: https://hoshyarvakil.ir/opinion/7-1403-747/
+
+This follow-up materially qualifies the earlier simple boundary note: **jurisdiction must be determined by parcel location and the date of the alleged violation**, using official boundary/harem records. Do not use the parcel's current status alone.
