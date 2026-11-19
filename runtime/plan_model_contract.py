@@ -132,6 +132,8 @@ class PlanModel:
             if self.space_model.geometry_reference is not None:
                 if self.space_model.geometry_reference.source_sha256 != self.source_sha256:
                     raise ValueError("SPACE_GEOMETRY_REFERENCE_SOURCE_MISMATCH")
+                if self.geometry_reference is not None and self.space_model.geometry_reference != self.geometry_reference:
+                    raise ValueError("PLAN_SPACE_GEOMETRY_REFERENCE_CONFLICT")
 
     def _validate_drawing_evidence_resolution(self) -> None:
         # Unresolved drawing evidence is allowed in PlanModel, but it prevents
