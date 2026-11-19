@@ -36,3 +36,10 @@ This registry is the initial normalized reference catalog. It is **not yet execu
 - Add the 1404/05/28 General Board judgment 1295686 as a narrow, binding source for change-of-use enforcement: distinguish the construction/area violation from operating-stage change of use; never model a fine as a right to retain unauthorized use.
 - Keep Article 100 and Article 99 jurisdiction separate and parcel/date-specific. Article 100 is not a design compliance substitute; Article 99 outside the approved city harem must not automatically inherit Article-100 grounds.
 - The two 1405 legal opinions (7/1405/261 and 7/1405/231) are secondary reproductions only; register them as research leads with SOURCE_REQUIRED. Do not generate PASS, legal authorization, or enforcement conclusions from them.
+
+
+## Article 99 routing safeguards (reference-only)
+- Preserve violation date and the historic approved city-limit/harem map separately from the current parcel map.
+- Advisory opinion 7/1403/747 states that the boundary status at the date of violation controls Article-99 vs Article-100 routing for the described boundary-entry scenario; do not route using current status alone.
+- Judgment 1065343 annulled only clauses 7, 8, 9, 10, and 14 of circular 145016 in its specified respects. Keep clause-level status and scope; do not mark the whole circular or Article 99 invalid.
+- These are source-bound legal routing candidates only. No automated jurisdiction PASS or enforcement decision is permitted without official boundary evidence, violation-date evidence, and primary legal source verification.
