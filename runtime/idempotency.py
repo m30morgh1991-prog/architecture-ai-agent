@@ -60,8 +60,6 @@ class IdempotencyGuard:
         state = getattr(result, "state", None)
         if isinstance(result, dict):
             state = result.get("state", state)
-            if state is None:
-                state = result.get("status")
         if state is not None:
             return state in {"SUCCEEDED", "FAILED", "BLOCKED"}
         status = result.get("status") if isinstance(result, dict) else None
