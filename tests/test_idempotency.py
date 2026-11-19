@@ -36,6 +36,8 @@ class IdempotencyTests(unittest.TestCase):
         self.assertFalse(guard.has_completed("workflow-1"))
         guard.replace("workflow-1", "execution-1", WorkflowDecision("PASS", "SUCCEEDED"))
         self.assertTrue(guard.has_completed("workflow-1"))
+        guard.replace("workflow-1", "execution-1", WorkflowDecision("ABSTAIN", "UNKNOWN"))
+        self.assertFalse(guard.has_completed("workflow-1"))
 
     def test_unknown_key_is_not_completed(self):
         guard = IdempotencyGuard()
