@@ -6,6 +6,7 @@ does not promote candidates to architectural truth or LOCKED state.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 from typing import Literal
 
 EvidenceKind = Literal[
@@ -20,6 +21,24 @@ EvidenceKind = Literal[
 ]
 
 ElementEvidenceStatus = Literal["SUPPORTED", "UNCERTAIN", "CONTRADICTED", "UNKNOWN"]
+
+def _valid_sha256(value: object) -> bool:
+    return (
+        isinstance(value, str)
+        and len(value) == 64
+        and value == value.lower()
+        and all(character in "0123456789abcdef" for character in value)
+    )
+
+
+def _valid_confidence(value: object) -> bool:
+    return (
+        not isinstance(value, bool)
+        and isinstance(value, (int, float))
+        and math.isfinite(value)
+        and 0.0 <= value <= 1.0
+    )
+
 
 ALLOWED_ELEMENT_TYPES = frozenset({
     "COLUMNS",
@@ -43,9 +62,9 @@ class ElementEvidence:
     confidence: float = 0.0
 
     def validate(self) -> None:
-        if not self.evidence_id or not self.source_sha256:
+        if not isinstance(self.evidence_id, str) or not self.evidence_id.strip():
             raise ValueError("ELEMENT_EVIDENCE_ID_OR_SOURCE_MISSING")
-        if len(self.source_sha256) != 64:
+        if not _valid_sha256(self.source_sha256):
             raise ValueError("ELEMENT_EVIDENCE_SOURCE_INVALID")
         if self.element_type not in ALLOWED_ELEMENT_TYPES:
             raise ValueError("ELEMENT_EVIDENCE_ELEMENT_TYPE_INVALID")
@@ -58,7 +77,7 @@ class ElementEvidence:
             raise ValueError("ELEMENT_EVIDENCE_STATUS_INVALID")
         if not self.description:
             raise ValueError("ELEMENT_EVIDENCE_DESCRIPTION_MISSING")
-        if not 0.0 <= self.confidence <= 1.0:
+        if not _valid_confidence(self.confidence):
             raise ValueError("ELEMENT_EVIDENCE_CONFIDENCE_INVALID")
         if self.status in {"UNKNOWN", "CONTRADICTED"} and self.confidence > 0.95:
             raise ValueError("UNCERTAIN_EVIDENCE_CANNOT_HAVE_HIGH_CONFIDENCE")
@@ -74,7 +93,7 @@ class ElementEvidenceBundle:
     def validate(self) -> None:
         if not self.bundle_id or not self.source_sha256:
             raise ValueError("ELEMENT_EVIDENCE_BUNDLE_ID_OR_SOURCE_MISSING")
-        if len(self.source_sha256) != 64:
+        if not _valid_sha256(self.source_sha256):
             raise ValueError("ELEMENT_EVIDENCE_BUNDLE_SOURCE_INVALID")
 
         ids = {item.evidence_id for item in self.evidences}
@@ -118,7 +137,7 @@ def build_element_evidence_bundle(
                 status=str(item.get("status", "UNKNOWN")),
                 description=str(item["description"]),
                 native_id=item.get("native_id"),
-                confidence=float(item.get("confidence", 0.0)),
+                confidence=item.get("confidence", 0.0),
             )
             for item in evidences
         ),
