@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1",
-  "registry_id": "architecture-regulation-user-supplied",
+  "registry_id": "architecture-regulation-user-supplied-and-research",
   "status": "REFERENCE_CANDIDATES",
   "default_result_when_context_missing": "NEEDS_REVIEW",
   "sources": [
@@ -56,9 +56,9 @@
       "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۰۵۴۷۳۵۰ مورخ ۱۴۰۵/۰۳/۰۵ — بند ۱۱ بخشنامه ۲۳۹۰۲۴",
       "page_count": null,
       "binary_committed": false,
-      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "verification": "UNVERIFIED_FUTURE_DATED_RESULT; LEGAL_STATUS_UNKNOWN",
       "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF-%DB%B1%DB%B1-%D8%A8%D8%AE%D8%B4%D9%86%D8%A7%D9%85%D9%87-%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D9%85-%D8%A8%D8%AE%D8%B4%DB%8C-%D8%A8%D9%87-%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF%D9%87%D8%A7-%D9%88-%D8%B9%D9%85%D9%84%DA%A9%D8%B1%D8%AF-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-140531390000547350",
-      "notes": "The reproduced text is a research lead, not an official publication copy."
+      "notes": "Secondary page currently displays judgment date 1406/03/05 (future relative to 1405/08/28) and inconsistent docket-year metadata. Do not treat as a current judgment or as proof clause 11 was upheld/annulled; verify official court/Gazette copy."
     },
     {
       "source_id": "AR-SRC-008",
@@ -77,6 +77,69 @@
       "verification": "SECONDARY_REPRODUCTION; PRIMARY_SIGNED_COPY_PENDING",
       "url": "https://www.hoshyarvakil.ir/opinion/7-1404-681/",
       "notes": "Interpretive research lead following judgment 646865; do not generalize beyond its precise conclusion."
+    },
+    {
+      "source_id": "AR-SRC-010",
+      "title": "دادنامه هیأت عمومی دیوان عدالت اداری شماره 1404313900001295686 مورخ 1404/05/28 (تغییر کاربری)",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://hoghogh.ai/case-law/رای-وحدت-رویه-هیات-عمومی-دیوان-عدالت-اداری-درباره-تکلیف-کمیسیون-های-ماده-۱۰۰-در",
+      "notes": "Binding under Article 89 for similar cases; narrow change-of-use holding. Do not generalize to construction/extra-area violations."
+    },
+    {
+      "source_id": "AR-SRC-011",
+      "title": "نظریه مشورتی 7/1405/261 مورخ 1405/06/22 — اجرای رأی قطعی تخریب ماده 100",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "SECONDARY_REPRODUCTION; SIGNED_OFFICIAL_COPY_SOURCE_REQUIRED",
+      "url": "https://telegram.me/s/vvakil?before=31018",
+      "notes": "Non-binding advisory opinion; execution of final decision, exceptions, technical execution and prohibition on enlarging demolition area."
+    },
+    {
+      "source_id": "AR-SRC-012",
+      "title": "نظریه مشورتی 7/1405/231 مورخ 1405/06/15 — تفکیک غیرمجاز اراضی و صلاحیت ماده 100",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "SECONDARY_REPRODUCTION; SIGNED_OFFICIAL_COPY_SOURCE_REQUIRED",
+      "url": "https://tg.me/hoghoogh_amlaak/4061",
+      "notes": "Non-binding advisory opinion; Article 100 handles building operations only, not subdivision approval/validation; Article 101 and other competent authorities handle subdivision consequences."
+    },
+    {
+      "source_id": "AR-SRC-013",
+      "title": "مبحث 24 مقررات ملی ساختمان، ویرایش اول 1404 — انطباق شهری ساختمان؛ ابلاغ 1404/07/27",
+      "page_count": 44,
+      "binary_committed": false,
+      "verification": "OFFICIAL_DOCUMENT_TEXT_REPRODUCED_ON_NON_OFFICIAL_HOST; MINISTRY_HOST_AND_HASH_PENDING",
+      "url": "https://qsce.ir/uploads/مبحث بیست و چهارم مقررات ملی.pdf",
+      "notes": "Notification states effective six months later; as of 1405/08/28 the period elapsed, but exact date remains unconfirmed due conflicting secondary reposts. Includes city conformity, height/density/coverage, massing/placement/adjacency/cityscape."
+    },
+    {
+      "source_id": "AR-SRC-014",
+      "title": "خبر موافقت کمیسیون ماده 5 فارس با ارتفاع طبقات مسکونی شیراز تا 350 سانتی‌متر — 1405/08/17",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "PRESS_LEAD; ORIGINAL_RESOLUTION_NOT_RETRIEVED",
+      "url": "https://newsmedia.tasnimnews.ir/fa/news/1405/08/17/3743048/مجوز-کمیسیون-ماده-5-برای-افزایش-ارتفاع-طبقات-مسکونی-شیراز-تا-3-5-متر",
+      "notes": "Reported approval only; scope, floor-height definition, zone/map, conditions, notification and effective date remain SOURCE_REQUIRED. Do not activate."
+    },
+    {
+      "source_id": "AR-SRC-015",
+      "title": "خبر ثبت ضوابط یکپارچه حفاظت/مدیریت/هدایت توسعه بافت تاریخی شیراز در اسناد ملی — 1404/12/01",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "PRESS_LEAD; PLAN_AND_MAPS_NOT_RETRIEVED",
+      "url": "https://www.tasnimnews.ir/fa/news/1404/12/01/3521507/طرح-ضوابط-یکپارچه-بافت-تاریخی-شیراز-در-اسناد-ملی-ثبت-شد",
+      "notes": "Press report says plan was entered in national records; actual plan, catalogue record, mapped boundary, and legal status not obtained."
+    },
+    {
+      "source_id": "AR-SRC-016",
+      "title": "دادنامه هیأت عمومی شماره 1403313900001065297 مورخ 1403/05/09 — صلاحیت کمیسیون ماده 99",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://hoghogh.ai/case-law/اعلام-تعارض-بین-رای-شماره-۱۴۰۲۳۱۳۹۰۰۰۰۳۸۰۶۳۳-مورخ-۱۴۰۲-۲-۱۹-صادره-از",
+      "notes": "Outside-city-harem Article 99 jurisdiction; holding limits importing Article 100 technical/urban/health demolition rationale. Read narrowly."
     }
   ],
   "rules": [
@@ -507,6 +570,79 @@
       },
       "unit": "m",
       "predicate": "minimum"
+    },
+    {
+      "rule_id": "M24_HIGH_RISE_CLASSIFICATION",
+      "source_id": "AR-SRC-013",
+      "category": "building_height",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "building_height_m",
+        "floor_count_including_ground",
+        "highest_usable_floor_m"
+      ],
+      "expected": {
+        "height_m_gte": 27,
+        "floors_including_ground_gte": 8,
+        "highest_usable_floor_m_gt": 23
+      },
+      "unit": "m_or_floors",
+      "predicate": "candidate_or_threshold",
+      "note": "M24 classification trigger from reproduced text only. This classifies high-rise; it is not a parcel permission and cannot yield compliance PASS."
+    },
+    {
+      "rule_id": "M24_RESIDENTIAL_FACADE_LIGHTING",
+      "source_id": "AR-SRC-013",
+      "category": "facade",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "residential_use",
+        "facade_lighting"
+      ],
+      "expected": {
+        "prohibited": true
+      },
+      "unit": "boolean",
+      "predicate": "candidate_prohibition",
+      "note": "Topic 24 section 24-3-5-13 text states residential facade lighting is prohibited while ground-floor/entry lighting for security is required. Official-host verification/applicability pending."
+    },
+    {
+      "rule_id": "M24_VISIBLE_FACADE_MECHANICAL_EQUIPMENT",
+      "source_id": "AR-SRC-013",
+      "category": "facade",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "visible_facade_mechanical_equipment"
+      ],
+      "expected": {
+        "prohibited": true,
+        "exception": "gas_related_equipment"
+      },
+      "unit": "boolean",
+      "predicate": "candidate_prohibition_with_exception",
+      "note": "Topic 24 section 24-3-5-10 reproduced text; official-host verification and local applicability pending."
+    },
+    {
+      "rule_id": "SHIRAZ_RESIDENTIAL_FLOOR_HEIGHT_350_CM",
+      "source_id": "AR-SRC-014",
+      "category": "floor_height",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "floor_height_cm",
+        "parcel_zone",
+        "residential_use",
+        "height_definition"
+      ],
+      "expected": {
+        "max_cm": 350
+      },
+      "unit": "cm",
+      "predicate": "candidate_maximum",
+      "note": "Press lead only. Do not check PASS/FAIL until original Article-5 resolution, scope, measurement definition, notification and effective date are verified."
     }
   ],
   "limitations": [
