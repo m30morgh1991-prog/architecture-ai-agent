@@ -141,6 +141,19 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/v1/execute":
             self.send_error(404)
             return
+
+        # P0 safety boundary: this legacy HTTP adapter accepts caller-authored
+        # element states and geometry. It is not connected to a server-owned,
+        # source-hash-bound canonical PlanModel + ConstraintMap snapshot.
+        # Never let request JSON grant EDITABLE authority. Keep the endpoint
+        # unavailable until the canonical snapshot registry and approval chain
+        # are implemented and validated end-to-end.
+        return self._json(503, {
+            "error": "CANONICAL_EXECUTION_NOT_CONFIGURED",
+            "status": "BLOCKED",
+            "message": "HTTP execution requires a server-owned, source-bound canonical PlanModel and ConstraintMap.",
+        })
+
         length = int(self.headers.get("Content-Length", "0"))
         body = json.loads(self.rfile.read(length) or b"{}")
 
@@ -199,7 +212,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    server = HTTPServer(("0.0.0.0", 8000), Handler)
+    server = HTTPServer(("127.0.0.1", 8000), Handler)
     print("Architecture AI Agent runtime listening on :8000")
     server.serve_forever()
 
