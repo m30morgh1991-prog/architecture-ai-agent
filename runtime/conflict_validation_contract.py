@@ -35,6 +35,11 @@ class ValidationResult:
             raise ValueError("VALIDATION_STATE_INVALID")
         for conflict in self.conflicts:
             conflict.validate()
+        if self.state == "PASS":
+            if not self.evidence_ids:
+                raise ValueError("VALIDATION_PASS_EVIDENCE_MISSING")
+            if any(conflict.severity == "BLOCKING" for conflict in self.conflicts):
+                raise ValueError("VALIDATION_PASS_HAS_BLOCKING_CONFLICT")
 
     @property
     def executable(self) -> bool:

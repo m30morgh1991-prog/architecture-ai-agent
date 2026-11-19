@@ -1,5 +1,7 @@
 import unittest
+
 from runtime.visual_release_contract import evaluate_visual_release
+
 
 class VisualReleaseContractTests(unittest.TestCase):
     def test_unknown_semantics_blocks_release(self):
@@ -22,5 +24,9 @@ class VisualReleaseContractTests(unittest.TestCase):
         self.assertEqual(result.status, "BLOCKED")
         self.assertIn("RELEASE_WORKFLOW_FAILED", result.failure_codes)
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_truthy_string_gate_does_not_pass(self):
+        result = evaluate_visual_release(
+            contracts="false", workflow=True, final_validation=True,
+            regression=True, semantic_corroboration="ACCESSIBLE")
+        self.assertEqual(result.status, "BLOCKED")
+        self.assertIn("RELEASE_CONTRACTS_FAILED", result.failure_codes)

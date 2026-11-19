@@ -15,6 +15,8 @@ class VisualReleaseDecision:
     def validate(self) -> None:
         if self.status not in {"PASS", "BLOCKED"}:
             raise ValueError("INVALID_VISUAL_RELEASE_STATUS")
+        if self.status == "PASS" and self.failure_codes:
+            raise ValueError("VISUAL_RELEASE_PASS_HAS_FAILURE_CODES")
 
 
 def evaluate_visual_release(
@@ -32,7 +34,7 @@ def evaluate_visual_release(
         ("final_validation", final_validation),
         ("regression", regression),
     ):
-        if not ok:
+        if ok is not True:
             failures.append(f"RELEASE_{name.upper()}_FAILED")
 
     if semantic_corroboration != "ACCESSIBLE":
