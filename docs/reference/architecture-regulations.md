@@ -99,3 +99,11 @@ Candidate national Topic 24 topics for later, source-bound review:
 A press lead dated 1405/08/17 reports Fars Article-5 approval for residential floor height up to 350 cm in Shiraz. The original resolution, height definition, zones, conditions, notification and effective date were not obtained. Keep it ANNOUNCED/UNKNOWN; do not use it as a legal threshold or infer building-height/floor-count permission.
 
 Source links: Topic 24 PDF copy (https://qsce.ir/uploads/%D9%85%D8%A8%D8%AD%D8%AB%20%D8%A8%DB%8C%D8%B3%D8%AA%20%D9%88%20%DA%86%D9%87%D8%A7%D8%B1%D9%85%20%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA%20%D9%85%D9%84%DB%8C.pdf); Tasnim height report (https://newsmedia.tasnimnews.ir/fa/news/1405/08/17/3743048/%D9%85%D8%AC%D9%88%D8%B2-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%85%D8%A7%D8%AF%D9%87-5-%D8%A8%D8%B1%D8%A7%DB%8C-%D8%A7%D9%81%D8%B2%D8%A7%DB%8C%D8%B4-%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%B7%D8%A8%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%DA%A9%D9%88%D9%86%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%AA%D8%A7-3-5-%D9%85%D8%AA%D8%B1).
+
+
+## Article 99 jurisdiction and enforcement — follow-up 2026-11-19
+The current research found two more sources:
+- General Board judgment 1403313900001065343 (1403/05/09) annulled clauses 7, 8, 9, 10, and 14 of Ministry circular 145016 (1401/07/19) in the specified respects. This is not a blanket annulment of Article 99 or the entire guideline.
+- Advisory opinion 7/1403/747 (1403/10/30) states that jurisdiction for an earlier violation remains with the Article-99 commission if the parcel was outside city harem at the violation date, even if it later enters; a violation after entry falls to Article 100.
+
+Source links: https://amagestate.com/legal/article-99-building-demolition-ruling/ ; https://hoshyarvakil.ir/opinion/7-1403-747/ . Both are reproductions; official primary copies remain pending.
