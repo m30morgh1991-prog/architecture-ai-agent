@@ -48,7 +48,7 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.source_sha256, hashlib.sha256(source_bytes).hexdigest())
         self.assertEqual(report.candidate_sha256, hashlib.sha256(candidate_bytes).hexdigest())
         self.assertTrue(report.ezdxf_version)
-        self.assertEqual(report.comparator_version, "0.3.0")
+        self.assertEqual(report.comparator_version, "0.4.0")
         self.assertEqual(self.source.read_bytes(), source_bytes)
         self.assertEqual(self.candidate.read_bytes(), candidate_bytes)
         json.dumps(report.to_dict())
@@ -232,6 +232,60 @@ class TestDxfComparator(unittest.TestCase):
         write(self.candidate, 3.0)
         report = compare_dxf_files(self.source, self.candidate)
         self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+
+
+    def test_insert_extrusion_change_is_detected(self):
+        def write(path, extrusion):
+            doc = ezdxf.new("R2010")
+            doc.blocks.new("SYMBOL").add_circle((0, 0), radius=1)
+            doc.modelspace().add_blockref(
+                "SYMBOL", (5, 5), dxfattribs={"extrusion": extrusion}
+            )
+            doc.saveas(path)
+
+        write(self.source, (0, 0, 1))
+        write(self.candidate, (0, 1, 0))
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("supported_geometry_signatures", report.structural_differences)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
+
+    def test_nested_block_definition_geometry_change_is_detected(self):
+        def write(path, endpoint):
+            doc = ezdxf.new("R2010")
+            inner = doc.blocks.new("INNER_SYMBOL")
+            inner.add_line((0, 0), endpoint)
+            outer = doc.blocks.new("OUTER_SYMBOL")
+            outer.add_blockref("INNER_SYMBOL", (2, 3))
+            doc.modelspace().add_blockref("OUTER_SYMBOL", (10, 10))
+            doc.saveas(path)
+
+        write(self.source, (10, 0))
+        write(self.candidate, (12, 0))
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("block_definition_geometry", report.structural_differences)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
+
+    def test_nested_insert_transform_change_is_detected(self):
+        def write(path, rotation):
+            doc = ezdxf.new("R2010")
+            doc.blocks.new("INNER_SYMBOL").add_circle((0, 0), radius=1)
+            outer = doc.blocks.new("OUTER_SYMBOL")
+            outer.add_blockref("INNER_SYMBOL", (2, 3), dxfattribs={"rotation": rotation})
+            doc.modelspace().add_blockref("OUTER_SYMBOL", (10, 10))
+            doc.saveas(path)
+
+        write(self.source, 0)
+        write(self.candidate, 45)
+        report = compare_dxf_files(self.source, self.candidate)
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("block_definition_geometry", report.structural_differences)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
+
 
 
 if __name__ == "__main__":
