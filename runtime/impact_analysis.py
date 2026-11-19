@@ -98,6 +98,31 @@ def analyze_impact(
             "UNKNOWN", blockers=("TARGET_ELEMENT_MISSING",)
         )
 
+    if request.change_type in _EDITABLE_TYPES:
+        elements_by_id = {element.element_id: element for element in plan_model.elements}
+        non_furniture_targets = sorted(
+            element_id for element_id in request.target_ids
+            if elements_by_id[element_id].element_type != "FURNITURE"
+        )
+        if non_furniture_targets:
+            items = tuple(
+                ImpactItem(
+                    element_id,
+                    "PROTECTED",
+                    "Furniture change requests cannot target non-furniture PlanModel elements.",
+                )
+                for element_id in non_furniture_targets
+            )
+            return ImpactAnalysis(
+                plan_model.source_sha256,
+                plan_model.model_id,
+                request.request_id,
+                "BLOCKED",
+                tuple(non_furniture_targets),
+                items,
+                ("CHANGE_TYPE_TARGET_TYPE_MISMATCH",),
+            )
+
     items = []
     blockers = []
 
