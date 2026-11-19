@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import ezdxf
@@ -88,6 +89,61 @@ class TestDxfValidator(unittest.TestCase):
         self.assertTrue(payload["requires_review"])
         self.assertIsInstance(payload["entity_types"], dict)
 
+
+    def test_missing_shx_and_reversed_persian_text_do_not_block_geometry(self):
+        document = ezdxf.new("R2010")
+        document.styles.new("PERSIAN_MISSING", dxfattribs={"font": "not-installed.shx"})
+        modelspace = document.modelspace()
+        modelspace.add_line((0, 0), (20, 10))
+        # Deliberately reversed/legacy-shaped text is retained as supplied.
+        modelspace.add_text("ﻡﻼﺳ", dxfattribs={"style": "PERSIAN_MISSING"})
+        modelspace.add_mtext("ﻥﺎﺘﺳﺭﺎﮐ", dxfattribs={"style": "PERSIAN_MISSING"})
+        document.saveas(self.source)
+
+        report = validate_dxf(self.source)
+
+        self.assertEqual(report.parse_status, "PASS")
+        self.assertEqual(report.entity_types["LINE"], 1)
+        self.assertEqual(report.text_entity_count, 2)
+        self.assertEqual(report.persian_text_entity_count, 2)
+        self.assertEqual(report.entity_read_warning_count, 0)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+        self.assertTrue(report.requires_review)
+
+    def test_text_extraction_exception_is_isolated_from_geometry(self):
+        document = ezdxf.new("R2010")
+        document.modelspace().add_line((0, 0), (20, 10))
+        document.modelspace().add_text("سلام")
+        document.saveas(self.source)
+
+        with patch.object(DxfValidator, "_text_value", side_effect=RuntimeError("simulated text decode issue")):
+            report = validate_dxf(self.source)
+
+        self.assertEqual(report.parse_status, "PASS")
+        self.assertEqual(report.entity_types["LINE"], 1)
+        self.assertEqual(report.text_entity_count, 1)
+        self.assertEqual(report.entity_read_warning_count, 1)
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_lossily_decoded_text_is_flagged_without_losing_geometry(self):
+        document = ezdxf.new("R2010")
+        modelspace = document.modelspace()
+        modelspace.add_line((0, 0), (20, 10))
+        modelspace.add_text("سلام")
+        document.saveas(self.source)
+
+        raw = self.source.read_bytes()
+        raw = raw.replace("سلام".encode("utf-8"), b"\xff\xfe\xfd\xfc", 1)
+        self.source.write_bytes(raw)
+
+        report = validate_dxf(self.source)
+
+        self.assertEqual(report.parse_status, "PASS")
+        self.assertEqual(report.entity_types["LINE"], 1)
+        self.assertEqual(report.text_entity_count, 1)
+        self.assertEqual(report.entity_read_warning_count, 1)
+        self.assertEqual(report.validation_status, "PARSE_PASS_WITH_AUDIT_FINDINGS")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
 
 if __name__ == "__main__":
     unittest.main()

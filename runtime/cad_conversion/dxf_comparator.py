@@ -18,7 +18,7 @@ from ezdxf import DXFError
 from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
-COMPARATOR_VERSION = "0.4.0"
+COMPARATOR_VERSION = "0.5.0"
 
 
 @dataclass(frozen=True)
@@ -50,6 +50,7 @@ class DxfComparisonReport:
     source_measurement: int | None = None
     candidate_measurement: int | None = None
     geometry_mismatch_count: int = 0
+    text_mismatch_count: int = 0
     unsupported_entity_types: list[str] = field(default_factory=list)
     structural_differences: list[str] = field(default_factory=list)
     error_code: str | None = None
@@ -90,21 +91,29 @@ class DxfComparator:
             source_sha256 = cls_sha256_file(source)
             candidate_sha256 = cls_sha256_file(candidate)
             ezdxf_version = getattr(ezdxf, "__version__", None)
-            source_doc = ezdxf.readfile(source)
-            candidate_doc = ezdxf.readfile(candidate)
-        except (OSError, DXFError, UnicodeError, ValueError) as exc:
+            source_doc, source_recovered = self._read_document(source)
+            candidate_doc, candidate_recovered = self._read_document(candidate)
+        except Exception as exc:
             return self._failure(
                 source,
                 candidate,
                 "DXF_PARSE_FAILED",
-                f"At least one DXF could not be parsed ({type(exc).__name__}).",
+                f"At least one DXF could not be parsed or recovered ({type(exc).__name__}).",
             )
 
         source_entities, source_blocks, source_block_inventory, source_unsupported = self._collect(source_doc, tolerance)
         candidate_entities, candidate_blocks, candidate_block_inventory, candidate_unsupported = self._collect(candidate_doc, tolerance)
-        geometry_mismatches = self._counter_delta(source_entities, candidate_entities)
-        block_mismatches = self._counter_delta(source_blocks, candidate_blocks)
-        block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory)
+        if source_recovered:
+            source_unsupported.add("DXF_RECOVERY_USED")
+        if candidate_recovered:
+            candidate_unsupported.add("DXF_RECOVERY_USED")
+        geometry_mismatches = self._counter_delta(source_entities, candidate_entities, text_only=False)
+        block_mismatches = self._counter_delta(source_blocks, candidate_blocks, text_only=False)
+        block_inventory_mismatches = self._counter_delta(source_block_inventory, candidate_block_inventory, text_only=False)
+        text_mismatches = (
+            self._counter_delta(source_entities, candidate_entities, text_only=True)
+            + self._counter_delta(source_blocks, candidate_blocks, text_only=True)
+        )
 
         source_counts = self._layout_counts(source_doc)
         candidate_counts = self._layout_counts(candidate_doc)
@@ -137,20 +146,23 @@ class DxfComparator:
                 differences.append(label)
         if geometry_mismatches:
             differences.append("supported_geometry_signatures")
+        if text_mismatches:
+            differences.append("text_content")
         if block_mismatches:
             differences.append("block_definition_geometry")
         if block_inventory_mismatches and "block_entity_counts" not in differences:
             differences.append("block_entity_counts")
 
         unsupported = sorted(source_unsupported | candidate_unsupported)
+        geometry_unsupported = set(unsupported) - {"TEXT_READ_UNAVAILABLE"}
         if differences:
             status = "DIFFERENCES_FOUND"
             geometry_status = "DIFFERENCES_FOUND" if geometry_mismatches or block_mismatches or block_inventory_mismatches else (
-                "INCOMPLETE" if unsupported else "MATCHED"
+                "INCOMPLETE" if geometry_unsupported else "MATCHED"
             )
         elif unsupported:
             status = "INCOMPLETE"
-            geometry_status = "INCOMPLETE"
+            geometry_status = "INCOMPLETE" if geometry_unsupported else "MATCHED"
         else:
             status = "MATCHED_SUPPORTED_CONTENT"
             geometry_status = "MATCHED"
@@ -182,9 +194,23 @@ class DxfComparator:
             source_block_entity_counts=self._serialize_block_inventory(source_block_inventory),
             candidate_block_entity_counts=self._serialize_block_inventory(candidate_block_inventory),
             geometry_mismatch_count=geometry_mismatches + block_mismatches + block_inventory_mismatches,
+            text_mismatch_count=text_mismatches,
             unsupported_entity_types=unsupported,
             structural_differences=differences,
         )
+
+    @staticmethod
+    def _read_document(path: Path) -> tuple[Any, bool]:
+        """Read strictly first, then recover damaged records without hiding uncertainty."""
+        try:
+            return ezdxf.readfile(path), False
+        except Exception as strict_error:
+            try:
+                from ezdxf import recover
+                document, _auditor = recover.readfile(path)
+                return document, True
+            except Exception:
+                raise strict_error
 
     @classmethod
     def _collect(cls, document: Any, tolerance: float) -> tuple[Counter, Counter, Counter, set[str]]:
@@ -192,23 +218,23 @@ class DxfComparator:
         block_signatures: Counter = Counter()
         block_inventory: Counter = Counter()
         unsupported: set[str] = set()
+        text_kinds = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}
 
         for layout in document.layouts:
             container = ("layout", layout.name)
             for entity in layout:
-                kind = entity.dxftype()
+                kind = None
                 try:
+                    kind = entity.dxftype()
                     signature = cls._signature(entity, tolerance)
-                except (AttributeError, TypeError, ValueError):
-                    signature = None
-                if signature is None:
-                    unsupported.add(kind)
-                else:
                     presentation = presentation_signature(entity, tolerance)
-                    if presentation is None:
-                        unsupported.add(kind)
-                    else:
-                        layout_signatures[(container, kind, (signature, presentation))] += 1
+                except Exception:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else "UNKNOWN_ENTITY")
+                    continue
+                if signature is None or presentation is None:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else kind)
+                else:
+                    layout_signatures[(container, kind, (signature, presentation))] += 1
 
         for block in document.blocks:
             if getattr(block, "is_any_layout", False):
@@ -223,20 +249,19 @@ class DxfComparator:
                     block_inventory[(block.name, f"XREF:{xref_path or 'UNRESOLVED'}")] += 1
                     unsupported.add("XREF_DEPENDENCY")
             for entity in block:
-                kind = entity.dxftype()
-                block_inventory[(block.name, kind)] += 1
+                kind = None
                 try:
+                    kind = entity.dxftype()
+                    block_inventory[(block.name, kind)] += 1
                     signature = cls._signature(entity, tolerance)
-                except (AttributeError, TypeError, ValueError):
-                    signature = None
-                if signature is None:
-                    unsupported.add(kind)
-                else:
                     presentation = presentation_signature(entity, tolerance)
-                    if presentation is None:
-                        unsupported.add(kind)
-                    else:
-                        block_signatures[(container, kind, (signature, presentation))] += 1
+                except Exception:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else "UNKNOWN_ENTITY")
+                    continue
+                if signature is None or presentation is None:
+                    unsupported.add("TEXT_READ_UNAVAILABLE" if kind in text_kinds else kind)
+                else:
+                    block_signatures[(container, kind, (signature, presentation))] += 1
         return layout_signatures, block_signatures, block_inventory, unsupported
 
     @classmethod
@@ -244,6 +269,11 @@ class DxfComparator:
         kind = entity.dxftype()
         dxf = entity.dxf
         layer = dxf.get("layer", "0")
+        if kind in {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}:
+            text_value = entity.text if kind == "MTEXT" else dxf.get("text", "")
+            if any(char == "\ufffd" or 0xDC80 <= ord(char) <= 0xDCFF for char in str(text_value)):
+                # Invalid source bytes decoded as U+FFFD are not trusted text.
+                return None
         if kind == "LINE":
             points = [cls._vector(dxf.start, tolerance), cls._vector(dxf.end, tolerance)]
             return (layer, tuple(sorted(points)))
@@ -327,15 +357,30 @@ class DxfComparator:
         return {f"{block_name}::{entity_type}": count for (block_name, entity_type), count in sorted(inventory.items())}
 
     @staticmethod
-    def _counter_delta(left: Counter, right: Counter) -> int:
-        return sum((left - right).values()) + sum((right - left).values())
+    def _counter_delta(left: Counter, right: Counter, *, text_only: bool | None = None) -> int:
+        text_types = {"TEXT", "MTEXT", "ATTRIB", "ATTDEF"}
+
+        def selected(counter: Counter) -> Counter:
+            if text_only is None:
+                return counter
+            return Counter({
+                key: count for key, count in counter.items()
+                if ((isinstance(key, tuple) and len(key) > 1 and key[1] in text_types) is text_only)
+            })
+
+        selected_left = selected(left)
+        selected_right = selected(right)
+        return sum((selected_left - selected_right).values()) + sum((selected_right - selected_left).values())
 
     @staticmethod
     def _layout_counts(document: Any) -> dict[str, int]:
         counts: Counter = Counter()
         for layout in document.layouts:
             for entity in layout:
-                counts[entity.dxftype()] += 1
+                try:
+                    counts[entity.dxftype()] += 1
+                except Exception:
+                    counts["UNKNOWN_ENTITY"] += 1
         return dict(sorted(counts.items()))
 
     @staticmethod
