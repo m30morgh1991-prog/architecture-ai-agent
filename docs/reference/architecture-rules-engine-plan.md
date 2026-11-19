@@ -43,3 +43,8 @@ This registry is the initial normalized reference catalog. It is **not yet execu
 - Advisory opinion 7/1403/747 states that the boundary status at the date of violation controls Article-99 vs Article-100 routing for the described boundary-entry scenario; do not route using current status alone.
 - Judgment 1065343 annulled only clauses 7, 8, 9, 10, and 14 of circular 145016 in its specified respects. Keep clause-level status and scope; do not mark the whole circular or Article 99 invalid.
 - These are source-bound legal routing candidates only. No automated jurisdiction PASS or enforcement decision is permitted without official boundary evidence, violation-date evidence, and primary legal source verification.
+
+
+## Article 99 source update
+- Judgment 1065343 (1403/05/09) is a clause-level annulment of specified provisions (7, 8, 9, 10, 14) of circular 145016; do not invalidate the whole guideline.
+- Advisory opinion 7/1403/747 says violation-date boundary status controls jurisdiction in the described later-entry scenario. Historical boundary evidence and violation date are required before routing.
