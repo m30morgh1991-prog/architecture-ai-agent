@@ -4,6 +4,7 @@ import hashlib, json, re
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from runtime.dwg_geometry_evidence import extract_entity_geometry
 
 SEMANTIC_TOKENS = {
     "WALLS": ("WALL", "WALLS", "A-WALL"),
@@ -125,7 +126,7 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     entities = list(doc.modelspace().query())
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
     geometry_counts = Counter()
-    text_evidence, dimension_evidence, level_evidence, section_marker_evidence = [], [], [], []
+    text_evidence, dimension_evidence, level_evidence, section_marker_evidence, geometry_evidence = [], [], [], [], []
     candidates = {k: [] for k in SEMANTIC_TOKENS}
 
     for entity in entities:
@@ -150,6 +151,9 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
                     section_marker_evidence.append(section_marker)
         if dxftype in {"LINE","LWPOLYLINE","ARC","CIRCLE","ELLIPSE","SPLINE","HATCH"}:
             geometry_counts[dxftype] += 1
+            geometry = extract_entity_geometry(entity, dxftype, handle)
+            if geometry is not None:
+                geometry_evidence.append(geometry)
         if dxftype in {"TEXT","MTEXT","ATTRIB","ATTDEF"}:
             text = str(getattr(entity, "text", None) or _value(entity, "text", ""))
             text_evidence.append({"handle":handle,"type":dxftype,
@@ -163,33 +167,85 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
             if section_marker:
                 section_marker_evidence.append(section_marker)
         if dxftype == "DIMENSION":
+            measurement = _value(entity, "actual_measurement")
             dimension_evidence.append({"handle":handle,"type":dxftype,
-                "text":str(_value(entity, "text", "")),
-                "actual_measurement":_jsonable(_value(entity, "actual_measurement")),
+                "dimension_type":_value(entity, "dimtype"),
+                "text":str(_value(entity, "text", "") or ""),
+                "actual_measurement":_jsonable(measurement),
+                "measurement_status":"SUPPORTED" if measurement is not None else "UNKNOWN",
                 "defpoint":_jsonable(_value(entity, "defpoint")),
                 "defpoint2":_jsonable(_value(entity, "defpoint2")),
-                "defpoint3":_jsonable(_value(entity, "defpoint3")),"provenance":"DIRECT"})
+                "defpoint3":_jsonable(_value(entity, "defpoint3")),
+                "text_midpoint":_jsonable(_value(entity, "text_midpoint")),
+                "layer":_value(entity, "layer"),
+                "provenance":"DIRECT","interpretation_status":"NEEDS_REVIEW"})
 
     semantic_support = {semantic:{
         "status":"SUPPORTED" if rows else "UNKNOWN",
         "provenance":"DIRECT" if rows else "UNKNOWN",
         "evidence":rows} for semantic,rows in candidates.items()}
+    header_error = None
     try:
         hv = doc.header_variables()
-        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax"))}
-    except Exception:
-        header = {}
+        raw_insunits = hv.get("insunits")
+        header = {
+            "extmin":_jsonable(hv.get("extmin")),
+            "extmax":_jsonable(hv.get("extmax")),
+            "raw_insunits_code":_jsonable(raw_insunits),
+            "lunits":_jsonable(hv.get("lunits")),
+            "luprec":_jsonable(hv.get("luprec")),
+            "ltscale":_jsonable(hv.get("ltscale")),
+        }
+        units_metadata_source = "ezdwg.header_variables().insunits" if raw_insunits is not None else "UNAVAILABLE"
+    except Exception as exc:
+        hv = {}
+        raw_insunits = None
+        header_error = type(exc).__name__
+        header = {"raw_insunits_code":None}
+        units_metadata_source = "UNAVAILABLE"
+    insunits_names = {
+        0:"unitless", 1:"inches", 2:"feet", 3:"miles", 4:"millimeters",
+        5:"centimeters", 6:"meters", 7:"kilometers", 8:"microinches",
+        9:"mils", 10:"yards", 11:"angstroms", 12:"nanometers", 13:"microns",
+        14:"decimeters", 15:"dekameters", 16:"hectometers", 17:"gigameters",
+        18:"astronomical_units", 19:"light_years", 20:"parsecs",
+        21:"us_survey_feet", 22:"us_survey_inches", 23:"us_survey_yards", 24:"us_survey_miles",
+    }
+    declared_units = insunits_names.get(raw_insunits) if isinstance(raw_insunits, int) else None
+    parser_reported_units = getattr(doc,"units",None)
+    metadata_status = "UNKNOWN" if raw_insunits is None or raw_insunits == 0 else (
+        "SUPPORTED" if declared_units is not None else "NEEDS_REVIEW"
+    )
+    if declared_units and parser_reported_units:
+        normalized_parser_units = str(parser_reported_units).strip().lower().replace(" ", "_")
+        if normalized_parser_units != declared_units:
+            metadata_status = "NEEDS_REVIEW"
+    # Header metadata can support what the file declares, but cannot establish
+    # the effective physical scale of model-space geometry without an independent
+    # reference-length / dimension association check. Fail closed until reviewed.
+    effective_units_status = "UNKNOWN" if raw_insunits is None or raw_insunits == 0 else "NEEDS_REVIEW"
     return {
         "schema":"dwg-semantic-evidence-v1",
         "source_profile":{"source_class":"ENGINEERING_PLAN","path":str(source),
             "sha256":source_sha256,"version":str(getattr(doc,"version","UNKNOWN")),
             "decode_version":str(getattr(doc,"decode_version","UNKNOWN")),
-            "units":getattr(doc,"units",None),"provenance":"DIRECT"},
+            "parser_reported_units":parser_reported_units,"provenance":"DIRECT"},
+        "units_evidence":{
+            "raw_insunits_code":_jsonable(raw_insunits),
+            "declared_units":declared_units or ("unitless" if raw_insunits == 0 else None),
+            "units_metadata_source":units_metadata_source,
+            "parser_reported_units":parser_reported_units,
+            "declared_units_metadata_status":metadata_status,
+            "effective_units_status":effective_units_status,
+            "human_review_required":effective_units_status != "SUPPORTED",
+            "header_read_error":header_error,
+            "plot_scale_status":"UNKNOWN",
+        },
         "entity_counts":dict(sorted(type_counts.items())),
         "layer_counts":dict(sorted(layer_counts.items())),
         "block_counts":dict(sorted(block_counts.items())),
         "geometry_counts":dict(sorted(geometry_counts.items())),
-        "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
+        "text":text_evidence,"dimensions":dimension_evidence,"geometry":geometry_evidence,"levels":level_evidence,
         "section_markers":section_marker_evidence,
         "semantic_candidates":semantic_support,"header":header,
         "authority":{"read_only":True,"semantic_authority":False,
