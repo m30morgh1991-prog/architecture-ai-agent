@@ -95,5 +95,29 @@ class DesignQualityAnalysisTests(unittest.TestCase):
             SpaceProgramRequirement("LIVING", min_area=True).validate()
 
 
+    def test_unmapped_program_space_is_review_even_without_any_evidence(self):
+        model = SpaceModel("empty-evidence-model", SOURCE, (), ())
+        model.validate()
+        result = analyze_space_program_fit(
+            model, [SpaceProgramRequirement("DINING", min_area=20)]
+        )
+        self.assertEqual(result.status, "NEEDS_REVIEW")
+        self.assertEqual(result.findings[0].code, "PROGRAM_SPACE_NOT_MAPPED")
+        self.assertEqual(result.findings[0].evidence_ids, ())
+
+    def test_unmapped_required_adjacency_target_is_explicit_review(self):
+        result = analyze_space_program_fit(
+            _space_model(), [SpaceProgramRequirement("LIVING", required_adjacent_to=("GARAGE",))]
+        )
+        self.assertEqual(result.status, "NEEDS_REVIEW")
+        self.assertEqual(result.findings[0].code, "ADJACENCY_TARGET_UNMAPPED")
+
+    def test_unmapped_separation_target_is_explicit_review(self):
+        result = analyze_space_program_fit(
+            _space_model(), [SpaceProgramRequirement("LIVING", avoid_adjacent_to=("GARAGE",))]
+        )
+        self.assertEqual(result.status, "NEEDS_REVIEW")
+        self.assertEqual(result.findings[0].code, "AVOID_ADJACENCY_TARGET_UNMAPPED")
+
 if __name__ == "__main__":
     unittest.main()
