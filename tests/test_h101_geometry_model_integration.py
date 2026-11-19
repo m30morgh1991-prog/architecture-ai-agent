@@ -75,6 +75,35 @@ class H101GeometryModelIntegrationTests(unittest.TestCase):
                 geometry_reference=geometry(OTHER_SHA),
             )
 
+    def test_reconstruction_propagates_reference_to_attached_space_model(self):
+        source_space_model = spaces(SHA)
+        ref = geometry()
+        result = build_plan_model_from_detection(
+            model_id="PM-WITH-SPACE", source_sha256=SHA,
+            detection_result={"source_sha256": SHA, "candidates": [],
+                             "unresolved_fixed_element_types": []},
+            space_model=source_space_model,
+            geometry_reference=ref,
+        )
+        self.assertIs(result.plan_model.geometry_reference, ref)
+        self.assertIs(result.plan_model.space_model.geometry_reference, ref)
+        result.validate()
+
+    def test_reconstruction_rejects_conflicting_references_between_models(self):
+        with self.assertRaisesRegex(
+            ValueError, "PLAN_RECONSTRUCTION_GEOMETRY_REFERENCE_CONFLICT"
+        ):
+            build_plan_model_from_detection(
+                model_id="PM-CONFLICT", source_sha256=SHA,
+                detection_result={"source_sha256": SHA, "candidates": [],
+                                 "unresolved_fixed_element_types": []},
+                space_model=spaces(SHA, geometry()),
+                geometry_reference=geometry(). __class__(
+                    reference_id="GR-DIFFERENT", source_sha256=SHA,
+                    coordinate_frame="WCS", coordinate_frame_status="UNKNOWN",
+                ),
+            )
+
     def test_existing_models_remain_backward_compatible_without_reference(self):
         space_model = spaces(SHA, None)
         plan = PlanModel(
