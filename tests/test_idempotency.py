@@ -28,6 +28,15 @@ class IdempotencyTests(unittest.TestCase):
             guard.store("execution-1", "fingerprint-2", {"status": "OTHER"})
         self.assertIs(guard.check("execution-1", "fingerprint-1"), original)
 
+    def test_running_workflow_decision_is_not_reported_completed(self):
+        from runtime.workflow_guard import WorkflowDecision
+
+        guard = IdempotencyGuard()
+        guard.store("workflow-1", "execution-1", WorkflowDecision("PASS", "RUNNING"))
+        self.assertFalse(guard.has_completed("workflow-1"))
+        guard.replace("workflow-1", "execution-1", WorkflowDecision("PASS", "SUCCEEDED"))
+        self.assertTrue(guard.has_completed("workflow-1"))
+
     def test_unknown_key_is_not_completed(self):
         guard = IdempotencyGuard()
         self.assertIsNone(guard.check("missing", "fingerprint-1"))
