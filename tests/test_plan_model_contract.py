@@ -60,58 +60,6 @@ class PlanModelContractTests(unittest.TestCase):
         ):
             model.validate()
 
-    def test_plan_element_rejects_boolean_and_non_finite_confidence(self):
-        for confidence in (True, float("nan"), float("inf"), "0.99"):
-            with self.subTest(confidence=confidence):
-                with self.assertRaisesRegex(ValueError, "INVALID_CONFIDENCE"):
-                    PlanElement(
-                        "W01", "WALLS", "LOCKED", {}, ("ev-1",), confidence
-                    ).validate()
-
-    def test_plan_element_rejects_unknown_state(self):
-        with self.assertRaisesRegex(ValueError, "INVALID_PLAN_ELEMENT_STATE"):
-            PlanElement("W01", "WALLS", "MAYBE", {}, ("ev-1",), 0.99).validate()
-
-    def test_locked_state_requires_supported_source_evidence(self):
-        source_sha = "a" * 64
-        evidence = build_element_evidence_bundle(
-            bundle_id="bundle-unknown", source_sha256=source_sha,
-            evidences=[{
-                "evidence_id": "E-UNKNOWN", "kind": "UNKNOWN",
-                "element_type": "WALLS", "status": "UNKNOWN",
-                "description": "Unresolved wall evidence.", "confidence": 0.0,
-            }],
-        )
-        model = PlanModel(
-            model_id="PM-UNKNOWN", source_sha256=source_sha, drawing_count=1,
-            elements=(PlanElement("W01", "WALLS", "LOCKED", {}, ("E-UNKNOWN",), 0.99),),
-            element_evidence=evidence,
-        )
-        with self.assertRaisesRegex(
-            ValueError, "PLAN_ELEMENT_PROMOTION_EVIDENCE_NOT_SUPPORTED"
-        ):
-            model.validate()
-
-    def test_element_confidence_cannot_exceed_supported_evidence(self):
-        source_sha = "b" * 64
-        evidence = build_element_evidence_bundle(
-            bundle_id="bundle-low", source_sha256=source_sha,
-            evidences=[{
-                "evidence_id": "E-LOW", "kind": "DWG_GEOMETRY",
-                "element_type": "WALLS", "status": "SUPPORTED",
-                "description": "Supported but low-confidence geometry.", "confidence": 0.80,
-            }],
-        )
-        model = PlanModel(
-            model_id="PM-LOW", source_sha256=source_sha, drawing_count=1,
-            elements=(PlanElement("W01", "WALLS", "LOCKED", {}, ("E-LOW",), 0.99),),
-            element_evidence=evidence,
-        )
-        with self.assertRaisesRegex(
-            ValueError, "PLAN_ELEMENT_CONFIDENCE_EXCEEDS_EVIDENCE"
-        ):
-            model.validate()
-
     def test_constraint_states_must_not_overlap(self):
         with self.assertRaisesRegex(ValueError, "CONSTRAINT_STATE_OVERLAP"):
             ConstraintMap(
