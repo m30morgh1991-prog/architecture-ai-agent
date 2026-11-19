@@ -1,7 +1,8 @@
-"""Execution-scoped idempotency guard bound to a canonical request fingerprint.
+"""Execution-scoped idempotency state bound to a canonical request fingerprint.
 
-Completed executions may be replayed only for the exact same request payload.
-Reusing a key with a different payload is a conflict and remains fail-closed.
+A key can hold an in-progress or terminal result. Replays require the exact same
+fingerprint; a different payload remains a conflict. Completion queries must not
+treat a RUNNING workflow decision as terminal.
 """
 from __future__ import annotations
 
@@ -52,7 +53,16 @@ class IdempotencyGuard:
         return result
 
     def has_completed(self, key: str) -> bool:
-        return key in self._completed
+        entry = self._completed.get(key)
+        if entry is None:
+            return False
+        result = entry[1]
+        state = getattr(result, "state", None)
+        if isinstance(result, dict):
+            state = result.get("state", state)
+            if state is None:
+                state = result.get("status")
+        return state != "RUNNING"
 
     def clear(self, key: str) -> None:
         self._completed.pop(key, None)
