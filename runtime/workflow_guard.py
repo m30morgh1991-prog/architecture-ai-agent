@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 from .audit import AuditTrail
 from .error_policy import classify
@@ -30,6 +30,12 @@ class WorkflowGuard:
         return decision
 
     def finish(self, execution_id: str, key: str, failure_code: str | None = None) -> WorkflowDecision:
+        current = self.idempotency.check(key, execution_id)
+        if current is None:
+            raise ValueError("WORKFLOW_NOT_STARTED")
+        if current.state != "RUNNING":
+            return current
+
         if failure_code:
             state = "BLOCKED" if classify(failure_code) == "BLOCKING" else "FAILED"
             decision = WorkflowDecision("REJECT" if state == "BLOCKED" else "NEEDS_REVISION", state, failure_code)
@@ -50,7 +56,7 @@ class WorkflowGuard:
             {"state": decision.state, "failure_code": failure_code},
         )
 
-        self.idempotency.store(key, execution_id, decision)
+        self.idempotency.replace(key, execution_id, decision)
         return decision
 
     def trace(self, execution_id: str) -> list[Any]:
