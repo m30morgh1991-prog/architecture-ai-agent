@@ -171,3 +171,25 @@ The reference `docs/knowledge/uas1_plan_drawing_reading_reference.md` is part of
 These are educational evidence and interpretation rules, not current regulatory authority. They must feed the existing fail-closed evidence model and must not override official regulations or project-approved documents.
 
 The full source PDF is intentionally not redistributed in this public repository. The user-provided PDF remains the source material for study.
+
+## Open-source plan extraction evaluation input — 2026-11-13
+
+The MIT-licensed code repository https://github.com/bbl-dres/plan-extract is recorded as a research/evaluation reference, not a production dependency. It describes extraction of rooms, attributes, walls, openings, stairs and areas from heterogeneous floor plans, using computer-vision and graph-oriented stages.
+
+### Useful evaluation ideas for our existing core
+
+- Evaluate raster, vector-PDF and CAD evidence paths independently; do not blend their confidence or provenance.
+- Score walls, openings, rooms, stairs, symbols and dimensions independently rather than relying on one opaque plan score.
+- Measure graph/topology validity and connectivity separately from object detection.
+- Record source evidence, candidate facts, confidence/uncertainty and human correction cost.
+- Include adversarial fixtures: touching rooms, wall gaps, overlapping linework, door swing arcs, dimension lines, hatches, low-resolution scans and inconsistent scale/unit cues.
+
+### Boundaries and licensing
+
+- No second canonical graph or replacement PlanModel is introduced.
+- The repository itself describes a research/demo scope; do not treat its outputs as production-grade.
+- Its demo app uses PyMuPDF, whose AGPL-3.0 obligations need separate review before any distribution or server use.
+- Dataset/model terms are independent of repository code. Some referenced floor-plan datasets are non-commercial or have separate restrictions; no data is imported or used for commercial training without artifact-level permission review.
+- Reproduce useful concepts on synthetic fixtures or separately cleared examples only.
+
+This evaluation must extend existing DrawingEvidence → CandidateFact → PlanModel and topology contracts, preserving fail-closed states.
