@@ -1,19 +1,133 @@
 import json
 import hashlib
+from dataclasses import asdict, is_dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
 from .execution_record import ExecutionRecordStore
 from .final_validation import validate_post_edit
-from .controlled_editing_contract import EditPermission, build_controlled_editing_decision
+from .controlled_editing_contract import EDIT_PERMISSION_STATES, EditPermission, build_controlled_editing_decision
 from .approved_change_plan_contract import build_approved_change_plan
 from .audit import AuditTrail
-from .idempotency import IdempotencyGuard
+from .idempotency import IdempotencyConflictError, IdempotencyGuard
+
+
+MAX_REQUEST_BODY_BYTES = 16 * 1024 * 1024
+
+
+def _reject_duplicate_json_keys(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("JSON_DUPLICATE_KEY")
+        result[key] = value
+    return result
+
+
+def _reject_non_finite_json(value):
+    raise ValueError("JSON_NON_FINITE_NUMBER")
+
+
+def validate_execution_payload(body):
+    if not isinstance(body, dict):
+        return "REQUEST_SCHEMA_INVALID"
+
+    required = {
+        "execution_id", "project_id", "input_version_id",
+        "plan_id", "elements", "request",
+    }
+    allowed = required | {"simulated_geometry"}
+    if not required.issubset(body) or not set(body).issubset(allowed):
+        return "REQUEST_SCHEMA_INVALID"
+
+    for field in ("execution_id", "project_id", "input_version_id", "plan_id"):
+        value = body.get(field)
+        if not isinstance(value, str) or not value.strip():
+            return "REQUEST_SCHEMA_INVALID"
+        if len(value) > 256:
+            return "REQUEST_SCHEMA_INVALID"
+
+    elements = body.get("elements")
+    if not isinstance(elements, list):
+        return "REQUEST_SCHEMA_INVALID"
+
+    seen_ids = set()
+    allowed_element_fields = {"element_id", "element_type", "state", "geometry"}
+    for element in elements:
+        if not isinstance(element, dict):
+            return "REQUEST_SCHEMA_INVALID"
+        if not {"element_id", "element_type", "state"}.issubset(element):
+            return "REQUEST_SCHEMA_INVALID"
+        if not set(element).issubset(allowed_element_fields):
+            return "REQUEST_SCHEMA_INVALID"
+        element_id = element.get("element_id")
+        element_type = element.get("element_type")
+        state = element.get("state")
+        if not isinstance(element_id, str) or not element_id.strip() or len(element_id) > 256:
+            return "REQUEST_SCHEMA_INVALID"
+        if element_id in seen_ids:
+            return "REQUEST_SCHEMA_INVALID"
+        seen_ids.add(element_id)
+        if not isinstance(element_type, str) or not element_type.strip():
+            return "REQUEST_SCHEMA_INVALID"
+        if not isinstance(state, str) or state not in EDIT_PERMISSION_STATES:
+            return "REQUEST_SCHEMA_INVALID"
+        if "geometry" in element and not isinstance(element["geometry"], dict):
+            return "REQUEST_SCHEMA_INVALID"
+
+    request = body.get("request")
+    if not isinstance(request, dict):
+        return "REQUEST_SCHEMA_INVALID"
+    if set(request) != {"change_type", "target_ids", "instruction"}:
+        return "REQUEST_SCHEMA_INVALID"
+    if not isinstance(request.get("change_type"), str) or not request["change_type"].strip():
+        return "REQUEST_SCHEMA_INVALID"
+    target_ids = request.get("target_ids")
+    if (
+        not isinstance(target_ids, list)
+        or not target_ids
+        or not all(isinstance(value, str) and value.strip() for value in target_ids)
+        or len(set(target_ids)) != len(target_ids)
+    ):
+        return "REQUEST_SCHEMA_INVALID"
+    if not isinstance(request.get("instruction"), str) or not request["instruction"].strip():
+        return "REQUEST_SCHEMA_INVALID"
+
+    simulated_geometry = body.get("simulated_geometry")
+    if simulated_geometry is not None:
+        if not isinstance(simulated_geometry, dict):
+            return "REQUEST_SCHEMA_INVALID"
+        if not all(
+            isinstance(key, str) and key.strip() and isinstance(value, dict)
+            for key, value in simulated_geometry.items()
+        ):
+            return "REQUEST_SCHEMA_INVALID"
+
+    return None
 
 
 execution_records = ExecutionRecordStore()
 audit_trail = AuditTrail()
 idempotency_guard = IdempotencyGuard()
+
+
+def _json_default(value):
+    if is_dataclass(value) and not isinstance(value, type):
+        return asdict(value)
+    raise TypeError(
+        f"Object of type {type(value).__name__} is not JSON serializable"
+    )
+
+
+def fingerprint_request_payload(payload) -> str:
+    canonical = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResult:
@@ -31,10 +145,20 @@ def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResul
 
 def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, execution_id=None):
     audit_id = execution_id or f"local:{plan.plan_id}"
-    audit_trail.record(audit_id, "EXECUTE", "PASS")
+    audit_trail.record(audit_id, "EXECUTE", "STARTED")
     validation = validate_request(plan, request)
     if validation.status != "PASS":
-        return {"status": validation.status, "validation": validation.__dict__}
+        audit_trail.record(
+            audit_id, "EXECUTE", "BLOCKED",
+            {"failure_codes": list(validation.failure_codes)},
+        )
+        return {
+            "status": validation.status,
+            "validation": validation.__dict__,
+            "audit_complete": False,
+            "audit_ok": False,
+            "runtime_ok": False,
+        }
 
     permissions = [
         EditPermission(element_id=e.element_id, state=e.state)
@@ -42,13 +166,21 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
     ]
     controlled = build_controlled_editing_decision(permissions=permissions)
     if not controlled.executable:
+        reasons = controlled.blocking_reasons()
+        audit_trail.record(
+            audit_id, "EXECUTE", "BLOCKED",
+            {"failure_codes": reasons},
+        )
         return {
             "status": "REJECT",
             "validation": {
                 "status": "REJECT",
-                "failure_codes": controlled.blocking_reasons(),
+                "failure_codes": reasons,
                 "messages": ["Controlled editing gate blocked execution"],
             },
+            "audit_complete": False,
+            "audit_ok": False,
+            "runtime_ok": False,
         }
 
     approval = build_approved_change_plan(
@@ -57,6 +189,10 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
         editable_element_ids=[e.element_id for e in plan.elements if e.state == "EDITABLE"],
     )
     if approval.status != "APPROVED":
+        audit_trail.record(
+            audit_id, "EXECUTE", "BLOCKED",
+            {"failure_codes": [approval.reason]},
+        )
         return {
             "status": "REJECT",
             "validation": {
@@ -64,9 +200,13 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
                 "failure_codes": [approval.reason],
                 "messages": ["Approved change plan rejected"],
             },
+            "audit_complete": False,
+            "audit_ok": False,
+            "runtime_ok": False,
         }
 
     approved = ApprovedChangePlan(request, list(approval.approved_target_ids), approval.status)
+    audit_trail.record(audit_id, "EXECUTE", "PASS")
     before = {e.element_id: deepcopy(e.geometry) for e in plan.elements}
     after = deepcopy(before)
 
@@ -120,7 +260,7 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
 
 class Handler(BaseHTTPRequestHandler):
     def _json(self, status, body):
-        payload = json.dumps(body).encode()
+        payload = json.dumps(body, default=_json_default).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(payload)))
@@ -139,13 +279,69 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path != "/v1/execute":
-            self.send_error(404)
-            return
-        length = int(self.headers.get("Content-Length", "0"))
-        body = json.loads(self.rfile.read(length) or b"{}")
+            return self.send_error(404)
+
+
+        # P0 safety boundary retained from PR #171: caller-authored geometry
+        # and EDITABLE states are not canonical execution authority. Keep the
+        # route unavailable before reading any request bytes until the server
+        # owns the source-bound PlanModel, ConstraintMap, and approval chain.
+        return self._json(503, {
+            "error": "CANONICAL_EXECUTION_NOT_CONFIGURED",
+            "status": "BLOCKED",
+            "message": "HTTP execution requires a server-owned, source-bound canonical PlanModel and ConstraintMap.",
+        })
+
+        if self.headers.get_content_type().lower() != "application/json":
+            return self._json(415, {"error": "CONTENT_TYPE_UNSUPPORTED"})
+
+        length_headers = self.headers.get_all("Content-Length", [])
+        if not length_headers:
+            return self._json(411, {"error": "CONTENT_LENGTH_REQUIRED"})
+        if len(length_headers) != 1:
+            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
+
+        raw_length = length_headers[0]
+        if not raw_length.isdigit():
+            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
+        length = int(raw_length)
+        if length <= 0:
+            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
+        if length > MAX_REQUEST_BODY_BYTES:
+            return self._json(413, {"error": "REQUEST_BODY_TOO_LARGE"})
+
+        raw_body = self.rfile.read(length)
+        if len(raw_body) != length:
+            return self._json(400, {"error": "REQUEST_BODY_TRUNCATED"})
+        try:
+            body = json.loads(
+                raw_body.decode("utf-8"),
+                object_pairs_hook=_reject_duplicate_json_keys,
+                parse_constant=_reject_non_finite_json,
+            )
+        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+            return self._json(400, {"error": "JSON_BODY_INVALID"})
+
+        schema_error = validate_execution_payload(body)
+        if schema_error:
+            return self._json(400, {"error": schema_error})
 
         execution_id = body["execution_id"]
-        cached_result = idempotency_guard.check(execution_id)
+        try:
+            request_fingerprint = fingerprint_request_payload(body)
+        except (TypeError, ValueError, UnicodeError):
+            return self._json(400, {"error": "REQUEST_FINGERPRINT_INVALID"})
+
+        try:
+            cached_result = idempotency_guard.check(
+                execution_id, request_fingerprint
+            )
+        except IdempotencyConflictError:
+            return self._json(409, {
+                "error": "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
+                "idempotency_state": "CONFLICT",
+            })
+
         if cached_result is not None:
             try:
                 job = execution_records.public(execution_id)
@@ -177,7 +373,7 @@ class Handler(BaseHTTPRequestHandler):
             "idempotency_ok": True,
             "runtime_ok": result.get("runtime_ok") is True,
         }
-        idempotency_guard.store(execution_id, result)
+        idempotency_guard.store(execution_id, request_fingerprint, result)
 
         if result["status"] == "PASS":
             execution_records.update(
@@ -198,9 +394,10 @@ class Handler(BaseHTTPRequestHandler):
         })
 
 
+
 def main():
-    server = HTTPServer(("0.0.0.0", 8000), Handler)
-    print("Architecture AI Agent runtime listening on :8000")
+    server = HTTPServer(("127.0.0.1", 8000), Handler)
+    print("Architecture AI Agent runtime listening on 127.0.0.1:8000")
     server.serve_forever()
 
 

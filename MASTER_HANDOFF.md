@@ -1,3 +1,19 @@
+## Live checkpoint — 2026-11-20 (PR #173 runtime-chain and idempotency lifecycle hardening)
+
+- Live main SHA remains `2cf784e5307ceaa924f811bc0818b1b211ad267d`. PR #173 is based directly on this mainline; the last ancestry comparison showed 0 commits behind.
+- PR #173 remains OPEN, DRAFT, UNMERGED. Code fixes include: false-PASS audit correction; request-fingerprint idempotency; nested dataclass serialization; request-schema validation; HTTP execution blocked before body consumption; terminal WorkflowGuard replay; rejection of finish-before-begin; and fail-closed completion-state reporting.
+- WorkflowGuard replaces its initial RUNNING decision with the terminal decision under the same execution identity. Repeated begin/finish calls replay the terminal result without duplicate terminal audit events; cross-execution key reuse remains a conflict.
+- IdempotencyGuard.has_completed returns false for RUNNING and UNKNOWN workflow states; only explicit terminal workflow states count as complete. Generic cached results without workflow-state metadata preserve their prior completion behavior.
+- A regression was caught by exact-head Runtime Tests: generic result `{"status":"PASS"}` was incorrectly classified incomplete after adding the explicit workflow-state guard. The fallback was corrected without weakening UNKNOWN/RUNNING handling.
+- Latest code fix commit: `2726d841ffad23e19d42cc7ce68732dffa56ce7b`. Exact-head CI on the immediately preceding SHA `7a494c2a7c42db9ed940f4fc07f015d5f2e9c907` found that one Runtime Tests failure; Bug Hunt passed. The failing assertion was diagnosed from the job log and fixed in the new code commit. All three gates must run successfully on the final current head before merge consideration.
+- PR #173 consolidates intended safe changes from #150, #151, #152, #154, and #171. It is not merged into main. PRs #150, #151, #152, #154, and #171 remain OPEN/DRAFT/UNMERGED and must not be merged independently while consolidated in #173; #153 is CLOSED/MERGED.
+- PR #172 remains OPEN/DRAFT/UNMERGED and stacked on #171. Do not retarget or merge it until #173 has passed final checks and is accepted into mainline; then rebuild #172 on the new main and rerun all required gates.
+- Review state for #173 was empty at the last live check; no reviewer requests were configured. The connected GitHub account is the PR author, so self-approval must not be attempted or represented as independent review. No merge or approval is claimed.
+- Safety: legacy HTTP execution remains BLOCKED with 503 before request-body consumption; client-provided state cannot grant EDITABLE authority. TLS/authentication are not implemented; remote access remains disabled. Windows/AutoCAD host tests remain NOT_RUN unless executed on a real compatible host.
+- Immediate next actions: run Bug Hunt, PR CI, and Runtime Tests on the final updated head; inspect exact SHA and review state; then continue safe dependency cleanup. No new architecture features.
+
+---
+
 ## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
 
 - Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
