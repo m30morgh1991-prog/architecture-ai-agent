@@ -115,3 +115,24 @@ The 1403/05/09 judgment cited above is a caution against automatically importing
 - Documentation/reference-only changes.
 - No runtime code, rule enforcement, geometry semantics, PASS status, H-stage advancement, or automatic compliance authority was changed.
 - Unverified items stay SOURCE_REQUIRED / NEEDS_REVIEW / UNKNOWN.
+
+
+## Addendum — additional Article-99 findings (2026-11-19)
+
+Two more sources were retrieved and read in full-text reproduction:
+
+### Judgment 1403313900001065343 — 1403/05/09
+This judgment annulled only the specified clauses of Ministry of Interior circular 145016 dated 1401/07/19:
+- Clauses 7 and 8: forced demolition deadline/execution procedure.
+- Clause 9: 50–70% fine formula.
+- Clause 10: re-referral for demolition if the fine is unpaid.
+- Clause 14: allocation/expense of collected construction violation fees and fines.
+
+Do not extend this judgment to the entire Article-99 guideline or the statutory commission. Official publication copy remains pending.
+
+### Advisory opinion 7/1403/747 — 1403/10/30
+The opinion states the **date of the construction violation**, not the later/current parcel boundary status, controls jurisdiction when a parcel was outside the city's harem at the time and later became included. In that scenario, Article-99 commission retains jurisdiction for the earlier violation; a violation occurring after entry into the city limits/harem is Article-100.
+
+This is a non-binding advisory opinion, but it is a high-value routing safeguard: preserve violation date, historical boundary/harem evidence, and current boundary separately in the data model. The original signed opinion is still required.
+
+Links: [judgment 1065343](https://amagestate.com/legal/article-99-building-demolition-ruling/), [opinion 7/1403/747](https://hoshyarvakil.ir/opinion/7-1403-747/).
