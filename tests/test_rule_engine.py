@@ -4,7 +4,7 @@ from runtime.change_request_contract import ChangeRequest
 from runtime.impact_analysis import analyze_impact
 from runtime.plan_model_contract import ConstraintMap, PlanElement, PlanModel
 from runtime.rule_context import ProjectRuleContext
-from runtime.rule_engine import ArchitectureRule, evaluate_rules
+from runtime.rule_engine import ArchitectureRule, RuleDecision, RuleEvaluation, evaluate_rules
 
 SOURCE = "a" * 64
 
@@ -89,6 +89,17 @@ class RuleEngineTests(unittest.TestCase):
         plan, cmap, impact = plan_and_impact()
         with self.assertRaises(ValueError):
             evaluate_rules(plan, cmap, impact, self.context(source_ids=[]), [self.rule()])
+
+    def test_direct_rule_pass_cannot_contain_unresolved_decision(self):
+        decision = RuleDecision(
+            "R-DOOR-001", "NEEDS_REVIEW", "nbr-55", "2026", "BINDING",
+            "Rule outcome is not yet evaluated.", ("rule-ev-1",),
+        )
+        result = RuleEvaluation("pm-76", SOURCE, "PASS", (decision,), ())
+        with self.assertRaisesRegex(
+            ValueError, "PASS_CANNOT_INCLUDE_UNRESOLVED_RULE_DECISIONS"
+        ):
+            result.validate()
 
     def test_authority_order_is_deterministic(self):
         plan, cmap, impact = plan_and_impact()
