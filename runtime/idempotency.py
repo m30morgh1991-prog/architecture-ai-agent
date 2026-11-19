@@ -41,6 +41,16 @@ class IdempotencyGuard:
         self._completed[key] = (request_fingerprint, result)
         return result
 
+    def replace(self, key: str, request_fingerprint: str, result):
+        """Update the result for the same key/fingerprint during a lifecycle."""
+        entry = self._completed.get(key)
+        if entry is not None and entry[0] != request_fingerprint:
+            raise IdempotencyConflictError(
+                "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST"
+            )
+        self._completed[key] = (request_fingerprint, result)
+        return result
+
     def has_completed(self, key: str) -> bool:
         return key in self._completed
 
