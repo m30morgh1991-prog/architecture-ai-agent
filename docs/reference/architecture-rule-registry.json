@@ -24,34 +24,445 @@
       "page_count": null,
       "binary_committed": false,
       "verification": "USER_SUPPLIED; OFFICIAL_EDITION_NOT_VERIFIED"
+    },
+    {
+      "source_id": "AR-SRC-004",
+      "title": "ضوابط و مقررات بازنگری طرح تفصیلی شهر شیراز (zavabemogararatbaznegari.pdf)",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "USER_PROVIDED_OFFICIAL_MUNICIPAL_URL; RETRIEVAL_FAILED; CONTENT_NOT_INSPECTED",
+      "url": "https://shaffaf.shiraz.ir/ImageGallery/FileManager/FilesForManager/taTafzil/zavabemogararatbaznegari.pdf"
     }
   ],
   "rules": [
-    {"rule_id":"STAIR_CORE_CLEAR_DIMENSIONS","source_id":"AR-SRC-003","category":"stair","status":"CANDIDATE","severity":"REVIEW","inputs":["stair_core_clear_width_cm","stair_core_clear_length_cm"],"expected":{"width_cm":240,"length_cm":480},"unit":"cm","predicate":"dimensions_at_least","note":"No stairwell eye/void per supplied summary; applicability needs verification."},
-    {"rule_id":"STAIR_RISER_HEIGHT","source_id":"AR-SRC-003","category":"stair","status":"CANDIDATE","severity":"REVIEW","inputs":["stair_riser_cm"],"expected":{"value_cm":17},"unit":"cm","predicate":"equals_reference"},
-    {"rule_id":"STAIR_TREAD_DEPTH","source_id":"AR-SRC-003","category":"stair","status":"CANDIDATE","severity":"REVIEW","inputs":["stair_tread_cm"],"expected":{"value_cm":30},"unit":"cm","predicate":"equals_reference"},
-    {"rule_id":"ELEVATOR_SHAFT_CLEAR","source_id":"AR-SRC-003","category":"elevator","status":"CANDIDATE","severity":"REVIEW","inputs":["elevator_shaft_clear_width_cm","elevator_shaft_clear_length_cm"],"expected":{"width_cm":160,"length_cm":200},"unit":"cm","predicate":"dimensions_at_least"},
-    {"rule_id":"ELEVATOR_LOBBY_CLEAR","source_id":"AR-SRC-003","category":"elevator","status":"CANDIDATE","severity":"REVIEW","inputs":["elevator_lobby_width_cm","elevator_lobby_length_cm"],"expected":{"width_cm":150,"length_cm":150},"unit":"cm","predicate":"dimensions_at_least"},
-    {"rule_id":"CORE_WALL_THICKNESS","source_id":"AR-SRC-003","category":"core","status":"CANDIDATE","severity":"REVIEW","inputs":["core_wall_thickness_cm"],"expected":{"value_cm":20},"unit":"cm","predicate":"minimum"},
-    {"rule_id":"CORE_COUNT_BY_UNITS","source_id":"AR-SRC-003","category":"core","status":"CANDIDATE","severity":"REVIEW","inputs":["residential_units_per_floor"],"expected":{"up_to_4_units":1,"over_4_units_minimum":2},"unit":"cores","predicate":"conditional_count","note":"Stair and elevator count logic requires authority/context verification."},
-    {"rule_id":"LIGHTWELL_MAIN_LOT_LE_200","source_id":"AR-SRC-003","category":"lightwell","status":"CANDIDATE","severity":"REVIEW","inputs":["lot_area_m2","lightwell_area_m2","lightwell_min_dimension_m","served_room_class"],"expected":{"area_ratio":0.06,"min_dimension_m":2},"unit":"m,m2","predicate":"area_and_dimension","condition":"lot_area_m2 <= 200 AND served_room_class == MAIN"},
-    {"rule_id":"LIGHTWELL_SECONDARY_LOT_LE_200","source_id":"AR-SRC-003","category":"lightwell","status":"CANDIDATE","severity":"REVIEW","inputs":["lot_area_m2","lightwell_area_m2","lightwell_min_dimension_m","served_room_class"],"expected":{"area_ratio":0.03,"min_dimension_m":2},"unit":"m,m2","predicate":"area_and_dimension","condition":"lot_area_m2 <= 200 AND served_room_class == SECONDARY"},
-    {"rule_id":"LIGHTWELL_MAIN_LOT_GT_200","source_id":"AR-SRC-003","category":"lightwell","status":"CANDIDATE","severity":"REVIEW","inputs":["lot_area_m2","lightwell_area_m2","lightwell_min_dimension_m","served_room_class"],"expected":{"area_min_m2":12,"min_dimension_m":3},"unit":"m,m2","predicate":"area_and_dimension","condition":"lot_area_m2 > 200 AND served_room_class == MAIN"},
-    {"rule_id":"LIGHTWELL_SECONDARY_LOT_GT_200","source_id":"AR-SRC-003","category":"lightwell","status":"CANDIDATE","severity":"REVIEW","inputs":["lot_area_m2","lightwell_area_m2","lightwell_min_dimension_m","served_room_class"],"expected":{"area_min_m2":6,"min_dimension_m":2},"unit":"m,m2","predicate":"area_and_dimension","condition":"lot_area_m2 > 200 AND served_room_class == SECONDARY"},
-    {"rule_id":"LIGHTWELL_OPPOSING_MAIN_WINDOWS","source_id":"AR-SRC-003","category":"lightwell","status":"CANDIDATE","severity":"REVIEW","inputs":["window_clear_distance_m","window_room_class_a","window_room_class_b"],"expected":{"main_main_min_m":6,"secondary_secondary_min_m":4,"main_secondary_min_m":4},"unit":"m","predicate":"conditional_min_distance"},
-    {"rule_id":"PARKING_SINGLE_BAY","source_id":"AR-SRC-003","category":"parking","status":"CANDIDATE","severity":"REVIEW","inputs":["parking_width_m","parking_length_m"],"expected":{"width_m":2.5,"length_m":5},"unit":"m","predicate":"dimensions_at_least"},
-    {"rule_id":"PARKING_ADJACENT_BAY_OPENING","source_id":"AR-SRC-003","category":"parking","status":"CANDIDATE","severity":"REVIEW","inputs":["bay_count_adjacent","opening_width_m"],"expected":{"1":2.5,"2":4.5,"3":7},"unit":"m","predicate":"lookup_minimum_width"},
-    {"rule_id":"PARKING_MANEUVER","source_id":"AR-SRC-003","category":"parking","status":"CANDIDATE","severity":"REVIEW","inputs":["maneuver_space_m"],"expected":{"value_m":5},"unit":"m","predicate":"minimum"},
-    {"rule_id":"PARKING_ENTRY_WIDTH","source_id":"AR-SRC-003","category":"parking","status":"CANDIDATE","severity":"REVIEW","inputs":["parking_entry_width_m"],"expected":{"value_m":3},"unit":"m","predicate":"minimum"},
-    {"rule_id":"RAMP_WIDTH_STRAIGHT","source_id":"AR-SRC-003","category":"ramp","status":"CANDIDATE","severity":"REVIEW","inputs":["ramp_type","ramp_direction","ramp_width_m"],"expected":{"straight_one_way_m":3,"straight_two_way_m":6},"unit":"m","predicate":"conditional_minimum"},
-    {"rule_id":"RAMP_WIDTH_CURVED","source_id":"AR-SRC-003","category":"ramp","status":"CANDIDATE","severity":"REVIEW","inputs":["ramp_type","ramp_direction","ramp_width_m"],"expected":{"curved_one_way_m":3.65,"curved_two_way_m":7},"unit":"m","predicate":"conditional_minimum"},
-    {"rule_id":"RAMP_SLOPE","source_id":"AR-SRC-003","category":"ramp","status":"CANDIDATE","severity":"REVIEW","inputs":["ramp_slope_percent"],"expected":{"max_percent":15},"unit":"percent","predicate":"maximum"},
-    {"rule_id":"WINDOW_AREA_RATIO","source_id":"AR-SRC-003","category":"daylight","status":"CANDIDATE","severity":"REVIEW","inputs":["room_area_m2","window_area_m2"],"expected":{"ratio_min":0.2},"unit":"ratio","predicate":"area_ratio_min","note":"User wording supplied as one fifth; applicability needs confirmation."},
-    {"rule_id":"COURTYARD_WIDTH","source_id":"AR-SRC-003","category":"courtyard","status":"CANDIDATE","severity":"REVIEW","inputs":["courtyard_continuous","courtyard_width_m"],"expected":{"continuous_min_m":2,"noncontinuous_min_m":3},"unit":"m","predicate":"conditional_minimum"},
-    {"rule_id":"BALCONY_STREET_PROJECTION","source_id":"AR-SRC-003","category":"projection","status":"CANDIDATE","severity":"REVIEW","inputs":["street_width_m","projection_depth_m","projection_clear_height_m"],"expected":{"street_12_to_20_projection_m":1.2,"street_over_20_projection_m":1.5,"clear_height_min_m":3.5},"unit":"m","predicate":"conditional_projection"},
-    {"rule_id":"KITCHEN_BEDROOM_MIN_WIDTH","source_id":"AR-SRC-003","category":"room","status":"CANDIDATE","severity":"REVIEW","inputs":["room_type","room_clear_width_m"],"expected":{"min_width_m":2.5},"unit":"m","predicate":"conditional_minimum"},
-    {"rule_id":"LIVING_MIN_WIDTH","source_id":"AR-SRC-003","category":"room","status":"CANDIDATE","severity":"REVIEW","inputs":["living_clear_width_m"],"expected":{"min_width_m":3},"unit":"m","predicate":"minimum"},
-    {"rule_id":"LANDING_MIN_WIDTH","source_id":"AR-SRC-003","category":"stair","status":"CANDIDATE","severity":"REVIEW","inputs":["landing_clear_width_m"],"expected":{"min_width_m":1.2},"unit":"m","predicate":"minimum"}
+    {
+      "rule_id": "STAIR_CORE_CLEAR_DIMENSIONS",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "stair_core_clear_width_cm",
+        "stair_core_clear_length_cm"
+      ],
+      "expected": {
+        "width_cm": 240,
+        "length_cm": 480
+      },
+      "unit": "cm",
+      "predicate": "dimensions_at_least",
+      "note": "No stairwell eye/void per supplied summary; applicability needs verification."
+    },
+    {
+      "rule_id": "STAIR_RISER_HEIGHT",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "stair_riser_cm"
+      ],
+      "expected": {
+        "value_cm": 17
+      },
+      "unit": "cm",
+      "predicate": "equals_reference"
+    },
+    {
+      "rule_id": "STAIR_TREAD_DEPTH",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "stair_tread_cm"
+      ],
+      "expected": {
+        "value_cm": 30
+      },
+      "unit": "cm",
+      "predicate": "equals_reference"
+    },
+    {
+      "rule_id": "ELEVATOR_SHAFT_CLEAR",
+      "source_id": "AR-SRC-003",
+      "category": "elevator",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "elevator_shaft_clear_width_cm",
+        "elevator_shaft_clear_length_cm"
+      ],
+      "expected": {
+        "width_cm": 160,
+        "length_cm": 200
+      },
+      "unit": "cm",
+      "predicate": "dimensions_at_least"
+    },
+    {
+      "rule_id": "ELEVATOR_LOBBY_CLEAR",
+      "source_id": "AR-SRC-003",
+      "category": "elevator",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "elevator_lobby_width_cm",
+        "elevator_lobby_length_cm"
+      ],
+      "expected": {
+        "width_cm": 150,
+        "length_cm": 150
+      },
+      "unit": "cm",
+      "predicate": "dimensions_at_least"
+    },
+    {
+      "rule_id": "CORE_WALL_THICKNESS",
+      "source_id": "AR-SRC-003",
+      "category": "core",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "core_wall_thickness_cm"
+      ],
+      "expected": {
+        "value_cm": 20
+      },
+      "unit": "cm",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "CORE_COUNT_BY_UNITS",
+      "source_id": "AR-SRC-003",
+      "category": "core",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "residential_units_per_floor"
+      ],
+      "expected": {
+        "up_to_4_units": 1,
+        "over_4_units_minimum": 2
+      },
+      "unit": "cores",
+      "predicate": "conditional_count",
+      "note": "Stair and elevator count logic requires authority/context verification."
+    },
+    {
+      "rule_id": "LIGHTWELL_MAIN_LOT_LE_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_ratio": 0.06,
+        "min_dimension_m": 2
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 <= 200 AND served_room_class == MAIN"
+    },
+    {
+      "rule_id": "LIGHTWELL_SECONDARY_LOT_LE_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_ratio": 0.03,
+        "min_dimension_m": 2
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 <= 200 AND served_room_class == SECONDARY"
+    },
+    {
+      "rule_id": "LIGHTWELL_MAIN_LOT_GT_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_min_m2": 12,
+        "min_dimension_m": 3
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 > 200 AND served_room_class == MAIN"
+    },
+    {
+      "rule_id": "LIGHTWELL_SECONDARY_LOT_GT_200",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "lot_area_m2",
+        "lightwell_area_m2",
+        "lightwell_min_dimension_m",
+        "served_room_class"
+      ],
+      "expected": {
+        "area_min_m2": 6,
+        "min_dimension_m": 2
+      },
+      "unit": "m,m2",
+      "predicate": "area_and_dimension",
+      "condition": "lot_area_m2 > 200 AND served_room_class == SECONDARY"
+    },
+    {
+      "rule_id": "LIGHTWELL_OPPOSING_MAIN_WINDOWS",
+      "source_id": "AR-SRC-003",
+      "category": "lightwell",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "window_clear_distance_m",
+        "window_room_class_a",
+        "window_room_class_b"
+      ],
+      "expected": {
+        "main_main_min_m": 6,
+        "secondary_secondary_min_m": 4,
+        "main_secondary_min_m": 4
+      },
+      "unit": "m",
+      "predicate": "conditional_min_distance"
+    },
+    {
+      "rule_id": "PARKING_SINGLE_BAY",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "parking_width_m",
+        "parking_length_m"
+      ],
+      "expected": {
+        "width_m": 2.5,
+        "length_m": 5
+      },
+      "unit": "m",
+      "predicate": "dimensions_at_least"
+    },
+    {
+      "rule_id": "PARKING_ADJACENT_BAY_OPENING",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "bay_count_adjacent",
+        "opening_width_m"
+      ],
+      "expected": {
+        "1": 2.5,
+        "2": 4.5,
+        "3": 7
+      },
+      "unit": "m",
+      "predicate": "lookup_minimum_width"
+    },
+    {
+      "rule_id": "PARKING_MANEUVER",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "maneuver_space_m"
+      ],
+      "expected": {
+        "value_m": 5
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "PARKING_ENTRY_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "parking",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "parking_entry_width_m"
+      ],
+      "expected": {
+        "value_m": 3
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "RAMP_WIDTH_STRAIGHT",
+      "source_id": "AR-SRC-003",
+      "category": "ramp",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "ramp_type",
+        "ramp_direction",
+        "ramp_width_m"
+      ],
+      "expected": {
+        "straight_one_way_m": 3,
+        "straight_two_way_m": 6
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "RAMP_WIDTH_CURVED",
+      "source_id": "AR-SRC-003",
+      "category": "ramp",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "ramp_type",
+        "ramp_direction",
+        "ramp_width_m"
+      ],
+      "expected": {
+        "curved_one_way_m": 3.65,
+        "curved_two_way_m": 7
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "RAMP_SLOPE",
+      "source_id": "AR-SRC-003",
+      "category": "ramp",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "ramp_slope_percent"
+      ],
+      "expected": {
+        "max_percent": 15
+      },
+      "unit": "percent",
+      "predicate": "maximum"
+    },
+    {
+      "rule_id": "WINDOW_AREA_RATIO",
+      "source_id": "AR-SRC-003",
+      "category": "daylight",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "room_area_m2",
+        "window_area_m2"
+      ],
+      "expected": {
+        "ratio_min": 0.2
+      },
+      "unit": "ratio",
+      "predicate": "area_ratio_min",
+      "note": "User wording supplied as one fifth; applicability needs confirmation."
+    },
+    {
+      "rule_id": "COURTYARD_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "courtyard",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "courtyard_continuous",
+        "courtyard_width_m"
+      ],
+      "expected": {
+        "continuous_min_m": 2,
+        "noncontinuous_min_m": 3
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "BALCONY_STREET_PROJECTION",
+      "source_id": "AR-SRC-003",
+      "category": "projection",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "street_width_m",
+        "projection_depth_m",
+        "projection_clear_height_m"
+      ],
+      "expected": {
+        "street_12_to_20_projection_m": 1.2,
+        "street_over_20_projection_m": 1.5,
+        "clear_height_min_m": 3.5
+      },
+      "unit": "m",
+      "predicate": "conditional_projection"
+    },
+    {
+      "rule_id": "KITCHEN_BEDROOM_MIN_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "room",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "room_type",
+        "room_clear_width_m"
+      ],
+      "expected": {
+        "min_width_m": 2.5
+      },
+      "unit": "m",
+      "predicate": "conditional_minimum"
+    },
+    {
+      "rule_id": "LIVING_MIN_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "room",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "living_clear_width_m"
+      ],
+      "expected": {
+        "min_width_m": 3
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    },
+    {
+      "rule_id": "LANDING_MIN_WIDTH",
+      "source_id": "AR-SRC-003",
+      "category": "stair",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "landing_clear_width_m"
+      ],
+      "expected": {
+        "min_width_m": 1.2
+      },
+      "unit": "m",
+      "predicate": "minimum"
+    }
   ],
   "limitations": [
     "Registry values are not official legal compliance assertions.",
