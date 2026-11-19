@@ -53,3 +53,34 @@ Links discovered:
 - Advisory opinion 7/1404/681: https://www.hoshyarvakil.ir/opinion/7-1404-681/
 
 Register policy: These are research leads and reproductions, not a substitute for official Gazette/judiciary artifacts. Keep each clause's status independent. Clause 3 is ANNULLED; clause 11 was NOT ANNULLED by the located judgment; remaining circular clauses are UNKNOWN pending review. Article 99 jurisdiction must be separately determined from parcel location.
+
+
+## Regulatory watch update — 2026-11-19 (baseline)
+
+The prior report for this monitoring series was not available, so this is the initial baseline, not a change comparison.
+
+### Correction to AR-SRC-007
+The previously recorded interpretation of the docket number as a ruling dated 1405/03/05 is not supported. The secondary page currently displays **1406/03/05**, which is future-dated relative to 1405/08/28, and the docket-year prefix does not match the displayed date. Treat the result as **UNVERIFIED / UNKNOWN**; it cannot establish whether circular clause 11 was annulled or upheld. Do not delete the historic record; this correction supersedes its legal-status note.
+
+### New source entries
+| ID | Document | Status | Verification / level | Notes |
+|---|---|---|---|---|
+| AR-SRC-010 | General Board judgment No. 1404313900001295686, 1404/05/28 | EFFECTIVE for similar cases | COURT_PRIMARY text reproduced; official copy pending | Change of use is distinguished from building/extra area; Art.100 fine is not a standalone change-of-use sanction; Art.5 land-use-change authority. |
+| AR-SRC-011 | Advisory opinion 7/1405/261, 1405/06/22 | ANNOUNCED | OFFICIAL_SECONDARY reproduction; signed primary copy SOURCE_REQUIRED | Final demolition decisions; execution limits and no enlargement of demolition footprint. |
+| AR-SRC-012 | Advisory opinion 7/1405/231, 1405/06/15 | ANNOUNCED | OFFICIAL_SECONDARY reproduction; signed primary copy SOURCE_REQUIRED | Art.100 does not decide subdivision; only separately unpermitted construction operations. |
+| AR-SRC-013 | Topic 24 national building regulation, first edition 1404; notification 1404/07/27 | NOTIFIED; EFFECTIVE by six-month clause as of this report; exact day UNKNOWN | OFFICIAL_SECONDARY host, primary text reproduced | Height/density/coverage/floor area/massing/placement/adjacency/cityscape; source PDF hash not obtained. |
+| AR-SRC-014 | Fars Article-5 residential floor-height change to 350 cm; press 1405/08/17 | ANNOUNCED; legal effect UNKNOWN | PRESS_LEAD | Resolution and applicability details missing. |
+| AR-SRC-015 | Unified historic Shiraz protection/development plan; reported registration 1404/12/01 | ANNOUNCED; plan/maps SOURCE_REQUIRED | PRESS_LEAD | Actual plan, official catalogue record and map attachments not retrieved. |
+| AR-SRC-016 | General Board judgment No. 1403313900001065297, 1403/05/09 (Art.99) | EFFECTIVE in the case; holding not to be generalized | COURT_PRIMARY text reproduced; official copy pending | Art.99 outside city harem; do not import Art.100 three-principle demolition test automatically. |
+
+### Links
+- Topic 24 PDF copy: https://qsce.ir/uploads/%D9%85%D8%A8%D8%AD%D8%AB%20%D8%A8%DB%8C%D8%B3%D8%AA%20%D9%88%20%DA%86%D9%87%D8%A7%D8%B1%D9%85%20%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA%20%D9%85%D9%84%D9%8A.pdf
+- Fars 350-cm height press lead (Tasnim): https://newsmedia.tasnimnews.ir/fa/news/1405/08/17/3743048/%D9%85%D8%AC%D9%88%D8%B2-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%85%D8%A7%D8%AF%D9%87-5-%D8%A8%D8%B1%D8%A7%DB%8C-%D8%A7%D9%81%D8%B2%D8%A7%DB%8C%D8%B4-%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%B7%D8%A8%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%DA%A9%D9%88%D9%86%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%AA%D8%A7-3-5-%D9%85%D8%AA%D8%B1
+- Fars 350-cm height press lead (Mehr): https://mehrnews.com/x3dycs
+- Judgment 1295686: https://hoghogh.ai/case-law/%D8%B1%D8%A7%DB%8C-%D9%88%D8%AD%D8%AF%D8%AA-%D8%B1%D9%88%DB%8C%D9%87-%D9%87%DB%8C%D8%A7%D8%AA-%D8%B9%D9%85%D9%88%D9%85%DB%8C-%D8%AF%DB%8C%D9%88%D8%A7%D9%86-%D8%B9%D8%AF%D8%A7%D9%84%D8%AA-%D8%A7%D8%AF%D8%A7%D8%B1%DB%8C-%D8%AF%D8%B1%D8%A8%D8%A7%D8%B1%D9%87-%D8%AA%DA%A9%D9%84%DB%8C%D9%81-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-%DB%B1%DB%B0%DB%B0-%D8%AF%D8%B1
+- Opinion 7/1405/261: https://telegram.me/s/vvakil?before=31018
+- Opinion 7/1405/231: https://tg.me/hoghoogh_amlaak/4061
+- Article-99 judgment 1065297: https://hoghogh.ai/case-law/%D8%A7%D8%B9%D9%84%D8%A7%D9%85-%D8%AA%D8%B9%D8%A7%D8%B1%D8%B6-%D8%A8%DB%8C%D9%86-%D8%B1%D8%A7%DB%8C-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%DB%B1%DB%B4%DB%B0%DB%B2%DB%B3%DB%B1%DB%B3%DB%B9%DB%B0%DB%B0%DB%B0%DB%B3%DB%B8%DB%B0%DB%B6%DB%B3%DB%B3-%D9%85%D9%88%D8%B1%D8%AE-%DB%B1%DB%B4%DB%B0%DB%B2-%DB%B2-%DB%B1%DB%B9-%D8%B5%D8%A7%D8%AF%D8%B1%D9%87-%D8%A7%D8%B2-140331390001065297
+- Historic Shiraz plan report: https://www.tasnimnews.ir/fa/news/1404/12/01/3521507/%D8%B7%D8%B1%D8%AD-%D8%B6%D9%88%D8%A7%D8%A8%D8%B7-%DB%8C%DA%A9%D9%BE%D8%A7%D8%B1%DA%86%D9%87-%D8%A8%D8%A7%D9%81%D8%AA-%D8%AA%D8%A7%D8%B1%DB%8C%D8%AE%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%AF%D8%B1-%D8%A7%D8%B3%D9%86%D8%A7%D8%AF-%D9%85%D9%84%DB%8C-%D8%AB%D8%A8%D8%AA-%D8%B4%D8%AF
+
+Official-source retrieval failures remain logged; none of the above press leads or secondary copies are promoted to executable rules.
