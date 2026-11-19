@@ -18,7 +18,7 @@ from ezdxf import DXFError
 from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
-COMPARATOR_VERSION = "0.3.0"
+COMPARATOR_VERSION = "0.4.0"
 
 
 @dataclass(frozen=True)
@@ -288,6 +288,9 @@ class DxfComparator:
                 return None
             return (
                 layer, dxf.name, cls._vector(dxf.insert, tolerance),
+                # INSERT coordinates are OCS-based; extrusion changes the
+                # orientation of the block reference and must be compared.
+                cls._vector(dxf.get("extrusion", (0, 0, 1)), tolerance),
                 cls._quantize(dxf.get("xscale", 1), tolerance),
                 cls._quantize(dxf.get("yscale", 1), tolerance),
                 cls._quantize(dxf.get("zscale", 1), tolerance),
