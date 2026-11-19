@@ -137,9 +137,27 @@
       "title": "دادنامه هیأت عمومی شماره 1403313900001065297 مورخ 1403/05/09 — صلاحیت کمیسیون ماده 99",
       "page_count": null,
       "binary_committed": false,
-      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING; DIRECT_URL_ACCESS_UNVERIFIED",
       "url": "https://hoghogh.ai/case-law/اعلام-تعارض-بین-رای-شماره-۱۴۰۲۳۱۳۹۰۰۰۰۳۸۰۶۳۳-مورخ-۱۴۰۲-۲-۱۹-صادره-از",
-      "notes": "Outside-city-harem Article 99 jurisdiction; holding limits importing Article 100 technical/urban/health demolition rationale. Read narrowly."
+      "notes": "Outside-city-harem Article 99 jurisdiction; holding limits importing Article 100 technical/urban/health demolition rationale. Read narrowly; direct source URL did not open in this run."
+    },
+    {
+      "source_id": "AR-SRC-017",
+      "title": "دادنامه هیأت عمومی شماره 1403313900001065343 مورخ 1403/05/09 — ابطال بندهای 7، 8، 9، 10 و 14 دستورالعمل 145016 ماده 99",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://amagestate.com/legal/article-99-building-demolition-ruling/",
+      "notes": "Only listed clauses annulled in specified respects; do not generalize to entire Article 99 guideline or statute."
+    },
+    {
+      "source_id": "AR-SRC-018",
+      "title": "نظریه مشورتی 7/1403/747 مورخ 1403/10/30 — صلاحیت ماده 99/100 بر اساس تاریخ تخلف",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY_REPRODUCTION; SIGNED_PRIMARY_COPY_PENDING",
+      "url": "https://hoshyarvakil.ir/opinion/7-1403-747/",
+      "notes": "Non-binding advisory opinion: jurisdiction follows parcel status at violation date in the described later-boundary-entry scenario."
     }
   ],
   "rules": [
@@ -643,6 +661,48 @@
       "unit": "cm",
       "predicate": "candidate_maximum",
       "note": "Press lead only. Do not check PASS/FAIL until original Article-5 resolution, scope, measurement definition, notification and effective date are verified."
+    },
+    {
+      "rule_id": "ART99_ART100_JURISDICTION_BY_VIOLATION_DATE",
+      "source_id": "AR-SRC-018",
+      "category": "jurisdiction",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "violation_date",
+        "historic_city_limit_status",
+        "historic_city_harem_status",
+        "current_city_limit_status"
+      ],
+      "expected": {
+        "route_by_violation_date": true
+      },
+      "unit": "date_and_boundary_evidence",
+      "predicate": "candidate_jurisdiction_routing",
+      "note": "Advisory opinion 7/1403/747 reproduction. Non-binding; requires official historic map and violation-date evidence. Never emit jurisdiction PASS from current boundary alone."
+    },
+    {
+      "rule_id": "ART99_CIRCULAR_145016_PARTIAL_ANNULMENT",
+      "source_id": "AR-SRC-017",
+      "category": "legal_enforcement",
+      "status": "CANDIDATE",
+      "severity": "REVIEW",
+      "inputs": [
+        "article99_guideline_clause_number",
+        "guideline_145016_date"
+      ],
+      "expected": {
+        "annulled_clauses": [
+          7,
+          8,
+          9,
+          10,
+          14
+        ]
+      },
+      "unit": "clause_number",
+      "predicate": "candidate_clause_status",
+      "note": "Judgment 1065343 reproduction; only the specified clauses annulled in stated respects. Official copy pending; don't mark entire guideline annulled."
     }
   ],
   "limitations": [
