@@ -5,6 +5,7 @@ fidelity, and unsupported entity types keep the result incomplete.
 """
 from __future__ import annotations
 
+import hashlib
 import math
 from collections import Counter
 from dataclasses import asdict, dataclass, field
@@ -25,6 +26,9 @@ class DxfComparisonReport:
     geometry_comparison_status: str
     fidelity_status: str
     requires_review: bool
+    source_sha256: str | None = None
+    candidate_sha256: str | None = None
+    ezdxf_version: str | None = None
     source_entity_counts: dict[str, int] = field(default_factory=dict)
     candidate_entity_counts: dict[str, int] = field(default_factory=dict)
     source_layers: list[str] = field(default_factory=list)
@@ -76,7 +80,12 @@ class DxfComparator:
             except OSError:
                 return self._failure(source, candidate, "SOURCE_UNREADABLE", "An input DXF file cannot be inspected.")
 
+        source_sha256: str | None = None
+        candidate_sha256: str | None = None
+        ezdxf_version = getattr(ezdxf, "__version__", None)
         try:
+            source_sha256 = cls_sha256_file(source)
+            candidate_sha256 = cls_sha256_file(candidate)
             source_doc = ezdxf.readfile(source)
             candidate_doc = ezdxf.readfile(candidate)
         except (OSError, DXFError, UnicodeError, ValueError) as exc:
@@ -85,6 +94,9 @@ class DxfComparator:
                 candidate,
                 "DXF_PARSE_FAILED",
                 f"At least one DXF could not be parsed ({type(exc).__name__}).",
+                source_sha256=source_sha256,
+                candidate_sha256=candidate_sha256,
+                ezdxf_version=ezdxf_version,
             )
 
         source_entities, source_blocks, source_block_inventory, source_unsupported = self._collect(source_doc, tolerance)
@@ -142,6 +154,9 @@ class DxfComparator:
         return DxfComparisonReport(
             source_path=str(source),
             candidate_path=str(candidate),
+            source_sha256=source_sha256,
+            candidate_sha256=candidate_sha256,
+            ezdxf_version=ezdxf_version,
             comparison_status=status,
             geometry_comparison_status=geometry_status,
             fidelity_status="UNKNOWN",
@@ -327,7 +342,16 @@ class DxfComparator:
             return None
 
     @staticmethod
-    def _failure(source: Path, candidate: Path, code: str, message: str) -> DxfComparisonReport:
+    def _failure(
+        source: Path,
+        candidate: Path,
+        code: str,
+        message: str,
+        *,
+        source_sha256: str | None = None,
+        candidate_sha256: str | None = None,
+        ezdxf_version: str | None = None,
+    ) -> DxfComparisonReport:
         return DxfComparisonReport(
             source_path=str(source),
             candidate_path=str(candidate),
@@ -335,9 +359,21 @@ class DxfComparator:
             geometry_comparison_status="NOT_RUN",
             fidelity_status="UNKNOWN",
             requires_review=True,
+            source_sha256=source_sha256,
+            candidate_sha256=candidate_sha256,
+            ezdxf_version=ezdxf_version,
             error_code=code,
             error_message=message,
         )
+
+
+def cls_sha256_file(path: Path) -> str:
+    """Hash a DXF in bounded chunks so comparison reports identify exact inputs."""
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def compare_dxf_files(
