@@ -77,10 +77,18 @@ class PlanModel:
             self.element_evidence.validate()
             if self.element_evidence.source_sha256 != self.source_sha256:
                 raise ValueError("ELEMENT_EVIDENCE_SOURCE_MISMATCH")
-            evidence_ids = {item.evidence_id for item in self.element_evidence.evidences}
+            evidence_by_id = {
+                item.evidence_id: item for item in self.element_evidence.evidences
+            }
             for element in self.elements:
-                if not set(element.evidence_ids).issubset(evidence_ids):
+                missing_ids = set(element.evidence_ids) - set(evidence_by_id)
+                if missing_ids:
                     raise ValueError("PLAN_ELEMENT_EVIDENCE_REFERENCE_MISSING")
+                if any(
+                    evidence_by_id[evidence_id].element_type != element.element_type
+                    for evidence_id in set(element.evidence_ids)
+                ):
+                    raise ValueError("PLAN_ELEMENT_EVIDENCE_TYPE_MISMATCH")
 
         if self.drawing_evidence is not None:
             self.drawing_evidence.validate()

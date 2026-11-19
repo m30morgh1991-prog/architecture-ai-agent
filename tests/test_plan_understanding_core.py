@@ -39,6 +39,36 @@ class PlanUnderstandingCoreTests(unittest.TestCase):
         self.assertIn("COLUMNS", result.constraint_map.unknown_element_ids)
         result.validate()
 
+    def test_empty_detection_returns_unknown_without_crashing(self):
+        class _EmptyDetector:
+            def detect(self, source_path, source_sha256):
+                return {
+                    "status": "UNKNOWN",
+                    "source_sha256": source_sha256,
+                    "candidates": [],
+                    "unresolved_fixed_element_types": [
+                        "COLUMNS", "OUTER_BOUNDARY", "WALLS",
+                        "DOORS", "WINDOWS", "OVERALL_PLAN_FORM",
+                    ],
+                }
+
+        source = "c" * 64
+        result = PlanUnderstandingCore(detector=_EmptyDetector()).understand(
+            source_path="empty-evidence.dwg",
+            source_sha256=source,
+            model_id="pm-empty",
+        )
+
+        self.assertEqual(result.status, "UNKNOWN")
+        self.assertEqual(result.plan_model.elements, ())
+        self.assertEqual(len(result.plan_model.element_evidence.evidences), 6)
+        self.assertTrue(result.constraint_map.evidence_ids)
+        self.assertEqual(
+            set(result.constraint_map.unknown_element_ids),
+            {"COLUMNS", "OUTER_BOUNDARY", "WALLS", "DOORS", "WINDOWS", "OVERALL_PLAN_FORM"},
+        )
+        result.validate()
+
     def test_unknown_evidence_never_becomes_locked(self):
         source = "b" * 64
         result = PlanUnderstandingCore(detector=_Detector()).understand(
