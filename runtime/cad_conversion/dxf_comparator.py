@@ -18,6 +18,9 @@ from ezdxf import DXFError
 from .dxf_advanced import advanced_entity_signature, insert_attributes_signature, presentation_signature
 
 
+COMPARATOR_VERSION = "0.3.0"
+
+
 @dataclass(frozen=True)
 class DxfComparisonReport:
     source_path: str
@@ -29,10 +32,13 @@ class DxfComparisonReport:
     source_sha256: str | None = None
     candidate_sha256: str | None = None
     ezdxf_version: str | None = None
+    comparator_version: str = COMPARATOR_VERSION
     source_entity_counts: dict[str, int] = field(default_factory=dict)
     candidate_entity_counts: dict[str, int] = field(default_factory=dict)
     source_layers: list[str] = field(default_factory=list)
     candidate_layers: list[str] = field(default_factory=list)
+    source_layer_properties: dict[str, dict[str, Any]] = field(default_factory=dict)
+    candidate_layer_properties: dict[str, dict[str, Any]] = field(default_factory=dict)
     source_blocks: list[str] = field(default_factory=list)
     candidate_blocks: list[str] = field(default_factory=list)
     source_block_entity_counts: dict[str, int] = field(default_factory=dict)
@@ -80,12 +86,10 @@ class DxfComparator:
             except OSError:
                 return self._failure(source, candidate, "SOURCE_UNREADABLE", "An input DXF file cannot be inspected.")
 
-        source_sha256: str | None = None
-        candidate_sha256: str | None = None
-        ezdxf_version = getattr(ezdxf, "__version__", None)
         try:
             source_sha256 = cls_sha256_file(source)
             candidate_sha256 = cls_sha256_file(candidate)
+            ezdxf_version = getattr(ezdxf, "__version__", None)
             source_doc = ezdxf.readfile(source)
             candidate_doc = ezdxf.readfile(candidate)
         except (OSError, DXFError, UnicodeError, ValueError) as exc:
@@ -94,9 +98,6 @@ class DxfComparator:
                 candidate,
                 "DXF_PARSE_FAILED",
                 f"At least one DXF could not be parsed ({type(exc).__name__}).",
-                source_sha256=source_sha256,
-                candidate_sha256=candidate_sha256,
-                ezdxf_version=ezdxf_version,
             )
 
         source_entities, source_blocks, source_block_inventory, source_unsupported = self._collect(source_doc, tolerance)
@@ -109,6 +110,8 @@ class DxfComparator:
         candidate_counts = self._layout_counts(candidate_doc)
         source_layers = sorted(layer.dxf.name for layer in source_doc.layers)
         candidate_layers = sorted(layer.dxf.name for layer in candidate_doc.layers)
+        source_layer_properties = self._layer_properties(source_doc)
+        candidate_layer_properties = self._layer_properties(candidate_doc)
         source_block_names = self._user_block_names(source_doc)
         candidate_block_names = self._user_block_names(candidate_doc)
         source_layouts = sorted(layout.name for layout in source_doc.layouts)
@@ -122,6 +125,7 @@ class DxfComparator:
         comparisons = (
             ("entity_counts", source_counts, candidate_counts),
             ("layers", source_layers, candidate_layers),
+            ("layer_properties", source_layer_properties, candidate_layer_properties),
             ("blocks", source_block_names, candidate_block_names),
             ("block_entity_counts", self._serialize_block_inventory(source_block_inventory), self._serialize_block_inventory(candidate_block_inventory)),
             ("layouts", source_layouts, candidate_layouts),
@@ -165,6 +169,8 @@ class DxfComparator:
             candidate_entity_counts=candidate_counts,
             source_layers=source_layers,
             candidate_layers=candidate_layers,
+            source_layer_properties=source_layer_properties,
+            candidate_layer_properties=candidate_layer_properties,
             source_blocks=source_block_names,
             candidate_blocks=candidate_block_names,
             source_layouts=source_layouts,
@@ -330,6 +336,23 @@ class DxfComparator:
         return dict(sorted(counts.items()))
 
     @staticmethod
+    def _layer_properties(document: Any) -> dict[str, dict[str, Any]]:
+        """Return stable, JSON-safe layer table properties relevant to plotting."""
+        properties: dict[str, dict[str, Any]] = {}
+        for layer in document.layers:
+            dxf = layer.dxf
+            name = str(dxf.name)
+            properties[name] = {
+                "flags": int(dxf.get("flags", 0) or 0),
+                "linetype": str(dxf.get("linetype", "CONTINUOUS") or "CONTINUOUS"),
+                "color": int(dxf.get("color", 7) or 0),
+                "lineweight": int(dxf.get("lineweight", -1) if dxf.get("lineweight", -1) is not None else -1),
+                "plot": bool(dxf.get("plot", 1)),
+                "plotstyle_handle": dxf.get("plotstyle_handle"),
+            }
+        return dict(sorted(properties.items()))
+
+    @staticmethod
     def _user_block_names(document: Any) -> list[str]:
         return sorted(block.name for block in document.blocks if not getattr(block, "is_any_layout", False))
 
@@ -342,16 +365,7 @@ class DxfComparator:
             return None
 
     @staticmethod
-    def _failure(
-        source: Path,
-        candidate: Path,
-        code: str,
-        message: str,
-        *,
-        source_sha256: str | None = None,
-        candidate_sha256: str | None = None,
-        ezdxf_version: str | None = None,
-    ) -> DxfComparisonReport:
+    def _failure(source: Path, candidate: Path, code: str, message: str) -> DxfComparisonReport:
         return DxfComparisonReport(
             source_path=str(source),
             candidate_path=str(candidate),
@@ -359,9 +373,6 @@ class DxfComparator:
             geometry_comparison_status="NOT_RUN",
             fidelity_status="UNKNOWN",
             requires_review=True,
-            source_sha256=source_sha256,
-            candidate_sha256=candidate_sha256,
-            ezdxf_version=ezdxf_version,
             error_code=code,
             error_message=message,
         )
