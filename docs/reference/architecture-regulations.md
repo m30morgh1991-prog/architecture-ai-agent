@@ -84,3 +84,18 @@
 3. Build deterministic checks for dimensions/area/counts once the geometry and context are reliable.
 4. Report conflicts, missing inputs, and uncertainty visibly.
 5. Add regression fixtures for each rule; tests must cover boundary values and unknown context.
+
+
+## National Topic 24 (1404) and Shiraz height lead — 2026-11-19
+A reproduced Ministry of Roads and Urban Development first-edition Topic 24 (Urban Building Conformity) contains ministerial notification no. 140461/100/2 dated 1404/07/27 and says it becomes effective six months after notification. As of 1405/08/28, that period has elapsed; exact calendar effective day is still SOURCE_REQUIRED because secondary reposts disagree and the ministry-hosted original was not retrieved. The copy is hosted at a non-ministry domain and no SHA-256 hash was obtained.
+
+Candidate national Topic 24 topics for later, source-bound review:
+- Height definition: average sidewalk level to average roof (sloped roof) / highest parapet (flat roof).
+- High-rise classification trigger: height >=27 m OR >=8 floors including ground OR highest usable floor >23 m.
+- Density/height, placement, massing, adjacency, privacy/overlooking, shadow/daylight, access width, and cityscape context.
+- Residential façade lighting prohibition (ground-floor/entrance security lighting is required).
+- Visible façade mechanical equipment prohibition except gas-related installations.
+
+A press lead dated 1405/08/17 reports Fars Article-5 approval for residential floor height up to 350 cm in Shiraz. The original resolution, height definition, zones, conditions, notification and effective date were not obtained. Keep it ANNOUNCED/UNKNOWN; do not use it as a legal threshold or infer building-height/floor-count permission.
+
+Source links: Topic 24 PDF copy (https://qsce.ir/uploads/%D9%85%D8%A8%D8%AD%D8%AB%20%D8%A8%DB%8C%D8%B3%D8%AA%20%D9%88%20%DA%86%D9%87%D8%A7%D8%B1%D9%85%20%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA%20%D9%85%D9%84%DB%8C.pdf); Tasnim height report (https://newsmedia.tasnimnews.ir/fa/news/1405/08/17/3743048/%D9%85%D8%AC%D9%88%D8%B2-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%85%D8%A7%D8%AF%D9%87-5-%D8%A8%D8%B1%D8%A7%DB%8C-%D8%A7%D9%81%D8%B2%D8%A7%DB%8C%D8%B4-%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%B7%D8%A8%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%DA%A9%D9%88%D9%86%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%AA%D8%A7-3-5-%D9%85%D8%AA%D8%B1).
