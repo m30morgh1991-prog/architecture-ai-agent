@@ -42,9 +42,8 @@ class H101GeometryModelIntegrationTests(unittest.TestCase):
         self.assertEqual(plan.geometry_reference.source_sha256, SHA)
 
     def test_space_model_rejects_geometry_reference_source_mismatch(self):
-        model = spaces(SHA, geometry(OTHER_SHA))
         with self.assertRaisesRegex(ValueError, "SPACE_GEOMETRY_REFERENCE_SOURCE_MISMATCH"):
-            model.validate()
+            spaces(SHA, geometry(OTHER_SHA))
 
     def test_plan_model_rejects_geometry_reference_source_mismatch(self):
         plan = PlanModel(
