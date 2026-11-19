@@ -98,3 +98,7 @@ Links:
 - Opinion 7/1403/747: https://hoshyarvakil.ir/opinion/7-1403-747/
 
 This follow-up materially qualifies the earlier simple boundary note: **jurisdiction must be determined by parcel location and the date of the alleged violation**, using official boundary/harem records. Do not use the parcel's current status alone.
+
+
+## Source-link and status correction — AR-SRC-016
+The direct link saved for AR-SRC-016 could not be opened/verified during this run. Keep the reproduced judgment in the register, but do not treat its URL as validated. Use the exact judgment number 1403313900001065297 and title to retrieve it from the official court/Gazette or a stable legal database.
