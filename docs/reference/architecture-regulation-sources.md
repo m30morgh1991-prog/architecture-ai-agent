@@ -60,7 +60,7 @@ Register policy: These are research leads and reproductions, not a substitute fo
 The prior report for this monitoring series was not available, so this is the initial baseline, not a change comparison.
 
 ### Correction to AR-SRC-007
-The previously recorded interpretation of the docket number as a ruling dated 1405/03/05 is not supported. The secondary page currently displays **1406/03/05**, which is future-dated relative to 1405/08/28, and the docket-year prefix does not match the displayed date. Treat the result as **UNVERIFIED / UNKNOWN**; it cannot establish whether circular clause 11 was annulled or upheld. Do not delete the historic record; this correction supersedes its legal-status note.
+The earlier uncertainty arose from a conflicting date rendering on a secondary page. A further retrieval on 2026-11-19 located the full reproduced judgment text with matching docket number **140531390000547350** and date **1405/03/05**. The reproduced General Board judgment expressly rejects annulment of clause 11. Update the clause status to **NOT ANNULLED in the scope of this judgment**; the original court/Gazette copy remains SOURCE_REQUIRED. The holding is limited to demolition issued as a consequence of non-payment under notes 2 and 3 and subsequent payment/settlement; it is not a blanket right to retain every violation.
 
 ### New source entries
 | ID | Document | Status | Verification / level | Notes |
@@ -102,3 +102,8 @@ This follow-up materially qualifies the earlier simple boundary note: **jurisdic
 
 ## Source-link and status correction — AR-SRC-016
 The direct link saved for AR-SRC-016 could not be opened/verified during this run. Keep the reproduced judgment in the register, but do not treat its URL as validated. Use the exact judgment number 1403313900001065297 and title to retrieve it from the official court/Gazette or a stable legal database.
+
+
+## Clause 11 — verified text-reproduction correction (2026-11-19)
+
+The full reproduced judgment No. 140531390000547350 dated 1405/03/05 was retrieved at https://hoghogh.ai/case-law/ (case title: ابطال بند ۱۱ بخشنامه انتظام‌بخشی...). The General Board **rejected the request to annul clause 11**. It reasoned that, under the relevant notes 2 and 3 of Article 100, demolition after non-payment is a substitute/guarantee for the original fine decision; once the fine is paid or otherwise settled, there is no remaining basis to execute that substitute demolition. This is a narrow clause-specific holding, not a general legalization or permission to retain unauthorized construction. Source level remains COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; official judiciary/Gazette copy and hash are still SOURCE_REQUIRED.
