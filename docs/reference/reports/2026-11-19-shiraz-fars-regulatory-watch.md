@@ -136,3 +136,20 @@ The opinion states the **date of the construction violation**, not the later/cur
 This is a non-binding advisory opinion, but it is a high-value routing safeguard: preserve violation date, historical boundary/harem evidence, and current boundary separately in the data model. The original signed opinion is still required.
 
 Links: [judgment 1065343](https://amagestate.com/legal/article-99-building-demolition-ruling/), [opinion 7/1403/747](https://hoshyarvakil.ir/opinion/7-1403-747/).
+
+
+## Addendum — Article 99 circular annulment and violation-date jurisdiction (2026-11-19)
+
+### Judgment 1403313900001065343 (1403/05/09)
+The full reproduced text confirms that only these clauses of Ministry of Interior circular 145016 dated 1401/07/19 were annulled in the specified respects:
+- Clauses 7 and 8: mandatory demolition and its execution/deadline.
+- Clause 9: the 50–70% fine formula.
+- Clause 10: re-referral for demolition after non-payment.
+- Clause 14: earmarking/expense of collected fees and fines.
+
+This does not annul the entire Article-99 procedure or the whole guideline. Official primary copy is still pending. Source: [full-text reproduction](https://amagestate.com/legal/article-99-building-demolition-ruling/).
+
+### Advisory opinion 7/1403/747 (1403/10/30)
+Jurisdiction for the described boundary-change case is based on the location status **at the time of the violation**: if the parcel was outside city harem then and later enters, the earlier violation remains with Article-99 commission; a violation after entering city limits/harem is Article-100. This is a non-binding advisory opinion, but it is an important data-model safeguard. Source: [opinion 7/1403/747](https://hoshyarvakil.ir/opinion/7-1403-747/).
+
+Therefore, a rule must retain the violation date and historic city-limit/harem map; current parcel status alone is insufficient.
