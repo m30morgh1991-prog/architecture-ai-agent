@@ -1,14 +1,6 @@
-import http.client
-import json
-import threading
 import unittest
-from copy import deepcopy
-from http.server import HTTPServer
-from unittest.mock import patch
 
-from runtime import app as runtime_app
-from runtime.audit import AuditTrail
-from runtime.execution_record import ExecutionRecordStore
+from runtime.app import Handler, fingerprint_request_payload
 from runtime.idempotency import IdempotencyConflictError, IdempotencyGuard
 
 
@@ -17,9 +9,7 @@ class IdempotencyTests(unittest.TestCase):
         guard = IdempotencyGuard()
         original = {"status": "PASS"}
         self.assertIs(guard.store("k", "fingerprint-1", original), original)
-        self.assertIs(
-            guard.store("k", "fingerprint-1", {"status": "OTHER"}), original
-        )
+        self.assertIs(guard.store("k", "fingerprint-1", {"status": "OTHER"}), original)
 
     def test_completed_key_is_replayable(self):
         guard = IdempotencyGuard()
@@ -32,19 +22,10 @@ class IdempotencyTests(unittest.TestCase):
         guard = IdempotencyGuard()
         original = {"status": "PASS"}
         guard.store("execution-1", "fingerprint-1", original)
-
-        with self.assertRaisesRegex(
-            IdempotencyConflictError,
-            "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
-        ):
+        with self.assertRaisesRegex(IdempotencyConflictError, "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST"):
             guard.check("execution-1", "fingerprint-2")
-
-        with self.assertRaisesRegex(
-            IdempotencyConflictError,
-            "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
-        ):
+        with self.assertRaisesRegex(IdempotencyConflictError, "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST"):
             guard.store("execution-1", "fingerprint-2", {"status": "OTHER"})
-
         self.assertIs(guard.check("execution-1", "fingerprint-1"), original)
 
     def test_unknown_key_is_not_completed(self):
@@ -59,66 +40,34 @@ class IdempotencyTests(unittest.TestCase):
         self.assertIsNone(guard.check("execution-1", "fingerprint-1"))
         self.assertFalse(guard.has_completed("execution-1"))
 
-
-    def test_same_execution_id_with_different_payload_returns_conflict(self):
-        payload = {
+    def test_request_fingerprint_changes_when_payload_changes(self):
+        first = {
             "execution_id": "same-execution",
-            "project_id": "project-1",
-            "input_version_id": "version-1",
-            "plan_id": "plan-1",
-            "elements": [],
-            "request": {
-                "change_type": "FURNITURE",
-                "target_ids": ["MISSING"],
-                "instruction": "Move missing sofa",
-            },
+            "request": {"instruction": "Move sofa"},
         }
+        second = {
+            "execution_id": "same-execution",
+            "request": {"instruction": "Move sofa elsewhere"},
+        }
+        self.assertNotEqual(fingerprint_request_payload(first), fingerprint_request_payload(second))
 
-        with (
-            patch.object(runtime_app, "execution_records", ExecutionRecordStore()),
-            patch.object(runtime_app, "audit_trail", AuditTrail()),
-            patch.object(runtime_app, "idempotency_guard", IdempotencyGuard()),
-        ):
-            server = HTTPServer(("127.0.0.1", 0), runtime_app.Handler)
-            thread = threading.Thread(target=server.serve_forever, daemon=True)
-            thread.start()
-            try:
-                def post(body):
-                    connection = http.client.HTTPConnection(
-                        "127.0.0.1", server.server_port, timeout=3
-                    )
-                    connection.request(
-                        "POST",
-                        "/v1/execute",
-                        body=json.dumps(body),
-                        headers={"Content-Type": "application/json"},
-                    )
-                    response = connection.getresponse()
-                    result = json.loads(response.read().decode("utf-8"))
-                    connection.close()
-                    return response.status, result
+    def test_http_endpoint_stays_blocked_before_request_body_or_idempotency(self):
+        class TrackingReader:
+            read_called = False
+            def read(self, length):
+                self.read_called = True
+                return b"{}"
 
-                first_status, first = post(payload)
-                self.assertEqual(first_status, 200)
-                self.assertFalse(first["idempotent_replay"])
-                self.assertEqual(first["result"]["status"], "REJECT")
-
-                replay_status, replay = post(payload)
-                self.assertEqual(replay_status, 200)
-                self.assertTrue(replay["idempotent_replay"])
-
-                changed_payload = deepcopy(payload)
-                changed_payload["request"]["instruction"] = "Move sofa elsewhere"
-                conflict_status, conflict = post(changed_payload)
-                self.assertEqual(conflict_status, 409)
-                self.assertEqual(
-                    conflict["error"],
-                    "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
-                )
-            finally:
-                server.shutdown()
-                thread.join(timeout=3)
-                server.server_close()
+        handler = Handler.__new__(Handler)
+        handler.path = "/v1/execute"
+        handler.rfile = TrackingReader()
+        handler._json = lambda status, body: (status, body)
+        handler.send_error = lambda status, *args, **kwargs: (status, {"error": "HTTP_ERROR"})
+        status, body = handler.do_POST()
+        self.assertEqual(status, 503)
+        self.assertEqual(body["error"], "CANONICAL_EXECUTION_NOT_CONFIGURED")
+        self.assertEqual(body["status"], "BLOCKED")
+        self.assertFalse(handler.rfile.read_called)
 
 
 if __name__ == "__main__":
