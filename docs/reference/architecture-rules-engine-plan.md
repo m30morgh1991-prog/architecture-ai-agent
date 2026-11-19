@@ -28,3 +28,11 @@ This registry is the initial normalized reference catalog. It is **not yet execu
 - Units mixed (cm/m) => explicit conversion; never silently compare.
 - Uncertain geometry evidence => no compliance PASS.
 - Light-well rule at 5 floors may evaluate only if all other context is known; 6+ floors => NEEDS_REVIEW under supplied summary scope.
+
+
+## Additional current sources — legal and urban-conformity watch (2026-11-19)
+- Keep Topic 24 (national urban conformity) as a separate source family from parcel-specific Shiraz detailed-plan rules. It supplies context and criteria; it does not itself grant a parcel permission.
+- Record the reported 350-cm Shiraz residential floor-height change only as ANNOUNCED/UNKNOWN until the Article-5 resolution, amended clause, scope/map, notification and effective date are obtained.
+- Add the 1404/05/28 General Board judgment 1295686 as a narrow, binding source for change-of-use enforcement: distinguish the construction/area violation from operating-stage change of use; never model a fine as a right to retain unauthorized use.
+- Keep Article 100 and Article 99 jurisdiction separate and parcel/date-specific. Article 100 is not a design compliance substitute; Article 99 outside the approved city harem must not automatically inherit Article-100 grounds.
+- The two 1405 legal opinions (7/1405/261 and 7/1405/231) are secondary reproductions only; register them as research leads with SOURCE_REQUIRED. Do not generate PASS, legal authorization, or enforcement conclusions from them.
