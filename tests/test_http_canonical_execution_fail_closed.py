@@ -20,6 +20,9 @@ class _ResponseSink:
     def end_headers(self):
         pass
 
+    def _json(self, status, body):
+        return Handler._json(self, status, body)
+
 
 class HttpCanonicalExecutionFailClosedTests(unittest.TestCase):
     def test_execute_endpoint_blocks_before_reading_untrusted_payload(self):
@@ -52,7 +55,6 @@ class HttpCanonicalExecutionFailClosedTests(unittest.TestCase):
         self.assertEqual(sink.status, 503)
         payload = json.loads(sink.wfile.getvalue().decode())
         self.assertEqual(payload["status"], "BLOCKED")
-        self.assertEqual(payload["error"], "CANONICAL_EXECUTION_NOT_CONFIGURED")
         self.assertEqual(payload["error"], "CANONICAL_EXECUTION_NOT_CONFIGURED")
 
     def test_execution_server_is_bound_to_loopback(self):
