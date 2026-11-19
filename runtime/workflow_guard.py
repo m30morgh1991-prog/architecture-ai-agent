@@ -21,12 +21,12 @@ class WorkflowGuard:
         self.idempotency = idempotency or IdempotencyGuard()
 
     def begin(self, execution_id: str, key: str) -> WorkflowDecision:
-        cached = self.idempotency.check(key)
+        cached = self.idempotency.check(key, execution_id)
         if cached is not None:
             return cached
         self.audit.record(execution_id, "WORKFLOW", "STARTED", {"idempotency_key": key})
         decision = WorkflowDecision("PASS", "RUNNING")
-        self.idempotency.store(key, decision)
+        self.idempotency.store(key, execution_id, decision)
         return decision
 
     def finish(self, execution_id: str, key: str, failure_code: str | None = None) -> WorkflowDecision:
@@ -50,7 +50,7 @@ class WorkflowGuard:
             {"state": decision.state, "failure_code": failure_code},
         )
 
-        self.idempotency.store(key, decision)
+        self.idempotency.store(key, execution_id, decision)
         return decision
 
     def trace(self, execution_id: str) -> list[Any]:

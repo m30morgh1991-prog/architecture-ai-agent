@@ -8,12 +8,23 @@ from .final_validation import validate_post_edit
 from .controlled_editing_contract import EditPermission, build_controlled_editing_decision
 from .approved_change_plan_contract import build_approved_change_plan
 from .audit import AuditTrail
-from .idempotency import IdempotencyGuard
+from .idempotency import IdempotencyConflictError, IdempotencyGuard
 
 
 execution_records = ExecutionRecordStore()
 audit_trail = AuditTrail()
 idempotency_guard = IdempotencyGuard()
+
+
+def fingerprint_request_payload(payload) -> str:
+    canonical = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
 
 
 def validate_request(plan: PlanModel, request: ChangeRequest) -> ValidationResult:
@@ -171,7 +182,21 @@ class Handler(BaseHTTPRequestHandler):
         body = json.loads(self.rfile.read(length) or b"{}")
 
         execution_id = body["execution_id"]
-        cached_result = idempotency_guard.check(execution_id)
+        try:
+            request_fingerprint = fingerprint_request_payload(body)
+        except (TypeError, ValueError, UnicodeError):
+            return self._json(400, {"error": "REQUEST_FINGERPRINT_INVALID"})
+
+        try:
+            cached_result = idempotency_guard.check(
+                execution_id, request_fingerprint
+            )
+        except IdempotencyConflictError:
+            return self._json(409, {
+                "error": "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
+                "idempotency_state": "CONFLICT",
+            })
+
         if cached_result is not None:
             try:
                 job = execution_records.public(execution_id)
@@ -203,7 +228,7 @@ class Handler(BaseHTTPRequestHandler):
             "idempotency_ok": True,
             "runtime_ok": result.get("runtime_ok") is True,
         }
-        idempotency_guard.store(execution_id, result)
+        idempotency_guard.store(execution_id, request_fingerprint, result)
 
         if result["status"] == "PASS":
             execution_records.update(
