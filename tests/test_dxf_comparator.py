@@ -49,7 +49,7 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.source_sha256, hashlib.sha256(source_bytes).hexdigest())
         self.assertEqual(report.candidate_sha256, hashlib.sha256(candidate_bytes).hexdigest())
         self.assertTrue(report.ezdxf_version)
-        self.assertEqual(report.comparator_version, "0.5.0")
+        self.assertEqual(report.comparator_version, "0.6.0")
         self.assertEqual(self.source.read_bytes(), source_bytes)
         self.assertEqual(self.candidate.read_bytes(), candidate_bytes)
         json.dumps(report.to_dict())
@@ -392,6 +392,100 @@ class TestDxfComparator(unittest.TestCase):
         self.assertEqual(report.geometry_mismatch_count, 0)
         self.assertEqual(report.fidelity_status, "UNKNOWN")
         self.assertTrue(report.requires_review)
+
+    def test_layout_metadata_change_is_detected(self):
+        def write(path, taborder):
+            document = ezdxf.new("R2010")
+            layout = document.layouts.new("SHEET_A")
+            layout.dxf_layout.dxf.taborder = taborder
+            layout.dxf_layout.dxf.limmax = (420, 297, 0)
+            document.modelspace().add_line((0, 0), (10, 0))
+            document.saveas(path)
+
+        write(self.source, 3)
+        write(self.candidate, 4)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("layout_properties", report.structural_differences)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertEqual(report.fidelity_status, "UNKNOWN")
+
+    def test_viewport_camera_change_is_detected_without_geometry_mismatch(self):
+        def write(path, view_height):
+            document = ezdxf.new("R2010")
+            layout = document.layouts.new("SHEET_A")
+            layout.add_viewport(
+                center=(100, 100),
+                size=(200, 150),
+                view_center_point=(0, 0),
+                view_height=view_height,
+            )
+            document.modelspace().add_line((0, 0), (10, 0))
+            document.saveas(path)
+
+        write(self.source, 100)
+        write(self.candidate, 125)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("viewports", report.structural_differences)
+        self.assertGreater(report.viewport_mismatch_count, 0)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+        self.assertNotIn("VIEWPORT", report.unsupported_entity_types)
+
+    def test_ucs_table_change_is_detected(self):
+        def write(path, origin):
+            document = ezdxf.new("R2010")
+            document.ucs.new(
+                "SITE_UCS",
+                dxfattribs={
+                    "origin": origin,
+                    "xaxis": (1, 0, 0),
+                    "yaxis": (0, 1, 0),
+                },
+            )
+            document.modelspace().add_line((0, 0), (10, 0))
+            document.saveas(path)
+
+        write(self.source, (0, 0, 0))
+        write(self.candidate, (10, 0, 0))
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("ucs_properties", report.structural_differences)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
+
+    def test_computed_layout_extents_change_is_reported(self):
+        def write(path, max_x):
+            document = ezdxf.new("R2010")
+            document.modelspace().add_line((0, 0), (max_x, 100))
+            document.saveas(path)
+
+        write(self.source, 100)
+        write(self.candidate, 120)
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("extents", report.structural_differences)
+        self.assertNotEqual(report.source_extents, report.candidate_extents)
+        self.assertEqual(report.geometry_comparison_status, "DIFFERENCES_FOUND")
+
+    def test_coordinate_system_header_change_is_detected(self):
+        def write(path, ucs_origin):
+            document = ezdxf.new("R2010")
+            document.header["$UCSORG"] = ucs_origin
+            document.header["$INSBASE"] = (5, 5, 0)
+            document.modelspace().add_line((0, 0), (10, 0))
+            document.saveas(path)
+
+        write(self.source, (0, 0, 0))
+        write(self.candidate, (5, 0, 0))
+        report = compare_dxf_files(self.source, self.candidate)
+
+        self.assertEqual(report.comparison_status, "DIFFERENCES_FOUND")
+        self.assertIn("coordinate_metadata", report.structural_differences)
+        self.assertEqual(report.geometry_comparison_status, "MATCHED")
 
 if __name__ == "__main__":
     unittest.main()
