@@ -11,6 +11,8 @@ from math import isfinite
 from numbers import Real
 from typing import Literal
 
+from runtime.geometry_reference_contract import GeometryReference
+
 
 def _finite_float(value: object) -> float:
     """Convert a numeric coordinate without accepting bool, NaN or infinity."""
@@ -122,6 +124,7 @@ class SpaceModel:
     spaces: tuple[SpaceRecord, ...]
     relations: tuple[SpaceRelation, ...]
     unresolved: tuple[str, ...] = ()
+    geometry_reference: GeometryReference | None = None
 
     def validate(self) -> None:
         if not self.model_id or not self.source_sha256:
@@ -140,6 +143,10 @@ class SpaceModel:
                 raise ValueError("SPACE_RELATION_SOURCE_UNKNOWN")
             if relation.to_space_id and relation.to_space_id not in ids:
                 raise ValueError("SPACE_RELATION_TARGET_UNKNOWN")
+        if self.geometry_reference is not None:
+            self.geometry_reference.validate()
+            if self.geometry_reference.source_sha256 != self.source_sha256:
+                raise ValueError("SPACE_GEOMETRY_REFERENCE_SOURCE_MISMATCH")
 
 
 def build_space_model(
@@ -148,6 +155,7 @@ def build_space_model(
     source_sha256: str,
     spaces: list[dict],
     relations: list[dict],
+    geometry_reference: GeometryReference | None = None,
 ) -> SpaceModel:
     records = tuple(
         SpaceRecord(
@@ -190,6 +198,7 @@ def build_space_model(
             r.relation_id for r in relation_records
             if r.status != "ACCESSIBLE"
         ),
+        geometry_reference=geometry_reference,
     )
     model.validate()
     return model
