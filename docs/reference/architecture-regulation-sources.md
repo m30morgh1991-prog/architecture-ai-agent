@@ -80,7 +80,7 @@ The previously recorded interpretation of the docket number as a ruling dated 14
 - Judgment 1295686: https://hoghogh.ai/case-law/%D8%B1%D8%A7%DB%8C-%D9%88%D8%AD%D8%AF%D8%AA-%D8%B1%D9%88%DB%8C%D9%87-%D9%87%DB%8C%D8%A7%D8%AA-%D8%B9%D9%85%D9%88%D9%85%DB%8C-%D8%AF%DB%8C%D9%88%D8%A7%D9%86-%D8%B9%D8%AF%D8%A7%D9%84%D8%AA-%D8%A7%D8%AF%D8%A7%D8%B1%DB%8C-%D8%AF%D8%B1%D8%A8%D8%A7%D8%B1%D9%87-%D8%AA%DA%A9%D9%84%DB%8C%D9%81-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-%DB%B1%DB%B0%DB%B0-%D8%AF%D8%B1
 - Opinion 7/1405/261: https://telegram.me/s/vvakil?before=31018
 - Opinion 7/1405/231: https://tg.me/hoghoogh_amlaak/4061
-- Article-99 judgment 1065297: https://hoghogh.ai/case-law/%D8%A7%D8%B9%D9%84%D8%A7%D9%85-%D8%AA%D8%B9%D8%A7%D8%B1%D8%B6-%D8%A8%DB%8C%D9%86-%D8%B1%D8%A7%DB%8C-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%DB%B1%DB%B4%DB%B0%DB%B2%DB%B3%DB%B1%DB%B3%DB%B9%DB%B0%DB%B0%DB%B0%DB%B3%DB%B8%DB%B0%DB%B6%DB%B3%DB%B3-%D9%85%D9%88%D8%B1%D8%AE-%DB%B1%DB%B4%DB%B0%DB%B2-%DB%B2-%DB%B1%DB%B9-%D8%B5%D8%A7%D8%AF%D8%B1%D9%87-%D8%A7%D8%B2-140331390001065297
+- Article-99 judgment 1065297: direct URL not verified in this run; use the exact judgment number/title for official retrieval.
 - Historic Shiraz plan report: https://www.tasnimnews.ir/fa/news/1404/12/01/3521507/%D8%B7%D8%B1%D8%AD-%D8%B6%D9%88%D8%A7%D8%A8%D8%B7-%DB%8C%DA%A9%D9%BE%D8%A7%D8%B1%DA%86%D9%87-%D8%A8%D8%A7%D9%81%D8%AA-%D8%AA%D8%A7%D8%B1%DB%8C%D8%AE%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%AF%D8%B1-%D8%A7%D8%B3%D9%86%D8%A7%D8%AF-%D9%85%D9%84%DB%8C-%D8%AB%D8%A8%D8%AA-%D8%B4%D8%AF
 
 Official-source retrieval failures remain logged; none of the above press leads or secondary copies are promoted to executable rules.
