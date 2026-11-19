@@ -81,8 +81,11 @@ class RuleEvaluation:
             raise ValueError("RULE_EVALUATION_STATUS_INVALID")
         for decision in self.decisions:
             decision.validate()
-        if self.status == "PASS" and self.blockers:
-            raise ValueError("PASS_CANNOT_HAVE_RULE_BLOCKERS")
+        if self.status == "PASS":
+            if self.blockers:
+                raise ValueError("PASS_CANNOT_HAVE_RULE_BLOCKERS")
+            if any(decision.status != "PASS" for decision in self.decisions):
+                raise ValueError("PASS_CANNOT_INCLUDE_UNRESOLVED_RULE_DECISIONS")
 
 
 def _applicable(rule: ArchitectureRule, context: ProjectRuleContext) -> bool | None:

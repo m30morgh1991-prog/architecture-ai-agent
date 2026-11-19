@@ -4,10 +4,16 @@ from runtime.conflict_validation_contract import Conflict, ValidationResult
 
 
 class ConflictValidationContractTests(unittest.TestCase):
-    def test_blocking_conflict_prevents_execution(self):
+    def test_blocking_conflict_cannot_be_reported_as_pass(self):
         c = Conflict("c1", "LOCKED_ELEMENT_CONFLICT", "BLOCKING", ["C01"])
         v = ValidationResult("v1", "PASS", [c], ["e1"])
-        self.assertFalse(v.executable)
+        with self.assertRaisesRegex(ValueError, "VALIDATION_PASS_HAS_BLOCKING_CONFLICT"):
+            v.validate()
+
+    def test_pass_requires_evidence_ids(self):
+        v = ValidationResult("v-no-evidence", "PASS", [], [])
+        with self.assertRaisesRegex(ValueError, "VALIDATION_PASS_EVIDENCE_MISSING"):
+            v.validate()
 
     def test_clean_pass_is_executable(self):
         v = ValidationResult("v2", "PASS", [], ["e2"])
