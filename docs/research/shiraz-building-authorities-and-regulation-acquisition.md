@@ -64,3 +64,49 @@ Each source/rule record must include:
 3. Locate the official registered integrated historic Shiraz regulations and their map appendices.
 4. Verify official portals and downloadable document indexes for Fars Nezam, Fars Road & Urban Development, Shiraz Municipality, Fire Organization and Fars Heritage.
 5. Add exact document links and hashes to the source registry; only then derive candidate rules and tests.
+
+
+## 7. Article 100 — focused legal research update (2026-11-19)
+
+This section records a preliminary legal-source review. The reproduced judgments below are secondary-host copies of court texts; obtain the official Gazette / judiciary publication before treating the source artifact as primary. The legal propositions are recorded narrowly and must not be generalized beyond each judgment's holding.
+
+### 7.1 Statutory baseline
+
+- Article 100 of the Municipalities Law applies to land and properties within the city limits or its legal buffer (حریم): owners must obtain a municipal permit before construction, land development or subdivision; the municipality may stop construction without a permit or contrary to the permit.
+- The consolidated text reproduced by Lawlex identifies Article 100 as added 1345/11/27 and shows the first paragraph and amendments to its initial notes. The full current consolidated text, all notes (تبصره‌ها), subsequent amendments and official publication history still need a primary-source copy.
+- Article 99 must be analyzed separately for areas outside the city limits and within the legally defined rural/urban jurisdiction. Do not infer that every parcel outside the built-up boundary is automatically governed by Article 99: determine its exact legal location (حدود شهر، حریم، خارج از حریم) and the relevant statutory authority first.
+
+### 7.2 Judicial decisions and interpretations found
+
+| Record | Date / identifier | Narrow holding from reproduced text | Status for project |
+|---|---|---|---|
+| Article 100 circular, clause 3 | Judgment 140331390001829587, 1403/08/01 | Annulled clause 3 of Ministry of Interior circular 239024 dated 1402/11/14 insofar as it required Article 100 commissions to order demolition for unroofed structures by relying on definition 4-2 of National Building Regulation Part 4. The court held the Ministry lacked authority to impose that binding direction on the statutory commission. | ANNULLED (clause 3); COURT_PRIMARY text still to be obtained from official publication. Never encode the annulled clause as a mandatory demolition rule. |
+| Article 100 circular, clause 11 | Judgment 140531390000547350, 1405/03/05 | Did not annul clause 11. The court reasoned that where a demolition order was issued as the consequence of non-payment of a fine under notes 2 or 3, payment of the original fine means the demolition order no longer has a remaining basis for execution. | NOT_ANNULLED / binding effect stated under Article 93 of the Administrative Justice Court Law in reproduced text; official publication still required. Do not generalize to demolition orders based on independent substantive grounds. |
+| Commercial use in non-commercial zone | Judgment 140431390000646865, 1404/03/13 | Reversed the earlier general precedent and upheld a branch decision finding the Article 100 commission lacked competence to impose a fine or demolition for operating a shop/business in a non-commercial zone contrary to the permit; the reproduced text distinguishes this from construction operations in a commercial zone. | Scope-sensitive; must be read with later advisory opinion 7/1404/681 and official judgment copy. Do not convert to a blanket rule that all commercial-use violations escape Article 100. |
+| Interpretation after judgment 646865 | Advisory opinion 7/1404/681, dated 1404/10/28 | Records differing interpretations: whether judgment 646865 is limited to operating a business in a non-commercial zone (where closure under clause 24 of Article 55 may be relevant), while construction contrary to permit to create commercial premises in a commercial zone may remain within notes to Article 100. | OFFICIAL_SECONDARY reproduction / interpretation lead. Obtain the full official advisory response and use its exact conclusion before rule encoding. |
+
+### 7.3 Circular 239024 (1402/11/14): handling rule
+
+The circular contains 29 clauses. It must be represented clause-by-clause, not as one all-valid document. At minimum:
+- Clause 3: annulled by judgment 140331390001829587 (1403/08/01); do not enforce its categorical unroofed-structure demolition instruction.
+- Clause 11: not annulled by judgment 140531390000547350 (1405/03/05); its reproduced holding concerns the consequential demolition order following non-payment of a fine under notes 2 and 3, and subsequent payment of that fine.
+- Other clauses: status UNKNOWN until individually checked against the complete circular and later judgments. Do not infer their validity from the treatment of clauses 3 and 11.
+- Verify whether any later decision, amendment, stay or official interpretation changes the above status.
+
+### 7.4 Implications for architectural plan checking
+
+Article 100 is primarily an enforcement / adjudication framework for construction violations, not a substitute for design standards or a permit. Keep two separate layers:
+1. **Preventive design compliance:** zoning, permit conditions, national technical rules, fire/heritage/utility requirements and verified municipal planning rules.
+2. **Post-violation legal workflow:** jurisdiction, violation classification, commission procedure, notice and opportunity to respond, decision, appeal, execution, fine payment and judicial review.
+
+The plan checker may flag potential exposure (e.g., construction beyond permit, use mismatch, parking shortfall, setback/height/area deviation) only where the relevant design/permit rule is verified. It must not predict a specific Article 100 fine or demolition outcome without the complete legal criteria, current tariff/base, case facts and competent decision.
+
+### 7.5 Acquisition queue
+
+1. Obtain official Gazette / official judiciary copies for judgments 140331390001829587, 140531390000547350 and 140431390000646865.
+2. Obtain the complete 29-clause circular 239024 dated 1402/11/14 and build a clause-by-clause judicial status matrix.
+3. Obtain the full official text of advisory opinion 7/1404/681 and any later advisory opinions on commercial-use change, unpermitted additions, parking and fine installment/payment.
+4. Obtain a current official consolidated Article 100 and Article 99 text with amendment history from the Parliament Research Center / Official Gazette.
+5. Obtain Shiraz-specific written procedure, forms, fine calculation bases, current council-approved tariffs, appeal workflow and enforcement practices. Treat informal municipal practice as unverified until supported by an official circular, resolution or published legal instrument.
+6. Map parcel jurisdiction precisely (city limits / city buffer / outside both) before selecting Article 100 or Article 99 workflow.
+
