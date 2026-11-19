@@ -44,6 +44,33 @@ class H100SemanticEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"LEVEL_ELEVATION_UNKNOWN"):
             LevelEvidence("L1","E1","+3.20",None,"M","F2","SUPPORTED").validate()
 
+    def test_boolean_confidence_is_rejected_before_numeric_coercion(self):
+        with self.assertRaisesRegex(ValueError, "DRAWING_EVIDENCE_CONFIDENCE_INVALID"):
+            build_drawing_evidence_set(
+                set_id="S3", source_sha256=SOURCE,
+                records=[{
+                    "evidence_id": "E3", "domain": "TEXT", "subject_id": "room-1",
+                    "predicate": "label", "value": "BEDROOM", "status": "SUPPORTED",
+                    "confidence": True, "source_ref": "page=1",
+                }],
+            )
+
+    def test_non_hex_source_hash_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "DRAWING_EVIDENCE_SET_INVALID"):
+            build_drawing_evidence_set(set_id="S4", source_sha256="g" * 64, records=[])
+
+    def test_supported_dimension_rejects_nan_and_boolean_values(self):
+        for value in (float("nan"), float("inf"), True):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "DIMENSION_VALUE_INVALID"):
+                    DimensionEvidence("D2", "E2", ("g1",), ("g2",), value, "MM", "SUPPORTED").validate()
+
+    def test_supported_level_rejects_nan_and_boolean_elevation(self):
+        for elevation in (float("nan"), float("inf"), True):
+            with self.subTest(elevation=elevation):
+                with self.assertRaisesRegex(ValueError, "LEVEL_ELEVATION_INVALID"):
+                    LevelEvidence("L2", "E2", "+3.20", elevation, "M", "F2", "SUPPORTED").validate()
+
     def test_evidence_set_rejects_duplicate_ids(self):
         with self.assertRaisesRegex(ValueError,"DRAWING_EVIDENCE_ID_DUPLICATE"):
             build_drawing_evidence_set(
