@@ -32,6 +32,51 @@
       "binary_committed": false,
       "verification": "USER_PROVIDED_OFFICIAL_MUNICIPAL_URL; RETRIEVAL_FAILED; CONTENT_NOT_INSPECTED",
       "url": "https://shaffaf.shiraz.ir/ImageGallery/FileManager/FilesForManager/taTafzil/zavabemogararatbaznegari.pdf"
+    },
+    {
+      "source_id": "AR-SRC-005",
+      "title": "قانون شهرداری — ماده ۱۰۰ (متن تجمیعی بازنشرشده)",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; CURRENT_PRIMARY_GAZETTE_OR_PARLIAMENT_COPY_REQUIRED",
+      "url": "https://lawlex.ir/laws/shahrdari/100",
+      "notes": "Research lead only; verify current consolidated text, amendments and notes against an official primary publication."
+    },
+    {
+      "source_id": "AR-SRC-006",
+      "title": "دادنامه ۱۴۰۳۳۱۳۹۰۰۰۱۸۲۹۵۸۷ مورخ ۱۴۰۳/۰۸/۰۱ — بند ۳ بخشنامه ۲۳۹۰۲۴",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF-%DB%B3-%D8%A8%D8%AE%D8%B4%D9%86%D8%A7%D9%85%D9%87-%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D9%85-%D8%A8%D8%AE%D8%B4%DB%8C-%D8%A8%D9%87-%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF%D9%87%D8%A7-%D9%88-%D8%B9%D9%85%D9%84%DA%A9%D8%B1%D8%AF-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-140331390001829587",
+      "notes": "Do not generalize beyond the reproduced judgment text; obtain official court/Gazette copy."
+    },
+    {
+      "source_id": "AR-SRC-007",
+      "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۰۵۴۷۳۵۰ مورخ ۱۴۰۵/۰۳/۰۵ — بند ۱۱ بخشنامه ۲۳۹۰۲۴",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF-%DB%B1%DB%B1-%D8%A8%D8%AE%D8%B4%D9%86%D8%A7%D9%85%D9%87-%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D9%85-%D8%A8%D8%AE%D8%B4%DB%8C-%D8%A8%D9%87-%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF%D9%87%D8%A7-%D9%88-%D8%B9%D9%85%D9%84%DA%A9%D8%B1%D8%AF-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-140531390000547350",
+      "notes": "The reproduced text is a research lead, not an official publication copy."
+    },
+    {
+      "source_id": "AR-SRC-008",
+      "title": "دادنامه ۱۴۰۴۳۱۳۹۰۰۰۰۶۴۶۸۶۵ مورخ ۱۴۰۴/۰۳/۱۳",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
+      "url": "https://amagestate.com/legal/article-100-commission-ruling/",
+      "notes": "Commercial-use-in-non-commercial-zone issue; read narrowly and reconcile with later interpretation."
+    },
+    {
+      "source_id": "AR-SRC-009",
+      "title": "نظریه مشورتی ۷/۱۴۰۴/۶۸۱ مورخ ۱۴۰۴/۱۰/۲۸",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "SECONDARY_REPRODUCTION; PRIMARY_SIGNED_COPY_PENDING",
+      "url": "https://www.hoshyarvakil.ir/opinion/7-1404-681/",
+      "notes": "Interpretive research lead following judgment 646865; do not generalize beyond its precise conclusion."
     }
   ],
   "rules": [
