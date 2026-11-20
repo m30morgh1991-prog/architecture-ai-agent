@@ -26,9 +26,9 @@ Send the bearer token only in the `Authorization: Bearer` header over the verifi
 
 ## Verification boundary
 
-Automated tests cover required configuration, fail-closed startup, TLS context creation, TLS 1.2 minimum, socket wrapping, loopback-only binding, bearer authentication, duplicate-header rejection, and the blocked execution route.
+Automated tests cover required configuration, fail-closed startup, TLS context creation, TLS 1.2 minimum, socket wrapping, loopback-only binding, bearer authentication, duplicate-header rejection, and the blocked execution route. A live integration test creates a short-lived test certificate, starts a real TLS-wrapped socket, verifies a client connection with the trusted test certificate and IP SAN, rejects the same certificate when it is not trusted, and checks that a TLS request without bearer authentication receives 401.
 
-These tests do not prove a live TLS handshake, client-side certificate-chain/hostname verification, certificate renewal, or production deployment. Those remain `NOT_RUN` until exercised with a trusted certificate and a real client that verifies it. Do not mark operational HTTPS as fully accepted from unit tests alone.
+The integration test proves the local TLS code path and client verification behavior with an ephemeral test identity. It does not verify the eventual operational certificate, its public trust chain, renewal/rotation, production secret management, or deployment topology. Those remain `NOT_RUN` until exercised with the intended operational certificate and client. Do not mark production HTTPS as fully accepted from an ephemeral CI certificate alone.
 
 ## Next security gates
 
