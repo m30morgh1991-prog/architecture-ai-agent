@@ -1,5 +1,8 @@
 import json
 import hashlib
+import hmac
+import os
+import ssl
 from dataclasses import asdict, is_dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from copy import deepcopy
@@ -258,24 +261,62 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
     }
 
 
+def load_runtime_security_config(environ=None):
+    """Require explicit TLS material and a strong bearer token before startup."""
+    env = os.environ if environ is None else environ
+    cert_file = env.get("ARCH_AGENT_TLS_CERT_FILE")
+    key_file = env.get("ARCH_AGENT_TLS_KEY_FILE")
+    api_token = env.get("ARCH_AGENT_API_TOKEN")
+
+    if not cert_file or not key_file:
+        raise RuntimeError("TLS_CONFIGURATION_REQUIRED")
+    if not api_token or len(api_token.encode("utf-8")) < 32:
+        raise RuntimeError("AUTHENTICATION_CONFIGURATION_INVALID")
+    return cert_file, key_file, api_token
+
+
+def _has_valid_bearer_token(headers, expected_token):
+    if not expected_token:
+        return False
+    values = headers.get_all("Authorization", [])
+    if len(values) != 1:
+        return False
+    scheme, separator, supplied = values[0].partition(" ")
+    return (
+        scheme == "Bearer"
+        and bool(separator)
+        and bool(supplied)
+        and hmac.compare_digest(supplied, expected_token)
+    )
+
+
 class Handler(BaseHTTPRequestHandler):
+    api_token = None
+
     def _json(self, status, body):
         payload = json.dumps(body, default=_json_default).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Strict-Transport-Security", "max-age=31536000")
         self.end_headers()
         self.wfile.write(payload)
 
     def do_GET(self):
         prefix = "/v1/executions/"
-        if self.path.startswith(prefix):
-            execution_id = self.path[len(prefix):]
-            try:
-                return self._json(200, execution_records.public(execution_id))
-            except KeyError:
-                return self._json(404, {"error": "EXECUTION_RECORD_NOT_FOUND"})
-        self.send_error(404)
+        if not self.path.startswith(prefix):
+            return self.send_error(404)
+        if not _has_valid_bearer_token(self.headers, self.api_token):
+            self.send_header("WWW-Authenticate", "Bearer")
+            return self._json(401, {"error": "AUTHENTICATION_REQUIRED"})
+        execution_id = self.path[len(prefix):]
+        try:
+            return self._json(200, execution_records.public(execution_id))
+        except KeyError:
+            return self._json(404, {"error": "EXECUTION_RECORD_NOT_FOUND"})
 
     def do_POST(self):
         if self.path != "/v1/execute":
@@ -396,9 +437,22 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    server = HTTPServer(("127.0.0.1", 8000), Handler)
-    print("Architecture AI Agent runtime listening on 127.0.0.1:8000")
-    server.serve_forever()
+    cert_file, key_file, api_token = load_runtime_security_config()
+
+    tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    tls_context.minimum_version = ssl.TLSVersion.TLSv1_2
+    tls_context.load_cert_chain(certfile=cert_file, keyfile=key_file)
+
+    # The listener is HTTPS-only and loopback-only. There is no plaintext
+    # listener, redirect, or HTTP fallback.
+    Handler.api_token = api_token
+    server = HTTPServer(("127.0.0.1", 8443), Handler)
+    try:
+        server.socket = tls_context.wrap_socket(server.socket, server_side=True)
+        print("Architecture AI Agent HTTPS runtime listening on 127.0.0.1:8443")
+        server.serve_forever()
+    finally:
+        server.server_close()
 
 
 if __name__ == "__main__":
