@@ -157,6 +157,33 @@
       "verification": "OFFICIAL_SECONDARY_REPRODUCTION; SIGNED_PRIMARY_COPY_PENDING",
       "url": "https://hoshyarvakil.ir/opinion/7-1403-747/",
       "notes": "Non-binding advisory opinion: jurisdiction follows parcel status at violation date in the described later-boundary-entry scenario."
+    },
+    {
+      "source_id": "AR-SRC-019",
+      "title": "خبر رسمی وزارت راه و شهرسازی: ارتفاع طبقات مسکونی شیراز تا 350 سانتی‌متر مجاز اعلام شد — شناسه 237112، 1405/08/16",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; ORIGINAL_ARTICLE5_RESOLUTION_NOT_RETRIEVED",
+      "url": "http://news.mrud.ir/news/237112/",
+      "notes": "Full official Ministry news page scraped successfully on 1405/08/29. It reports approval in the Fars Article-5 commission and up to 350 cm residential floor height. Does not include the resolution, amended clause, zones, measurement definition, notification or effective date. Keep ANNOUNCED/SOURCE_REQUIRED; no executable threshold."
+    },
+    {
+      "source_id": "AR-SRC-020",
+      "title": "صفحه رسمی دفتر مقررات ملی و کنترل ساختمان: دانلود مبحث 24",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_PRIMARY_INDEX; PDF_CONTENT_RETRIEVAL_BLOCKED_403",
+      "url": "https://inbr.ir/%D8%AF%D8%A7%D9%86%D9%84%D9%88%D8%AF-%D9%85%D8%A8%D8%AD%D8%AB-%D8%A8%DB%8C%D8%B3%D8%AA-%D9%88-%DA%86%D9%87%D8%A7%D8%B1%D9%85/",
+      "notes": "Official search index currently lists a Topic 24 download page (indexed snippet date 1405/06/08). Page and PDF were not retrievable due HTTP 403; edition, text, notification/effective date, and hash are not revalidated in this run. Listing is evidence of official availability only."
+    },
+    {
+      "source_id": "AR-SRC-021",
+      "title": "پیش‌نویس اول ویرایش دوم مبحث 22 مقررات ملی ساختمان (PDF رسمی index‌شده، تاریخ فایل 1404/08/06)",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_PRIMARY_INDEX; DRAFT; PDF_CONTENT_RETRIEVAL_BLOCKED_403",
+      "url": "https://inbr.ir/wp-content/uploads/2025/10/%D9%85%D8%AA%D9%86-%D9%BE%DB%8C%D8%B4-%D9%86%D9%88%DB%8C%D8%B3-%D8%A7%D9%88%D9%84-%D9%88%DB%8C%D8%B1%D8%A7%DB%8C%D8%B4-%D8%AF%D9%88%D9%85-%D9%85%D8%A8%D8%AD%D8%AB-22-%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA-%D9%85%D9%84%DB%8C-%D8%B3%D8%A7%D8%AE%D8%AA%D9%85%D8%A7%D9%86-06-08-1404.pdf",
+      "notes": "Official domain search result identifies it as a draft, not an adopted/effective regulation. PDF fetch returned 403; text, change list, approval, promulgation and effective date are unknown. Do not apply as current requirement."
     }
   ],
   "rules": [
