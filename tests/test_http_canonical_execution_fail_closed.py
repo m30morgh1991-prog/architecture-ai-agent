@@ -69,6 +69,13 @@ class HttpCanonicalExecutionFailClosedTests(unittest.TestCase):
         self.assertNotIn('("0.0.0.0", 8443)', source)
         self.assertNotIn('("127.0.0.1", 8000)', source)
 
+        post_source = inspect.getsource(app.Handler.do_POST)
+        self.assertIn("CANONICAL_EXECUTION_NOT_CONFIGURED", post_source)
+        self.assertIn("BLOCKED", post_source)
+        self.assertNotIn("self.rfile.read", post_source)
+        self.assertNotIn("PlanModel(", post_source)
+        self.assertNotIn("idempotency_guard.check", post_source)
+
 
 if __name__ == "__main__":
     unittest.main()
