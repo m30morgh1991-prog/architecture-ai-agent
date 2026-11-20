@@ -89,6 +89,7 @@ class HttpRequestGuardrailTests(unittest.TestCase):
             with patch.object(runtime_app, "HTTPServer") as server_class:
                 with patch.object(runtime_app.ssl, "SSLContext") as context_class:
                     context = context_class.return_value
+                    original_socket = server_class.return_value.socket
                     context.wrap_socket.return_value = object()
                     runtime_app.main()
 
@@ -99,7 +100,7 @@ class HttpRequestGuardrailTests(unittest.TestCase):
             certfile="/secure/runtime.crt", keyfile="/secure/runtime.key"
         )
         context.wrap_socket.assert_called_once_with(
-            server_class.return_value.socket, server_side=True
+            original_socket, server_side=True
         )
         server_class.return_value.serve_forever.assert_called_once_with()
         server_class.return_value.server_close.assert_called_once_with()
