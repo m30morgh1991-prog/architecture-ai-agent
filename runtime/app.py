@@ -302,6 +302,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
         self.send_header("Strict-Transport-Security", "max-age=31536000")
+        if status == 401:
+            self.send_header("WWW-Authenticate", "Bearer")
         self.end_headers()
         self.wfile.write(payload)
 
@@ -310,7 +312,6 @@ class Handler(BaseHTTPRequestHandler):
         if not self.path.startswith(prefix):
             return self.send_error(404)
         if not _has_valid_bearer_token(self.headers, self.api_token):
-            self.send_header("WWW-Authenticate", "Bearer")
             return self._json(401, {"error": "AUTHENTICATION_REQUIRED"})
         execution_id = self.path[len(prefix):]
         try:
