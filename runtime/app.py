@@ -325,119 +325,14 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/v1/execute":
             return self.send_error(404)
 
-
-        # P0 safety boundary retained from PR #171: caller-authored geometry
-        # and EDITABLE states are not canonical execution authority. Keep the
-        # route unavailable before reading any request bytes until the server
-        # owns the source-bound PlanModel, ConstraintMap, and approval chain.
+        # No HTTP execution adapter exists. The server-owned canonical
+        # PlanModel/ConstraintMap and approval pipeline are not wired yet.
+        # Reject before reading any request bytes; there is no dormant handler.
         return self._json(503, {
             "error": "CANONICAL_EXECUTION_NOT_CONFIGURED",
             "status": "BLOCKED",
-            "message": "HTTP execution requires a server-owned, source-bound canonical PlanModel and ConstraintMap.",
+            "message": "Execution is unavailable until canonical server-owned evidence and approval are implemented.",
         })
-
-        if self.headers.get_content_type().lower() != "application/json":
-            return self._json(415, {"error": "CONTENT_TYPE_UNSUPPORTED"})
-
-        length_headers = self.headers.get_all("Content-Length", [])
-        if not length_headers:
-            return self._json(411, {"error": "CONTENT_LENGTH_REQUIRED"})
-        if len(length_headers) != 1:
-            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
-
-        raw_length = length_headers[0]
-        if not raw_length.isdigit():
-            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
-        length = int(raw_length)
-        if length <= 0:
-            return self._json(400, {"error": "CONTENT_LENGTH_INVALID"})
-        if length > MAX_REQUEST_BODY_BYTES:
-            return self._json(413, {"error": "REQUEST_BODY_TOO_LARGE"})
-
-        raw_body = self.rfile.read(length)
-        if len(raw_body) != length:
-            return self._json(400, {"error": "REQUEST_BODY_TRUNCATED"})
-        try:
-            body = json.loads(
-                raw_body.decode("utf-8"),
-                object_pairs_hook=_reject_duplicate_json_keys,
-                parse_constant=_reject_non_finite_json,
-            )
-        except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
-            return self._json(400, {"error": "JSON_BODY_INVALID"})
-
-        schema_error = validate_execution_payload(body)
-        if schema_error:
-            return self._json(400, {"error": schema_error})
-
-        execution_id = body["execution_id"]
-        try:
-            request_fingerprint = fingerprint_request_payload(body)
-        except (TypeError, ValueError, UnicodeError):
-            return self._json(400, {"error": "REQUEST_FINGERPRINT_INVALID"})
-
-        try:
-            cached_result = idempotency_guard.check(
-                execution_id, request_fingerprint
-            )
-        except IdempotencyConflictError:
-            return self._json(409, {
-                "error": "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST",
-                "idempotency_state": "CONFLICT",
-            })
-
-        if cached_result is not None:
-            try:
-                job = execution_records.public(execution_id)
-            except KeyError:
-                # Cache without a matching execution record is inconsistent evidence.
-                return self._json(409, {"error": "IDEMPOTENCY_RECORD_MISSING"})
-            return self._json(200, {
-                "execution_id": execution_id,
-                "job": job,
-                "result": cached_result,
-                "idempotent_replay": True,
-            })
-
-        project_id = body["project_id"]
-        input_version_id = body["input_version_id"]
-        try:
-            execution_records.create(execution_id, project_id, input_version_id)
-        except ValueError:
-            # A duplicate without a completed cached result is in-flight/unknown.
-            # Do not rerun it and do not manufacture a result.
-            return self._json(409, {"error": "DUPLICATE_EXECUTION_ID", "idempotency_state": "UNKNOWN"})
-
-        execution_records.update(execution_id, "RUNNING")
-        plan = PlanModel(body["plan_id"], [Element(**e) for e in body["elements"]])
-        request = ChangeRequest(**body["request"])
-        result = execute(plan, request, body.get("simulated_geometry"), execution_id=execution_id)
-        result = {
-            **result,
-            "idempotency_ok": True,
-            "runtime_ok": result.get("runtime_ok") is True,
-        }
-        idempotency_guard.store(execution_id, request_fingerprint, result)
-
-        if result["status"] == "PASS":
-            execution_records.update(
-                execution_id, "SUCCEEDED", f"result://{execution_id}"
-            )
-        else:
-            execution_records.update(
-                execution_id, "FAILED",
-                error={"failure_code": result.get("failure_code"),
-                       "validation": result.get("validation")}
-            )
-
-        return self._json(200, {
-            "execution_id": execution_id,
-            "job": execution_records.public(execution_id),
-            "result": result,
-            "idempotent_replay": False,
-        })
-
-
 
 def build_tls_context(cert_file, key_file):
     """Create a server TLS context and load the explicitly configured identity."""
