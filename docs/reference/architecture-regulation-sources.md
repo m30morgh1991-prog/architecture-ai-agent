@@ -107,3 +107,26 @@ The direct link saved for AR-SRC-016 could not be opened/verified during this ru
 ## Clause 11 — verified text-reproduction correction (2026-11-19)
 
 The full reproduced judgment No. 140531390000547350 dated 1405/03/05 was retrieved at https://hoghogh.ai/case-law/ (case title: ابطال بند ۱۱ بخشنامه انتظام‌بخشی...). The General Board **rejected the request to annul clause 11**. It reasoned that, under the relevant notes 2 and 3 of Article 100, demolition after non-payment is a substitute/guarantee for the original fine decision; once the fine is paid or otherwise settled, there is no remaining basis to execute that substitute demolition. This is a narrow clause-specific holding, not a general legalization or permission to retain unauthorized construction. Source level remains COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; official judiciary/Gazette copy and hash are still SOURCE_REQUIRED.
+
+
+## Regulatory watch update — 2026-11-20
+
+### AR-SRC-019 — Ministry of Roads and Urban Development news (official secondary)
+- Title: ارتفاع طبقات مسکونی تا ۳۵۰ سانتی‌متر مجاز شد
+- Article ID: 237112; date/time: 1405/08/16, 21:43
+- URL: http://news.mrud.ir/news/237112/
+- Source level: OFFICIAL_SECONDARY. Full news text retrieved and read on 1405/08/29.
+- It reports that amendment of Shiraz detailed-plan clauses was considered and approved in Fars Article-5 commission and residential floor height up to 350 cm is permitted.
+- Status: ANNOUNCED only for this evidence record; the original resolution, amended clause, measurement definition, zones/uses, conditions, notification and effective date are still SOURCE_REQUIRED. No legal threshold or runtime rule activation.
+
+### AR-SRC-020 — Official INBR listing for Topic 24
+- Page: https://inbr.ir/%D8%AF%D8%A7%D9%86%D9%84%D9%88%D8%AF-%D9%85%D8%A8%D8%AD%D8%AB-%D8%A8%DB%8C%D8%B3%D8%AA-%D9%88-%DA%86%D9%87%D8%A7%D8%B1%D9%85/
+- The official-domain indexed result lists a download page for Topic 24; indexed snippet carries 1405/06/08. This verifies official listing metadata only, not a fresh edition or amendment.
+- Status: UNKNOWN for the document's version/contents/effective date in this run. Direct page and PDF fetch were blocked (403); no hash.
+
+### AR-SRC-021 — Topic 22 second-edition first draft
+- Official indexed PDF URL: https://inbr.ir/wp-content/uploads/2025/10/%D9%85%D8%AA%D9%86-%D9%BE%DB%8C%D8%B4-%D9%86%D9%88%DB%8C%D8%B3-%D8%A7%D9%88%D9%84-%D9%88%DB%8C%D8%B1%D8%A7%DB%8C%D8%B4-%D8%AF%D9%88%D9%85-%D9%85%D8%A8%D8%AD%D8%AB-22-%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA-%D9%85%D9%84%DB%8C-%D8%B3%D8%A7%D8%AE%D8%AA%D9%85%D8%A7%D9%86-06-08-1404.pdf
+- Search index title identifies “پیش‌نویس اول ویرایش دوم مبحث 22” with file-date clue 1404/08/06. This is DRAFT, not an adopted/effective edition.
+- Direct PDF retrieval blocked (403); contents, approval, notification, effective date, and hash not inspected.
+
+No new verified Article-100/99 judgment, official Shiraz parking/fee/permit, fire, heritage, utility, or parcel-specific zoning document was surfaced by the targeted searches today. Search coverage is not exhaustive; this means no new verified change, not proof that no change exists.
