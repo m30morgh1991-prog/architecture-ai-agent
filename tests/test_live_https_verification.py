@@ -9,9 +9,6 @@ import urllib.error
 import urllib.request
 from http.server import HTTPServer
 from pathlib import Path
-from unittest.mock import patch
-
-from runtime import app as runtime_app
 from runtime.app import Handler, build_tls_context
 
 
