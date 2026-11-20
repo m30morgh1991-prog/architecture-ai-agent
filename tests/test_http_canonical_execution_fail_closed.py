@@ -62,8 +62,9 @@ class HttpCanonicalExecutionFailClosedTests(unittest.TestCase):
         from runtime import app
 
         source = inspect.getsource(app.main)
+        tls_source = inspect.getsource(app.build_tls_context)
         self.assertIn('("127.0.0.1", 8443)', source)
-        self.assertIn("ssl.PROTOCOL_TLS_SERVER", source)
+        self.assertIn("ssl.PROTOCOL_TLS_SERVER", tls_source)
         self.assertIn("wrap_socket", source)
         self.assertNotIn('("0.0.0.0", 8443)', source)
         self.assertNotIn('("127.0.0.1", 8000)', source)
