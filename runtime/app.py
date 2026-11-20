@@ -439,12 +439,17 @@ class Handler(BaseHTTPRequestHandler):
 
 
 
-def main():
-    cert_file, key_file, api_token = load_runtime_security_config()
-
+def build_tls_context(cert_file, key_file):
+    """Create a server TLS context and load the explicitly configured identity."""
     tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     tls_context.minimum_version = ssl.TLSVersion.TLSv1_2
     tls_context.load_cert_chain(certfile=cert_file, keyfile=key_file)
+    return tls_context
+
+
+def main():
+    cert_file, key_file, api_token = load_runtime_security_config()
+    tls_context = build_tls_context(cert_file, key_file)
 
     # The listener is HTTPS-only and loopback-only. There is no plaintext
     # listener, redirect, or HTTP fallback.
