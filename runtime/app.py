@@ -283,10 +283,12 @@ def _has_valid_bearer_token(headers, expected_token):
         return False
     scheme, separator, supplied = values[0].partition(" ")
     return (
-        scheme == "Bearer"
+        scheme.lower() == "bearer"
         and bool(separator)
         and bool(supplied)
-        and hmac.compare_digest(supplied, expected_token)
+        and hmac.compare_digest(
+            supplied.encode("utf-8"), expected_token.encode("utf-8")
+        )
     )
 
 
