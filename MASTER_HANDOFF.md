@@ -1,3 +1,20 @@
+## Live checkpoint — 2026-11-20 (PR #174 HTTPS runtime implementation candidate)
+
+- Current main SHA: `2cf784e5307ceaa924f811bc0818b1b211ad267d`. Mainline CI lookup returned no workflow runs; do not claim mainline Green.
+- Critical mainline gap confirmed directly from current main source: `runtime/app.py` still binds `0.0.0.0:8000` and its POST handler reads caller-provided request JSON and constructs a PlanModel from it. Therefore the unsafe legacy HTTP route remains on main until PR #173 is accepted and merged; PR #174 is stacked and cannot independently fix main first. Treat this as an unresolved P0 mainline blocker, not as already mitigated on main.
+- PR #173: OPEN/DRAFT/UNMERGED, head `47ccff2df980781adb0bcb9d56293de452545be4`, base main. Runtime Tests #44623264450, PR CI #44623264806, Bug Hunt #44623264667 are completed/success on this exact head. It consolidates the safe fixes from #150/#151/#152/#154/#171 and blocks the legacy HTTP execution route before body consumption. No independent review exists. Connected GitHub identity is the author; self-approval must not be attempted.
+- PR #174: OPEN/DRAFT, stacked on #173. Code candidate `81db55006def5aeef9111c3512fdfad8caffc405` has Runtime Tests #44705813034, PR CI #44705813151, and Bug Hunt #44705813105 completed/success on the exact head.
+- HTTPS candidate behavior: explicit certificate/key and 32-byte-minimum bearer-token configuration required at startup; TLS server context with TLS 1.2 minimum; loopback-only listener at `127.0.0.1:8443`; no plaintext listener, redirect, or HTTP fallback; authenticated read-only execution-record GET; POST execution stays BLOCKED before body consumption; dormant unreachable HTTP execution code removed.
+- CI live TLS integration uses an ephemeral certificate and real TLS socket/client. Trusted certificate/IP-SAN verification succeeds; untrusted certificate is rejected; missing bearer token receives 401. This does not verify the eventual production certificate, production hostname/trust chain, renewal/rotation, or deployment. Those remain NOT_RUN.
+- Remote/LAN access stays disabled. Server-owned canonical PlanModel/ConstraintMap, complete impact/approval pipeline, CAD write, and production execution remain unimplemented. Windows/AutoCAD and visual runtime remain NOT_RUN.
+- PR #170: OPEN, non-draft, unmerged; exact head `32dbb8f8128ff31002ea33a1dd918821546e388e`; PR CI #44686773338, Runtime Tests #44686773343, Bug Hunt #44686773319 completed/success. Research/reference-only. Some official primary documents and hashes remain SOURCE_REQUIRED/NEEDS_REVIEW; no legal rule becomes executable/PASS.
+- PR #172 is still stacked on #171 and its earlier local-loopback HTTP exception conflicts with the stricter HTTPS-only decision. Reconcile it after #173 acceptance; do not merge independently.
+- #150/#151/#152/#154/#171 are superseded by #173 and must not merge separately; #153 is already merged/closed. Golden DWGs remain unchanged.
+- Merge order: #173 requires independent review and normal protected merge; then rebase #174 on the resulting main SHA and rerun all three gates on its exact new head. Do not bypass protection or self-approve. #174 must not merge before that sequence.
+- Immediate next actions: independent review of #173; protected merge after approval; rebase #174 and rerun exact-head CI; validate the intended operational certificate from a real client. Keep execution and remote access blocked until canonical evidence/approval is complete.
+
+---
+
 ## Live checkpoint — 2026-11-20 (PR #173 runtime-chain and idempotency lifecycle hardening)
 
 - Live main SHA remains `2cf784e5307ceaa924f811bc0818b1b211ad267d`. PR #173 is based directly on this mainline; the last ancestry comparison showed 0 commits behind.

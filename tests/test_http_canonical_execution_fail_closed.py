@@ -57,13 +57,24 @@ class HttpCanonicalExecutionFailClosedTests(unittest.TestCase):
         self.assertEqual(payload["status"], "BLOCKED")
         self.assertEqual(payload["error"], "CANONICAL_EXECUTION_NOT_CONFIGURED")
 
-    def test_execution_server_is_bound_to_loopback(self):
+    def test_execution_server_uses_https_and_is_bound_to_loopback(self):
         import inspect
         from runtime import app
 
         source = inspect.getsource(app.main)
-        self.assertIn('("127.0.0.1", 8000)', source)
-        self.assertNotIn('("0.0.0.0", 8000)', source)
+        tls_source = inspect.getsource(app.build_tls_context)
+        self.assertIn('("127.0.0.1", 8443)', source)
+        self.assertIn("ssl.PROTOCOL_TLS_SERVER", tls_source)
+        self.assertIn("wrap_socket", source)
+        self.assertNotIn('("0.0.0.0", 8443)', source)
+        self.assertNotIn('("127.0.0.1", 8000)', source)
+
+        post_source = inspect.getsource(app.Handler.do_POST)
+        self.assertIn("CANONICAL_EXECUTION_NOT_CONFIGURED", post_source)
+        self.assertIn("BLOCKED", post_source)
+        self.assertNotIn("self.rfile.read", post_source)
+        self.assertNotIn("PlanModel(", post_source)
+        self.assertNotIn("idempotency_guard.check", post_source)
 
 
 if __name__ == "__main__":

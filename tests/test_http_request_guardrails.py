@@ -79,11 +79,31 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertEqual(body["error"], "CANONICAL_EXECUTION_NOT_CONFIGURED")
         self.assertFalse(handler.rfile.read_called)
 
-    def test_runtime_binds_to_loopback_by_default(self):
-        with patch.object(runtime_app, "HTTPServer") as server_class:
-            runtime_app.main()
-        server_class.assert_called_once_with(("127.0.0.1", 8000), runtime_app.Handler)
+    def test_runtime_requires_tls_and_binds_https_to_loopback(self):
+        env = {
+            "ARCH_AGENT_TLS_CERT_FILE": "/secure/runtime.crt",
+            "ARCH_AGENT_TLS_KEY_FILE": "/secure/runtime.key",
+            "ARCH_AGENT_API_TOKEN": "x" * 48,
+        }
+        with patch.dict("os.environ", env, clear=True):
+            with patch.object(runtime_app, "HTTPServer") as server_class:
+                with patch.object(runtime_app.ssl, "SSLContext") as context_class:
+                    context = context_class.return_value
+                    original_socket = server_class.return_value.socket
+                    context.wrap_socket.return_value = object()
+                    runtime_app.main()
+
+        server_class.assert_called_once_with(("127.0.0.1", 8443), runtime_app.Handler)
+        context_class.assert_called_once_with(runtime_app.ssl.PROTOCOL_TLS_SERVER)
+        self.assertEqual(context.minimum_version, runtime_app.ssl.TLSVersion.TLSv1_2)
+        context.load_cert_chain.assert_called_once_with(
+            certfile="/secure/runtime.crt", keyfile="/secure/runtime.key"
+        )
+        context.wrap_socket.assert_called_once_with(
+            original_socket, server_side=True
+        )
         server_class.return_value.serve_forever.assert_called_once_with()
+        server_class.return_value.server_close.assert_called_once_with()
 
 
 if __name__ == "__main__":

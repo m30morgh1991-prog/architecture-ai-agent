@@ -1,3 +1,21 @@
+## Live checkpoint — 2026-11-20 (PR #174 HTTPS runtime implementation candidate)
+
+- Main remains at SHA `2cf784e5307ceaa924f811bc0818b1b211ad267d`; mainline workflow-run lookup returned no runs, so main Green is NOT claimed.
+- Critical mainline gap confirmed directly from current main source: `runtime/app.py` still binds `0.0.0.0:8000` and its POST handler reads caller-provided request JSON and constructs a PlanModel from it. Therefore the unsafe legacy HTTP route remains on main until PR #173 is accepted and merged; PR #174 is stacked and cannot independently fix main first. Treat this as an unresolved P0 mainline blocker, not as already mitigated on main.
+- PR #173 remains OPEN/DRAFT/UNMERGED on exact head `47ccff2df980781adb0bcb9d56293de452545be4`, based on current main. Runtime Tests #44623264450, PR CI Gate #44623264806, and Mandatory Bug Hunt #44623264667 completed/success on that exact SHA. It consolidates #150/#151/#152/#154/#171 runtime hardening and preserves the fail-closed execution boundary. No independent review is recorded; the connected GitHub identity is the PR author, so self-approval is prohibited.
+- PR #174 is OPEN/DRAFT and stacked on PR #173. Implementation candidate commit `81db55006def5aeef9111c3512fdfad8caffc405` passed Runtime Tests #44705813034, PR CI Gate #44705813151, and Mandatory Bug Hunt #44705813105 on that exact SHA.
+- PR #174 implements an HTTPS-only loopback listener on `127.0.0.1:8443`; startup requires explicit TLS certificate/key files and a bearer token of at least 32 UTF-8 bytes. TLS 1.2 is the minimum. The socket is TLS-wrapped; there is no plaintext listener, redirect, or HTTP fallback. Read-only execution-record GET requires one valid bearer token. The execution POST remains BLOCKED before body consumption, and the dormant unreachable execution handler has been removed.
+- Live CI integration creates an ephemeral certificate, performs a real TLS handshake, validates the certificate/IP SAN with an explicitly trusted test certificate, rejects an untrusted certificate, and confirms that missing bearer authentication receives 401. This verifies the local TLS code path only; the intended operational certificate, production hostname/trust chain, renewal/rotation, and deployment are NOT_RUN.
+- Remote/LAN access remains disabled. No canonical server-owned PlanModel/ConstraintMap registry, full impact/approval pipeline, CAD write capability, or production execution is implemented. Windows/AutoCAD runtime and visual validation remain NOT_RUN.
+- PR #170 (Shiraz/Fars regulation source update) remains OPEN, non-draft, unmerged on exact head `32dbb8f8128ff31002ea33a1dd918821546e388e`; PR CI #44686773338, Runtime Tests #44686773343, and Bug Hunt #44686773319 completed/success. Documentation/reference-only; some official source PDFs and hashes remain SOURCE_REQUIRED/NEEDS_REVIEW. Do not promote candidate rules to compliance PASS.
+- PR #172 remains OPEN/DRAFT/UNMERGED and stacked on #171. Its previous wording allowed loopback HTTP for local development, which conflicts with the stricter HTTPS-only decision now implemented in #174. Reconcile/update it after #173 is accepted; do not merge it independently.
+- PRs #150/#151/#152/#154/#171 are superseded by the consolidated #173 branch and must not be merged independently. #153 is already merged/closed.
+- Golden DWGs remain unchanged. CI logs on the latest #174 test run reported their known source hashes; no Golden asset was edited.
+- Merge/release boundary: do not merge #174 before #173 is accepted into main and #174 is rebased onto the resulting main SHA with all exact-head gates rerun. No approval bypass or self-approval. An independent review is still required for #173/#174.
+- Next actions: obtain independent review for #173; merge only after all repository protections are satisfied; rebase #174 onto the new main and rerun all gates; then perform live verification with the intended trusted operational certificate. Keep execution and remote access blocked until canonical evidence/approval gates are implemented.
+
+---
+
 ## Live checkpoint — 2026-11-20 (PR #173 runtime-chain and idempotency lifecycle hardening)
 
 - Live main SHA remains `2cf784e5307ceaa924f811bc0818b1b211ad267d`. PR #173 is based directly on this mainline; the last ancestry comparison showed 0 commits behind.
