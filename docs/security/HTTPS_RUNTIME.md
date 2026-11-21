@@ -39,3 +39,6 @@ Before any remote deployment or execution capability is considered:
 3. Complete authorization, origin/CSRF policy where relevant, rate limiting, and operational secret rotation.
 4. Implement the server-owned, source-hash-bound canonical PlanModel/ConstraintMap and the full impact/approval/final-validation chain.
 5. Keep remote access disabled and execution blocked until the applicable gates are independently reviewed and evidenced.
+
+
+**Token provisioning note:** runtime enforces a minimum of 32 UTF-8 bytes but does not measure token entropy. Provision the bearer token from a cryptographically secure random source, keep it outside version control/logs, and define a rotation process.
