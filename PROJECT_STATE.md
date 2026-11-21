@@ -1,7 +1,7 @@
 ## Live repository checkpoint — 2026-11-21 (verified after PR #178 and #179)
 
-- Current `main`: `9cc514598e35b34d4760e27fe6320e21e985970b` (PR #179 merge commit). PR #178 was squash-merged at `e828d4e75b14bdb63c8f8be2fcc80856cd2966b3`; PR #179 at `9cc514598e35b34d4760e27fe6320e21e985970b`.
-- Post-merge checks on exact main SHA `9cc514598e35b34d4760e27fe6320e21e985970b`: PR CI Gate, Runtime Tests, and Mandatory Bug Hunt all completed/success.
+- Latest code-bearing `main` SHA: `9cc514598e35b34d4760e27fe6320e21e985970b` (PR #179 merge). The current `main` HEAD at this checkpoint is the documentation-only PR #181 merge `7d18c6acc6f3afccd16a8dea2b3fa14befe68895`; it changes only PROJECT_STATE.md, MASTER_HANDOFF.md, and Bug Hunt evidence, not runtime/product code. PR #178 was squash-merged at `e828d4e75b14bdb63c8f8be2fcc80856cd2966b3`.
+- Post-merge checks on exact current main HEAD `7d18c6acc6f3afccd16a8dea2b3fa14befe68895`: PR CI Gate, Runtime Tests, and Mandatory Bug Hunt all completed/success. The code-bearing baseline `9cc514598e35b34d4760e27fe6320e21e985970b` also has all three post-merge checks completed/success.
 - PR #178 integrated the 2026-11-19 and 2026-11-21 Shiraz/Fars regulatory research. The registry now contains 25 unique sources and 31 unique candidate rules; all rule source references resolve. New source IDs AR-SRC-022–025 hold M19 v5, M19 transition extension, M12 v5, and judgment 1405313900001131406. M24 source provenance and the 47/44 m versus 27/23 m conflict remain explicit and source-gated. No rule is executable and no compliance PASS was activated.
 - PR #170 and #175 were closed as superseded by #178; their source identities were reconciled, not merged independently.
 - PR #179 consolidated the 2D-first AI tool registry. Eight capability groups remain; Maket AI is a 2D test candidate, Maquete/3D work is excluded, and image-only/flattened-visualization services were removed from the active presentation shortlist. No tool was installed or functionally tested; this is a research roadmap only. PR #177 was closed as superseded.
@@ -12,7 +12,7 @@
 - H100 remains ACTIVE. H101 remains LOCKED. PR #169 is stale against current main and cannot advance H101. PR #168 is draft and based on an older main; keep advisory-only and rebase/retest after P0.
 - Legacy Autodesk/Golden PRs #127–132, CAD research PRs #149 and #155–158, regulatory research PR #119, and research PR #139 remain open for separate stale-base/evidence review. PR #130 remains dependent on #129. Do not merge from old-head checks.
 - Golden DWG fixtures remain immutable: `test-assets/golden-projects/bagheri7.dwg` and `test-assets/golden-projects/afifiiiii.end.edit3.dwg`. No Golden file was modified by PRs #178/#179/#180. Real AutoCAD host/visual runtime remains NOT_RUN.
-- Durable-state repair PR #181 (this PR) updates this checkpoint. Older historical records below are preserved as history and must not override this live section.
+- Durable-state repair PR #181 merged at `7d18c6acc6f3afccd16a8dea2b3fa14befe68895`. This follow-up clarifies the distinction between the latest code-bearing SHA and the documentation-only checkpoint HEAD. Older historical records below are preserved as history and must not override this live section.
 
 ### Immediate continuation order
 1. Obtain independent security review/approval for PR #180; do not merge before it.
