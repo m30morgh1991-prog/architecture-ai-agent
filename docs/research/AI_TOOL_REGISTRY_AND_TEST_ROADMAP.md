@@ -78,10 +78,11 @@ Candidates: GSDiff, DiffPlanner, Graph2Plan, HypergraphFormer, House-GAN++, Disc
 Test graphic hierarchy, text/dimension/symbol legibility, scale/geometric fidelity, furniture and space differentiation, color/hatching/2D floor finishes, sheet composition/title blocks/legends/schedules, print-ready PDF and high-resolution image export, post-generation editability, and preservation of approved geometry.
 
 Candidates:
-- Maket AI — inspect actual plan presentation and editability.
-- Adobe Photoshop / Adobe Firefly — 2D graphic refinement; never geometry-authoritative.
-- LookX AI / PromeAI — architectural image/plan visualization; strict geometry-preservation test.
-- CAD/layout tools — dimensionally accurate annotation, sheets and print output.
+- Maket AI — inspect actual plan presentation, editability, dimension/scale fidelity, and export quality.
+- CAD/layout tools — dimensionally accurate annotation, sheet composition, title blocks, legends, schedules, and print-ready PDF output.
+- Existing vector/CAD presentation workflows — evaluate for editable linework, text, dimensions, hatches, and reusable sheet templates.
+
+Excluded from this active shortlist: Firefly, LookX, PromeAI, and other services whose primary deliverable is generated imagery or flattened visualization. A future exception requires a concrete editable 2D plan/sheet deliverable and a controlled geometry-preservation test.
 
 ### 2.6 2D plan graphics and illustration
 
