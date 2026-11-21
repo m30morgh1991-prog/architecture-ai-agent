@@ -138,3 +138,6 @@
 - هیچ Rule اجرایی، PASS، H-stage، منطق Runtime، هندسه یا مجوز ویرایش CAD تغییر نمی‌کند.
 - هیچ PR ادغام یا تأیید نمی‌شود.
 - شاخه دقیق docs/architecture-regulation-sources-2026-11 قبلاً ادغام‌شده و در حال حاضر ۷ commit عقب و ۲۰ commit divergent گزارش شده بود؛ برای جلوگیری از وارد کردن تاریخچه قدیمی/متعارض، این نوبت روی شاخه تازه docs/architecture-regulation-sources-2026-11-21 از main ثبت می‌شود.
+
+
+**Source provenance correction:** the full M24 text/thresholds were read from the ATNasr-hosted PDF. The letter number/date were found in a search-indexed QSCE PDF result, but its exact direct URL could not be verified. Do not imply that the ATNasr PDF itself contains the ministerial letter. Official-host PDF and hash remain pending.
