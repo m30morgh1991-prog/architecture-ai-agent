@@ -84,3 +84,17 @@
 3. Build deterministic checks for dimensions/area/counts once the geometry and context are reliable.
 4. Report conflicts, missing inputs, and uncertainty visibly.
 5. Add regression fixtures for each rule; tests must cover boundary values and unknown context.
+
+
+## National regulation and judicial updates — 2026-11-21
+
+
+
+## National regulation and judicial updates — 2026-11-21 (reference only)
+- Topic 24 first edition 1404: reproduced ministerial letter No. 140461/100/2 dated 1404/07/27 states effectiveness six months later. Calculated date 1405/01/27; a secondary summary says Ordibehesht 1405, so exact date is unresolved. Keep official-host verification pending.
+- Topic 24 tall-building definition in reproduced text: 47 m or more, OR 8+ floors including ground, OR highest usable floor >44 m above average ground. Older 27/23 m figures are not supported by this reproduced first-edition text and must be flagged as conflicting/possibly different criterion, not attributed to M24. No executable compliance check from this source.
+- Topic 24 density increase for 8+ floors is described as requiring high-rise zone/axis context, not isolated building. The reproduced text states 24% land coverage for high-rise buildings; applicability must be checked against official detailed plan and primary source.
+- Topic 19 fifth edition 1404: initial mandatory date reported as 1404/10/19. Subsequent IRCEO announcement permits parallel application of fourth (1399) and fifth (1404) editions from 1404/10/20 through 1405/12/29. One-day start discrepancy and minister-letter metadata are SOURCE_REQUIRED. Preserve selected edition and source evidence per project; do not force v5-only checks during the reported transition.
+- Topic 12 fifth edition (Safety, occupational health and environment during construction) was announced with minister letter dated 1403/09/12 and effective from that date according to IRCEO; full PDF/letter is SOURCE_REQUIRED before clause-level implementation.
+- General Board judgment 1405313900001131406 (1405/05/06) annulled letter 134252/420 (1404/08/11) issued by the National Building Regulations office, concerning supervisor instruction to compare approved drawings with National Regulations and report discrepancies. This is a narrow annulment of that letter, not of the regulations or design/execution duties. Full reproduced text has a wording tension; official judgment copy required.
+- The source-only additions must not generate PASS, FAIL, legal authorization, permit prediction, or automated enforcement.
