@@ -53,3 +53,40 @@ Links discovered:
 - Advisory opinion 7/1404/681: https://www.hoshyarvakil.ir/opinion/7-1404-681/
 
 Register policy: These are research leads and reproductions, not a substitute for official Gazette/judiciary artifacts. Keep each clause's status independent. Clause 3 is ANNULLED; clause 11 was NOT ANNULLED by the located judgment; remaining circular clauses are UNKNOWN pending review. Article 99 jurisdiction must be separately determined from parcel location.
+
+
+## Daily watch addendum — 2026-11-21
+
+| ID | Document | Status | Source level / verification | Scope / caveat |
+|---|---|---|---|---|
+| AR-SRC-010 | Topic 24, first edition 1404, Urban Building Conformity; letter 140461/100/2 dated 1404/07/27 | NOTIFIED; EFFECTIVE after six months (calculated 1405/01/27) | OFFICIAL_SECONDARY; full PDF text read on non-official host; official-host copy/hash pending | M24 tall-building definition: ≥47 m OR ≥8 floors including ground OR highest usable floor >44 m above average ground. Prior 27/23-m note conflicts; do not attribute it to M24. |
+| AR-SRC-011 | Topic 19, fifth edition (1404), initial notice | NOTIFIED; initial effective date reported 1404/10/19 | OFFICIAL_SECONDARY; IRCEO notice and linked 144-page PDF opened; minister letter metadata pending | Energy management; subsequent transition notice permits concurrent editions. |
+| AR-SRC-012 | Extension of concurrent Topic 19 editions 4 (1399) and 5 (1404), 1404/10/20–1405/12/29 | AMENDED | OFFICIAL_SECONDARY; IRCEO announcement read; original ministerial letter pending | Both editions reportedly permitted through the stated period; one-day start-date discrepancy remains. |
+| AR-SRC-013 | Topic 12, fifth edition: safety, occupational health and environment during construction; minister letter dated 1403/09/12 | NOTIFIED; EFFECTIVE as reported | OFFICIAL_SECONDARY; announcement read; full PDF/letter pending | No detailed clause extraction without full document. |
+| AR-SRC-014 | General Board judgment 1405313900001131406 dated 1405/05/06; annulment of letter 134252/420 dated 1404/08/11 | EFFECTIVE (reported); target letter ANNULLED | OFFICIAL_SECONDARY; full judgment reproduced/read; official court copy pending | Narrowly annuls the Director-General letter on supervisor comparison/reporting of approved plans vs National Regulations. Not an exemption from design/execution duties. |
+| AR-SRC-015 | Fars/Shiraz residential floor-height report up to 350 cm; Ministry news ID 237112, 1405/08/16–17 | ANNOUNCED; legal effect UNKNOWN | PRESS_LEAD; MRUD page timed out this run; Tasnim/Mehr reproductions found | Original Article-5 resolution, clause, height definition, zones/uses, notification and effective date SOURCE_REQUIRED. |
+
+### Direct source links
+- Topic 24 official download page (access restricted this run): https://inbr.ir/دانلود-مبحث-بیست-و-چهارم/
+- Topic 24 reproduced text PDF: https://atnasr.ir/wp-content/uploads/2025/11/Mabhas24-v1.0-1404-ATNasr.ir.pdf
+- Topic 19 fifth-edition notice: https://irceo.ir/fa/news/36052/ابلاغ-ویرایش-پنجم-مبحث-نوزدهم
+- Topic 19 fifth-edition PDF: https://static0.irceo.ir/servev2/OGNkNAT8Ewpf/lgax4Op8x6k5CUTWbZszXbbJmCHlw5ISu1nbqwkXWZy6TtQwfVyWBCMwERybPv4CM9_AR0Jt85wcIyAAhsJNNA,,/file.pdf
+- Topic 19 transition extension: https://irceo.ir/fa/news/36375/تمدید-اجرای-همزمان-ویرایش-چهارم
+- Topic 12 fifth-edition notice: https://irceo.ir/fa/news/35804/ابلاغ-ویرایش-پنجم-مبحث-دوازدهم
+- Judgment 1405313900001131406: https://hoghogh.ai/case-law/ابطال-نامه-شماره-134252-420-مورخ-1404-8-11-مدیرکل-دفتر-مقررات-ملی-140531390001131406
+- MRUD news ID 237112 (timeout): http://news.mrud.ir/news/237112/
+- Tasnim height lead: https://newsmedia.tasnimnews.ir/fa/news/1405/08/17/3743048/
+
+### Topic 24 source correction
+The reproduced first-edition text (section 2-4 definitions, PDF page around 27) defines a tall building as 47 m or more, or 8 floors or more including ground, or a highest usable floor more than 44 m above average ground. Prior 27 m / 23 m figures are not supported by this reproduced M24 text. Keep them as a source conflict and do not attribute them to M24; the 47/44 m values remain source-gated because the official-host PDF was not obtained. The text also describes density increases for 8+ floors as requiring high-rise zone/axis context rather than an isolated building and states a 24% coverage limit for high-rise buildings. Applicability to a Shiraz parcel must be checked against the detailed plan and primary source.
+
+### Topic 24 effective-date discrepancy
+The reproduced letter dated 1404/07/27, No. 140461/100/2, says effectiveness six months after notification. Calendar calculation yields 1405/01/27. A secondary summary says “from Ordibehesht 1405”; retain this conflict pending official-host verification.
+
+### Topic 19 transition
+The initial fifth-edition notice reports mandatory application from 1404/10/19. The later IRCEO announcement states concurrent use of fourth (1399) and fifth (1404) editions from 1404/10/20 through 1405/12/29. Preserve version selection and evidence per project; do not force v5-only checks during the reported transition. The one-day start discrepancy and original minister letter metadata remain SOURCE_REQUIRED.
+
+### Judgment 1131406
+The judgment annuls letter 134252/420, not National Building Regulations themselves and not general duties of designers, executors, permit issuers, or supervisors arising from other statutes/regulations. Its reproduced reasoning says no express supervisor duty to compare approved plans with National Regulations is stated in the cited rules, while another phrase appears to refer to such a duty. Retain this textual tension and obtain the official judgment before definitive legal interpretation.
+
+Retrieval time: 1405/08/30, 09:43 Asia/Tehran. SHA-256 not calculated; PDF binary download failed.
