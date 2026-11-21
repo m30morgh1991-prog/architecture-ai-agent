@@ -112,7 +112,7 @@
       "binary_committed": false,
       "verification": "OFFICIAL_DOCUMENT_TEXT_REPRODUCED_ON_NON_OFFICIAL_HOST; MINISTRY_HOST_AND_HASH_PENDING",
       "url": "https://qsce.ir/uploads/مبحث بیست و چهارم مقررات ملی.pdf",
-      "notes": "Notification states effective six months later; as of 1405/08/28 the period elapsed, but exact date remains unconfirmed due conflicting secondary reposts. Includes city conformity, height/density/coverage, massing/placement/adjacency/cityscape."
+      "notes": "Notification states effective six months later; as of 1405/08/28 the period elapsed, but exact date remains unconfirmed due conflicting secondary reposts. Includes city conformity, height/density/coverage, massing/placement/adjacency/cityscape. Additional copy/provenance: full text was also read from the ATNasr-hosted PDF; the minister-letter number/date were found in a search-indexed QSCE PDF result, but the exact QSCE URL was not verified. Official-host PDF/hash remain pending."
     },
     {
       "source_id": "AR-SRC-014",
@@ -165,7 +165,7 @@
       "binary_committed": false,
       "verification": "OFFICIAL_SECONDARY; ORIGINAL_ARTICLE5_RESOLUTION_NOT_RETRIEVED",
       "url": "http://news.mrud.ir/news/237112/",
-      "notes": "Full official Ministry news page scraped successfully on 1405/08/29. It reports approval in the Fars Article-5 commission and up to 350 cm residential floor height. Does not include the resolution, amended clause, zones, measurement definition, notification or effective date. Keep ANNOUNCED/SOURCE_REQUIRED; no executable threshold."
+      "notes": "Full official Ministry news page scraped successfully on 1405/08/29. It reports approval in the Fars Article-5 commission and up to 350 cm residential floor height. Does not include the resolution, amended clause, zones, measurement definition, notification or effective date. Keep ANNOUNCED/SOURCE_REQUIRED; no executable threshold. On 1405/08/30 the MRUD page timed out; Tasnim and Mehr reproductions were found, so this watch report conservatively labels the fresh retrieval as PRESS_LEAD while retaining the prior official-secondary retrieval record."
     },
     {
       "source_id": "AR-SRC-020",
@@ -184,6 +184,50 @@
       "verification": "OFFICIAL_PRIMARY_INDEX; DRAFT; PDF_CONTENT_RETRIEVAL_BLOCKED_403",
       "url": "https://inbr.ir/wp-content/uploads/2025/10/%D9%85%D8%AA%D9%86-%D9%BE%DB%8C%D8%B4-%D9%86%D9%88%DB%8C%D8%B3-%D8%A7%D9%88%D9%84-%D9%88%DB%8C%D8%B1%D8%A7%DB%8C%D8%B4-%D8%AF%D9%88%D9%85-%D9%85%D8%A8%D8%AD%D8%AB-22-%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA-%D9%85%D9%84%DB%8C-%D8%B3%D8%A7%D8%AE%D8%AA%D9%85%D8%A7%D9%86-06-08-1404.pdf",
       "notes": "Official domain search result identifies it as a draft, not an adopted/effective regulation. PDF fetch returned 403; text, change list, approval, promulgation and effective date are unknown. Do not apply as current requirement."
+    },
+    {
+      "source_id": "AR-SRC-022",
+      "title": "مبحث ۱۹ مقررات ملی ساختمان، ویرایش پنجم ۱۴۰۴ — مدیریت انرژی در ساختمان",
+      "page_count": 144,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; IRCEO NOTICE AND LINKED PDF OPENED; MINISTER LETTER METADATA PENDING",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "NOTIFIED; INITIAL EFFECTIVE DATE REPORTED 1404/10/19; TRANSITION EXTENSION",
+      "url": "https://irceo.ir/fa/news/36052/ابلاغ-ویرایش-پنجم-مبحث-نوزدهم",
+      "notes": "Energy lifecycle, carbon, envelope and MEP. Later notice permits concurrent editions 4 and 5 through 1405/12/29. PDF: https://static0.irceo.ir/servev2/OGNkNAT8Ewpf/lgax4Op8x6k5CUTWbZszXbbJmCHlw5ISu1nbqwkXWZy6TtQwfVyWBCMwERybPv4CM9_AR0Jt85wcIyAAhsJNNA,,/file.pdf"
+    },
+    {
+      "source_id": "AR-SRC-023",
+      "title": "تمدید اجرای همزمان ویرایش چهارم و پنجم مبحث ۱۹ تا پایان ۱۴۰۵",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; IRCEO ANNOUNCEMENT READ; ORIGINAL MINISTERIAL LETTER PENDING",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "AMENDED",
+      "url": "https://irceo.ir/fa/news/36375/تمدید-اجرای-همزمان-ویرایش-چهارم",
+      "notes": "Reported concurrent use of editions 4 (1399) and 5 (1404) from 1404/10/20 to 1405/12/29; exact letter metadata and one-day date discrepancy SOURCE_REQUIRED."
+    },
+    {
+      "source_id": "AR-SRC-024",
+      "title": "مبحث ۱۲ مقررات ملی ساختمان، ویرایش پنجم — ایمنی، بهداشت‌کار و محیط‌زیست در حین اجرا",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; IRCEO ANNOUNCEMENT READ; FULL PDF/LETTER NOT OBTAINED",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "NOTIFIED; EFFECTIVE AS REPORTED FROM 1403/09/12",
+      "url": "https://irceo.ir/fa/news/35804/ابلاغ-ویرایش-پنجم-مبحث-دوازدهم",
+      "notes": "Announcement cites minister letter dated 12 Azar 1403; full primary document required before detailed clause-level implementation."
+    },
+    {
+      "source_id": "AR-SRC-025",
+      "title": "دادنامه هیأت عمومی 1405313900001131406 مورخ 1405/05/06 — ابطال نامه 134252/420 مورخ 1404/08/11",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "FULL JUDGMENT TEXT REPRODUCED BY SECONDARY HOST; OFFICIAL COURT/GAZETTE COPY PENDING",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "EFFECTIVE (REPORTED); TARGET LETTER ANNULLED",
+      "url": "https://hoghogh.ai/case-law/ابطال-نامه-شماره-134252-420-مورخ-1404-8-11-مدیرکل-دفتر-مقررات-ملی-140531390001131406",
+      "notes": "Annuls the Director-General letter requiring supervisors to compare approved drawings with National Building Regulations and report discrepancies. Narrow scope; no exemption from design/code duties. Textual tension in reasoning requires official copy."
     }
   ],
   "rules": [
