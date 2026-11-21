@@ -90,3 +90,5 @@ The initial fifth-edition notice reports mandatory application from 1404/10/19. 
 The judgment annuls letter 134252/420, not National Building Regulations themselves and not general duties of designers, executors, permit issuers, or supervisors arising from other statutes/regulations. Its reproduced reasoning says no express supervisor duty to compare approved plans with National Regulations is stated in the cited rules, while another phrase appears to refer to such a duty. Retain this textual tension and obtain the official judgment before definitive legal interpretation.
 
 Retrieval time: 1405/08/30, 09:43 Asia/Tehran. SHA-256 not calculated; PDF binary download failed.
+
+**Source provenance correction:** the full M24 text/thresholds were read from the ATNasr-hosted PDF. The letter number/date were found in a search-indexed QSCE PDF result, but its exact direct URL could not be verified. Do not imply that the ATNasr PDF itself contains the ministerial letter. Official-host PDF and hash remain pending.
