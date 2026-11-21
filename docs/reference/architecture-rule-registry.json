@@ -77,6 +77,72 @@
       "verification": "SECONDARY_REPRODUCTION; PRIMARY_SIGNED_COPY_PENDING",
       "url": "https://www.hoshyarvakil.ir/opinion/7-1404-681/",
       "notes": "Interpretive research lead following judgment 646865; do not generalize beyond its precise conclusion."
+    },
+    {
+      "source_id": "AR-SRC-010",
+      "title": "مبحث ۲۴ مقررات ملی ساختمان، ویرایش اول ۱۴۰۴ — انطباق شهری ساختمان; letter 140461/100/2 dated 1404/07/27",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; FULL REPRODUCED PDF TEXT READ; NON-OFFICIAL HOST; OFFICIAL-HOST COPY AND SHA256 PENDING",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "NOTIFIED; EFFECTIVE CALCULATED 1405/01/27",
+      "url": "https://atnasr.ir/wp-content/uploads/2025/11/Mabhas24-v1.0-1404-ATNasr.ir.pdf",
+      "notes": "Six-month effectiveness clause; exact date is calculated and conflicts with secondary summary saying Ordibehesht. M24 tall-building definition: 47m+ OR 8 floors including ground OR highest usable floor >44m. Prior 27/23m candidate conflicts; do not attribute it to M24."
+    },
+    {
+      "source_id": "AR-SRC-011",
+      "title": "مبحث ۱۹ مقررات ملی ساختمان، ویرایش پنجم ۱۴۰۴ — مدیریت انرژی در ساختمان",
+      "page_count": 144,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; IRCEO NOTICE AND LINKED PDF OPENED; MINISTER LETTER METADATA PENDING",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "NOTIFIED; INITIAL EFFECTIVE DATE REPORTED 1404/10/19; TRANSITION EXTENSION",
+      "url": "https://irceo.ir/fa/news/36052/ابلاغ-ویرایش-پنجم-مبحث-نوزدهم",
+      "notes": "Energy lifecycle, carbon, envelope and MEP. Later notice permits concurrent editions 4 and 5 through 1405/12/29. PDF: https://static0.irceo.ir/servev2/OGNkNAT8Ewpf/lgax4Op8x6k5CUTWbZszXbbJmCHlw5ISu1nbqwkXWZy6TtQwfVyWBCMwERybPv4CM9_AR0Jt85wcIyAAhsJNNA,,/file.pdf"
+    },
+    {
+      "source_id": "AR-SRC-012",
+      "title": "تمدید اجرای همزمان ویرایش چهارم و پنجم مبحث ۱۹ تا پایان ۱۴۰۵",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; IRCEO ANNOUNCEMENT READ; ORIGINAL MINISTERIAL LETTER PENDING",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "AMENDED",
+      "url": "https://irceo.ir/fa/news/36375/تمدید-اجرای-همزمان-ویرایش-چهارم",
+      "notes": "Reported concurrent use of editions 4 (1399) and 5 (1404) from 1404/10/20 to 1405/12/29; exact letter metadata and one-day date discrepancy SOURCE_REQUIRED."
+    },
+    {
+      "source_id": "AR-SRC-013",
+      "title": "مبحث ۱۲ مقررات ملی ساختمان، ویرایش پنجم — ایمنی، بهداشت‌کار و محیط‌زیست در حین اجرا",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "OFFICIAL_SECONDARY; IRCEO ANNOUNCEMENT READ; FULL PDF/LETTER NOT OBTAINED",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "NOTIFIED; EFFECTIVE AS REPORTED FROM 1403/09/12",
+      "url": "https://irceo.ir/fa/news/35804/ابلاغ-ویرایش-پنجم-مبحث-دوازدهم",
+      "notes": "Announcement cites minister letter dated 12 Azar 1403; full primary document required before detailed clause-level implementation."
+    },
+    {
+      "source_id": "AR-SRC-014",
+      "title": "دادنامه هیأت عمومی 1405313900001131406 مورخ 1405/05/06 — ابطال نامه 134252/420 مورخ 1404/08/11",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "FULL JUDGMENT TEXT REPRODUCED BY SECONDARY HOST; OFFICIAL COURT/GAZETTE COPY PENDING",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "EFFECTIVE (REPORTED); TARGET LETTER ANNULLED",
+      "url": "https://hoghogh.ai/case-law/ابطال-نامه-شماره-134252-420-مورخ-1404-8-11-مدیرکل-دفتر-مقررات-ملی-140531390001131406",
+      "notes": "Annuls the Director-General letter requiring supervisors to compare approved drawings with National Building Regulations and report discrepancies. Narrow scope; no exemption from design/code duties. Textual tension in reasoning requires official copy."
+    },
+    {
+      "source_id": "AR-SRC-015",
+      "title": "خبر ارتفاع طبقات مسکونی شیراز تا ۳۵۰ سانتی‌متر; Ministry news ID 237112, 1405/08/16–17",
+      "page_count": null,
+      "binary_committed": false,
+      "verification": "PRESS_LEAD; MRUD PAGE PREVIOUSLY LINKED BUT TIMED OUT THIS RUN; TASnim/Mehr REPRODUCTIONS FOUND",
+      "source_level": "PRESS_LEAD",
+      "status": "ANNOUNCED; LEGAL EFFECT UNKNOWN",
+      "url": "http://news.mrud.ir/news/237112/",
+      "notes": "Original Fars Article-5 resolution, amended clause, height definition, scope/maps, notification/effective date SOURCE_REQUIRED. Press lead: https://newsmedia.tasnimnews.ir/fa/news/1405/08/17/3743048/"
     }
   ],
   "rules": [
