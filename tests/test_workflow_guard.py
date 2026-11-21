@@ -6,11 +6,15 @@ class WorkflowGuardTests(unittest.TestCase):
     def test_successful_lifecycle_is_audited_and_idempotent(self):
         guard = WorkflowGuard()
         started = guard.begin("E18", "K18")
+        duplicate_while_running = guard.begin("E18", "K18")
         finished = guard.finish("E18", "K18")
-        duplicate = guard.begin("E18", "K18")
+        duplicate_after_completion = guard.begin("E18", "K18")
         self.assertEqual(started.state, "RUNNING")
+        self.assertEqual(duplicate_while_running, started)
         self.assertEqual(finished.state, "SUCCEEDED")
-        self.assertEqual(duplicate, started)
+        # Replay after terminal completion must return the latest lifecycle state,
+        # not the stale RUNNING result that was first cached.
+        self.assertEqual(duplicate_after_completion, finished)
         self.assertEqual([e.stage for e in guard.trace("E18")], ["WORKFLOW", "WORKFLOW"])
 
     def test_blocking_failure_becomes_blocked(self):
