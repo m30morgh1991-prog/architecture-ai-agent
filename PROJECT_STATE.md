@@ -1,3 +1,16 @@
+## Live security checkpoint — 2026-11-21 (HTTPS runtime hardening ported for mainline review)
+
+- Verified main SHA at checkpoint: `2cf784e5307ceaa924f811bc0818b1b211ad267d`. Main still contains an unsafe plaintext runtime bound to `0.0.0.0:8000`; do not claim the P0 is fixed until this corrective PR is accepted and merged.
+- Corrective branch `fix/security-https-runtime-mainline` ports the consolidated fail-closed runtime hardening and HTTPS-only TLS/auth boundary from the reviewed #173/#174 candidate, directly against current main, so the critical security fix is no longer dependent on stacked PR merge order.
+- Intended branch runtime: HTTPS-only loopback `127.0.0.1:8443`, explicit TLS cert/key and bearer-token config required at startup, TLS 1.2 minimum, authenticated read-only execution lookup, and POST /v1/execute BLOCKED before request-body consumption. No HTTP listener, redirect, fallback, or dormant HTTP execution handler.
+- The branch includes audit/idempotency/request-validation changes and regression/live TLS tests. Exact-head CI must run after the PR is opened; no green status is claimed before the checks complete.
+- Transport contract updated to HTTPS-only and removes the loopback plaintext-development exception. #172's old wording is superseded; #172 itself is not merged or approved by this action.
+- Runtime is not operationally authorized: canonical source-bound PlanModel/ConstraintMap and full approval/impact/final-validation path remain incomplete. Remote/LAN access remains disabled. Operational certificate verification, rotation, scoped authorization, origin/CSRF, rate limits, timeouts, and secret-redaction evidence remain NOT_RUN/NOT_VERIFIED.
+- Windows/AutoCAD host and visual runtime remain NOT_RUN. Golden DWG files are untouched. No PR approvals, merges, branch-protection bypasses, or runtime execution were performed.
+- Next: inspect corrective PR and exact-head CI; obtain independent review; only merge via normal repository protections. Then rebase #174/#172 superseded work as appropriate, refresh exact-head checks, and continue stale-PR/Golden regression review.
+
+---
+
 ## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
 
 - Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
