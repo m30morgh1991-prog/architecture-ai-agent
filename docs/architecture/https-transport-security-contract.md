@@ -5,7 +5,7 @@ HTTPS is mandatory for every operational client-to-service connection, including
 
 ## Runtime boundary
 - The current runtime is HTTPS-only, bound to `127.0.0.1:8443`.
-- Startup requires explicit TLS certificate/private-key paths and a high-entropy bearer token (minimum 32 UTF-8 bytes); startup fails closed if missing or invalid.
+- Startup requires explicit TLS certificate/private-key paths and a bearer token of at least 32 UTF-8 bytes; startup fails closed if missing or too short. Runtime validates length only, not entropy. The operator must provision the token from a cryptographically secure random source and protect/rotate it.
 - TLS 1.2 minimum; clients must validate certificate chains and host/IP SAN. Certificate verification must never be disabled.
 - Remote/LAN access is disabled. A future remote deployment requires a separate threat-model/security review, explicit authorization, trusted TLS termination and protected edge-to-runtime channel, host/origin policy, authentication and authorization, CSRF controls appropriate to auth, rate limiting, request bounds/timeouts, safe secret handling/rotation, and independent verification.
 - Authenticated execution-record GET is read-only. `POST /v1/execute` remains BLOCKED before body consumption until server-owned canonical evidence and the approval/impact pipeline are implemented and validated.
