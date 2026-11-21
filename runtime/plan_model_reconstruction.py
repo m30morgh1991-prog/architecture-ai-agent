@@ -1,12 +1,13 @@
 """Deterministic reconstruction of an evidence-backed PlanModel (H70/H100)."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from math import isfinite
 from typing import Any
 
 from runtime.drawing_semantic_evidence import DrawingEvidenceSet
 from runtime.element_evidence_contract import ALLOWED_ELEMENT_TYPES, ElementEvidenceBundle, build_element_evidence_bundle
+from runtime.geometry_reference_contract import GeometryReference
 from runtime.plan_model_contract import PlanElement, PlanModel
 from runtime.space_model_contract import SpaceModel
 
@@ -45,6 +46,7 @@ def build_plan_model_from_detection(
     drawing_count: int = 1,
     space_model: SpaceModel | None = None,
     drawing_evidence: DrawingEvidenceSet | None = None,
+    geometry_reference: GeometryReference | None = None,
 ) -> PlanModelReconstructionResult:
     if not model_id or len(source_sha256) != 64:
         raise ValueError("PLAN_RECONSTRUCTION_ID_OR_SOURCE_INVALID")
@@ -54,6 +56,19 @@ def build_plan_model_from_detection(
         raise ValueError("PLAN_RECONSTRUCTION_SOURCE_MISMATCH")
     if drawing_evidence is not None and drawing_evidence.source_sha256 != source_sha256:
         raise ValueError("PLAN_RECONSTRUCTION_DRAWING_EVIDENCE_SOURCE_MISMATCH")
+    if geometry_reference is not None:
+        geometry_reference.validate()
+        if geometry_reference.source_sha256 != source_sha256:
+            raise ValueError("PLAN_RECONSTRUCTION_GEOMETRY_REFERENCE_SOURCE_MISMATCH")
+
+    resolved_space_model = space_model
+    if geometry_reference is not None and space_model is not None:
+        if space_model.geometry_reference is None:
+            resolved_space_model = replace(space_model, geometry_reference=geometry_reference)
+        elif space_model.geometry_reference != geometry_reference:
+            raise ValueError("PLAN_RECONSTRUCTION_GEOMETRY_REFERENCE_CONFLICT")
+    elif geometry_reference is None and space_model is not None:
+        geometry_reference = space_model.geometry_reference
 
     elements: list[PlanElement] = []
     evidence_items: list[dict[str, Any]] = []
@@ -152,9 +167,10 @@ def build_plan_model_from_detection(
         drawing_count=drawing_count,
         elements=tuple(elements),
         unresolved=tuple(sorted(unresolved)),
-        space_model=space_model,
+        space_model=resolved_space_model,
         element_evidence=bundle,
         drawing_evidence=drawing_evidence,
+        geometry_reference=geometry_reference,
     )
     result = PlanModelReconstructionResult(plan_model=model, evidence_bundle=bundle)
     result.validate()

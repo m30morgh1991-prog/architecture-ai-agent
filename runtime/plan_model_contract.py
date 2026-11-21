@@ -15,6 +15,7 @@ from typing import Any, Literal
 
 from runtime.bim_ready_contract import BIMElementIdentity, BIMElementRelation, validate_bim_graph
 from runtime.drawing_semantic_evidence import DrawingEvidenceSet
+from runtime.geometry_reference_contract import GeometryReference
 from runtime.element_evidence_contract import ElementEvidenceBundle
 from runtime.space_model_contract import SpaceModel
 
@@ -64,6 +65,7 @@ class PlanModel:
     element_evidence: ElementEvidenceBundle | None = None
     drawing_evidence: DrawingEvidenceSet | None = None
     bim_relations: tuple[BIMElementRelation, ...] = ()
+    geometry_reference: GeometryReference | None = None
 
     def validate(self) -> None:
         if not self.model_id or not self.source_sha256:
@@ -118,10 +120,20 @@ class PlanModel:
             if self.drawing_evidence.unresolved:
                 self._validate_drawing_evidence_resolution()
 
+        if self.geometry_reference is not None:
+            self.geometry_reference.validate()
+            if self.geometry_reference.source_sha256 != self.source_sha256:
+                raise ValueError("GEOMETRY_REFERENCE_SOURCE_MISMATCH")
+
         if self.space_model is not None:
             self.space_model.validate()
             if self.space_model.source_sha256 != self.source_sha256:
                 raise ValueError("SPACE_MODEL_SOURCE_MISMATCH")
+            if self.space_model.geometry_reference is not None:
+                if self.space_model.geometry_reference.source_sha256 != self.source_sha256:
+                    raise ValueError("SPACE_GEOMETRY_REFERENCE_SOURCE_MISMATCH")
+                if self.geometry_reference is not None and self.space_model.geometry_reference != self.geometry_reference:
+                    raise ValueError("PLAN_SPACE_GEOMETRY_REFERENCE_CONFLICT")
 
     def _validate_drawing_evidence_resolution(self) -> None:
         # Unresolved drawing evidence is allowed in PlanModel, but it prevents
