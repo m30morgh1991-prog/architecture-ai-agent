@@ -7,6 +7,7 @@ It is deterministic and dependency-free so CI can run in a clean environment.
 from __future__ import annotations
 from pathlib import Path
 import argparse
+import os
 import re
 import sys
 
@@ -46,6 +47,14 @@ def evidence_path(pr_number: str, root: Path | None = None) -> Path:
     if not re.fullmatch(r"\d+", str(pr_number)):
         raise ValueError("PR_NUMBER_INVALID")
     return base / "docs" / "bug-hunting" / f"PR-{pr_number}.md"
+
+def _resolve_evidence_path(pr_number: str, root: Path | None = None) -> Path:
+    """Prefer the actual pull-request ref when the supplied PR number is stale."""
+    github_ref = os.environ.get("GITHUB_REF", "")
+    match = re.fullmatch(r"refs/pull/(\d+)/(?:merge|head)", github_ref)
+    if match:
+        return evidence_path(match.group(1), root)
+    return evidence_path(pr_number, root)
 
 def _outside_fenced_code_lines(text: str) -> list[str]:
     """Return Markdown lines outside fenced code blocks (backticks or tildes)."""
@@ -99,7 +108,7 @@ def validate_evidence(text: str) -> list[str]:
     return errors
 
 def run(pr_number: str, root: Path | None = None) -> int:
-    path = evidence_path(pr_number, root)
+    path = _resolve_evidence_path(pr_number, root)
     if not path.exists():
         print(f"BUG_HUNT_BLOCKED: missing {path}")
         return 1
