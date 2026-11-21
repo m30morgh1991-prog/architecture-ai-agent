@@ -84,3 +84,44 @@
 3. Build deterministic checks for dimensions/area/counts once the geometry and context are reliable.
 4. Report conflicts, missing inputs, and uncertainty visibly.
 5. Add regression fixtures for each rule; tests must cover boundary values and unknown context.
+
+
+## National Topic 24 (1404) and Shiraz height lead — 2026-11-19
+A reproduced Ministry of Roads and Urban Development first-edition Topic 24 (Urban Building Conformity) contains ministerial notification no. 140461/100/2 dated 1404/07/27 and says it becomes effective six months after notification. As of 1405/08/28, that period has elapsed; exact calendar effective day is still SOURCE_REQUIRED because secondary reposts disagree and the ministry-hosted original was not retrieved. The copy is hosted at a non-ministry domain and no SHA-256 hash was obtained.
+
+Candidate national Topic 24 topics for later, source-bound review:
+- Height definition: average sidewalk level to average roof (sloped roof) / highest parapet (flat roof).
+- High-rise classification trigger in the reproduced first-edition Topic 24 text: height >=47 m OR >=8 floors including ground OR highest usable floor >44 m. Older 27/23 m figures conflict with this text and remain NEEDS_REVIEW; do not attribute them to Topic 24 without primary-source evidence.
+- Density/height, placement, massing, adjacency, privacy/overlooking, shadow/daylight, access width, and cityscape context.
+- Residential façade lighting prohibition (ground-floor/entrance security lighting is required).
+- Visible façade mechanical equipment prohibition except gas-related installations.
+
+A press lead dated 1405/08/17 reports Fars Article-5 approval for residential floor height up to 350 cm in Shiraz. The original resolution, height definition, zones, conditions, notification and effective date were not obtained. Keep it ANNOUNCED/UNKNOWN; do not use it as a legal threshold or infer building-height/floor-count permission.
+
+Source links: Topic 24 PDF copy (https://qsce.ir/uploads/%D9%85%D8%A8%D8%AD%D8%AB%20%D8%A8%DB%8C%D8%B3%D8%AA%20%D9%88%20%DA%86%D9%87%D8%A7%D8%B1%D9%85%20%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA%20%D9%85%D9%84%DB%8C.pdf); Tasnim height report (https://newsmedia.tasnimnews.ir/fa/news/1405/08/17/3743048/%D9%85%D8%AC%D9%88%D8%B2-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%85%D8%A7%D8%AF%D9%87-5-%D8%A8%D8%B1%D8%A7%DB%8C-%D8%A7%D9%81%D8%B2%D8%A7%DB%8C%D8%B4-%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%B7%D8%A8%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%DA%A9%D9%88%D9%86%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%AA%D8%A7-3-5-%D9%85%D8%AA%D8%B1).
+
+
+## Article 99 jurisdiction and enforcement — follow-up 2026-11-19
+The current research found two more sources:
+- General Board judgment 1403313900001065343 (1403/05/09) annulled clauses 7, 8, 9, 10, and 14 of Ministry circular 145016 (1401/07/19) in the specified respects. This is not a blanket annulment of Article 99 or the entire guideline.
+- Advisory opinion 7/1403/747 (1403/10/30) states that jurisdiction for an earlier violation remains with the Article-99 commission if the parcel was outside city harem at the violation date, even if it later enters; a violation after entry falls to Article 100.
+
+Source links: https://amagestate.com/legal/article-99-building-demolition-ruling/ ; https://hoshyarvakil.ir/opinion/7-1403-747/ . Both are reproductions; official primary copies remain pending.
+
+
+## Article 99 additional judgments and boundary-date rule — 2026-11-19
+- Judgment 1403313900001065343 (1403/05/09) annulled clauses 7, 8, 9, 10, and 14 of circular 145016 (1401/07/19) in the specified respects. It does not annul the entire guideline or Article 99.
+- Advisory opinion 7/1403/747 (1403/10/30) states that, in the described later-boundary-entry case, the violation date controls Article-99 vs. Article-100 jurisdiction. Store historic parcel boundary/harem status separately from current status.
+
+Reproductions: https://amagestate.com/legal/article-99-building-demolition-ruling/ ; https://hoshyarvakil.ir/opinion/7-1403-747/ . Official primary copies remain pending.
+
+## National regulation and judicial updates — 2026-11-21 (reference only)
+- Topic 24 first edition 1404: reproduced ministerial letter No. 140461/100/2 dated 1404/07/27 states effectiveness six months later. Calculated date 1405/01/27; a secondary summary says Ordibehesht 1405, so exact date is unresolved. Keep official-host verification pending.
+- Topic 24 tall-building definition in reproduced text: 47 m or more, OR 8+ floors including ground, OR highest usable floor >44 m above average ground. Older 27/23 m figures are not supported by this reproduced first-edition text and must be flagged as conflicting/possibly different criterion, not attributed to M24. No executable compliance check from this source.
+- Topic 24 density increase for 8+ floors is described as requiring high-rise zone/axis context, not isolated building. The reproduced text states 24% land coverage for high-rise buildings; applicability must be checked against official detailed plan and primary source.
+- Topic 19 fifth edition 1404: initial mandatory date reported as 1404/10/19. Subsequent IRCEO announcement permits parallel application of fourth (1399) and fifth (1404) editions from 1404/10/20 through 1405/12/29. One-day start discrepancy and minister-letter metadata are SOURCE_REQUIRED. Preserve selected edition and source evidence per project; do not force v5-only checks during the reported transition.
+- Topic 12 fifth edition (Safety, occupational health and environment during construction) was announced with minister letter dated 1403/09/12 and effective from that date according to IRCEO; full PDF/letter is SOURCE_REQUIRED before clause-level implementation.
+- General Board judgment 1405313900001131406 (1405/05/06) annulled letter 134252/420 (1404/08/11) issued by the National Building Regulations office, concerning supervisor instruction to compare approved drawings with National Regulations and report discrepancies. This is a narrow annulment of that letter, not of the regulations or design/execution duties. Full reproduced text has a wording tension; official judgment copy required.
+- The source-only additions must not generate PASS, FAIL, legal authorization, permit prediction, or automated enforcement.
+
+**Source provenance correction:** the full M24 text/thresholds were read from the ATNasr-hosted PDF. The letter number/date were found in a search-indexed QSCE PDF result, but its exact direct URL could not be verified. Do not imply that the ATNasr PDF itself contains the ministerial letter. Official-host PDF and hash remain pending.
