@@ -85,7 +85,7 @@ Candidates:
 
 ### 2.6 2D plan graphics and illustration
 
-Candidates: Stable Diffusion + ControlNet, LookX AI, PromeAI, Adobe Firefly, Leonardo AI, Midjourney, Vizcom. Evaluate local-vs-cloud runtime, hardware, API availability, image-to-image control, legibility, and geometry preservation. These are visual assistants, not geometry sources of truth. RoomGPT, Interior AI, ReimagineHome are lower priority unless a clear 2D plan use case is demonstrated.
+Only tools that materially support editable 2D plan graphics, annotation, sheet composition, or geometry-preserving presentation remain eligible. Pure image-generation services and tools whose output is only a flattened picture are excluded from the active shortlist, consistent with the project's earlier screening. Any later exception requires a demonstrated editable 2D deliverable and a controlled geometry-preservation test.
 
 ### 2.7 Agents and automation
 
