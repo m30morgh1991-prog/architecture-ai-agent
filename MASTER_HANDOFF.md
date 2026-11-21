@@ -2,9 +2,10 @@
 
 ### Source of truth
 - Repository: `m30morgh1991-prog/architecture-ai-agent`
-- Current main SHA: `9cc514598e35b34d4760e27fe6320e21e985970b`
-- Post-merge main checks on this SHA: PR CI Gate SUCCESS, Runtime Tests SUCCESS, Mandatory Bug Hunt SUCCESS.
-- Durable checkpoint PR: #181 (this change). Re-read `PROJECT_STATE.md` and this file before continuing.
+- Current main HEAD at this checkpoint: `7d18c6acc6f3afccd16a8dea2b3fa14befe68895` (documentation-only PR #181 merge).
+- Latest code-bearing main SHA: `9cc514598e35b34d4760e27fe6320e21e985970b` (PR #179 merge); PR #181 changes only durable state docs and Bug Hunt evidence.
+- Post-merge checks on current main HEAD `7d18c6acc6f3afccd16a8dea2b3fa14befe68895`: PR CI Gate SUCCESS, Runtime Tests SUCCESS, Mandatory Bug Hunt SUCCESS.
+- Durable checkpoint PR #181 is merged. Re-read `PROJECT_STATE.md` and this file before continuing.
 
 ### Completed on main
 - PR #178 merged: reconciled Shiraz/Fars regulatory watch; 25 unique sources, 31 unique candidate rules, zero broken source references. Source ID collisions between #170 and #175 were resolved by preserving the older IDs and allocating AR-SRC-022–025 for new unique sources.
