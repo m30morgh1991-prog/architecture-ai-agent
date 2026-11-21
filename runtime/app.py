@@ -262,7 +262,11 @@ def execute(plan: PlanModel, request: ChangeRequest, simulated_geometry=None, ex
 
 
 def load_runtime_security_config(environ=None):
-    """Require explicit TLS material and a strong bearer token before startup."""
+    """Require TLS material and a minimum-length bearer token before startup.
+
+    Token entropy is an operator provisioning responsibility; this function
+    enforces length only and does not claim to measure randomness.
+    """
     env = os.environ if environ is None else environ
     cert_file = env.get("ARCH_AGENT_TLS_CERT_FILE")
     key_file = env.get("ARCH_AGENT_TLS_KEY_FILE")
