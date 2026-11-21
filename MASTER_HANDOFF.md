@@ -1,26 +1,38 @@
-## Live repository checkpoint — 2026-11-11 (refreshed from live GitHub)
+## Live handoff — 2026-11-21 (verified main and active security gate)
 
-- Current `main` ref: `30e141bfb644d120e53c57070cd200df8fdbeeae` (PR #121 merge commit; PR #125's `711c085508ab563d347c5c3918263317b08325f2` is its parent, not the current main head).
-- Mainline CI evidence for `30e141bfb644d120e53c57070cd200df8fdbeeae`: the available workflow-run and combined-status queries returned no records. **Post-merge mainline Green is not claimed.**
-- Live open PR inventory checked 2026-11-11: #119, #126, #127, #128, #129, #130. No PR was merged, approved, or closed as part of this checkpoint.
-- PR #127 (read-only Golden DWG geometry coordinates) is based on current main, exact head `4a3642bc88314af58c56a628ce40c058fd8dd2a6`; PR CI #38382657911, Runtime #38382657906, Bug Hunt #38382657885, Golden export #38382658040 all completed/success. Coordinate-frame reconciliation remains UNKNOWN for unresolved OCS/WCS and INSERT transforms. Review comment requested entity-specific CSV fields; the PR body reports these fields and a regression test were added and the thread resolved. PR remains open.
-- PR #128 (review findings, input completeness, PlanModel revision diff) is based on current main, exact head `3af9328a90909191ce494287f59f95f8a48d2650`; PR CI #40281675282, Runtime #40281675235, Bug Hunt #40281675279 all completed/success. Its 46 tests cover additive deterministic contracts; these helpers are not yet wired into the runtime pipeline. PR remains open.
-- PR #129 (AIE v0.1 + Autodesk read-only evidence extractor) is based on current main, exact head `4924622886aa00d7f1c039e010269b7d47f7c359`; PR CI #42915700762, Runtime #42915700788, Bug Hunt #42915700846, Golden export #42915700723, AgentShield #42915700735 all completed/success. Review state is COMMENTED, not APPROVED. AIE remains read-only; no semantic or compliance authority is granted.
-- PR #130 (fail-closed snapshot-binding correction) is stacked on PR #129, exact head `925fdbf843b6bb9ab3cd82e93be5b09f6d340eab`; PR CI #42918732550, Runtime #42918732442, Bug Hunt #42918732385, Golden export #42918732429 all completed/success. It ignores an exporter-supplied `snapshot_binding_status=VERIFIED` claim and keeps unproven in-memory-to-disk binding at NEEDS_REVIEW. It must not be merged ahead of its parent PR #129.
-- PR #126 (this durable-state repair) was previously green on head `5980ced03478e5164a3ff1b0eb56838445cd260c`: PR CI #38393586659, Runtime #38393586450, Bug Hunt #38393586341 all completed/success. The branch was synchronized with current main `30e141bfb644d120e53c57070cd200df8fdbeeae` on 2026-11-11 (compare: ahead 38, behind 0). The refreshed checkpoint changed its exact head; rerun all required gates before claiming Green.
-- PR #119 (Shiraz parking-rule/source audit) is research-only and based on old `4c167caace10afe2806439f0f260bb544f95b7d0`; its branch is diverged from current main (4 commits ahead, 5 behind). Its old-head PR CI #38393757098, Runtime #38393756952, Bug Hunt #38393757050 succeeded, but these do not replace rebase/refresh and exact-head checks. Secondary-source values remain unverified; no current regulatory threshold is asserted.
-- Autodesk/Golden findings: both preserved Golden DWGs previously exported successfully with source hashes matching the manifest and `source_mutated=false`. Both report `INSUNITS=1` (inches), but scale remains NEEDS_REVIEW. Layer-name evidence supports WALLS and COLUMNS candidates only; the misspelled source layer `COULMN` is not geometric column recognition. DOORS/WINDOWS remain UNKNOWN. Persian text/font recovery is not verified.
-- Dimension boundary: the current C# exporter emits dimension type/text/measurement but not typed definition points. The earlier 67/68 result is annotation-point self-consistency only, not dimension-to-entity geometric association. Full reconciliation remains pending.
-- Real AutoCAD 2025/2026 build and in-host smoke test remain NOT_RUN. They require a Windows host with matching AutoCAD managed assemblies and a disposable DWG; Golden sources must not be used for this test.
-- No unit conversion, geometric association, semantic promotion, compliance PASS, H-stage advancement, approval bypass, or merge is authorized by this checkpoint. H100 remains active; H101 remains LOCKED. Golden DWGs remain immutable.
+### Source of truth
+- Repository: `m30morgh1991-prog/architecture-ai-agent`
+- Current main SHA: `9cc514598e35b34d4760e27fe6320e21e985970b`
+- Post-merge main checks on this SHA: PR CI Gate SUCCESS, Runtime Tests SUCCESS, Mandatory Bug Hunt SUCCESS.
+- Durable checkpoint PR: #181 (this change). Re-read `PROJECT_STATE.md` and this file before continuing.
 
-### Immediate continuation order
-1. Verify this refreshed durable-state PR on its new exact head (PR CI, Runtime Tests, Mandatory Bug Hunt).
-2. Complete human review of PR #127/#128 and review PR #129; keep PR #130 dependent on acceptance of #129.
-3. Run the AutoCAD host build/smoke test on a disposable drawing when a compatible Windows/AutoCAD host is available.
-4. Add typed dimension definition-point evidence and a conservative dimension-to-geometry reconciliation contract; keep ambiguous matches NEEDS_REVIEW.
-5. Continue Persian font/encoding provenance and block/geometry-based door/window evidence; unsupported cases stay UNKNOWN.
-6. Refresh stale PR #119 against current main before any merge decision. Keep H101 locked until H100 semantic acceptance evidence is genuinely complete.
+### Completed on main
+- PR #178 merged: reconciled Shiraz/Fars regulatory watch; 25 unique sources, 31 unique candidate rules, zero broken source references. Source ID collisions between #170 and #175 were resolved by preserving the older IDs and allocating AR-SRC-022–025 for new unique sources.
+- PR #179 merged: 2D-first AI tool registry and staged evaluation plan. Maket AI remains a 2D candidate; Maquete/3D and image-only presentation generators are excluded from the active shortlist. No tool adoption or testing was authorized.
+- PRs #170, #175, and #177 closed as superseded. PR #176 closed as superseded by current-main security PR #180.
+
+### P0 security — do not bypass
+- Main still contains a plaintext all-interface listener at `0.0.0.0:8000`; security is not fixed until PR #180 merges.
+- PR #180 exact head: `debe89501e1cb94162e29f8e784cb93aa32410c0`; based on current main `9cc514598e35b34d4760e27fe6320e21e985970b`.
+- Exact-head checks: PR CI Gate SUCCESS, Runtime Tests SUCCESS, Mandatory Bug Hunt SUCCESS.
+- Implementation: HTTPS-only TLS, loopback `127.0.0.1:8443`, TLS 1.2 minimum, bearer-authenticated read-only GET, POST execution BLOCKED before request-body consumption.
+- A COMMENT review was submitted. An independent security reviewer must approve; the PR author is the repository owner, so do not self-approve. No bypass.
+- Token length (32 UTF-8 bytes minimum) is enforced; token entropy is not measured by runtime and must be provided by secure operator provisioning. Operational certificate/key lifecycle, scoped authorization, Origin/CSRF, rate limits, timeouts, and secret-redaction remain unresolved.
+- Remote/LAN access and CAD execution remain DISABLED.
+
+### Open work / constraints
+- PRs #171–174 and #150–154 are legacy/stacked runtime candidates; do not merge them independently ahead of #180.
+- PR #168 is stale/draft and advisory-only. PR #169 is H101 and remains LOCKED until H100 is complete; both need rebase and fresh exact-head checks.
+- PRs #127–132 (Autodesk/Golden), #149 and #155–158 (CAD research), #119 (parking/regulatory research), and #139 (AEC research) require separate stale-base/evidence review. PR #130 depends on #129.
+- H100 ACTIVE; H101 LOCKED. Golden DWG inputs are immutable. No Windows/AutoCAD host or visual-runtime PASS is claimed.
+
+### Required working sequence
+1. Re-read main SHA and PR #180 exact head/checks before every security action.
+2. Obtain independent approval for #180; merge only through the active ruleset and only with exact-head checks green.
+3. Verify post-merge checks on the new main SHA.
+4. Reconcile superseded security PRs after #180 acceptance.
+5. Resume H100 Golden Understanding and keep all uncertain geometry/evidence fail-closed.
+6. Do not start H101, enable CAD writes, or promote legal compliance PASS without the defined evidence gates.
 
 ---
 
