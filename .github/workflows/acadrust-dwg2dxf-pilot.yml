@@ -1,0 +1,93 @@
+name: acadrust DWG to DXF pilot
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "tools/acadrust_dwg2dxf_pilot/**"
+      - ".github/workflows/acadrust-dwg2dxf-pilot.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install independent DXF reader
+        run: python -m pip install "ezdxf==1.4.5"
+
+      - name: Generate pinned dependency lock
+        run: cargo generate-lockfile --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml
+
+      - name: Rust format check
+        run: cargo fmt --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml -- --check
+
+      - name: Rust unit tests — release and upstream source
+        run: |
+          cargo test --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml --locked --no-default-features --features release
+          cargo test --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml --locked --no-default-features --features upstream-main
+
+      - name: Compare release and upstream source on Golden DWGs
+        shell: bash
+        run: |
+          set +e
+          mkdir -p "$RUNNER_TEMP/acadrust-pilot"
+          overall=0
+          for engine in release upstream-main; do
+            for name in bagheri7 afifiiiii.end.edit3; do
+              input="test-assets/golden-projects/${name}.dwg"
+              candidate="$RUNNER_TEMP/acadrust-pilot/${name}.${engine}.candidate.dxf"
+              report="$RUNNER_TEMP/acadrust-pilot/${name}.${engine}.report.json"
+              echo "::group::${engine} / ${name}"
+              cargo run --release --locked --no-default-features --features "$engine" \
+                --manifest-path tools/acadrust_dwg2dxf_pilot/Cargo.toml -- \
+                "$input" "$candidate" "$report"
+              convert_status=$?
+              if [ $convert_status -eq 0 ]; then
+                python tools/acadrust_dwg2dxf_pilot/verify_ezdxf.py "$candidate" "$report"
+                verify_status=$?
+              else
+                verify_status=99
+              fi
+              echo "engine=${engine} fixture=${name} converter_exit=${convert_status} independent_verifier_exit=${verify_status}" \
+                | tee -a "$RUNNER_TEMP/acadrust-pilot/summary.txt"
+              if [ $convert_status -ne 0 ] || [ $verify_status -ne 0 ]; then
+                overall=1
+              fi
+              echo "::endgroup::"
+            done
+          done
+          python tools/acadrust_dwg2dxf_pilot/test_compare_smooth_surface_reports.py
+          synthetic_status=$?
+          python tools/acadrust_dwg2dxf_pilot/compare_smooth_surface_reports.py "$RUNNER_TEMP/acadrust-pilot" bagheri7 afifiiiii.end.edit3
+          compare_status=$?
+          echo "smooth_surface_synthetic_tests_exit=${synthetic_status} cross_engine_smooth_surface_exit=${compare_status}" | tee -a "$RUNNER_TEMP/acadrust-pilot/summary.txt"
+          if [ $synthetic_status -ne 0 ] || [ $compare_status -ne 0 ]; then
+            overall=1
+          fi
+          exit $overall
+
+      - name: Upload pilot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: acadrust-dwg2dxf-comparison-evidence
+          path: |
+            ${{ runner.temp }}/acadrust-pilot/
+            tools/acadrust_dwg2dxf_pilot/Cargo.lock
+          if-no-files-found: warn
