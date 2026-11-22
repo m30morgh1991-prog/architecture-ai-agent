@@ -2,7 +2,13 @@ import unittest
 from unittest.mock import patch
 
 from runtime import app as runtime_app
-from runtime.app import Handler, validate_execution_payload
+from runtime.app import (
+    BoundedThreadingHTTPServer,
+    Handler,
+    MAX_CONCURRENT_REQUESTS,
+    REQUEST_TIMEOUT_SECONDS,
+    validate_execution_payload,
+)
 
 
 VALID_BODY = {
@@ -79,6 +85,14 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertEqual(body["error"], "CANONICAL_EXECUTION_NOT_CONFIGURED")
         self.assertFalse(handler.rfile.read_called)
 
+
+    def test_https_server_has_bounded_concurrency_and_timeouts(self):
+        self.assertTrue(issubclass(BoundedThreadingHTTPServer, runtime_app.ThreadingHTTPServer))
+        self.assertTrue(BoundedThreadingHTTPServer.daemon_threads)
+        self.assertEqual(BoundedThreadingHTTPServer.request_queue_size, 16)
+        self.assertEqual(MAX_CONCURRENT_REQUESTS, 8)
+        self.assertEqual(REQUEST_TIMEOUT_SECONDS, 5)
+
     def test_runtime_requires_tls_and_binds_https_to_loopback(self):
         env = {
             "ARCH_AGENT_TLS_CERT_FILE": "/secure/runtime.crt",
@@ -86,7 +100,7 @@ class HttpRequestGuardrailTests(unittest.TestCase):
             "ARCH_AGENT_API_TOKEN": "x" * 48,
         }
         with patch.dict("os.environ", env, clear=True):
-            with patch.object(runtime_app, "HTTPServer") as server_class:
+            with patch.object(runtime_app, "BoundedThreadingHTTPServer") as server_class:
                 with patch.object(runtime_app.ssl, "SSLContext") as context_class:
                     context = context_class.return_value
                     original_socket = server_class.return_value.socket
