@@ -93,6 +93,27 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertEqual(MAX_CONCURRENT_REQUESTS, 8)
         self.assertEqual(REQUEST_TIMEOUT_SECONDS, 5)
 
+
+    def test_accepted_connection_receives_a_finite_socket_timeout(self):
+        class FakeSocket:
+            def __init__(self):
+                self.timeout = None
+
+            def settimeout(self, value):
+                self.timeout = value
+
+        accepted = FakeSocket()
+        server = BoundedThreadingHTTPServer.__new__(BoundedThreadingHTTPServer)
+        with patch.object(
+            runtime_app.ThreadingHTTPServer,
+            "get_request",
+            return_value=(accepted, ("127.0.0.1", 12345)),
+        ):
+            request, address = server.get_request()
+        self.assertIs(request, accepted)
+        self.assertEqual(address, ("127.0.0.1", 12345))
+        self.assertEqual(accepted.timeout, REQUEST_TIMEOUT_SECONDS)
+
     def test_runtime_requires_tls_and_binds_https_to_loopback(self):
         env = {
             "ARCH_AGENT_TLS_CERT_FILE": "/secure/runtime.crt",
