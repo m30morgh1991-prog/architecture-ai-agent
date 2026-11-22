@@ -4,7 +4,8 @@ import hmac
 import os
 import ssl
 from dataclasses import asdict, is_dataclass
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from threading import BoundedSemaphore
 from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
 from .execution_record import ExecutionRecordStore
@@ -16,6 +17,9 @@ from .idempotency import IdempotencyConflictError, IdempotencyGuard
 
 
 MAX_REQUEST_BODY_BYTES = 16 * 1024 * 1024
+MAX_CONCURRENT_REQUESTS = 8
+REQUEST_TIMEOUT_SECONDS = 5
+REQUEST_QUEUE_SIZE = 16
 
 
 def _reject_duplicate_json_keys(pairs):
@@ -338,6 +342,39 @@ class Handler(BaseHTTPRequestHandler):
             "message": "Execution is unavailable until canonical server-owned evidence and approval are implemented.",
         })
 
+
+class BoundedThreadingHTTPServer(ThreadingHTTPServer):
+    """HTTPS request server with bounded workers and per-connection timeouts."""
+
+    daemon_threads = True
+    request_queue_size = REQUEST_QUEUE_SIZE
+
+    def __init__(self, server_address, RequestHandlerClass):
+        self._request_slots = BoundedSemaphore(MAX_CONCURRENT_REQUESTS)
+        super().__init__(server_address, RequestHandlerClass)
+
+    def get_request(self):
+        request, client_address = super().get_request()
+        request.settimeout(REQUEST_TIMEOUT_SECONDS)
+        return request, client_address
+
+    def process_request(self, request, client_address):
+        if not self._request_slots.acquire(blocking=False):
+            self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self._request_slots.release()
+            raise
+
+    def process_request_thread(self, request, client_address):
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self._request_slots.release()
+
+
 def build_tls_context(cert_file, key_file):
     """Create a server TLS context and load the explicitly configured identity."""
     tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -353,7 +390,7 @@ def main():
     # The listener is HTTPS-only and loopback-only. There is no plaintext
     # listener, redirect, or HTTP fallback.
     Handler.api_token = api_token
-    server = HTTPServer(("127.0.0.1", 8443), Handler)
+    server = BoundedThreadingHTTPServer(("127.0.0.1", 8443), Handler)
     try:
         server.socket = tls_context.wrap_socket(server.socket, server_side=True)
         print("Architecture AI Agent HTTPS runtime listening on 127.0.0.1:8443")
