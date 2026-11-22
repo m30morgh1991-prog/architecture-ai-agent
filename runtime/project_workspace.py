@@ -4,6 +4,9 @@ from typing import Any, Dict, List, Optional
 from .contracts import PlanModel, ChangeRequest
 
 
+PROJECT_VERSION_STATES = {"WORKING", "VALIDATED", "REJECTED"}
+
+
 @dataclass
 class ProjectVersion:
     version_id: str
@@ -42,6 +45,8 @@ class ProjectWorkspaceAdapter:
         status: str = "WORKING",
         source_version_id: Optional[str] = None,
     ) -> ProjectVersion:
+        if status not in PROJECT_VERSION_STATES:
+            raise ValueError("PROJECT_VERSION_STATUS_INVALID")
         version = ProjectVersion(
             version_id=version_id,
             status=status,
@@ -49,7 +54,8 @@ class ProjectWorkspaceAdapter:
             source_version_id=source_version_id,
         )
         workspace.versions.append(version)
-        workspace.active_version_id = version_id
+        if status in {"WORKING", "VALIDATED"}:
+            workspace.active_version_id = version_id
         return version
 
     def record_change_request(
