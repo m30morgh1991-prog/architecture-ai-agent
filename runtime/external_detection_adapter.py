@@ -5,6 +5,7 @@ ConstraintMap, editability, approval, or execution decisions.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any
 from .plan_model_contract import PlanElement, PlanModel
 
@@ -64,14 +65,24 @@ class ExternalDetectionAdapter:
                 geometry = {"bbox": list(geometry)}
             elif not isinstance(geometry, dict):
                 geometry = {"raw": geometry}
+            confidence_valid = True
+            raw_confidence = item.get("confidence", 0.0)
             try:
-                confidence = max(0.0, min(1.0, float(item.get("confidence", 0.0))))
-            except (TypeError, ValueError):
+                if isinstance(raw_confidence, bool):
+                    raise ValueError("boolean confidence is invalid")
+                confidence_value = float(raw_confidence)
+                if not isfinite(confidence_value):
+                    raise ValueError("non-finite confidence is invalid")
+                confidence = max(0.0, min(1.0, confidence_value))
+            except (TypeError, ValueError, OverflowError):
                 confidence = 0.0
+                confidence_valid = False
             source_evidence = item.get("evidence_ids") or (f"{evidence_prefix}-{index}",)
             if isinstance(source_evidence, str):
                 source_evidence = (source_evidence,)
             state = str(item.get("state", "UNKNOWN")).upper()
+            if not confidence_valid:
+                state = "UNKNOWN"
             if state == "LOCKED" and confidence < 0.95:
                 state = "UNKNOWN"
             if state == "EDITABLE" and confidence < 0.90:
