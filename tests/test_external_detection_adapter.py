@@ -25,5 +25,31 @@ class ExternalDetectionAdapterTest(unittest.TestCase):
         self.assertEqual(model.elements[0].element_type, "WALLS")
         self.assertEqual(model.elements[0].state, "UNKNOWN")
 
+    def test_non_finite_confidence_is_fail_closed(self):
+        for confidence in (float("nan"), float("inf"), float("-inf"), "nan", "inf"):
+            with self.subTest(confidence=confidence):
+                model = ExternalDetectionAdapter().to_plan_model(
+                    {"elements": [{"id": "w-invalid", "type": "wall",
+                                  "state": "EDITABLE", "confidence": confidence}]},
+                    model_id="plan-invalid-confidence", source_sha256="c"*64,
+                    drawing_count=1, evidence_prefix="ext-test",
+                )
+                element = model.elements[0]
+                self.assertEqual(element.confidence, 0.0)
+                self.assertEqual(element.state, "UNKNOWN")
+
+    def test_invalid_confidence_values_are_fail_closed(self):
+        for confidence in (None, "not-a-number", True, False):
+            with self.subTest(confidence=confidence):
+                model = ExternalDetectionAdapter().to_plan_model(
+                    {"elements": [{"id": "w-invalid", "type": "wall",
+                                  "state": "EDITABLE", "confidence": confidence}]},
+                    model_id="plan-invalid-confidence", source_sha256="d"*64,
+                    drawing_count=1, evidence_prefix="ext-test",
+                )
+                element = model.elements[0]
+                self.assertEqual(element.confidence, 0.0)
+                self.assertEqual(element.state, "UNKNOWN")
+
 if __name__ == "__main__":
     unittest.main()
