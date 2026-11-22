@@ -26,8 +26,8 @@ class EditPermission:
         if self.state not in EDIT_PERMISSION_STATES:
             raise ValueError("EDIT_PERMISSION_STATE_INVALID")
         if self.state == "LOCKED" and self.authorized:
-            # Authorization is explicit metadata; LOCKED remains a guard state.
-            return
+            # A boolean flag is not an approval record and cannot unlock a protected element.
+            raise ValueError("EDIT_PERMISSION_LOCKED_AUTHORIZATION_UNSUPPORTED")
         if self.state == "EDITABLE" and self.conditions:
             raise ValueError("EDIT_PERMISSION_EDITABLE_HAS_CONDITIONS")
 
@@ -76,7 +76,7 @@ class ControlledEditingDecision:
     def blocking_reasons(self) -> List[str]:
         reasons: List[str] = []
         for permission in self.permissions:
-            if permission.state == "LOCKED" and not permission.authorized:
+            if permission.state == "LOCKED":
                 reasons.append(f"LOCKED_ELEMENT_CONFLICT:{permission.element_id}")
             if permission.state == "CONDITIONAL" and not permission.conditions:
                 reasons.append(f"CONDITIONAL_STATE_UNRESOLVED:{permission.element_id}")
