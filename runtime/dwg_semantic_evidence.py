@@ -4,12 +4,14 @@ import hashlib, json, re
 from collections import Counter
 from pathlib import Path
 from typing import Any
+from runtime.dwg_scale_unit_bridge import observe_dwg_scale_unit
+from runtime.dwg_geometry_evidence import extract_entity_geometry
 
 SEMANTIC_TOKENS = {
     "WALLS": ("WALL", "WALLS", "A-WALL"),
     "DOORS": ("DOOR", "DOORS", "A-DOOR"),
     "WINDOWS": ("WINDOW", "WINDOWS", "A-WIND", "A-WINDOW"),
-    "COLUMNS": ("COLUMN", "COLUMNS", "COL", "A-COLS", "A-COLUMN"),
+    "COLUMNS": ("COLUMN", "COLUMNS", "COL", "A-COLS", "A-COLUMN", "COULMN"),
 }
 
 def _value(entity: Any, key: str, default: Any = None) -> Any:
@@ -19,6 +21,40 @@ def _value(entity: Any, key: str, default: Any = None) -> Any:
     except AttributeError:
         try: return dxf[key]
         except (KeyError, TypeError): return default
+
+def _read_layer_table(doc: Any) -> tuple[dict[str, dict[str, Any]], dict[Any, str]]:
+    """Read ezdwg's layer table and build the documented handle -> name map."""
+    try:
+        table = doc.layers()
+    except TypeError:
+        table = getattr(doc, "layers", None)
+    except Exception:
+        table = None
+
+    records: dict[str, dict[str, Any]] = {}
+    names_by_handle: dict[Any, str] = {}
+    if not hasattr(table, "items"):
+        return records, names_by_handle
+
+    for name, raw in table.items():
+        if not isinstance(raw, dict):
+            continue
+        layer_name = str(name)
+        records[layer_name] = {
+            key: _jsonable(raw.get(key))
+            for key in (
+                "handle", "color_index", "true_color", "linetype", "off",
+                "frozen", "locked", "plot", "lineweight", "lineweight_index",
+                "transparency",
+            )
+            if key in raw
+        }
+        handle = raw.get("handle")
+        if handle is not None:
+            names_by_handle[handle] = layer_name
+            names_by_handle[str(handle)] = layer_name
+    return records, names_by_handle
+
 
 def _jsonable(value: Any) -> Any:
     if value is None or isinstance(value, (str, int, float, bool)): return value
@@ -35,44 +71,89 @@ def _token_hits(name: str) -> set[str]:
             if any(token.replace("-","_") in normalized for token in tokens)}
 
 
-_LEVEL_RE = re.compile(
-    r"(?P<marker>±|\+|\-)?\s*(?P<value>\d+(?:[.,]\d+)?)\s*(?P<unit>mm|cm|m)?",
+_LEVEL_NUMBER = r"\d+(?:[.,]\d+)?"
+_LEVEL_UNIT = r"(?:mm|cm|m)"
+_ELEVATION_CONTEXT_VALUE_RE = re.compile(
+    rf"(?:\b(?:RL|EL|FFL)\b|\bT\.?O\.?(?=\s|[:=])|کد\s*ارتفاعی|تراز|کف|ارتفاع)"
+    rf"\s*(?:[:=]\s*)?(?P<marker>±|[+-])?\s*"
+    rf"(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})?",
     re.IGNORECASE,
 )
+_SIGNED_LEVEL_VALUE_RE = re.compile(
+    rf"(?P<marker>±|[+-])\s*(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})?",
+    re.IGNORECASE,
+)
+_UNIT_LEVEL_VALUE_RE = re.compile(
+    rf"(?P<value>{_LEVEL_NUMBER})\s*(?P<unit>{_LEVEL_UNIT})",
+    re.IGNORECASE,
+)
+_ANY_LEVEL_NUMBER_RE = re.compile(rf"(?P<value>{_LEVEL_NUMBER})", re.IGNORECASE)
+
 _LEVEL_CONTEXT_RE = re.compile(
     r"(?:\b(?:RL|EL|FFL|T\.?O\.?|LEVEL|LVL)\b|کد\s*ارتفاعی|تراز|کف|ارتفاع)",
     re.IGNORECASE,
 )
 
 def _level_candidate(text: str, handle: int, source_sha256: str, source_units: Any) -> dict[str, Any] | None:
+    """Extract elevation only when the numeric value is tied to elevation evidence."""
     raw = " ".join(str(text).split())
     if not raw:
         return None
-    match = _LEVEL_RE.search(raw)
-    if not match:
-        return None
-    marker = match.group("marker") or ""
-    value_text = match.group("value").replace(",", ".")
-    unit = match.group("unit")
+
+    matches = list(_ELEVATION_CONTEXT_VALUE_RE.finditer(raw))
+    if not matches:
+        matches = list(_SIGNED_LEVEL_VALUE_RE.finditer(raw))
+    if not matches:
+        matches = list(_UNIT_LEVEL_VALUE_RE.finditer(raw))
     context = bool(_LEVEL_CONTEXT_RE.search(raw))
-    conventional = marker == "±" and float(value_text) == 0.0
-    status = "SUPPORTED" if (unit or context or conventional) else "UNKNOWN"
-    if status == "SUPPORTED" and not unit:
+    if not matches:
+        # Preserve numeric annotation as UNKNOWN evidence, but never promote it
+        # to an elevation without an elevation marker or explicit sign.
+        number = _ANY_LEVEL_NUMBER_RE.search(raw)
+        if not number:
+            return None
+        return {
+            "handle": handle,
+            "raw_text": raw,
+            "marker": "",
+            "candidate_value": number.group("value"),
+            "elevation": None,
+            "unit": "",
+            "context_explicit": context,
+            "provenance": "DIRECT",
+            "status": "UNKNOWN",
+            "reason": "NO_EXPLICIT_ELEVATION_CONTEXT",
+            "source_sha256": source_sha256,
+        }
+
+    ambiguous = len(matches) != 1
+    match = matches[0]
+    marker = match.groupdict().get("marker") or ""
+    unit = match.groupdict().get("unit")
+    value = None if ambiguous else float(match.group("value").replace(",", "."))
+    if not ambiguous and not unit:
         unit = str(source_units or "")
-    if status == "SUPPORTED" and not unit:
-        status = "UNKNOWN"
+    # An unsigned unit-bearing number without an elevation label is not enough.
+    has_explicit_elevation_context = bool(_ELEVATION_CONTEXT_VALUE_RE.search(raw))
+    has_explicit_sign = bool(marker)
+    supported = not ambiguous and bool(unit) and (has_explicit_elevation_context or has_explicit_sign)
+    status = "SUPPORTED" if supported else "UNKNOWN"
     return {
         "handle": handle,
         "raw_text": raw,
         "marker": marker,
-        "elevation": float(value_text) * (-1.0 if marker == "-" else 1.0),
+        "candidate_value": match.group("value"),
+        "elevation": (value * (-1.0 if marker == "-" else 1.0)) if value is not None and (has_explicit_elevation_context or has_explicit_sign) and not ambiguous else None,
         "unit": unit or "",
         "context_explicit": context,
         "provenance": "DIRECT",
         "status": status,
+        "reason": "AMBIGUOUS_ELEVATION_VALUES" if ambiguous else (
+            "NO_EXPLICIT_ELEVATION_CONTEXT" if not (has_explicit_elevation_context or has_explicit_sign)
+            else ("UNIT_UNKNOWN" if not unit else "")
+        ),
         "source_sha256": source_sha256,
     }
-
 
 _SECTION_CONTEXT_RE = re.compile(
     r"(?:\b(?:SECTION|SECT\.?|CUT[\s_-]*PLANE|ELEVATION|ELEV\.?|DETAIL)\b|مقطع|برش|جزئیات)",
@@ -122,22 +203,33 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
     source = Path(path)
     source_sha256 = hashlib.sha256(source.read_bytes()).hexdigest()
     doc = ezdwg.read(str(source))
+    scale_unit_evidence = observe_dwg_scale_unit({"dwg_units": getattr(doc, "insunits", None)}, source_sha256)
     entities = list(doc.modelspace().query())
+    layer_table, layer_names_by_handle = _read_layer_table(doc)
     type_counts, layer_counts, block_counts = Counter(), Counter(), Counter()
     geometry_counts = Counter()
-    text_evidence, dimension_evidence, level_evidence, section_marker_evidence = [], [], [], []
+    text_evidence, dimension_evidence, level_evidence, section_marker_evidence, geometry_evidence = [], [], [], [], []
     candidates = {k: [] for k in SEMANTIC_TOKENS}
 
     for entity in entities:
         dxftype = str(getattr(entity, "dxftype", "UNKNOWN"))
         type_counts[dxftype] += 1
         handle = int(getattr(entity, "handle", 0))
-        layer = _value(entity, "layer")
-        if layer:
-            layer_name = str(layer); layer_counts[layer_name] += 1
+        layer_handle = _value(entity, "layer_handle")
+        layer = layer_names_by_handle.get(layer_handle)
+        if layer is None and layer_handle is not None:
+            layer = layer_names_by_handle.get(str(layer_handle))
+        if layer is None:
+            layer = _value(entity, "layer")
+        if layer is not None:
+            layer_name = str(layer)
+            layer_counts[layer_name] += 1
             for semantic in _token_hits(layer_name):
-                candidates[semantic].append({"kind":"LAYER_NAME","value":layer_name,
-                    "handle":handle,"provenance":"DIRECT"})
+                candidates[semantic].append({
+                    "kind": "LAYER_NAME", "value": layer_name,
+                    "layer_handle": _jsonable(layer_handle), "handle": handle,
+                    "provenance": "DIRECT", "source_sha256": source_sha256,
+                })
         if dxftype in {"INSERT","MINSERT"}:
             name = _value(entity, "name")
             if name:
@@ -150,9 +242,14 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
                     section_marker_evidence.append(section_marker)
         if dxftype in {"LINE","LWPOLYLINE","ARC","CIRCLE","ELLIPSE","SPLINE","HATCH"}:
             geometry_counts[dxftype] += 1
+            geometry = extract_entity_geometry(entity, dxftype, handle)
+            if geometry is not None:
+                geometry_evidence.append(geometry)
         if dxftype in {"TEXT","MTEXT","ATTRIB","ATTDEF"}:
             text = str(getattr(entity, "text", None) or _value(entity, "text", ""))
             text_evidence.append({"handle":handle,"type":dxftype,
+                "layer":str(layer) if layer is not None else None,
+                "layer_handle":_jsonable(layer_handle),
                 "text":text,
                 "insert":_jsonable(_value(entity, "insert")),
                 "rotation":_jsonable(_value(entity, "rotation")),"provenance":"DIRECT"})
@@ -164,6 +261,8 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
                 section_marker_evidence.append(section_marker)
         if dxftype == "DIMENSION":
             dimension_evidence.append({"handle":handle,"type":dxftype,
+                "layer":str(layer) if layer is not None else None,
+                "layer_handle":_jsonable(layer_handle),
                 "text":str(_value(entity, "text", "")),
                 "actual_measurement":_jsonable(_value(entity, "actual_measurement")),
                 "defpoint":_jsonable(_value(entity, "defpoint")),
@@ -176,7 +275,8 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "evidence":rows} for semantic,rows in candidates.items()}
     try:
         hv = doc.header_variables()
-        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax"))}
+        header = {"extmin":_jsonable(hv.get("extmin")),"extmax":_jsonable(hv.get("extmax")),
+                  "insunits":_jsonable(hv.get("insunits")),"lunits":_jsonable(hv.get("lunits"))}
     except Exception:
         header = {}
     return {
@@ -184,14 +284,18 @@ def extract_dwg_evidence(path: str | Path) -> dict[str, Any]:
         "source_profile":{"source_class":"ENGINEERING_PLAN","path":str(source),
             "sha256":source_sha256,"version":str(getattr(doc,"version","UNKNOWN")),
             "decode_version":str(getattr(doc,"decode_version","UNKNOWN")),
-            "units":getattr(doc,"units",None),"provenance":"DIRECT"},
+            "units":getattr(doc,"units",None),"insunits":getattr(doc,"insunits",None),
+            "provenance":"DIRECT"},
         "entity_counts":dict(sorted(type_counts.items())),
         "layer_counts":dict(sorted(layer_counts.items())),
+        "layer_table":layer_table,
+        "layer_table_status":"SUPPORTED" if layer_table else "UNKNOWN",
         "block_counts":dict(sorted(block_counts.items())),
         "geometry_counts":dict(sorted(geometry_counts.items())),
-        "text":text_evidence,"dimensions":dimension_evidence,"levels":level_evidence,
+        "text":text_evidence,"dimensions":dimension_evidence,"geometry":geometry_evidence,"levels":level_evidence,
         "section_markers":section_marker_evidence,
         "semantic_candidates":semantic_support,"header":header,
+        "scale_unit_evidence":scale_unit_evidence,
         "authority":{"read_only":True,"semantic_authority":False,
             "generic_linework_is_not_architectural_truth":True},
     }

@@ -6,6 +6,10 @@ on:
     paths:
       - 'runtime/export_golden_dwg_evidence.py'
       - 'runtime/dwg_semantic_evidence.py'
+      - 'runtime/autodesk_dwg_evidence_adapter.py'
+      - 'adapters/autodesk/**'
+      - 'docs/aie/AUTODESK_ADAPTER_CONTRACT.md'
+      - 'tests/test_autodesk_dwg_evidence_adapter.py'
       - 'test-assets/golden-projects/**'
       - 'test-assets/golden-understanding/golden_manifest.json'
       - '.github/workflows/golden-dwg-evidence-export.yml'
