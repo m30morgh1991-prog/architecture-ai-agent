@@ -1,6 +1,7 @@
 import unittest
 
 from runtime.controlled_editing_contract import (
+    ControlledEditingDecision,
     EditPermission,
     ImpactDependency,
     UncertaintyAssessment,
@@ -16,6 +17,16 @@ class ControlledEditingContractTests(unittest.TestCase):
         )
         self.assertFalse(decision.executable)
         self.assertIn("LOCKED_ELEMENT_CONFLICT:C01", decision.blocking_reasons())
+
+    def test_locked_element_cannot_be_authorized_by_boolean_flag(self):
+        permission = EditPermission("W01", "LOCKED", authorized=True)
+        with self.assertRaisesRegex(ValueError, "EDIT_PERMISSION_LOCKED_AUTHORIZATION_UNSUPPORTED"):
+            permission.validate()
+
+        # Even direct construction must remain fail-closed if validation is skipped.
+        decision = ControlledEditingDecision(permissions=[permission])
+        self.assertFalse(decision.executable)
+        self.assertIn("LOCKED_ELEMENT_CONFLICT:W01", decision.blocking_reasons())
 
     def test_editable_element_is_executable(self):
         decision = build_controlled_editing_decision(
