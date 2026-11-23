@@ -370,7 +370,11 @@ class BoundedThreadingHTTPServer(ThreadingHTTPServer):
 
     def process_request_thread(self, request, client_address):
         try:
-            request.do_handshake()
+            try:
+                request.do_handshake()
+            except Exception:
+                self.shutdown_request(request)
+                return
             super().process_request_thread(request, client_address)
         finally:
             self._request_slots.release()
