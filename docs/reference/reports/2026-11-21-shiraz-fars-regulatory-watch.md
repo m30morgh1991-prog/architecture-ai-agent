@@ -141,3 +141,7 @@
 
 
 **Source provenance correction:** the full M24 text/thresholds were read from the ATNasr-hosted PDF. The letter number/date were found in a search-indexed QSCE PDF result, but its exact direct URL could not be verified. Do not imply that the ATNasr PDF itself contains the ministerial letter. Official-host PDF and hash remain pending.
+
+## Correction after full-text recheck — 2026-11-23
+
+The M24 threshold and coverage statements in this 2026-11-21 report were incorrect. The rechecked PDF text (section 24-4-2, printed page 27) expressly defines a high-rise building as: **27 m or more**, OR **8 floors or more including ground**, OR the highest usable floor **more than 23 m above average ground**. It does not support 47/44 m. The PDF search found no “24%” coverage figure. Section 24-5-1-4 states a **40% maximum coverage** for high-rise buildings; section 24-5-4-2-4 provides a **20% maximum coverage and minimum 12 floors only for the specified point-landmark high-rise**. The prior claims are withdrawn, not retained as competing rules. Primary-host PDF/hash remain pending, so no rule is activated.
