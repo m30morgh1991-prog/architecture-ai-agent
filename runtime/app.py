@@ -370,6 +370,7 @@ class BoundedThreadingHTTPServer(ThreadingHTTPServer):
 
     def process_request_thread(self, request, client_address):
         try:
+            request.do_handshake()
             super().process_request_thread(request, client_address)
         finally:
             self._request_slots.release()
@@ -392,7 +393,11 @@ def main():
     Handler.api_token = api_token
     server = BoundedThreadingHTTPServer(("127.0.0.1", 8443), Handler)
     try:
-        server.socket = tls_context.wrap_socket(server.socket, server_side=True)
+        server.socket = tls_context.wrap_socket(
+            server.socket,
+            server_side=True,
+            do_handshake_on_connect=False,
+        )
         print("Architecture AI Agent HTTPS runtime listening on 127.0.0.1:8443")
         server.serve_forever()
     finally:
