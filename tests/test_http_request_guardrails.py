@@ -85,7 +85,6 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertEqual(body["error"], "CANONICAL_EXECUTION_NOT_CONFIGURED")
         self.assertFalse(handler.rfile.read_called)
 
-
     def test_https_server_has_bounded_concurrency_and_timeouts(self):
         self.assertTrue(issubclass(BoundedThreadingHTTPServer, runtime_app.ThreadingHTTPServer))
         self.assertTrue(BoundedThreadingHTTPServer.daemon_threads)
@@ -93,8 +92,7 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertEqual(MAX_CONCURRENT_REQUESTS, 8)
         self.assertEqual(REQUEST_TIMEOUT_SECONDS, 5)
 
-
-    def test_accepted_connection_receives_a_finite_socket_timeout(self):
+    def test_accepted_connection_receives_timeout_before_tls_handshake(self):
         class FakeSocket:
             def __init__(self):
                 self.timeout = None
@@ -113,6 +111,25 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertIs(request, accepted)
         self.assertEqual(address, ("127.0.0.1", 12345))
         self.assertEqual(accepted.timeout, REQUEST_TIMEOUT_SECONDS)
+
+    def test_tls_handshake_runs_inside_bounded_worker(self):
+        class FakeSocket:
+            def __init__(self):
+                self.handshake_called = False
+
+            def do_handshake(self):
+                self.handshake_called = True
+
+        request = FakeSocket()
+        server = BoundedThreadingHTTPServer.__new__(BoundedThreadingHTTPServer)
+        server._request_slots = type("Slots", (), {"release": lambda self: None})()
+        with patch.object(
+            runtime_app.ThreadingHTTPServer,
+            "process_request_thread",
+            return_value=None,
+        ):
+            server.process_request_thread(request, ("127.0.0.1", 12345))
+        self.assertTrue(request.handshake_called)
 
     def test_runtime_requires_tls_and_binds_https_to_loopback(self):
         env = {
@@ -135,7 +152,9 @@ class HttpRequestGuardrailTests(unittest.TestCase):
             certfile="/secure/runtime.crt", keyfile="/secure/runtime.key"
         )
         context.wrap_socket.assert_called_once_with(
-            original_socket, server_side=True
+            original_socket,
+            server_side=True,
+            do_handshake_on_connect=False,
         )
         server_class.return_value.serve_forever.assert_called_once_with()
         server_class.return_value.server_close.assert_called_once_with()
