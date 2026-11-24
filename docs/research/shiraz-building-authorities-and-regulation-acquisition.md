@@ -132,3 +132,22 @@ This regulation research is a supporting knowledge layer. It must not displace o
 
 ### Priority rule
 If work competes for implementation time, prioritize plan understanding, design-quality diagnosis, alternative generation, impact analysis and controlled editing over expanding legal-procedure analysis. Continue collecting high-value official regulations in parallel, but do not let that research block the design-optimization core.
+
+
+## 9. Daily regulatory watch — 2026-11-24
+
+### 9.1 New judicial and interpretive records
+- Added the full reproduced judgment 140531390001131406 (1405/05/06) annulling letter 134252/420. Separate the plan-checking/design responsibility from the supervisor's execution-stage inspection duties; do not infer that national code requirements are waived.
+- Added Shiraz judgments 140531390000237503 (1405/02/08), 140531390000547136 (1405/03/05), and 140531390000879392 (1405/04/09). Their exact annulled objects and limitations are recorded in the source register.
+- Added advisory opinions 7/1405/55, 7/1404/722, 7/1405/231, 7/1405/261, 7/1404/727 and 7/1404/817. They clarify the Article 99/100/101 boundary, enforcement, demolition scope, partial payment and parking-fine refund. They remain advisory interpretations, not statutes or binding judgments.
+- Reconfirmed the exact distinction in advisory 7/1404/681 after judgment 646865: operating a business in a residential/noncommercial space is different from physically constructing a commercial building there.
+
+### 9.2 New planning and height leads
+- A Ministry-news reproduction reports stage-one approval of the Shiraz master-plan framework at the 16th Supreme Council meeting (1405/08/26). The detailed-plan process is to follow; no parcel-level maps or signed resolution were obtained.
+- A press report dated 1405/08/17 says the Article 5 Fars Commission approved a 350 cm maximum residential floor height. Measurement basis, scope, exceptions, resolution number, maps and effective date remain SOURCE_REQUIRED.
+
+### 9.3 Primary-source acquisition gaps
+- The official consolidated Article 100 page at the Majlis Research Center timed out; a secondary consolidated text was reviewed but is not sufficient for a final legal baseline.
+- The official Ministry/INBR M24 binary and SHA-256 were not obtained; the six-month effective date is a calculation from the reproduced letter, not an independently confirmed official effective-date notice.
+- The original Fars Article 5 resolution, current Shiraz detailed-plan maps, historic-fabric integrated rules and maps, current council tariff attachments, fire-service requirements and utility-specific building rules remain pending.
+- No new rule was added to the executable registry and no rule was promoted to PASS.
