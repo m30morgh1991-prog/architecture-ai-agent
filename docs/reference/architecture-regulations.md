@@ -84,3 +84,13 @@
 3. Build deterministic checks for dimensions/area/counts once the geometry and context are reliable.
 4. Report conflicts, missing inputs, and uncertainty visibly.
 5. Add regression fixtures for each rule; tests must cover boundary values and unknown context.
+
+
+## 2026-11-24 regulatory watch — reference only / no rule activation
+
+- The first-stage Shiraz master-plan framework was reported as approved at the 16th Supreme Council meeting (1405/08/26), with high-rise development directed to a defined area away from historic/degraded fabric, protection of Qasr-e Dasht gardens, transit-oriented development, and preparation of a detailed plan. The signed resolution and spatial maps have not been retrieved; this is not parcel-level zoning.
+- The reported 350 cm residential floor-height amendment remains ANNOUNCED / PRESS_LEAD until the Article 5 resolution, measurement definition, applicability map and notification date are obtained.
+- The reproduced Topic 24 first-edition 1404 PDF reports letter 140461/100/2 dated 1404/07/27 and six-month delayed effect; 1405/01/27 is a calendar calculation only. Official Ministry-hosted binary and SHA-256 remain pending.
+- Judgment 1405/05/06 annulled letter 134252/420 that attempted to impose a new duty on supervisors to compare approved drawings against National Building Regulations. It does not waive the National Building Regulations or remove the supervisor's execution-stage duty to monitor conformity with the permit, approved drawings and technical calculations.
+- Shiraz judgments 1405/02/08, 1405/03/05 and 1405/04/09 affect only the exact municipal clauses/resolution described in the source register. Do not generalize them to all fees or all permit procedures.
+- All entries above are research references only. No new executable rule was added; uncertain applicability remains SOURCE_REQUIRED / NEEDS_REVIEW / UNKNOWN.
