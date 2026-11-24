@@ -215,22 +215,22 @@
       "source_id": "AR-SRC-021",
       "title": "مبحث ۲۴ مقررات ملی ساختمان — انطباق شهری ساختمان‌ها، ویرایش اول ۱۴۰۴ (نسخه بازنشرشده)",
       "url": "https://qsce.ir/uploads/%D9%85%D8%A8%D8%AD%D8%AB%20%D8%A8%DB%8C%D8%B3%D8%AA%20%D9%88%20%DA%86%D9%87%D8%A7%D8%B1%D9%85%20%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA%20%D9%85%D9%84%DB%8C.pdf",
-      "status": "NOTIFIED",
+      "status": "UNKNOWN",
       "source_level": "OFFICIAL_SECONDARY",
       "retrieved_at": "2026-11-24T09:35:19+03:30",
       "sha256": null,
-      "verification": "REPRODUCED_PDF_CONTAINS_MINISTRY_LETTER; OFFICIAL_MINISTRY_HOST_AND_BINARY_HASH_NOT_OBTAINED",
-      "notes": "نامه ابلاغ گزارش‌شده شماره ۱۴۰۴۶۱/۱۰۰/۲ مورخ ۱۴۰۴/۰۷/۲۷؛ اجرای شش ماه پس از ابلاغ، به‌صورت محاسباتی ۱۴۰۵/۰۱/۲۷ است. تاریخ لازم‌الاجرا در این رجیستری محاسبه‌شده است و باید با نسخه رسمی وزارتخانه/دفتر مقررات ملی تطبیق شود. تمام معیارها فقط مرجع پژوهشی‌اند و به موتور کنترل طرح فعال نشده‌اند."
+      "verification": "HOST_SUSPENDED_2026-11-24; PREVIOUSLY_REPRODUCED_PDF_NOT_REACCESSIBLE; OFFICIAL_MINISTRY_BINARY_AND_LETTER_PENDING",
+      "notes": "نسخه بازنشرشده‌ای که در گزارش پیشین خوانده شده بود، در این نوبت از میزبان qsce.ir قابل دریافت نبود و درخواست مستقیم به صفحه Account Suspended هدایت شد. شماره نامه ۱۴۰۴۶۱/۱۰۰/۲ مورخ ۱۴۰۴/۰۷/۲۷ و اثر شش‌ماهه فقط از بازخوانی قبلی نسخه بازنشرشده گزارش شده‌اند؛ تاریخ ۱۴۰۵/۰۱/۲۷ محاسبه تقویمی است و تا دریافت نسخه رسمی وزارتخانه/دفتر مقررات ملی نباید قطعی تلقی شود. SHA-256 موجود نیست."
     },
     {
       "source_id": "AR-SRC-022",
       "title": "گزارش موافقت کمیسیون ماده ۵ فارس با ارتفاع طبقات مسکونی تا ۳۵۰ سانتی‌متر — گزارش رسانه‌ای ۱۴۰۵/۰۸/۱۷",
-      "url": "https://s4.soumashop.ir/news/7004179/%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%B7%D8%A8%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%DA%A9%D9%88%D9%86%DB%8C-%D8%AF%D8%B1-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%A8%D9%87-%DB%B3-%DB%B5-%D9%85%D8%AA%D8%B1-%D8%A7%D9%81%D8%B2%D8%A7%DB%8C%D8%B4-%DB%8C%D8%A7%D9%81%D8%AA",
+      "url": "https://mehrnews.com/x3dycs",
       "status": "ANNOUNCED",
       "source_level": "PRESS_LEAD",
       "retrieved_at": "2026-11-24T09:35:19+03:30",
       "sha256": null,
-      "verification": "MEDIA_REPUBLICATION_ATTRIBUTED_TO_MEHR; ORIGINAL_COMMISSION_RESOLUTION_NOT_RETRIEVED",
+      "verification": "ORIGINAL_MEHR_ARTICLE_LINK_VERIFIED; ORIGINAL_COMMISSION_RESOLUTION_NOT_RETRIEVED",
       "notes": "گزارش از تصویب اصلاح ضوابط طرح تفصیلی و سقف ۳۵۰ سانتی‌متر برای ارتفاع طبقات مسکونی خبر می‌دهد؛ تعریف ارتفاع (کف تا کف/ارتفاع مفید)، دامنه پهنه و پلاک، استثناها، شماره مصوبه، نقشه پیوست، تاریخ ابلاغ و اجرا نامعلوم است. تا دریافت اصل مصوبه، هیچ کنترل ارتفاعی تغییر نمی‌کند."
     },
     {
