@@ -73,7 +73,7 @@ Register policy: These are research leads and reproductions, not a substitute fo
 | AR-SRC-019 | نظریه ۷/۱۴۰۴/۷۲۷، ۱۴۰۵/۰۴/۱۰ | UNKNOWN | OFFICIAL_SECONDARY | در تخلفات متعدد، پرداخت جریمه بعضی موارد مانع درخواست تخریب برای موارد پرداخت‌نشده نیست. | [متن نظریه](https://lawlex.ir/opinions/opinion-7-1404-727) |
 | AR-SRC-020 | نظریه ۷/۱۴۰۴/۸۱۷، ۱۴۰۵/۰۳/۳۱ | UNKNOWN | OFFICIAL_SECONDARY | پس از قطعیت و پرداخت جریمه کسری پارکینگ، تأمین بعدی پارکینگ به‌تنهایی حق استرداد ایجاد نمی‌کند. | [متن نظریه](https://lawlex.ir/opinions/opinion-7-1404-817) |
 | AR-SRC-021 | مبحث ۲۴، ویرایش اول ۱۴۰۴ | NOTIFIED (effective date calculated) | OFFICIAL_SECONDARY | نامه ۱۴۰۴۶۱/۱۰۰/۲ مورخ ۱۴۰۴/۰۷/۲۷؛ شش ماه پس از ابلاغ به‌صورت محاسباتی ۱۴۰۵/۰۱/۲۷؛ نسخه رسمی وزارتخانه و SHA-256 دریافت نشد. | [PDF بازنشرشده](https://qsce.ir/uploads/%D9%85%D8%A8%D8%AD%D8%AB%20%D8%A8%DB%8C%D8%B3%D8%AA%20%D9%88%20%DA%86%D9%87%D8%A7%D8%B1%D9%85%20%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA%20%D9%85%D9%84%DB%8C.pdf) |
-| AR-SRC-022 | خبر ارتفاع طبقات مسکونی تا ۳۵۰ سانتی‌متر، ۱۴۰۵/۰۸/۱۷ | ANNOUNCED | PRESS_LEAD | اصل مصوبه ماده ۵، تعریف ارتفاع، دامنه و تاریخ اجرا دریافت نشده؛ هیچ قاعده طراحی فعال نمی‌شود. | [گزارش رسانه‌ای](https://s4.soumashop.ir/news/7004179/%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%B7%D8%A8%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%DA%A9%D9%88%D9%86%DB%8C-%D8%AF%D8%B1-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%A8%D9%87-%DB%B3-%DB%B5-%D9%85%D8%AA%D8%B1-%D8%A7%D9%81%D8%B2%D8%A7%DB%8C%D8%B4-%DB%8C%D8%A7%D9%81%D8%AA) |
+| AR-SRC-022 | خبر ارتفاع طبقات مسکونی تا ۳۵۰ سانتی‌متر، ۱۴۰۵/۰۸/۱۷ | ANNOUNCED | PRESS_LEAD | اصل مصوبه ماده ۵، تعریف ارتفاع، دامنه و تاریخ اجرا دریافت نشده؛ هیچ قاعده طراحی فعال نمی‌شود. | [گزارش رسانه‌ای](https://mehrnews.com/x3dycs) |
 | AR-SRC-023 | گزارش جلسه شانزدهم شورای عالی شهرسازی درباره مرحله نخست طرح جامع شیراز، ۱۴۰۵/۰۸/۲۶ | APPROVED (stage-one framework only) | OFFICIAL_SECONDARY | راهبردهای کلان و شروع تهیه طرح تفصیلی گزارش شده؛ مصوبه امضاشده، نقشه‌ها و ضوابط پلاک هنوز دریافت نشده‌اند. | [گزارش بازنشرشده از پایگاه خبری وزارت راه](https://funfarsi.ir/%D8%AA%D9%88%D8%B3%D8%B9%D9%87-%D8%B4%D9%87%D8%B1%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%A8%D8%A7-%D8%B1%D9%88%DB%8C%DA%A9%D8%B1%D8%AF-%D8%AD%D9%81%D8%B8-%D9%85%DB%8C%D8%B1%D8%A7%D8%AB-%D9%88-%D8%AA/) |
 
 ### Interpretation controls
@@ -90,3 +90,7 @@ Register policy: These are research leads and reproductions, not a substitute fo
 4. Request official court/Gazette copies for judgments 237503, 547136, 879392, 1131406, 471794, 547350 and 1829587.
 5. Retrieve the consolidated Article 100 text from the Majlis/Gazette and the official M24 binary from the Ministry/INBR; compute SHA-256 only after successful download.
 6. Obtain the integrated historic-fabric protection/development regulations and all maps from the National Archives of the South and the Fars Cultural Heritage Directorate.
+
+
+### Revalidation note — M24 host status (2026-11-24)
+The previously referenced QSCE-hosted Topic 24 PDF was re-opened today, but the host returned **Account Suspended** and redirected to its suspended-account page. Accordingly, AR-SRC-021 is downgraded to **UNKNOWN** until the official Ministry/INBR PDF and notification letter are obtained. The reported letter number/date and six-month effective-date calculation remain provisional; no SHA-256 exists.
