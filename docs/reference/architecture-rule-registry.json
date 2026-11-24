@@ -40,7 +40,11 @@
       "binary_committed": false,
       "verification": "OFFICIAL_SECONDARY; CURRENT_PRIMARY_GAZETTE_OR_PARLIAMENT_COPY_REQUIRED",
       "url": "https://lawlex.ir/laws/shahrdari/100",
-      "notes": "Research lead only; verify current consolidated text, amendments and notes against an official primary publication."
+      "notes": "متن بازنشرشده ماده ۱۰۰ با تبصره‌های ۱ تا ۱۱ برای مطالعه دریافت شد؛ لینک مرکز پژوهش‌های مجلس به‌عنوان منبع رسمی از صفحه مرجع پیدا شد اما دریافت آن در این نوبت timeout شد. نسخه تجمیعی رسمی روزنامه رسمی/مجلس و تطبیق تمام اصلاحات هنوز لازم است.",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "UNKNOWN",
+      "official_primary_url": "https://rc.majlis.ir/fa/law/show/94737",
+      "official_primary_retrieval": "TIMEOUT_2026-11-24"
     },
     {
       "source_id": "AR-SRC-006",
@@ -49,7 +53,9 @@
       "binary_committed": false,
       "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
       "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF-%DB%B3-%D8%A8%D8%AE%D8%B4%D9%86%D8%A7%D9%85%D9%87-%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D9%85-%D8%A8%D8%AE%D8%B4%DB%8C-%D8%A8%D9%87-%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF%D9%87%D8%A7-%D9%88-%D8%B9%D9%85%D9%84%DA%A9%D8%B1%D8%AF-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-140331390001829587",
-      "notes": "Do not generalize beyond the reproduced judgment text; obtain official court/Gazette copy."
+      "notes": "متن کامل بازنشرشده رأی، بند ۳ بخشنامه ۲۳۹۰۲۴ را از تاریخ تصویب ابطال می‌کند؛ موضوع دقیق، الزام عام به تخریب سازه‌های فاقد سقف است. رأی به‌معنای مجاز شدن خودکار جریمه یا بقای هر سازه بدون سقف نیست؛ کمیسیون باید پرونده را طبق قانون و موردی بررسی کند. نسخه رسمی دیوان/روزنامه رسمی pending.",
+      "source_level": "COURT_PRIMARY",
+      "status": "ANNULLED"
     },
     {
       "source_id": "AR-SRC-007",
@@ -58,7 +64,9 @@
       "binary_committed": false,
       "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
       "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF-%DB%B1%DB%B1-%D8%A8%D8%AE%D8%B4%D9%86%D8%A7%D9%85%D9%87-%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D9%85-%D8%A8%D8%AE%D8%B4%DB%8C-%D8%A8%D9%87-%D9%81%D8%B1%D8%A2%DB%8C%D9%86%D8%AF%D9%87%D8%A7-%D9%88-%D8%B9%D9%85%D9%84%DA%A9%D8%B1%D8%AF-%DA%A9%D9%85%DB%8C%D8%B3%DB%8C%D9%88%D9%86-%D9%87%D8%A7%DB%8C-%D9%85%D8%A7%D8%AF%D9%87-140531390000547350",
-      "notes": "The reproduced text is a research lead, not an official publication copy."
+      "notes": "عنوان صفحه از «ابطال بند ۱۱» استفاده می‌کند، اما متن رأی هیأت عمومی درخواست ابطال را رد کرده و تصریح دارد بند ۱۱ مغایر قانون نیست؛ بنابراین بند ۱۱ ابطال نشده است. مفاد آن درباره زوال مبنای تخریب پس از پرداخت/تعیین تکلیف جریمه باید همراه با نظریه ۷/۱۴۰۴/۷۲۷ و به تفکیک هر تخلف خوانده شود. نسخه رسمی pending.",
+      "source_level": "COURT_PRIMARY",
+      "status": "EFFECTIVE"
     },
     {
       "source_id": "AR-SRC-008",
@@ -67,7 +75,9 @@
       "binary_committed": false,
       "verification": "COURT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PUBLICATION_COPY_PENDING",
       "url": "https://amagestate.com/legal/article-100-commission-ruling/",
-      "notes": "Commercial-use-in-non-commercial-zone issue; read narrowly and reconcile with later interpretation."
+      "notes": "رأی ۶۴۶۸۶۵ مورخ ۱۴۰۴/۰۳/۱۳ رأی وحدت رویه ۹۱۱۰۰۹۰۹۰۵۸۰۰۱۰۷ مورخ ۱۳۹۱/۰۳/۰۱ را در موضوع محدود خود نقض کرد: دایر کردن محل کسب/تجارت برخلاف پروانه در منطقه غیرتجاری، تحت تبصره بند ۲۴ ماده ۵۵ فقط به تعطیلی محل می‌انجامد، نه جریمه یا تخریب ماده ۱۰۰. تبصره، دفاتر وکالت، مطب، دفاتر اسناد رسمی/ازدواج/طلاق، روزنامه/مجله، دفتر مهندسی و دفتر شرکت دانش‌بنیان به وسیله مالک را تجاری محسوب نمی‌کند. احداث فیزیکی بنای تجاری در ملک مسکونی موضوع جداگانه است؛ نظریه ۷/۱۴۰۴/۶۸۱ را ببینید. نسخه رسمی pending.",
+      "source_level": "COURT_PRIMARY",
+      "status": "EFFECTIVE"
     },
     {
       "source_id": "AR-SRC-009",
@@ -76,7 +86,163 @@
       "binary_committed": false,
       "verification": "SECONDARY_REPRODUCTION; PRIMARY_SIGNED_COPY_PENDING",
       "url": "https://www.hoshyarvakil.ir/opinion/7-1404-681/",
-      "notes": "Interpretive research lead following judgment 646865; do not generalize beyond its precise conclusion."
+      "notes": "نظریه ۷/۱۴۰۴/۶۸۱ تفکیک می‌کند: استفاده تجاری از ملک مسکونی بدون احداث بنای تجاری، تابع تبصره بند ۲۴ ماده ۵۵ و تعطیلی است؛ احداث بنای تجاری در ملک مسکونی، تابع تبصره ۱ ماده ۱۰۰ است و از تبصره‌های ۳ و ۴ خارج است. نظریه مشورتی است و جایگزین متن رأی ۶۴۶۸۶۵ نیست.",
+      "source_level": "OFFICIAL_SECONDARY",
+      "status": "UNKNOWN"
+    },
+    {
+      "source_id": "AR-SRC-010",
+      "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۱۱۳۱۴۰۶ مورخ ۱۴۰۵/۰۵/۰۶ — ابطال نامه ۱۳۴۲۵۲/۴۲۰ درباره تطبیق نقشه مصوب با مقررات ملی",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D9%86%D8%A7%D9%85%D9%87-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%DB%B1%DB%B3%DB%B4%DB%B2%DB%B5%DB%B2-%DB%B4%DB%B2%DB%B0-%D9%85%D9%88%D8%B1%D8%AE-%DB%B1%DB%B4%DB%B0%DB%B4-%DB%B8-%DB%B1%DB%B1-%D9%85%D8%AF%DB%8C%D8%B1%DA%A9%D9%84-%D8%AF%D9%81%D8%AA%D8%B1-%D9%85%D9%82%D8%B1-%D8%B1%D8%A7%D8%AA-%D9%85%D9%84-%DB%8C-140531390001131406",
+      "status": "ANNULLED",
+      "source_level": "COURT_PRIMARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "FULL_JUDGMENT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PDF_PENDING",
+      "notes": "نامه مدیرکل دفتر مقررات ملی و کنترل ساختمان ابطال شده است. رأی می‌گوید تکلیف مستقلی برای ناظر جهت تطبیق نقشه‌های مصوب با مباحث مقررات ملی در مقررات مورد استناد تصریح نشده؛ تکلیف ناظر به نظارت بر عملیات اجرایی در حدود صلاحیت و انطباق اجرا با پروانه، نقشه‌ها و محاسبات ضمیمه باقی است. این رأی مقررات ملی یا مسئولیت طراح/مرجع کنترل نقشه را نسخ نمی‌کند."
+    },
+    {
+      "source_id": "AR-SRC-011",
+      "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۰۲۳۷۵۰۳ مورخ ۱۴۰۵/۰۲/۰۸ — ابطال بندهای ب و ج ماده ۴ و تبصره دو مصوبه عوارض شیراز",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF%D9%87%D8%A7%DB%8C-%D8%A8-%D9%88-%D8%AC-%D9%85%D8%A7%D8%AF%D9%87-%DB%B4-%D9%88-%D8%AA%D8%A8%D8%B5%D8%B1%D9%87-%D8%B0%DB%8C%D9%84-%D8%A2%D9%86-%D8%A7%D8%B2-%D9%85%D8%B5%D9%88%D8%A8%D8%A7%D8%AA-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%DB%B1%DB%B4%DB%B0%DB%B1-%DB%B1%DB%B6%DB%B3%DB%B8%DB%B2-%D8%B4-140531390000237503",
+      "status": "ANNULLED",
+      "source_level": "COURT_PRIMARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "FULL_JUDGMENT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PDF_PENDING",
+      "notes": "فقط بندهای (ب) و (ج) ماده ۴ و تبصره ذیل آن از مصوبات ۱۴۰۱/۱۶۳۸۲/ش و ۱۴۰۱/۱۷۳۲۹/ش ابطال شده‌اند؛ نه کل ماده ۴ یا کل تعرفه. رأی، اخذ فرمول مضاعف در فرض ابقای اعیانی توسط کمیسیون ماده ۱۰۰ را عوارض مضاعف دانسته و دریافت عوارض قانونی را باقی می‌گذارد. اثر ابطال نسبت به تاریخ تصویب تصریح شده است."
+    },
+    {
+      "source_id": "AR-SRC-012",
+      "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۰۵۴۷۱۳۶ مورخ ۱۴۰۵/۰۳/۰۵ — عوارض باغات موضوع دستورالعمل ماده ۱۴ قانون زمین شهری",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D8%A8%D9%86%D8%AF%D9%87%D8%A7%DB%8C-%D8%A8-%D9%88-%D8%AC-%D9%85%D8%A7%D8%AF%D9%87-%DB%B4-%D9%88-%D8%AA%D8%A8%D8%B5%D8%B1%D9%87-%D8%B0%DB%8C%D9%84-%D8%A2%D9%86-%D8%A7%D8%B2-%D9%85%D8%B5%D9%88%D8%A8%D9%87-%D8%B4%D9%85%D8%A7%D8%B1%D9%87-%DB%B1%DB%B7%DB%B3%DB%B2%DB%B9-%DB%B1%DB%B4%DB%B0%D۱-%D8%B4-140531390000547136",
+      "status": "ANNULLED",
+      "source_level": "COURT_PRIMARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "FULL_JUDGMENT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PDF_PENDING",
+      "notes": "فقط بندهای (ب) و (ج) ماده ۴ و تبصره ذیل مصوبه ۱۴۰۱/۱۷۳۲۹/ش ابطال شده‌اند. دامنه رأی، باغات مشمول دستورالعمل اجرایی ماده ۱۴ قانون زمین شهری است؛ این باغات از حیث نوع ساخت‌وساز، تراکم و سطح اشغال تابع دستورالعمل خاص‌اند و عوارض ارزش افزوده مستقل تعیین کاربری موضوع مصوبه قابل وصول نیست. رأی وحدت رویه ۳۴۹ درباره تخلفات ساختمانی باغات را نیز در همین دامنه خاص اعمال کرده است."
+    },
+    {
+      "source_id": "AR-SRC-013",
+      "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۰۸۷۹۳۹۲ مورخ ۱۴۰۵/۰۴/۰۹ — ابطال مصوبه شورای شهر شیراز درباره دو مرحله‌ای کردن صدور پروانه",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%A8%D8%B7%D8%A7%D9%84-%D9%85%D8%B5%D9%88%D8%A8%D9%87-%D8%AC%D9%84%D8%B3%D9%87-%DB%B9%DB%B9-%D9%85%D9%88%D8%B1%D8%AE-%DB%B1%DB%B4%DB%B0%DB%B1-%DB%B1%DB%B1-%DB%B2-%D8%AF%D9%88%D8%B1%D9%87-%D8%B4%D8%B4%D9%85-%D8%B4%D9%88%D8%B1%D8%A7%DB%8C-%D8%A7%D8%B3%D9%84%D8%A7%D9%85%DB%8C-%D8%B4%D9%87%D8%B1-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-140531390000879392",
+      "status": "ANNULLED",
+      "source_level": "COURT_PRIMARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "FULL_JUDGMENT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PDF_PENDING",
+      "notes": "کل مصوبه جلسه ۹۹ شورای شهر درباره فرایند دو مرحله‌ای «پروانه شهرسازی/پروانه ساختمانی» از تاریخ تصویب ابطال شده است؛ استدلال اصلی، خروج شورا از حدود اختیار و تعارض با تکلیف صدور پروانه حداکثر یک هفته پس از پرداخت یا تعیین تکلیف عوارض در ماده ۵۹ قانون رفع موانع تولید است. در متن بازنشرشده، شماره مصوبه یک‌جا ۱۵۹۳۸ و در متن مقرره ۱۵۳۹۸ درج شده و تاریخ نیز بین ۱۴۰۱/۱۱/۰۲ و ۱۴۰۱/۱۱/۰۴ تفاوت دارد؛ اصل مصوبه برای تثبیت شناسه لازم است. رأی، تمام گردش‌کارهای مستقل شهرداری را به‌طور خودکار ابطال نمی‌کند."
+    },
+    {
+      "source_id": "AR-SRC-014",
+      "title": "دادنامه ۱۴۰۵۳۱۳۹۰۰۰۰۴۷۱۷۹۴ مورخ ۱۴۰۵/۰۲/۲۹ — وحدت رویه درباره صلاحیت رسیدگی به آرای انتظامی سازمان نظام مهندسی",
+      "url": "https://hoghogh.ai/case-law/%D8%A7%D8%B9%D9%84%D8%A7%D9%85-%D8%AA%D8%B9%D8%A7%D8%B1%D8%B6-%D8%AF%D8%B1-%D8%A2%D8%B1%D8%A7%DB%8C-%D8%B4%D8%B9%D8%A8-%D8%AF%DB%8C%D9%88%D8%A7%D9%86-%D8%B9%D8%AF%D8%A7%D9%84%D8%AA-%D8%A7%D8%AF%D8%A7%D8%B1%DB%8C-%D8%AF%D8%B1-%D8%B1%D8%A7%D8%A8%D8%B7%D9%87-%D8%A8%D8%A7-%D8%B5%D9%84%D8%A7%D8%AD%DB%8C%D8%AA-%DB%8C%D8%A7-%D8%B9%D8%AF%D9%85-140531390000471794",
+      "status": "EFFECTIVE",
+      "source_level": "COURT_PRIMARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "FULL_JUDGMENT_TEXT_REPRODUCED_BY_SECONDARY_HOST; OFFICIAL_PDF_PENDING",
+      "notes": "تعارض آراء احراز و رأی شعبی که دیوان عدالت اداری را نسبت به آرای شوراهای انتظامی سازمان نظام مهندسی فاقد صلاحیت می‌دانستند صحیح اعلام شد؛ رأی طبق ماده ۸۹ برای مراجع مذکور لازم‌الاتباع است. رأی به‌تنهایی مرجع جایگزین اعتراض را تعیین نمی‌کند؛ از تعمیم به شکایت از تصمیمات اداری غیرانتظامی سازمان خودداری شود."
+    },
+    {
+      "source_id": "AR-SRC-015",
+      "title": "نظریه مشورتی ۷/۱۴۰۵/۵۵ مورخ ۱۴۰۵/۰۴/۲۴ — مفهوم خارج از محدوده قانونی شهر و مرجع احراز آن",
+      "url": "https://hoghogh.ai/advisory-opinions/a-5f8d51ae",
+      "status": "UNKNOWN",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "ADVISORY_TEXT_REPRODUCED_BY_SECONDARY_HOST; SIGNED_OFFICIAL_COPY_PENDING",
+      "notes": "«خارج از محدوده شهر» در قانون حفظ کاربری اراضی زراعی و باغ‌ها با «خارج از حریم مصوب شهر» در تبصره ۲ بند ۳ ماده ۹۹ یکسان نیست؛ اراضی زراعی/باغی داخل حریم پیش از پروانه به مجوز تغییر کاربری جهاد کشاورزی نیاز دارند؛ احراز محدوده و حریم باید از وزارت کشور یا استانداری/فرمانداری/بخشداری استعلام شود، نه صرفاً شهرداری یا جهاد."
+    },
+    {
+      "source_id": "AR-SRC-016",
+      "title": "نظریه مشورتی ۷/۱۴۰۴/۷۲۲ مورخ ۱۴۰۵/۰۳/۲۷ — صلاحیت و اجرای آرای کمیسیون ماده ۹۹",
+      "url": "https://lawlex.ir/opinions/opinion-7-1404-722",
+      "status": "UNKNOWN",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "ADVISORY_TEXT_REPRODUCED_BY_SECONDARY_HOST; SIGNED_OFFICIAL_COPY_PENDING",
+      "notes": "قانون حفظ کاربری اراضی زراعی و باغ‌ها ناسخ صلاحیت ماده ۹۹ درباره تخلفات ساختمانی خارج از حریم شهر نیست و هر دو در قلمرو خود اعمال می‌شوند. اجرای آرای قطعی کمیسیون ماده ۹۹ بر عهده استانداری از طریق فرمانداری/بخشداری/دهیاری با همکاری انتظامی است؛ دعوای حقوقی برای وصول جریمه و تبدیل جریمه ماده ۹۹ به تخریب به علت عدم پرداخت، مبنای قانونی ندارد."
+    },
+    {
+      "source_id": "AR-SRC-017",
+      "title": "نظریه مشورتی ۷/۱۴۰۵/۲۳۱ مورخ ۱۴۰۵/۰۶/۱۵ — تفکیک غیرمجاز و حدود صلاحیت ماده ۱۰۰",
+      "url": "https://hoghogh.ai/advisory-opinions/a-ebab6334",
+      "status": "UNKNOWN",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "ADVISORY_TEXT_REPRODUCED_BY_SECONDARY_HOST; SIGNED_OFFICIAL_COPY_PENDING",
+      "notes": "کمیسیون ماده ۱۰۰ صلاحیت تأیید یا ابطال اصل تفکیک اراضی را ندارد؛ می‌تواند فقط به عملیات ساختمانی فاقد پروانه مرتبط با تفکیک، مانند احداث بنا، دیوارکشی یا پی‌کنی رسیدگی کند. اصل تفکیک تابع ماده ۱۰۱ و مراجع قانونی مربوط است."
+    },
+    {
+      "source_id": "AR-SRC-018",
+      "title": "نظریه مشورتی ۷/۱۴۰۵/۲۶۱ مورخ ۱۴۰۵/۰۶/۲۲ — اجرای رأی تخریب کمیسیون ماده ۱۰۰",
+      "url": "https://hoghogh.ai/advisory-opinions/a-cd5ad656",
+      "status": "UNKNOWN",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "ADVISORY_TEXT_REPRODUCED_BY_SECONDARY_HOST; SIGNED_OFFICIAL_COPY_PENDING",
+      "notes": "شهرداری مجری رأی قطعی است؛ دشواری فنی یا احتمال آسیب به قسمت‌های فاقد تخلف، به‌تنهایی مجوز عدم اجرا یا ارجاع مجدد نیست. با این حال شهرداری حق توسعه مفاد رأی و تخریب قسمت‌های خارج از حکم را ندارد و باید پیش از اجرا روش فنی محدود به محدوده رأی را تعیین کند؛ مسیرهای اعاده دادرسی/اعمال مواد ۷۴، ۷۵، ۷۹، ۹۸ و ۱۱۵ حسب شرایط محفوظ‌اند."
+    },
+    {
+      "source_id": "AR-SRC-019",
+      "title": "نظریه مشورتی ۷/۱۴۰۴/۷۲۷ مورخ ۱۴۰۵/۰۴/۱۰ — پرداخت جزئی جریمه در تخلفات متعدد ماده ۱۰۰",
+      "url": "https://lawlex.ir/opinions/opinion-7-1404-727",
+      "status": "UNKNOWN",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "ADVISORY_TEXT_REPRODUCED_BY_SECONDARY_HOST; SIGNED_OFFICIAL_COPY_PENDING",
+      "notes": "در پرونده دارای چند تخلف مستقل، پرداخت جریمه برخی تخلفات مانع ارجاع تخلفاتی که جریمه آنها پرداخت نشده برای صدور رأی تخریب نیست؛ در تغییر کاربری، اعاده به وضع سابق مطرح است. این تفسیر با بند ۱۱ بخشنامه ۲۳۹۰۲۴ و رأی ۵۴۷۳۵۰ باید به تفکیک هر تخلف خوانده شود."
+    },
+    {
+      "source_id": "AR-SRC-020",
+      "title": "نظریه مشورتی ۷/۱۴۰۴/۸۱۷ مورخ ۱۴۰۵/۰۳/۳۱ — عدم استرداد جریمه کسری پارکینگ پس از تأمین بعدی",
+      "url": "https://lawlex.ir/opinions/opinion-7-1404-817",
+      "status": "UNKNOWN",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "ADVISORY_TEXT_REPRODUCED_BY_SECONDARY_HOST; SIGNED_OFFICIAL_COPY_PENDING",
+      "notes": "اگر رأی قطعی کمیسیون ماده ۱۰۰ درباره کسری پارکینگ اجرا و جریمه پرداخت شده باشد و مالک بعداً پارکینگ را تأمین کند، صرف تأمین بعدی موجب حق استرداد جریمه نیست؛ مگر ادعای مستقلی از مسیر مرجع صالح اثبات شود. این نظریه ضابطه طراحی پارکینگ نیست."
+    },
+    {
+      "source_id": "AR-SRC-021",
+      "title": "مبحث ۲۴ مقررات ملی ساختمان — انطباق شهری ساختمان‌ها، ویرایش اول ۱۴۰۴ (نسخه بازنشرشده)",
+      "url": "https://qsce.ir/uploads/%D9%85%D8%A8%D8%AD%D8%AB%20%D8%A8%DB%8C%D8%B3%D8%AA%20%D9%88%20%DA%86%D9%87%D8%A7%D8%B1%D9%85%20%D9%85%D9%82%D8%B1%D8%B1%D8%A7%D8%AA%20%D9%85%D9%84%DB%8C.pdf",
+      "status": "NOTIFIED",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "REPRODUCED_PDF_CONTAINS_MINISTRY_LETTER; OFFICIAL_MINISTRY_HOST_AND_BINARY_HASH_NOT_OBTAINED",
+      "notes": "نامه ابلاغ گزارش‌شده شماره ۱۴۰۴۶۱/۱۰۰/۲ مورخ ۱۴۰۴/۰۷/۲۷؛ اجرای شش ماه پس از ابلاغ، به‌صورت محاسباتی ۱۴۰۵/۰۱/۲۷ است. تاریخ لازم‌الاجرا در این رجیستری محاسبه‌شده است و باید با نسخه رسمی وزارتخانه/دفتر مقررات ملی تطبیق شود. تمام معیارها فقط مرجع پژوهشی‌اند و به موتور کنترل طرح فعال نشده‌اند."
+    },
+    {
+      "source_id": "AR-SRC-022",
+      "title": "گزارش موافقت کمیسیون ماده ۵ فارس با ارتفاع طبقات مسکونی تا ۳۵۰ سانتی‌متر — گزارش رسانه‌ای ۱۴۰۵/۰۸/۱۷",
+      "url": "https://s4.soumashop.ir/news/7004179/%D8%A7%D8%B1%D8%AA%D9%81%D8%A7%D8%B9-%D8%B7%D8%A8%D9%82%D8%A7%D8%AA-%D9%85%D8%B3%DA%A9%D9%88%D9%86%DB%8C-%D8%AF%D8%B1-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%A8%D9%87-%DB%B3-%DB%B5-%D9%85%D8%AA%D8%B1-%D8%A7%D9%81%D8%B2%D8%A7%DB%8C%D8%B4-%DB%8C%D8%A7%D9%81%D8%AA",
+      "status": "ANNOUNCED",
+      "source_level": "PRESS_LEAD",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "MEDIA_REPUBLICATION_ATTRIBUTED_TO_MEHR; ORIGINAL_COMMISSION_RESOLUTION_NOT_RETRIEVED",
+      "notes": "گزارش از تصویب اصلاح ضوابط طرح تفصیلی و سقف ۳۵۰ سانتی‌متر برای ارتفاع طبقات مسکونی خبر می‌دهد؛ تعریف ارتفاع (کف تا کف/ارتفاع مفید)، دامنه پهنه و پلاک، استثناها، شماره مصوبه، نقشه پیوست، تاریخ ابلاغ و اجرا نامعلوم است. تا دریافت اصل مصوبه، هیچ کنترل ارتفاعی تغییر نمی‌کند."
+    },
+    {
+      "source_id": "AR-SRC-023",
+      "title": "گزارش جلسه شانزدهم شورای عالی شهرسازی درباره تصویب مرحله نخست طرح جامع شیراز با افق ۱۴۲۰ — ۱۴۰۵/۰۸/۲۶",
+      "url": "https://funfarsi.ir/%D8%AA%D9%88%D8%B3%D8%B9%D9%87-%D8%B4%D9%87%D8%B1%DB%8C-%D8%B4%DB%8C%D8%B1%D8%A7%D8%B2-%D8%A8%D8%A7-%D8%B1%D9%88%DB%8C%DA%A9%D8%B1%D8%AF-%D8%AD%D9%81%D8%B8-%D9%85%DB%8C%D8%B1%D8%A7%D8%AB-%D9%88-%D8%AA/",
+      "status": "APPROVED",
+      "source_level": "OFFICIAL_SECONDARY",
+      "retrieved_at": "2026-11-24T09:35:19+03:30",
+      "sha256": null,
+      "verification": "MINISTRY_NEWS_RELEASE_REPRODUCED_BY_NONOFFICIAL_HOST; SIGNED_COUNCIL_RESOLUTION_AND_MAPS_PENDING",
+      "notes": "گزارش منتسب به پایگاه خبری وزارت راه و شهرسازی از تصویب مرحله نخست طرح جامع در جلسه شانزدهم خبر می‌دهد؛ افق ۱۴۲۰، هدایت بلندمرتبه‌سازی به محدوده‌ای مشخص و دور از بافت تاریخی/فرسوده، صیانت از باغات قصرالدشت و آغاز فرایند تهیه طرح تفصیلی را ذکر می‌کند. مشاور برای بررسی ملاحظات و ارائه پیشنهاد در فاصله دو ماه تا جلسه بعد فرصت دارد. این گزارش برای ضوابط پلاک/پروانه کافی نیست؛ مصوبه رسمی، نقشه ساختار فضایی و ابلاغیه لازم است."
     }
   ],
   "rules": [
@@ -513,6 +679,9 @@
     "Registry values are not official legal compliance assertions.",
     "Parking count formulas, fractional parking, odd-unit exemption, and height notes require source review and contextual resolution before automatic enforcement.",
     "For all rules, unknown inputs or uncertain geometry must return UNKNOWN or NEEDS_REVIEW, not PASS.",
-    "The five-floor limitation stated for lightwell rules must be represented in applicability context."
+    "The five-floor limitation stated for lightwell rules must be represented in applicability context.",
+    "2026-11-24: New local court decisions, advisory opinions, the M24 reproduction, the 350 cm press lead, and the Shiraz master-plan stage-one report are source-register additions only; no new executable rules were added.",
+    "No candidate rule may be promoted to PASS from a media report, advisory opinion, reproduced judgment, or unverified local plan map. Obtain signed official instruments and confirm applicability first.",
+    "The official consolidated Article 100 text and official M24 binary remain pending; the Majlis link timed out and no SHA-256 was computed."
   ]
 }
