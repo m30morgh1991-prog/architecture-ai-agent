@@ -327,3 +327,13 @@ PR #91 was merged at \`2dfcd893ed97028f69982477dc7d9d6741eff9ca\` after exact-he
 - Runner remains a deterministic policy contract, not an autonomous coding service. No provider/execution backend is configured or verified, and the first successful health-check run remains unobserved.
 - Next: verify a real scheduled/manual health-check run; configure an execution backend securely; then implement a bounded event-driven canary on an isolated branch. No automatic merge or H-stage advancement.
 - H100 active; H101 locked; Golden DWGs immutable.
+
+
+## New accepted product requirement — Architectural Client Brief & Requirements Analysis (2026-11-24)
+
+- Design workflow: Client Intake → Architectural Analysis → Designer Brief → Approved Architectural Design Brief → PlanModel / ConstraintMap and the existing validation pipeline.
+- The client questionnaire must use accessible language; the designer questionnaire captures technical/site/regulatory/structural/MEP analysis. Do not push professional-only questions onto clients.
+- Store requirements with stable IDs, provenance/evidence, priority, confidence/status, dependencies, approval and version history. Contradictions and missing evidence remain visible and fail-closed.
+- Approved brief versions feed traceable PlanModel/ConstraintMap inputs; changes require a new version and impact analysis. The brief does not bypass ApprovedChangePlan or controlled editing.
+- Specification: `docs/architecture/architectural-client-brief-requirements-analysis.md`.
+- Documentation only: no runtime feature or test coverage is implemented by this change. Future implementation requires tests for incomplete/conflicting inputs, provenance, versioning, traceability and fail-closed behavior.

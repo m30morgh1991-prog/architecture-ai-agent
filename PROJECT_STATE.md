@@ -331,3 +331,12 @@ Next: section marker/cut-plane/direction semantics, then scale/unit semantics.
 - Independent runner remains design + deterministic fail-closed policy only. The scheduled read-only health-check workflow exists, but its first successful post-merge manual/scheduled run is not yet verified. No AI execution provider or credentials are configured/verified; autonomous editing remains disabled.
 - Next non-conflicting steps: verify a health-check run from GitHub Actions; research/select an allowed provider/execution backend without committing secrets; then implement a bounded, event-driven canary in an isolated branch with strict concurrency, budgets, exact-SHA checks, and failure recovery.
 - H100 remains active and H101 locked. Golden DWGs remain immutable. Human-controlled merge and stage advancement remain mandatory.
+
+
+## Product requirement checkpoint — Architectural Client Brief & Requirements Analysis (2026-11-24)
+
+- Accepted a distinct upstream requirements workflow: Client Intake → Architectural Analysis → Designer Brief → Approved Architectural Design Brief.
+- Added `docs/architecture/architectural-client-brief-requirements-analysis.md` defining client/designer questionnaire boundaries, evidence provenance, requirement states, conflict handling, approval/versioning, pipeline integration, and future acceptance criteria.
+- This is a documentation-only product requirement. Runtime implementation, PlanModel/ConstraintMap schema changes, tests, and CI evidence are NOT included or claimed by this checkpoint.
+- All future architectural design requests in the assistant workflow must begin with client-facing needs assessment, then analyze gaps/conflicts, and route technical matters to designer analysis before design proposals. Carry forward confirmed facts; do not silently promote assumptions.
+- Existing fail-closed states and gates remain unchanged: UNKNOWN / SOURCE_REQUIRED / NEEDS_REVIEW / BLOCKED are not PASS. The approved brief does not authorize editing.
