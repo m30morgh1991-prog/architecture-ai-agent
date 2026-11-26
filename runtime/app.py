@@ -2,10 +2,11 @@ import json
 import hashlib
 import hmac
 import os
+import socket
 import ssl
 from dataclasses import asdict, is_dataclass
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from threading import BoundedSemaphore
+from threading import BoundedSemaphore, Timer
 from copy import deepcopy
 from .contracts import Element, PlanModel, ChangeRequest, ApprovedChangePlan, ValidationResult, PostEditDiff
 from .execution_record import ExecutionRecordStore
@@ -19,6 +20,7 @@ from .idempotency import IdempotencyConflictError, IdempotencyGuard
 MAX_REQUEST_BODY_BYTES = 16 * 1024 * 1024
 MAX_CONCURRENT_REQUESTS = 8
 REQUEST_TIMEOUT_SECONDS = 5
+REQUEST_DEADLINE_SECONDS = 15
 REQUEST_QUEUE_SIZE = 16
 
 
@@ -343,6 +345,14 @@ class Handler(BaseHTTPRequestHandler):
         })
 
 
+def _shutdown_expired_request(request):
+    """Interrupt a connection that exceeds its absolute wall-clock deadline."""
+    try:
+        request.shutdown(socket.SHUT_RDWR)
+    except OSError:
+        pass
+
+
 class BoundedThreadingHTTPServer(ThreadingHTTPServer):
     """HTTPS request server with bounded workers and per-connection timeouts."""
 
@@ -369,6 +379,16 @@ class BoundedThreadingHTTPServer(ThreadingHTTPServer):
             raise
 
     def process_request_thread(self, request, client_address):
+        # Socket timeouts limit inactivity per blocking operation. A client can
+        # otherwise keep a worker occupied by trickling bytes before each timeout.
+        # This timer imposes an absolute deadline across TLS handshake and HTTP handling.
+        deadline = Timer(
+            REQUEST_DEADLINE_SECONDS,
+            _shutdown_expired_request,
+            args=(request,),
+        )
+        deadline.daemon = True
+        deadline.start()
         try:
             try:
                 request.do_handshake()
@@ -377,6 +397,7 @@ class BoundedThreadingHTTPServer(ThreadingHTTPServer):
                 return
             super().process_request_thread(request, client_address)
         finally:
+            deadline.cancel()
             self._request_slots.release()
 
 
