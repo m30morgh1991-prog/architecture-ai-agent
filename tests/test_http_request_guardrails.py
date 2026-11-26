@@ -7,6 +7,7 @@ from runtime.app import (
     Handler,
     MAX_CONCURRENT_REQUESTS,
     REQUEST_TIMEOUT_SECONDS,
+    REQUEST_DEADLINE_SECONDS,
     validate_execution_payload,
 )
 
@@ -91,6 +92,7 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertEqual(BoundedThreadingHTTPServer.request_queue_size, 16)
         self.assertEqual(MAX_CONCURRENT_REQUESTS, 8)
         self.assertEqual(REQUEST_TIMEOUT_SECONDS, 5)
+        self.assertEqual(REQUEST_DEADLINE_SECONDS, 15)
 
     def test_accepted_connection_receives_timeout_before_tls_handshake(self):
         class FakeSocket:
@@ -112,7 +114,7 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         self.assertEqual(address, ("127.0.0.1", 12345))
         self.assertEqual(accepted.timeout, REQUEST_TIMEOUT_SECONDS)
 
-    def test_tls_handshake_runs_inside_bounded_worker(self):
+    def test_tls_handshake_runs_inside_bounded_worker_with_absolute_deadline(self):
         class FakeSocket:
             def __init__(self):
                 self.handshake_called = False
@@ -123,13 +125,34 @@ class HttpRequestGuardrailTests(unittest.TestCase):
         request = FakeSocket()
         server = BoundedThreadingHTTPServer.__new__(BoundedThreadingHTTPServer)
         server._request_slots = type("Slots", (), {"release": lambda self: None})()
-        with patch.object(
-            runtime_app.ThreadingHTTPServer,
-            "process_request_thread",
-            return_value=None,
-        ):
-            server.process_request_thread(request, ("127.0.0.1", 12345))
+        with patch.object(runtime_app, "Timer") as timer_class:
+            with patch.object(
+                runtime_app.ThreadingHTTPServer,
+                "process_request_thread",
+                return_value=None,
+            ):
+                server.process_request_thread(request, ("127.0.0.1", 12345))
+
         self.assertTrue(request.handshake_called)
+        timer_class.assert_called_once_with(
+            REQUEST_DEADLINE_SECONDS,
+            runtime_app._shutdown_expired_request,
+            args=(request,),
+        )
+        timer_class.return_value.start.assert_called_once_with()
+        timer_class.return_value.cancel.assert_called_once_with()
+
+    def test_expired_request_deadline_shuts_down_connection(self):
+        class FakeSocket:
+            def __init__(self):
+                self.shutdown_how = None
+
+            def shutdown(self, how):
+                self.shutdown_how = how
+
+        request = FakeSocket()
+        runtime_app._shutdown_expired_request(request)
+        self.assertEqual(request.shutdown_how, runtime_app.socket.SHUT_RDWR)
 
     def test_runtime_requires_tls_and_binds_https_to_loopback(self):
         env = {
