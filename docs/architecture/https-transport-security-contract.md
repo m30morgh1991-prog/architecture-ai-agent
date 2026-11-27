@@ -28,5 +28,9 @@ There is no plaintext development exception. Use a trusted local certificate or 
 6. Independently review all negative cases and preserve fail-closed behavior.
 7. Windows/AutoCAD host and visual runtime tests remain NOT_RUN until actually performed.
 
-## Governance
-This contract is a security requirement, not runtime evidence. It cannot be marked accepted based on documentation or CI alone. Any proposed exception must be reviewed and explicitly authorized; no HTTP exception is permitted under the current decision.
+## Governance and limited local-review decision
+The security requirements above remain in force. A narrowly scoped alternative evidence path for the local-only HTTPS remediation in PR #180 and its directly dependent bounded-request PR #188 was explicitly approved by the project owner on 2026-11-28 and is recorded in `docs/security/LOCAL_HTTPS_SECURITY_REVIEW.md`.
+
+That decision permits internal adversarial review, applicable automated security checks, exact-head CI, live local HTTPS and resource-exhaustion tests, documented residual risks, and explicit owner acceptance to serve as the review evidence path for these two PRs only. Internal AI-assisted review is not independent human review and must not be labelled as such.
+
+This is not a security PASS, merge approval, or relaxation of transport controls. It does not apply to PR #189 or any other PR. It does not authorize HTTP, LAN/remote/public access, CAD writes, POST execution, branch-protection changes, or approval bypass. The owner must separately authorize any merge after all evidence is complete. No proposed exception may weaken the HTTPS-only or fail-closed requirements.
