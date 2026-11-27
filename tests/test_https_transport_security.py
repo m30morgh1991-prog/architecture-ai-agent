@@ -72,7 +72,7 @@ class HttpsTransportSecurityTests(unittest.TestCase):
 
     def test_missing_tls_configuration_prevents_server_start(self):
         with patch.dict(os.environ, {}, clear=True):
-            with patch.object(runtime_app, "HTTPServer") as server_class:
+            with patch.object(runtime_app, "BoundedThreadingHTTPServer") as server_class:
                 with self.assertRaisesRegex(RuntimeError, "TLS_CONFIGURATION_REQUIRED"):
                     runtime_app.main()
         server_class.assert_not_called()
