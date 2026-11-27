@@ -74,5 +74,24 @@ class RuntimeSliceTests(unittest.TestCase):
         self.assertEqual(self.plan, original)
 
 
+    def test_rejected_request_never_records_execute_pass(self):
+        from runtime.app import audit_trail
+
+        execution_id = "test-invalid-audit-001"
+        result = execute(
+            self.plan,
+            ChangeRequest("FURNITURE", ["MISSING"], "Move missing item"),
+            execution_id=execution_id,
+        )
+
+        events = audit_trail.events(execution_id)
+        self.assertEqual(result["status"], "REJECT")
+        self.assertTrue(events)
+        self.assertNotIn("PASS", [event.status for event in events])
+        self.assertEqual(events[-1].status, "BLOCKED")
+        self.assertIs(result.get("audit_complete"), False)
+        self.assertIs(result.get("audit_ok"), False)
+
+
 if __name__ == "__main__":
     unittest.main()
