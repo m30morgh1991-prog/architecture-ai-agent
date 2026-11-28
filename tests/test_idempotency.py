@@ -44,6 +44,23 @@ class IdempotencyTests(unittest.TestCase):
         self.assertIsNone(guard.check("missing", "fingerprint-1"))
         self.assertFalse(guard.has_completed("missing"))
 
+
+    def test_unknown_result_shapes_are_never_reported_completed(self):
+        guard = IdempotencyGuard()
+        guard.store("unknown-object", "fp-1", object())
+        guard.store("unknown-dict", "fp-1", {})
+        guard.store("unknown-status", "fp-1", {"status": "MAYBE"})
+        self.assertFalse(guard.has_completed("unknown-object"))
+        self.assertFalse(guard.has_completed("unknown-dict"))
+        self.assertFalse(guard.has_completed("unknown-status"))
+
+    def test_malformed_unhashable_completion_state_fails_closed(self):
+        guard = IdempotencyGuard()
+        guard.store("malformed-state", "fp-1", {"state": ["SUCCEEDED"]})
+        guard.store("malformed-status", "fp-1", {"status": ["PASS"]})
+        self.assertFalse(guard.has_completed("malformed-state"))
+        self.assertFalse(guard.has_completed("malformed-status"))
+
     def test_clear_removes_replay_evidence(self):
         guard = IdempotencyGuard()
         guard.store("execution-1", "fingerprint-1", {"status": "PASS"})

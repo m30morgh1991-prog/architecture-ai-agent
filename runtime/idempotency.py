@@ -60,12 +60,17 @@ class IdempotencyGuard:
         state = getattr(result, "state", None)
         if isinstance(result, dict):
             state = result.get("state", state)
+        terminal_states = {"SUCCEEDED", "FAILED", "BLOCKED"}
         if state is not None:
-            return state in {"SUCCEEDED", "FAILED", "BLOCKED"}
+            return isinstance(state, str) and state in terminal_states
         status = result.get("status") if isinstance(result, dict) else None
+        terminal_statuses = {
+            "PASS", "REJECT", "NEEDS_REVISION", "SUCCEEDED", "FAILED", "BLOCKED"
+        }
         if status is not None:
-            return status in {"PASS", "REJECT", "NEEDS_REVISION", "SUCCEEDED", "FAILED", "BLOCKED"}
-        return True
+            return isinstance(status, str) and status in terminal_statuses
+        # Unknown result shapes are not evidence of completion. Fail closed.
+        return False
 
     def clear(self, key: str) -> None:
         self._completed.pop(key, None)
